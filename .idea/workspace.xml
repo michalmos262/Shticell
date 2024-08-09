@@ -1,13 +1,39 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <project version="4">
+  <component name="AutoImportSettings">
+    <option name="autoReloadType" value="SELECTIVE" />
+  </component>
   <component name="ChangeListManager">
     <list default="true" id="35d24eeb-d633-4243-8af7-453c9914951b" name="Changes" comment="">
-      <change beforePath="$PROJECT_DIR$/.idea/.gitignore" beforeDir="false" afterPath="$PROJECT_DIR$/.idea/.gitignore" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/.idea/uiDesigner.xml" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/Engine/src/engine/api/Engine.java" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/Engine/src/engine/expressions/api/Expression.java" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/Engine/src/engine/expressions/impl/BinaryExpression.java" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/Engine/src/engine/expressions/impl/Operation.java" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/Engine/src/engine/expressions/impl/StringFunction.java" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/Engine/src/engine/impl/Shticell.java" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/Engine/src/engine/impl/entities/Cell.java" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/Engine/src/engine/impl/entities/Sheet.java" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/UI/src/ui/api/Ui.java" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/UI/src/ui/impl/ConsoleInteraction.java" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/.idea/modules.xml" beforeDir="false" afterPath="$PROJECT_DIR$/.idea/modules.xml" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/.idea/workspace.xml" beforeDir="false" afterPath="$PROJECT_DIR$/.idea/workspace.xml" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/engine/engine.iml" beforeDir="false" afterPath="$PROJECT_DIR$/Engine/Engine.iml" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/ui/ui.iml" beforeDir="false" afterPath="$PROJECT_DIR$/UI/UI.iml" afterDir="false" />
     </list>
     <option name="SHOW_DIALOG" value="false" />
     <option name="HIGHLIGHT_CONFLICTS" value="true" />
     <option name="HIGHLIGHT_NON_ACTIVE_CHANGELIST" value="false" />
     <option name="LAST_RESOLUTION" value="IGNORE" />
+  </component>
+  <component name="FileTemplateManagerImpl">
+    <option name="RECENT_TEMPLATES">
+      <list>
+        <option value="Interface" />
+        <option value="Class" />
+        <option value="Enum" />
+      </list>
+    </option>
   </component>
   <component name="Git.Settings">
     <option name="RECENT_GIT_ROOT_PATH" value="$PROJECT_DIR$" />
@@ -28,17 +54,26 @@
   "associatedIndex": 6
 }]]></component>
   <component name="ProjectId" id="2kNlidHXUjC7eYbWPYFuWyVdToy" />
-  <component name="ProjectLevelVcsManager" settingsEditedManually="true" />
+  <component name="ProjectLevelVcsManager" settingsEditedManually="true">
+    <ConfirmationsSetting value="2" id="Add" />
+  </component>
   <component name="ProjectViewState">
     <option name="hideEmptyMiddlePackages" value="true" />
     <option name="showLibraryContents" value="true" />
   </component>
   <component name="PropertiesComponent"><![CDATA[{
   "keyToString": {
+    "ASKED_ADD_EXTERNAL_FILES": "true",
     "RunOnceActivity.ShowReadmeOnStart": "true",
-    "git-widget-placeholder": "master",
+    "SHARE_PROJECT_CONFIGURATION_FILES": "true",
+    "git-widget-placeholder": "branch-1",
     "kotlin-language-version-configured": "true",
+    "node.js.detected.package.eslint": "true",
+    "node.js.detected.package.tslint": "true",
+    "node.js.selected.package.eslint": "(autodetect)",
+    "node.js.selected.package.tslint": "(autodetect)",
     "nodejs_package_manager_path": "npm",
+    "onboarding.tips.debug.path": "C:/Users/asafl/IdeaProjects/Shticell/ui/src/Main.java",
     "vue.rearranger.settings.migration": "true"
   }
 }]]></component>
@@ -58,11 +93,14 @@
       <option name="number" value="Default" />
       <option name="presentableId" value="Default" />
       <updated>1723132045096</updated>
-      <workItem from="1723132046254" duration="116000" />
+      <workItem from="1723132046254" duration="3685000" />
     </task>
     <servers />
   </component>
   <component name="TypeScriptGeneratedFilesManager">
     <option name="version" value="3" />
+  </component>
+  <component name="VcsManagerConfiguration">
+    <option name="ADD_EXTERNAL_FILES_SILENTLY" value="true" />
   </component>
 </project>
