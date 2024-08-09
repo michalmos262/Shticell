@@ -4,22 +4,18 @@
     <option name="autoReloadType" value="SELECTIVE" />
   </component>
   <component name="ChangeListManager">
-    <list default="true" id="35d24eeb-d633-4243-8af7-453c9914951b" name="Changes" comment="">
-      <change afterPath="$PROJECT_DIR$/.idea/uiDesigner.xml" afterDir="false" />
-      <change afterPath="$PROJECT_DIR$/Engine/src/engine/api/Engine.java" afterDir="false" />
-      <change afterPath="$PROJECT_DIR$/Engine/src/engine/expressions/api/Expression.java" afterDir="false" />
-      <change afterPath="$PROJECT_DIR$/Engine/src/engine/expressions/impl/BinaryExpression.java" afterDir="false" />
-      <change afterPath="$PROJECT_DIR$/Engine/src/engine/expressions/impl/Operation.java" afterDir="false" />
-      <change afterPath="$PROJECT_DIR$/Engine/src/engine/expressions/impl/StringFunction.java" afterDir="false" />
-      <change afterPath="$PROJECT_DIR$/Engine/src/engine/impl/Shticell.java" afterDir="false" />
-      <change afterPath="$PROJECT_DIR$/Engine/src/engine/impl/entities/Cell.java" afterDir="false" />
-      <change afterPath="$PROJECT_DIR$/Engine/src/engine/impl/entities/Sheet.java" afterDir="false" />
-      <change afterPath="$PROJECT_DIR$/UI/src/ui/api/Ui.java" afterDir="false" />
-      <change afterPath="$PROJECT_DIR$/UI/src/ui/impl/ConsoleInteraction.java" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/.idea/modules.xml" beforeDir="false" afterPath="$PROJECT_DIR$/.idea/modules.xml" afterDir="false" />
+    <list default="true" id="35d24eeb-d633-4243-8af7-453c9914951b" name="Changes" comment="opened files">
+      <change afterPath="$PROJECT_DIR$/Engine/src/engine/impl/entities/BoolCell.java" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/Engine/src/engine/impl/entities/ExpCell.java" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/Engine/src/engine/impl/entities/NumberCell.java" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/Engine/src/engine/impl/entities/StringCell.java" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/.idea/workspace.xml" beforeDir="false" afterPath="$PROJECT_DIR$/.idea/workspace.xml" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/engine/engine.iml" beforeDir="false" afterPath="$PROJECT_DIR$/Engine/Engine.iml" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/ui/ui.iml" beforeDir="false" afterPath="$PROJECT_DIR$/UI/UI.iml" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/Engine/src/engine/api/Engine.java" beforeDir="false" afterPath="$PROJECT_DIR$/Engine/src/engine/api/Engine.java" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/Engine/src/engine/impl/Shticell.java" beforeDir="false" afterPath="$PROJECT_DIR$/Engine/src/engine/impl/Shticell.java" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/Engine/src/engine/impl/entities/Cell.java" beforeDir="false" afterPath="$PROJECT_DIR$/Engine/src/engine/impl/entities/Cell.java" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/Engine/src/engine/impl/entities/Sheet.java" beforeDir="false" afterPath="$PROJECT_DIR$/Engine/src/engine/impl/entities/Sheet.java" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/UI/src/ui/api/Ui.java" beforeDir="false" afterPath="$PROJECT_DIR$/UI/src/ui/api/Ui.java" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/UI/src/ui/impl/ConsoleInteraction.java" beforeDir="false" afterPath="$PROJECT_DIR$/UI/src/ui/impl/ConsoleInteraction.java" afterDir="false" />
     </list>
     <option name="SHOW_DIALOG" value="false" />
     <option name="HIGHLIGHT_CONFLICTS" value="true" />
@@ -30,8 +26,8 @@
     <option name="RECENT_TEMPLATES">
       <list>
         <option value="Interface" />
-        <option value="Class" />
         <option value="Enum" />
+        <option value="Class" />
       </list>
     </option>
   </component>
@@ -74,6 +70,9 @@
     "node.js.selected.package.tslint": "(autodetect)",
     "nodejs_package_manager_path": "npm",
     "onboarding.tips.debug.path": "C:/Users/asafl/IdeaProjects/Shticell/ui/src/Main.java",
+    "project.structure.last.edited": "Modules",
+    "project.structure.proportion": "0.0",
+    "project.structure.side.proportion": "0.0",
     "vue.rearranger.settings.migration": "true"
   }
 }]]></component>
@@ -93,14 +92,36 @@
       <option name="number" value="Default" />
       <option name="presentableId" value="Default" />
       <updated>1723132045096</updated>
-      <workItem from="1723132046254" duration="3685000" />
+      <workItem from="1723132046254" duration="10457000" />
     </task>
+    <task id="LOCAL-00001" summary="opened files">
+      <option name="closed" value="true" />
+      <created>1723206041594</created>
+      <option name="number" value="00001" />
+      <option name="presentableId" value="LOCAL-00001" />
+      <option name="project" value="LOCAL" />
+      <updated>1723206041594</updated>
+    </task>
+    <option name="localTasksCounter" value="2" />
     <servers />
   </component>
   <component name="TypeScriptGeneratedFilesManager">
     <option name="version" value="3" />
   </component>
+  <component name="Vcs.Log.Tabs.Properties">
+    <option name="TAB_STATES">
+      <map>
+        <entry key="MAIN">
+          <value>
+            <State />
+          </value>
+        </entry>
+      </map>
+    </option>
+  </component>
   <component name="VcsManagerConfiguration">
     <option name="ADD_EXTERNAL_FILES_SILENTLY" value="true" />
+    <MESSAGE value="opened files" />
+    <option name="LAST_COMMIT_MESSAGE" value="opened files" />
   </component>
 </project>
