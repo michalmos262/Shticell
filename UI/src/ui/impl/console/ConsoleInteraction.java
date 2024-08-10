@@ -1,13 +1,12 @@
 package ui.impl.console;
 
 import engine.impl.entities.Cell;
+import engine.impl.entities.CellPositionInSheet;
 import engine.impl.entities.Sheet;
 import ui.api.Ui;
 import engine.impl.ShticellEngine;
 
-import java.util.Iterator;
 import java.util.Map;
-import java.util.Set;
 
 public class ConsoleInteraction implements Ui {
     private final ShticellEngine engine;
@@ -39,7 +38,7 @@ public class ConsoleInteraction implements Ui {
 
             // Print each cell in the row
             for (int col = 0; col < numOfColumns; col++) {
-                String text = sheet.getVersion2cell()[row][col].get(sheet.getCurrVersion()) == null ? "" : sheet.getVersion2cell()[row][col].get(sheet.getCurrVersion()).getEffectiveValue();
+                String text = sheet.getVersion2cellTable()[row][col].get(sheet.getCurrVersion()) == null ? "" : sheet.getVersion2cellTable()[row][col].get(sheet.getCurrVersion()).getEffectiveValue();
                 text = text.length() > columnWidth ? text.substring(0, columnWidth) : text;
                 int paddingRight = columnWidth - text.length();
                 System.out.print("|" + text + " ".repeat(paddingRight));
@@ -65,22 +64,19 @@ public class ConsoleInteraction implements Ui {
         showSheetTable();
     }
 
-    public Integer getLastVersionOfCell(Map<Integer, Cell<?>> version2Cell) {
-        Integer lastKey = null;
-        for (Map.Entry<Integer, Cell<?>> entry : version2Cell.entrySet()) {
-            lastKey = entry.getKey();
-        }
-        return lastKey;
-    }
-
     @Override
     public void showSheetCell(String cellLocation) {
         Sheet sheet = engine.getSheet();
-        int columnIndex = cellLocation.charAt(0) - 'A';
-        int rowIndex = cellLocation.charAt(1) - '1';
+        CellPositionInSheet cellPosition = new CellPositionInSheet(cellLocation.charAt(1), cellLocation.charAt(0));
+        int columnIndex = cellPosition.getColumnIndex();
+        int rowIndex = cellPosition.getRowIndex();
+        Map<Integer, Cell<?>> cell = sheet.getVersion2cellTable()[rowIndex][columnIndex];
         System.out.println("Cell location: " + cellLocation);
-        Set<Integer> keys = sheet.getVersion2cell()[rowIndex][columnIndex].keySet();
-        System.out.println("Cell original value: " + sheet.getVersion2cell()[rowIndex][columnIndex].get(sheet.getCurrVersion()));
+        int version = sheet.getLastVersionOfCell(cell);
+        System.out.println("The original value: " + cell.get(version).getOriginalValue());
+        System.out.println("The effective value: " + cell.get(version).getEffectiveValue());
+        System.out.println("The last cell version: " + version);
+        System.out.println("The cells that it's affecting: " + sheet.getCell2affectingCells().get(cellPosition));
     }
 
     @Override

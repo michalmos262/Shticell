@@ -3,12 +3,12 @@ package engine.impl.entities;
 import java.util.*;
 
 public class Sheet {
-    private Map<Integer, Cell<?>>[][] version2cell;
+    private Map<Integer, Cell<?>>[][] version2cellTable;
     private int currVersion;
     private String name;
     private List<Integer> cellCountInVersions;
-    private Map<Cell<?>, List<Cell<?>>> cell2affectingCells;
-    private Map<Cell<?>, List<Cell<?>>> cell2affectedByCells;
+    private Map<CellPositionInSheet, List<CellPositionInSheet>> cell2affectingCells;
+    private Map<CellPositionInSheet, List<CellPositionInSheet>> cell2affectedByCells;
     private int numOfRows, numOfColumns, rowHeight, columnWidth;
 
     public Sheet(String name, int numOfRows, int numOfColumns, int rowHeight, int columnWidth) {
@@ -16,12 +16,12 @@ public class Sheet {
         this.numOfRows = numOfRows;
         this.rowHeight = rowHeight;
         this.columnWidth = columnWidth;
-        version2cell = new LinkedHashMap[numOfRows][numOfColumns];
+        version2cellTable = new LinkedHashMap[numOfRows][numOfColumns];
         this.name = name;
         currVersion = 1;
         for (int i = 0; i < numOfRows; i++) {
             for (int j = 0; j < numOfColumns ; j++) {
-                version2cell[i][j] = new LinkedHashMap<>();
+                version2cellTable[i][j] = new LinkedHashMap<>();
             }
         }
         cellCountInVersions = new LinkedList<>();
@@ -29,12 +29,12 @@ public class Sheet {
         cell2affectedByCells = new LinkedHashMap<>();
     }
 
-    public Map<Integer, Cell<?>>[][] getVersion2cell() {
-        return version2cell;
+    public Map<Integer, Cell<?>>[][] getVersion2cellTable() {
+        return version2cellTable;
     }
 
-    public void setVersion2cell(Map<Integer, Cell<?>>[][] version2cell) {
-        this.version2cell = version2cell;
+    public void setVersion2cellTable(Map<Integer, Cell<?>>[][] version2cellTable) {
+        this.version2cellTable = version2cellTable;
     }
 
     public int getCurrVersion() {
@@ -61,19 +61,19 @@ public class Sheet {
         this.cellCountInVersions = cellCountInVersions;
     }
 
-    public Map<Cell<?>, List<Cell<?>>> getCell2affectingCells() {
+    public Map<CellPositionInSheet, List<CellPositionInSheet>> getCell2affectingCells() {
         return cell2affectingCells;
     }
 
-    public void setCell2affectingCells(Map<Cell<?>, List<Cell<?>>> cell2affectingCells) {
+    public void setCell2affectingCells(Map<CellPositionInSheet, List<CellPositionInSheet>> cell2affectingCells) {
         this.cell2affectingCells = cell2affectingCells;
     }
 
-    public Map<Cell<?>, List<Cell<?>>> getCell2affectedByCells() {
+    public Map<CellPositionInSheet, List<CellPositionInSheet>> getCell2affectedByCells() {
         return cell2affectedByCells;
     }
 
-    public void setCell2affectedByCells(Map<Cell<?>, List<Cell<?>>> cell2affectedByCells) {
+    public void setCell2affectedByCells(Map<CellPositionInSheet, List<CellPositionInSheet>> cell2affectedByCells) {
         this.cell2affectedByCells = cell2affectedByCells;
     }
 
@@ -109,16 +109,11 @@ public class Sheet {
         this.columnWidth = columnWidth;
     }
 
-    @Override
-    public boolean equals(Object o) {
-        if (this == o) return true;
-        if (o == null || getClass() != o.getClass()) return false;
-        Sheet sheet = (Sheet) o;
-        return currVersion == sheet.currVersion && Objects.deepEquals(version2cell, sheet.version2cell) && Objects.equals(name, sheet.name) && Objects.equals(cellCountInVersions, sheet.cellCountInVersions) && Objects.equals(cell2affectingCells, sheet.cell2affectingCells) && Objects.equals(cell2affectedByCells, sheet.cell2affectedByCells);
-    }
-
-    @Override
-    public int hashCode() {
-        return Objects.hash(Arrays.deepHashCode(version2cell), currVersion, name, cellCountInVersions, cell2affectingCells, cell2affectedByCells);
+    public Integer getLastVersionOfCell(Map<Integer, Cell<?>> version2cell) {
+        Integer lastKey = null;
+        for (Map.Entry<Integer, Cell<?>> entry : version2cell.entrySet()) {
+            lastKey = entry.getKey();
+        }
+        return lastKey;
     }
 }

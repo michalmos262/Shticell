@@ -28,7 +28,7 @@ public abstract class Cell<T> {
     public boolean equals(Object o) {
         if (this == o) return true;
         if (o == null || getClass() != o.getClass()) return false;
-        Cell cell = (Cell) o;
+        Cell<?> cell = (Cell<?>) o;
         return Objects.equals(getOriginalValue(), cell.getOriginalValue()) && Objects.equals(getEffectiveValue(), cell.getEffectiveValue());
     }
 
