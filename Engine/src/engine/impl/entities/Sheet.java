@@ -9,19 +9,24 @@ public class Sheet {
     private List<Integer> cellCountInVersions;
     private Map<Cell<?>, List<Cell<?>>> cell2affectingCells;
     private Map<Cell<?>, List<Cell<?>>> cell2affectedByCells;
+    private int numOfRows, numOfColumns, rowHeight, columnWidth;
 
-    public Sheet(String name, int width, int height) {
-        version2cell = new HashMap[width][height];
+    public Sheet(String name, int numOfRows, int numOfColumns, int rowHeight, int columnWidth) {
+        this.numOfColumns = numOfColumns;
+        this.numOfRows = numOfRows;
+        this.rowHeight = rowHeight;
+        this.columnWidth = columnWidth;
+        version2cell = new LinkedHashMap[numOfRows][numOfColumns];
         this.name = name;
         currVersion = 1;
-        for (int i=0; i<width; i++) {
-            for (int j=0; j<height; j++) {
-                version2cell[i][j] = new HashMap<>();
+        for (int i = 0; i < numOfRows; i++) {
+            for (int j = 0; j < numOfColumns ; j++) {
+                version2cell[i][j] = new LinkedHashMap<>();
             }
         }
         cellCountInVersions = new LinkedList<>();
-        cell2affectingCells = new HashMap<>();
-        cell2affectedByCells = new HashMap<>();
+        cell2affectingCells = new LinkedHashMap<>();
+        cell2affectedByCells = new LinkedHashMap<>();
     }
 
     public Map<Integer, Cell<?>>[][] getVersion2cell() {
@@ -70,6 +75,38 @@ public class Sheet {
 
     public void setCell2affectedByCells(Map<Cell<?>, List<Cell<?>>> cell2affectedByCells) {
         this.cell2affectedByCells = cell2affectedByCells;
+    }
+
+    public int getNumOfRows() {
+        return numOfRows;
+    }
+
+    public void setNumOfRows(int numOfRows) {
+        this.numOfRows = numOfRows;
+    }
+
+    public int getNumOfColumns() {
+        return numOfColumns;
+    }
+
+    public void setNumOfColumns(int numOfColumns) {
+        this.numOfColumns = numOfColumns;
+    }
+
+    public int getRowHeight() {
+        return rowHeight;
+    }
+
+    public void setRowHeight(int rowHeight) {
+        this.rowHeight = rowHeight;
+    }
+
+    public int getColumnWidth() {
+        return columnWidth;
+    }
+
+    public void setColumnWidth(int columnWidth) {
+        this.columnWidth = columnWidth;
     }
 
     @Override

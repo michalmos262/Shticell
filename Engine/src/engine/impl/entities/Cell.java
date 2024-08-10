@@ -22,7 +22,7 @@ public abstract class Cell<T> {
         this.effectiveValue = effectiveValue;
     }
 
-//    abstract protected T parseValue(String value);
+//    abstract protected T parseOriginalValue();
 
     @Override
     public boolean equals(Object o) {

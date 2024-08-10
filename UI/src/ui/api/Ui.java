@@ -1,5 +1,9 @@
 package ui.api;
 
 public interface Ui {
-    public void showSheet();
+    void showSheet();
+    void showSheetCell(String cellLocation);
+    void updateSheetCell(String cellLocation);
+    void showSheetVersions();
+    void exitProgram();
 }
