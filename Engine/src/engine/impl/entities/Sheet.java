@@ -3,7 +3,7 @@ package engine.impl.entities;
 import java.util.*;
 
 public class Sheet {
-    private Map<Integer, Cell<?>>[][] version2cellTable;
+    private Map<Integer, Cell>[][] version2cellTable;
     private int currVersion;
     private String name;
     private List<Integer> cellCountInVersions;
@@ -22,6 +22,7 @@ public class Sheet {
         for (int i = 0; i < numOfRows; i++) {
             for (int j = 0; j < numOfColumns ; j++) {
                 version2cellTable[i][j] = new LinkedHashMap<>();
+                version2cellTable[i][j].put(1, new StringCell(" "));
             }
         }
         cellCountInVersions = new LinkedList<>();
@@ -29,11 +30,11 @@ public class Sheet {
         cell2affectedByCells = new LinkedHashMap<>();
     }
 
-    public Map<Integer, Cell<?>>[][] getVersion2cellTable() {
+    public Map<Integer, Cell>[][] getVersion2cellTable() {
         return version2cellTable;
     }
 
-    public void setVersion2cellTable(Map<Integer, Cell<?>>[][] version2cellTable) {
+    public void setVersion2cellTable(Map<Integer, Cell>[][] version2cellTable) {
         this.version2cellTable = version2cellTable;
     }
 
@@ -109,11 +110,30 @@ public class Sheet {
         this.columnWidth = columnWidth;
     }
 
-    public Integer getLastVersionOfCell(Map<Integer, Cell<?>> version2cell) {
+    public Integer getLastVersionOfCell(Map<Integer, Cell> version2cell) {
         Integer lastKey = null;
-        for (Map.Entry<Integer, Cell<?>> entry : version2cell.entrySet()) {
+        for (Map.Entry<Integer, Cell> entry : version2cell.entrySet()) {
             lastKey = entry.getKey();
         }
         return lastKey;
+    }
+
+    public void updateCell(CellPositionInSheet cellPosition, String newValue) {
+        int columnIndex = cellPosition.getColumnIndex();
+        int rowIndex = cellPosition.getRowIndex();
+        Cell cell = new StringCell(newValue);
+
+        if (newValue.matches("-?\\d+(\\.\\d+)?")) {
+             cell = new NumberCell(newValue);
+        }
+        else if (newValue.equalsIgnoreCase("true") || newValue.equalsIgnoreCase("false")) {
+            cell = new BoolCell(newValue);
+        }
+        else if (newValue.charAt(0) == '{' && newValue.charAt(newValue.length() - 1) == '}') {
+            // EXPRESSION
+        }
+        cell.setEffectiveValueByOriginalValue();
+        version2cellTable[rowIndex][columnIndex].put(currVersion, cell);
+        currVersion++;
     }
 }

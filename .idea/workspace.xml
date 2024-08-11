@@ -4,9 +4,8 @@
     <option name="autoReloadType" value="SELECTIVE" />
   </component>
   <component name="ChangeListManager">
-    <list default="true" id="35d24eeb-d633-4243-8af7-453c9914951b" name="Changes" comment="continued printing cell">
+    <list default="true" id="35d24eeb-d633-4243-8af7-453c9914951b" name="Changes" comment="update cell">
       <change afterPath="$PROJECT_DIR$/.idea/inspectionProfiles/Project_Default.xml" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/.idea/workspace.xml" beforeDir="false" afterPath="$PROJECT_DIR$/.idea/workspace.xml" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/Engine/src/engine/impl/entities/BoolCell.java" beforeDir="false" afterPath="$PROJECT_DIR$/Engine/src/engine/impl/entities/BoolCell.java" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/Engine/src/engine/impl/entities/Cell.java" beforeDir="false" afterPath="$PROJECT_DIR$/Engine/src/engine/impl/entities/Cell.java" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/Engine/src/engine/impl/entities/CellPositionInSheet.java" beforeDir="false" afterPath="$PROJECT_DIR$/Engine/src/engine/impl/entities/CellPositionInSheet.java" afterDir="false" />
@@ -114,7 +113,7 @@
       <option name="number" value="Default" />
       <option name="presentableId" value="Default" />
       <updated>1723132045096</updated>
-      <workItem from="1723132046254" duration="35161000" />
+      <workItem from="1723132046254" duration="35496000" />
     </task>
     <task id="LOCAL-00001" summary="opened files">
       <option name="closed" value="true" />
@@ -148,7 +147,15 @@
       <option name="project" value="LOCAL" />
       <updated>1723292495776</updated>
     </task>
-    <option name="localTasksCounter" value="5" />
+    <task id="LOCAL-00005" summary="update cell">
+      <option name="closed" value="true" />
+      <created>1723314283333</created>
+      <option name="number" value="00005" />
+      <option name="presentableId" value="LOCAL-00005" />
+      <option name="project" value="LOCAL" />
+      <updated>1723314283333</updated>
+    </task>
+    <option name="localTasksCounter" value="6" />
     <servers />
   </component>
   <component name="TypeScriptGeneratedFilesManager">
@@ -171,17 +178,7 @@
     <MESSAGE value="built classes" />
     <MESSAGE value="done writing the function for printing the sheet, in the middle of printing a cell data" />
     <MESSAGE value="continued printing cell" />
-    <option name="LAST_COMMIT_MESSAGE" value="continued printing cell" />
-  </component>
-  <component name="XDebuggerManager">
-    <breakpoint-manager>
-      <breakpoints>
-        <line-breakpoint enabled="true" type="java-line">
-          <url>file://$PROJECT_DIR$/UI/src/ui/impl/console/ConsoleInteraction.java</url>
-          <line>103</line>
-          <option name="timeStamp" value="8" />
-        </line-breakpoint>
-      </breakpoints>
-    </breakpoint-manager>
+    <MESSAGE value="update cell" />
+    <option name="LAST_COMMIT_MESSAGE" value="update cell" />
   </component>
 </project>

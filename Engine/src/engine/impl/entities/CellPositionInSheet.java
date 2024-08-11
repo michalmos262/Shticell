@@ -3,8 +3,8 @@ package engine.impl.entities;
 import java.util.Objects;
 
 public class CellPositionInSheet {
-    private char row;
-    private char column;
+    private final char row;
+    private final char column;
 
     public CellPositionInSheet(char row, char column) {
         this.row = row;

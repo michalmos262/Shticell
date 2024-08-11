@@ -5,5 +5,7 @@ public class Program {
         ConsoleInteraction console = new ConsoleInteraction();
 
         console.showSheet();
+        console.updateSheetCell();
+        console.showSheet();
     }
 }
