@@ -4,7 +4,14 @@
     <option name="autoReloadType" value="SELECTIVE" />
   </component>
   <component name="ChangeListManager">
-    <list default="true" id="35d24eeb-d633-4243-8af7-453c9914951b" name="Changes" comment="update cell" />
+    <list default="true" id="35d24eeb-d633-4243-8af7-453c9914951b" name="Changes" comment="folders">
+      <change beforePath="$PROJECT_DIR$/.idea/misc.xml" beforeDir="false" afterPath="$PROJECT_DIR$/.idea/misc.xml" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/.idea/workspace.xml" beforeDir="false" afterPath="$PROJECT_DIR$/.idea/workspace.xml" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/Engine/Engine.iml" beforeDir="false" afterPath="$PROJECT_DIR$/Engine/Engine.iml" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/Shticell.iml" beforeDir="false" afterPath="$PROJECT_DIR$/Shticell.iml" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/UI/UI.iml" beforeDir="false" afterPath="$PROJECT_DIR$/UI/UI.iml" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/UI/src/ui/impl/console/ConsoleInteraction.java" beforeDir="false" afterPath="$PROJECT_DIR$/UI/src/ui/impl/console/ConsoleInteraction.java" afterDir="false" />
+    </list>
     <option name="SHOW_DIALOG" value="false" />
     <option name="HIGHLIGHT_CONFLICTS" value="true" />
     <option name="HIGHLIGHT_NON_ACTIVE_CHANGELIST" value="false" />
@@ -22,21 +29,21 @@
   <component name="Git.Settings">
     <option name="RECENT_GIT_ROOT_PATH" value="$PROJECT_DIR$" />
   </component>
-  <component name="GitHubPullRequestSearchHistory"><![CDATA[{
-  "lastFilter": {
-    "state": "OPEN",
-    "assignee": "michalmos262"
+  <component name="GitHubPullRequestSearchHistory">{
+  &quot;lastFilter&quot;: {
+    &quot;state&quot;: &quot;OPEN&quot;,
+    &quot;assignee&quot;: &quot;michalmos262&quot;
   }
-}]]></component>
-  <component name="GithubPullRequestsUISettings"><![CDATA[{
-  "selectedUrlAndAccountId": {
-    "url": "https://github.com/michalmos262/Shticell.git",
-    "accountId": "c04fd391-bfca-48b2-841c-0f7bd67c79e2"
+}</component>
+  <component name="GithubPullRequestsUISettings">{
+  &quot;selectedUrlAndAccountId&quot;: {
+    &quot;url&quot;: &quot;https://github.com/michalmos262/Shticell.git&quot;,
+    &quot;accountId&quot;: &quot;c04fd391-bfca-48b2-841c-0f7bd67c79e2&quot;
   }
-}]]></component>
-  <component name="ProjectColorInfo"><![CDATA[{
-  "associatedIndex": 6
-}]]></component>
+}</component>
+  <component name="ProjectColorInfo">{
+  &quot;associatedIndex&quot;: 6
+}</component>
   <component name="ProjectId" id="2kNlidHXUjC7eYbWPYFuWyVdToy" />
   <component name="ProjectLevelVcsManager" settingsEditedManually="true">
     <ConfirmationsSetting value="2" id="Add" />
@@ -53,6 +60,7 @@
     "SHARE_PROJECT_CONFIGURATION_FILES": "true",
     "git-widget-placeholder": "branch-1",
     "kotlin-language-version-configured": "true",
+    "last_opened_file_path": "C:/Users/asafl/IdeaProjects/Shticell/UI",
     "node.js.detected.package.eslint": "true",
     "node.js.detected.package.tslint": "true",
     "node.js.selected.package.eslint": "(autodetect)",
@@ -60,13 +68,16 @@
     "nodejs_package_manager_path": "npm",
     "onboarding.tips.debug.path": "C:/Users/asafl/IdeaProjects/Shticell/ui/src/Main.java",
     "project.structure.last.edited": "Modules",
-    "project.structure.proportion": "0.0",
-    "project.structure.side.proportion": "0.0",
+    "project.structure.proportion": "0.15",
+    "project.structure.side.proportion": "0.2",
+    "settings.editor.selected.configurable": "preferences.pluginManager",
     "vue.rearranger.settings.migration": "true"
   }
 }]]></component>
   <component name="RunManager">
     <configuration name="Program" type="Application" factoryName="Application" temporary="true" nameIsGenerated="true">
+      <option name="ALTERNATIVE_JRE_PATH" value="21" />
+      <option name="ALTERNATIVE_JRE_PATH_ENABLED" value="true" />
       <option name="MAIN_CLASS_NAME" value="ui.impl.console.Program" />
       <module name="UI" />
       <extension name="coverage">
@@ -102,6 +113,10 @@
       <option name="presentableId" value="Default" />
       <updated>1723132045096</updated>
       <workItem from="1723132046254" duration="35522000" />
+      <workItem from="1723370253168" duration="29000" />
+      <workItem from="1723370294696" duration="324000" />
+      <workItem from="1723370633897" duration="1307000" />
+      <workItem from="1723371977463" duration="255000" />
     </task>
     <task id="LOCAL-00001" summary="opened files">
       <option name="closed" value="true" />
