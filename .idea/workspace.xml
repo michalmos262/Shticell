@@ -1,13 +1,35 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <project version="4">
+  <component name="AutoImportSettings">
+    <option name="autoReloadType" value="SELECTIVE" />
+  </component>
   <component name="ChangeListManager">
-    <list default="true" id="35d24eeb-d633-4243-8af7-453c9914951b" name="Changes" comment="">
-      <change beforePath="$PROJECT_DIR$/.idea/.gitignore" beforeDir="false" afterPath="$PROJECT_DIR$/.idea/.gitignore" afterDir="false" />
+    <list default="true" id="35d24eeb-d633-4243-8af7-453c9914951b" name="Changes" comment="update cell">
+      <change afterPath="$PROJECT_DIR$/.idea/inspectionProfiles/Project_Default.xml" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/Engine/src/engine/impl/entities/BoolCell.java" beforeDir="false" afterPath="$PROJECT_DIR$/Engine/src/engine/impl/entities/BoolCell.java" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/Engine/src/engine/impl/entities/Cell.java" beforeDir="false" afterPath="$PROJECT_DIR$/Engine/src/engine/impl/entities/Cell.java" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/Engine/src/engine/impl/entities/CellPositionInSheet.java" beforeDir="false" afterPath="$PROJECT_DIR$/Engine/src/engine/impl/entities/CellPositionInSheet.java" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/Engine/src/engine/impl/entities/ExpCell.java" beforeDir="false" afterPath="$PROJECT_DIR$/Engine/src/engine/impl/entities/ExpCell.java" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/Engine/src/engine/impl/entities/NumberCell.java" beforeDir="false" afterPath="$PROJECT_DIR$/Engine/src/engine/impl/entities/NumberCell.java" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/Engine/src/engine/impl/entities/Sheet.java" beforeDir="false" afterPath="$PROJECT_DIR$/Engine/src/engine/impl/entities/Sheet.java" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/Engine/src/engine/impl/entities/StringCell.java" beforeDir="false" afterPath="$PROJECT_DIR$/Engine/src/engine/impl/entities/StringCell.java" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/UI/src/ui/api/Ui.java" beforeDir="false" afterPath="$PROJECT_DIR$/UI/src/ui/api/Ui.java" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/UI/src/ui/impl/console/ConsoleInteraction.java" beforeDir="false" afterPath="$PROJECT_DIR$/UI/src/ui/impl/console/ConsoleInteraction.java" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/UI/src/ui/impl/console/Program.java" beforeDir="false" afterPath="$PROJECT_DIR$/UI/src/ui/impl/console/Program.java" afterDir="false" />
     </list>
     <option name="SHOW_DIALOG" value="false" />
     <option name="HIGHLIGHT_CONFLICTS" value="true" />
     <option name="HIGHLIGHT_NON_ACTIVE_CHANGELIST" value="false" />
     <option name="LAST_RESOLUTION" value="IGNORE" />
+  </component>
+  <component name="FileTemplateManagerImpl">
+    <option name="RECENT_TEMPLATES">
+      <list>
+        <option value="Interface" />
+        <option value="Enum" />
+        <option value="Class" />
+      </list>
+    </option>
   </component>
   <component name="Git.Settings">
     <option name="RECENT_GIT_ROOT_PATH" value="$PROJECT_DIR$" />
@@ -28,20 +50,53 @@
   "associatedIndex": 6
 }]]></component>
   <component name="ProjectId" id="2kNlidHXUjC7eYbWPYFuWyVdToy" />
-  <component name="ProjectLevelVcsManager" settingsEditedManually="true" />
+  <component name="ProjectLevelVcsManager" settingsEditedManually="true">
+    <ConfirmationsSetting value="2" id="Add" />
+  </component>
   <component name="ProjectViewState">
     <option name="hideEmptyMiddlePackages" value="true" />
     <option name="showLibraryContents" value="true" />
   </component>
   <component name="PropertiesComponent"><![CDATA[{
   "keyToString": {
+    "ASKED_ADD_EXTERNAL_FILES": "true",
+    "Application.Program.executor": "Run",
     "RunOnceActivity.ShowReadmeOnStart": "true",
-    "git-widget-placeholder": "master",
+    "SHARE_PROJECT_CONFIGURATION_FILES": "true",
+    "git-widget-placeholder": "branch-1",
     "kotlin-language-version-configured": "true",
+    "node.js.detected.package.eslint": "true",
+    "node.js.detected.package.tslint": "true",
+    "node.js.selected.package.eslint": "(autodetect)",
+    "node.js.selected.package.tslint": "(autodetect)",
     "nodejs_package_manager_path": "npm",
+    "onboarding.tips.debug.path": "C:/Users/asafl/IdeaProjects/Shticell/ui/src/Main.java",
+    "project.structure.last.edited": "Modules",
+    "project.structure.proportion": "0.0",
+    "project.structure.side.proportion": "0.0",
     "vue.rearranger.settings.migration": "true"
   }
 }]]></component>
+  <component name="RunManager">
+    <configuration name="Program" type="Application" factoryName="Application" temporary="true" nameIsGenerated="true">
+      <option name="MAIN_CLASS_NAME" value="ui.impl.console.Program" />
+      <module name="UI" />
+      <extension name="coverage">
+        <pattern>
+          <option name="PATTERN" value="ui.impl.console.*" />
+          <option name="ENABLED" value="true" />
+        </pattern>
+      </extension>
+      <method v="2">
+        <option name="Make" enabled="true" />
+      </method>
+    </configuration>
+    <recent_temporary>
+      <list>
+        <item itemvalue="Application.Program" />
+      </list>
+    </recent_temporary>
+  </component>
   <component name="SharedIndexes">
     <attachedChunks>
       <set>
@@ -58,11 +113,72 @@
       <option name="number" value="Default" />
       <option name="presentableId" value="Default" />
       <updated>1723132045096</updated>
-      <workItem from="1723132046254" duration="116000" />
+      <workItem from="1723132046254" duration="35496000" />
     </task>
+    <task id="LOCAL-00001" summary="opened files">
+      <option name="closed" value="true" />
+      <created>1723206041594</created>
+      <option name="number" value="00001" />
+      <option name="presentableId" value="LOCAL-00001" />
+      <option name="project" value="LOCAL" />
+      <updated>1723206041594</updated>
+    </task>
+    <task id="LOCAL-00002" summary="built classes">
+      <option name="closed" value="true" />
+      <created>1723213420235</created>
+      <option name="number" value="00002" />
+      <option name="presentableId" value="LOCAL-00002" />
+      <option name="project" value="LOCAL" />
+      <updated>1723213420235</updated>
+    </task>
+    <task id="LOCAL-00003" summary="done writing the function for printing the sheet, in the middle of printing a cell data">
+      <option name="closed" value="true" />
+      <created>1723289267818</created>
+      <option name="number" value="00003" />
+      <option name="presentableId" value="LOCAL-00003" />
+      <option name="project" value="LOCAL" />
+      <updated>1723289267818</updated>
+    </task>
+    <task id="LOCAL-00004" summary="continued printing cell">
+      <option name="closed" value="true" />
+      <created>1723292495776</created>
+      <option name="number" value="00004" />
+      <option name="presentableId" value="LOCAL-00004" />
+      <option name="project" value="LOCAL" />
+      <updated>1723292495776</updated>
+    </task>
+    <task id="LOCAL-00005" summary="update cell">
+      <option name="closed" value="true" />
+      <created>1723314283333</created>
+      <option name="number" value="00005" />
+      <option name="presentableId" value="LOCAL-00005" />
+      <option name="project" value="LOCAL" />
+      <updated>1723314283333</updated>
+    </task>
+    <option name="localTasksCounter" value="6" />
     <servers />
   </component>
   <component name="TypeScriptGeneratedFilesManager">
     <option name="version" value="3" />
+  </component>
+  <component name="Vcs.Log.Tabs.Properties">
+    <option name="TAB_STATES">
+      <map>
+        <entry key="MAIN">
+          <value>
+            <State />
+          </value>
+        </entry>
+      </map>
+    </option>
+  </component>
+  <component name="VcsManagerConfiguration">
+    <option name="ADD_EXTERNAL_FILES_SILENTLY" value="true" />
+    <MESSAGE value="opened files" />
+    <MESSAGE value="built classes" />
+    <MESSAGE value="done writing the function for printing the sheet, in the middle of printing a cell data" />
+    <MESSAGE value="continued printing cell" />
+    <MESSAGE value="update cell" />
+    <option name="LAST_COMMIT_MESSAGE" value="update cell" />
   </component>
 </project>
