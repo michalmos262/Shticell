@@ -3,8 +3,8 @@ package ui.impl.console;
 import engine.impl.entities.Cell;
 import engine.impl.entities.CellPositionInSheet;
 import engine.impl.entities.Sheet;
-import ui.api.Ui;
 import engine.impl.ShticellEngine;
+import ui.api.Ui;
 
 import java.util.Map;
 import java.util.Scanner;
