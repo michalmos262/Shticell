@@ -1,4 +1,4 @@
-package engine.expressions.impl;
+package engine.expression.impl;
 
 public class BinaryExpression {
 }

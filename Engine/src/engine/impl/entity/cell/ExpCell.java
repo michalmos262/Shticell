@@ -1,6 +1,4 @@
-package engine.impl.entities;
-
-import engine.expressions.api.Expression;
+package engine.impl.entity.cell;
 
 public class ExpCell extends Cell {
     protected ExpCell(String originalValue) {
@@ -8,7 +6,7 @@ public class ExpCell extends Cell {
     }
 
     @Override
-    protected void setEffectiveValueByOriginalValue() {
+    public void setEffectiveValueByOriginalValue() {
 
     }
 

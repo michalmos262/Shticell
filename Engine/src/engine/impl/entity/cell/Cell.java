@@ -1,8 +1,8 @@
-package engine.impl.entities;
+package engine.impl.entity.cell;
 
 import java.util.Objects;
 
-public abstract class Cell {
+public abstract class Cell implements Cloneable {
     protected String originalValue;
     protected String effectiveValue = "";
 
@@ -14,15 +14,11 @@ public abstract class Cell {
         return originalValue;
     }
 
-    public void setOriginalValue(String originalValue) {
-        this.originalValue = originalValue;
-    }
-
     public String getEffectiveValue() {
         return effectiveValue;
     }
 
-    abstract protected void setEffectiveValueByOriginalValue();
+    public abstract void setEffectiveValueByOriginalValue();
 
     abstract protected <T> T parseOriginalValue();
 
@@ -37,5 +33,17 @@ public abstract class Cell {
     @Override
     public int hashCode() {
         return Objects.hash(getOriginalValue(), getEffectiveValue());
+    }
+
+    @Override
+    public Cell clone() {
+        try {
+            Cell clone = (Cell) super.clone();
+            clone.originalValue = originalValue;
+            clone.effectiveValue = effectiveValue;
+            return clone;
+        } catch (CloneNotSupportedException e) {
+            throw new AssertionError();
+        }
     }
 }

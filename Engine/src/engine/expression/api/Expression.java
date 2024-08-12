@@ -1,4 +1,4 @@
-package engine.expressions.api;
+package engine.expression.api;
 
 public interface Expression {
 }

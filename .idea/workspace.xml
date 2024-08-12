@@ -5,12 +5,25 @@
   </component>
   <component name="ChangeListManager">
     <list default="true" id="35d24eeb-d633-4243-8af7-453c9914951b" name="Changes" comment="folders">
-      <change beforePath="$PROJECT_DIR$/.idea/misc.xml" beforeDir="false" afterPath="$PROJECT_DIR$/.idea/misc.xml" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/Engine/src/engine/impl/entity/cell/CellDto.java" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/Engine/src/engine/impl/entity/sheet/SheetDto.java" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/.idea/workspace.xml" beforeDir="false" afterPath="$PROJECT_DIR$/.idea/workspace.xml" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/Engine/Engine.iml" beforeDir="false" afterPath="$PROJECT_DIR$/Engine/Engine.iml" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/Shticell.iml" beforeDir="false" afterPath="$PROJECT_DIR$/Shticell.iml" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/UI/UI.iml" beforeDir="false" afterPath="$PROJECT_DIR$/UI/UI.iml" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/Engine/src/engine/api/Engine.java" beforeDir="false" afterPath="$PROJECT_DIR$/Engine/src/engine/api/Engine.java" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/Engine/src/engine/expressions/api/Expression.java" beforeDir="false" afterPath="$PROJECT_DIR$/Engine/src/engine/expression/api/Expression.java" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/Engine/src/engine/expressions/impl/BinaryExpression.java" beforeDir="false" afterPath="$PROJECT_DIR$/Engine/src/engine/expression/impl/BinaryExpression.java" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/Engine/src/engine/expressions/impl/Operation.java" beforeDir="false" afterPath="$PROJECT_DIR$/Engine/src/engine/expression/impl/Operation.java" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/Engine/src/engine/expressions/impl/StringFunction.java" beforeDir="false" afterPath="$PROJECT_DIR$/Engine/src/engine/expression/impl/StringFunction.java" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/Engine/src/engine/impl/ShticellEngine.java" beforeDir="false" afterPath="$PROJECT_DIR$/Engine/src/engine/impl/ShticellEngine.java" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/Engine/src/engine/impl/entities/BoolCell.java" beforeDir="false" afterPath="$PROJECT_DIR$/Engine/src/engine/impl/entity/cell/BoolCell.java" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/Engine/src/engine/impl/entities/Cell.java" beforeDir="false" afterPath="$PROJECT_DIR$/Engine/src/engine/impl/entity/cell/Cell.java" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/Engine/src/engine/impl/entities/CellPositionInSheet.java" beforeDir="false" afterPath="$PROJECT_DIR$/Engine/src/engine/impl/entity/cell/CellPositionInSheet.java" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/Engine/src/engine/impl/entities/ExpCell.java" beforeDir="false" afterPath="$PROJECT_DIR$/Engine/src/engine/impl/entity/cell/ExpCell.java" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/Engine/src/engine/impl/entities/NumberCell.java" beforeDir="false" afterPath="$PROJECT_DIR$/Engine/src/engine/impl/entity/cell/NumberCell.java" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/Engine/src/engine/impl/entities/Sheet.java" beforeDir="false" afterPath="$PROJECT_DIR$/Engine/src/engine/impl/entity/sheet/Sheet.java" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/Engine/src/engine/impl/entities/StringCell.java" beforeDir="false" afterPath="$PROJECT_DIR$/Engine/src/engine/impl/entity/cell/StringCell.java" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/UI/src/ui/api/Ui.java" beforeDir="false" afterPath="$PROJECT_DIR$/UI/src/ui/api/Ui.java" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/UI/src/ui/impl/console/ConsoleInteraction.java" beforeDir="false" afterPath="$PROJECT_DIR$/UI/src/ui/impl/console/ConsoleInteraction.java" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/UI/src/ui/impl/console/Program.java" beforeDir="false" afterPath="$PROJECT_DIR$/UI/src/ui/impl/console/Program.java" afterDir="false" />
     </list>
     <option name="SHOW_DIALOG" value="false" />
     <option name="HIGHLIGHT_CONFLICTS" value="true" />
@@ -58,7 +71,7 @@
     "Application.Program.executor": "Run",
     "RunOnceActivity.ShowReadmeOnStart": "true",
     "SHARE_PROJECT_CONFIGURATION_FILES": "true",
-    "git-widget-placeholder": "branch-1",
+    "git-widget-placeholder": "branch-2",
     "kotlin-language-version-configured": "true",
     "last_opened_file_path": "C:/Users/asafl/IdeaProjects/Shticell/UI",
     "node.js.detected.package.eslint": "true",
@@ -190,6 +203,7 @@
     <MESSAGE value="done writing the function for printing the sheet, in the middle of printing a cell data" />
     <MESSAGE value="continued printing cell" />
     <MESSAGE value="update cell" />
-    <option name="LAST_COMMIT_MESSAGE" value="update cell" />
+    <MESSAGE value="folders" />
+    <option name="LAST_COMMIT_MESSAGE" value="folders" />
   </component>
 </project>
