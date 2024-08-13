@@ -1,5 +1,7 @@
 package engine.entity.cell;
 
+import engine.entity.sheet.Sheet;
+
 import java.math.BigDecimal;
 import java.text.DecimalFormat;
 
@@ -9,7 +11,7 @@ public class NumberCell extends Cell {
     }
 
     @Override
-    public void setEffectiveValueByOriginalValue() {
+    public void setEffectiveValueByOriginalValue(Sheet sheet) {
         DecimalFormat formatter = new DecimalFormat("#,###.##");
         this.effectiveValue = formatter.format(parseOriginalValue());
     }

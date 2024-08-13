@@ -1,11 +1,8 @@
 package engine.entity.sheet;
 
 import engine.entity.cell.*;
-import engine.expression.api.Expression;
 
 import java.util.*;
-
-import static engine.expression.impl.ExpressionEvaluator.evaluateExpression;
 
 public class Sheet {
     private final Map<Integer, Cell>[][] version2cellTable;
@@ -97,7 +94,7 @@ public class Sheet {
 //
 //            }
         }
-        cell.setEffectiveValueByOriginalValue();
+        cell.setEffectiveValueByOriginalValue(this);
         version2cellTable[rowIndex][columnIndex].put(currVersion, cell);
         version2updatedCellsCount.put(currVersion, version2updatedCellsCount.get(currVersion) + 1);
     }

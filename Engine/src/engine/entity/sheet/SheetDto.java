@@ -6,7 +6,7 @@ import engine.entity.cell.CellPositionInSheet;
 import java.util.*;
 
 public class SheetDto {
-    Cell[][] sheet;
+    Cell[][] sheetDto;
     Map<CellPositionInSheet, List<CellPositionInSheet>> cellPos2affectingCellsPos;
     Map<CellPositionInSheet, List<CellPositionInSheet>> cellPos2affectedByCellsPos;
     Map<Integer, Integer> version2updatedCellsCount;
@@ -14,11 +14,11 @@ public class SheetDto {
     public SheetDto(Sheet originalSheet, int version) {
         int numOfRows = originalSheet.getDimension().getNumOfRows();
         int numOfColumns = originalSheet.getDimension().getNumOfColumns();
-        sheet = new Cell[numOfRows][numOfColumns];
+        sheetDto = new Cell[numOfRows][numOfColumns];
         for (int i = 0; i < numOfRows; i++) {
             for (int j = 0; j < numOfColumns; j++) {
                 CellPositionInSheet cellPosition = new CellPositionInSheet(i, j);
-                sheet[i][j] = originalSheet.getCellByVersion(cellPosition, version).getValue().clone();
+                sheetDto[i][j] = originalSheet.getCellByVersion(cellPosition, version).getValue().clone();
             }
         }
         this.cellPos2affectingCellsPos = cloneCellPosRelationships(originalSheet.getVersion2cellPos2affectingCellsPos().get(version));
@@ -27,7 +27,7 @@ public class SheetDto {
     }
 
     public Cell[][] getCellTable() {
-        return sheet;
+        return sheetDto;
     }
 
     public Map<CellPositionInSheet, List<CellPositionInSheet>> getCellPos2affectingCellsPos() {

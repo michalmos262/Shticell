@@ -21,7 +21,7 @@ public abstract class UnaryExpression<E, R> implements Expression<R> {
 
     @Override
     public String toString() {
-        return "{" + getOperationSign() + expression + "}";
+        return "{" + getOperationSign() + "," + expression + "}";
     }
 
     abstract protected R invoke(E evaluate);

@@ -1,5 +1,7 @@
 package engine.entity.cell;
 
+import engine.entity.sheet.Sheet;
+
 import static engine.expression.impl.ExpressionEvaluator.evaluateExpression;
 
 public class ExpCell extends Cell {
@@ -8,8 +10,8 @@ public class ExpCell extends Cell {
     }
 
     @Override
-    public void setEffectiveValueByOriginalValue() {
-        this.effectiveValue = evaluateExpression(originalValue).toString();
+    public void setEffectiveValueByOriginalValue(Sheet sheet) {
+        this.effectiveValue = evaluateExpression(originalValue, sheet).toString();
     }
 
     @Override

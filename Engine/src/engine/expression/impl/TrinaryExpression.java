@@ -27,7 +27,7 @@ public abstract class TrinaryExpression<E1, E2, E3, R> implements Expression<R> 
 
     @Override
     public String toString() {
-        return "{" + getOperationSign() + expression1 + "," + expression2 + "," + expression3 + "}";
+        return "{" + getOperationSign() + "," + expression1 + "," + expression2 + "," + expression3 + "}";
     }
 
     abstract protected R invoke(E1 evaluate1, E2 evaluate2, E3 evaluate3);

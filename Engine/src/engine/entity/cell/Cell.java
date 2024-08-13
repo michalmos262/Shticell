@@ -1,5 +1,7 @@
 package engine.entity.cell;
 
+import engine.entity.sheet.Sheet;
+
 import java.util.Objects;
 
 public abstract class Cell implements Cloneable {
@@ -18,9 +20,9 @@ public abstract class Cell implements Cloneable {
         return effectiveValue;
     }
 
-    public abstract void setEffectiveValueByOriginalValue();
+    public abstract void setEffectiveValueByOriginalValue(Sheet sheet);
 
-    abstract protected <T> T parseOriginalValue();
+    protected abstract <T> T parseOriginalValue();
 
     @Override
     public boolean equals(Object o) {
