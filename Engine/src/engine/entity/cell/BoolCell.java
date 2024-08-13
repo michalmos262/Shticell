@@ -1,13 +1,13 @@
-package engine.impl.entities;
+package engine.entity.cell;
 
 public class BoolCell extends Cell {
-    protected BoolCell(String originalValue) {
+    public BoolCell(String originalValue) {
         super(originalValue);
     }
 
     @Override
-    protected void setEffectiveValueByOriginalValue() {
-        this.effectiveValue = this.originalValue.toLowerCase();
+    public void setEffectiveValueByOriginalValue() {
+        this.effectiveValue = this.originalValue.toUpperCase();
     }
 
     @Override

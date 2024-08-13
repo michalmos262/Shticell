@@ -1,15 +1,20 @@
 package ui.impl.console;
 
-import engine.impl.entities.Cell;
-import engine.impl.entities.CellPositionInSheet;
-import engine.impl.entities.Sheet;
+import engine.entity.cell.CellDto;
+import engine.entity.cell.CellPositionInSheet;
+import engine.entity.sheet.Sheet;
 import engine.impl.ShticellEngine;
+import engine.entity.sheet.SheetDto;
 import ui.api.Ui;
 
+import java.util.List;
 import java.util.Map;
 import java.util.Scanner;
 
+import static java.lang.System.exit;
+
 public class ConsoleInteraction implements Ui {
+    public static final int EXIT = -1;
     private final ShticellEngine engine;
     private final Scanner scanner = new Scanner(System.in);
 
@@ -17,12 +22,17 @@ public class ConsoleInteraction implements Ui {
         engine = new ShticellEngine("Some name", 3, 5, 3, 15);
     }
 
-    private void showSheetTable() {
-        Sheet sheet = engine.getSheet();
-        int numOfRows = sheet.getNumOfRows();
-        int numOfColumns = sheet.getNumOfColumns();
-        int rowHeight = sheet.getRowHeight();
-        int columnWidth = sheet.getColumnWidth();
+    public ShticellEngine getEngine() {
+        return engine;
+    }
+
+    private void showSheetTable(int version) {
+        SheetDto sheetDto = engine.getSheetDto(version);
+        Sheet.Dimension sheetDimension = engine.getSheetDimension();
+        int numOfRows = sheetDimension.getNumOfRows();
+        int numOfColumns = sheetDimension.getNumOfColumns();
+        int rowHeight = sheetDimension.getRowHeight();
+        int columnWidth = sheetDimension.getColumnWidth();
 
         // Print the column headers
         System.out.print("   |"); // Space for row numbers
@@ -40,7 +50,7 @@ public class ConsoleInteraction implements Ui {
 
             // Print each cell in the row
             for (int col = 0; col < numOfColumns; col++) {
-                Cell cell = sheet.getVersion2cellTable()[row][col].get(sheet.getCurrVersion() - 1);
+                CellDto cell = engine.findCellInSheet(new CellPositionInSheet(row, col), version);
                 String text = cell == null ? "" : cell.getEffectiveValue();
                 text = text.length() > columnWidth ? text.substring(0, columnWidth) : text;
                 int paddingRight = columnWidth - text.length();
@@ -62,56 +72,63 @@ public class ConsoleInteraction implements Ui {
     @Override
     public CellPositionInSheet getCellPositionFromUser() {
         System.out.println("Enter sheet cell position (for example 'A1' - means row 1, column A): ");
-        String cellLocation = scanner.nextLine();
-        return new CellPositionInSheet(cellLocation.charAt(1), cellLocation.charAt(0));
+        String cellPositionStr = scanner.nextLine();
+        return new CellPositionInSheet(cellPositionStr);
     }
 
     @Override
-    public void showSheet() {
-        Sheet sheet = engine.getSheet();
-        System.out.println("Sheet name: " + sheet.getName());
-        System.out.println("Current sheet version: " + sheet.getCurrVersion());
-        showSheetTable();
+    public void showSheet(int version) {
+        System.out.println("Sheet name: " + engine.getSheetName());
+        System.out.println("Current sheet version: " + engine.getCurrentSheetVersion());
+        showSheetTable(version);
+    }
+
+    private void printSomeCellData(CellPositionInSheet cellPosition) {
+        System.out.println("Cell position in sheet: " + cellPosition);
+        CellDto cell = engine.findCellInSheet(cellPosition, engine.getCurrentSheetVersion());
+        System.out.println("Current original value: " + cell.getOriginalValue());
+        System.out.println("Current effective value: " + cell.getEffectiveValue());
     }
 
     @Override
     public void showSheetCell() {
-        Sheet sheet = engine.getSheet();
         CellPositionInSheet cellPosition = getCellPositionFromUser();
-        int columnIndex = cellPosition.getColumnIndex();
-        int rowIndex = cellPosition.getRowIndex();
-        Map<Integer, Cell> cell = sheet.getVersion2cellTable()[rowIndex][columnIndex];
-        System.out.println("Cell position in sheet: " + cellPosition);
-        int version = sheet.getLastVersionOfCell(cell);
-        System.out.println("Current original value: " + cell.get(version).getOriginalValue());
-        System.out.println("Current effective value: " + cell.get(version).getEffectiveValue());
-        System.out.println("Last cell version: " + version);
-        System.out.println("The cells that it's affecting: " + sheet.getCell2affectingCells().get(cellPosition));
+        printSomeCellData(cellPosition);
+        System.out.println("Last cell version: " + engine.getLastCellVersion(cellPosition));
+        List<CellPositionInSheet> affectedCellsList = engine.getAffectedCellsList(cellPosition, engine.getCurrentSheetVersion());
+        List<CellPositionInSheet> affectedByCellsList = engine.getAffectedByCellsList(cellPosition, engine.getCurrentSheetVersion());
+        System.out.println("The cells that the required cell is affecting: " + (affectedCellsList == null ? "None" : affectedCellsList));
+        System.out.println("The cells that the required cell is affected by: " + (affectedByCellsList == null ? "None" : affectedByCellsList));
     }
 
     @Override
     public void updateSheetCell() {
-        Sheet sheet = engine.getSheet();
         CellPositionInSheet cellPosition = getCellPositionFromUser();
-        int columnIndex = cellPosition.getColumnIndex();
-        int rowIndex = cellPosition.getRowIndex();
-        Map<Integer, Cell> cell = sheet.getVersion2cellTable()[rowIndex][columnIndex];
-        System.out.println("Cell position in sheet: " + cellPosition);
-        Integer version = sheet.getLastVersionOfCell(cell);
-        System.out.println("Current original value: " + cell.get(version).getOriginalValue());
-        System.out.println("Current effective value: " + cell.get(version).getEffectiveValue());
+        printSomeCellData(cellPosition);
         System.out.println("Enter new cell value:");
         String newCellValue = scanner.nextLine();
-        sheet.updateCell(cellPosition, newCellValue);
+        engine.updateSheetCell(cellPosition, newCellValue);
+    }
+
+    private void printVersion2updatedCellsCountAsTable(Map<Integer, Integer> map) {
+        System.out.printf("%-10s %-10s%n", "Version", "Updated cells amount");
+        System.out.println("----------------------");
+        for (Map.Entry<Integer, Integer> entry : map.entrySet()) {
+            System.out.printf("%-10d %-10d%n", entry.getKey(), entry.getValue());
+        }
     }
 
     @Override
     public void showSheetVersions() {
-
+        System.out.println("The sheet versions available:");
+        printVersion2updatedCellsCountAsTable(engine.getSheetVersions());
+        System.out.println("Enter the version you want to show its sheet:");
+        String versionStr = scanner.nextLine();
+        showSheetTable(Integer.parseInt(versionStr));
     }
 
     @Override
     public void exitProgram() {
-
+        exit(200);
     }
 }

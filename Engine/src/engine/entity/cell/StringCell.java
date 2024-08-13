@@ -1,13 +1,13 @@
-package engine.impl.entities;
+package engine.entity.cell;
 
 public class StringCell extends Cell {
-    protected StringCell(String originalValue) {
+    public StringCell(String originalValue) {
         super(originalValue);
     }
 
     @Override
-    protected void setEffectiveValueByOriginalValue() {
-        this.effectiveValue = originalValue;
+    public void setEffectiveValueByOriginalValue() {
+        this.effectiveValue = originalValue.trim();
     }
 
     @Override
