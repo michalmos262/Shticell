@@ -1,6 +1,6 @@
 package ui.api;
 
-import engine.impl.entity.cell.CellPositionInSheet;
+import engine.entity.cell.CellPositionInSheet;
 
 public interface Ui {
     CellPositionInSheet getCellPositionFromUser();

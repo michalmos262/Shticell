@@ -1,7 +1,7 @@
-package engine.impl.entity.sheet;
+package engine.entity.sheet;
 
-import engine.impl.entity.cell.Cell;
-import engine.impl.entity.cell.CellPositionInSheet;
+import engine.entity.cell.Cell;
+import engine.entity.cell.CellPositionInSheet;
 
 import java.util.*;
 

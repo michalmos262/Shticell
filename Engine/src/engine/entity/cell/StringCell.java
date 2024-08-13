@@ -1,4 +1,4 @@
-package engine.impl.entity.cell;
+package engine.entity.cell;
 
 public class StringCell extends Cell {
     public StringCell(String originalValue) {

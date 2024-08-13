@@ -1,9 +1,9 @@
 package engine.api;
 
-import engine.impl.entity.cell.CellDto;
-import engine.impl.entity.cell.CellPositionInSheet;
-import engine.impl.entity.sheet.Sheet;
-import engine.impl.entity.sheet.SheetDto;
+import engine.entity.cell.CellDto;
+import engine.entity.cell.CellPositionInSheet;
+import engine.entity.sheet.Sheet;
+import engine.entity.sheet.SheetDto;
 
 import java.util.List;
 import java.util.Map;

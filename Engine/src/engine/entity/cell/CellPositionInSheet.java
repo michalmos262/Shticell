@@ -1,4 +1,4 @@
-package engine.impl.entity.cell;
+package engine.entity.cell;
 
 import java.util.Objects;
 

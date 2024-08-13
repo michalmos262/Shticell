@@ -1,7 +1,11 @@
-package engine.impl.entity.sheet;
+package engine.entity.sheet;
 
-import engine.impl.entity.cell.*;
+import engine.entity.cell.*;
+import engine.expression.api.Expression;
+
 import java.util.*;
+
+import static engine.expression.impl.ExpressionEvaluator.evaluateExpression;
 
 public class Sheet {
     private final Map<Integer, Cell>[][] version2cellTable;
@@ -78,7 +82,7 @@ public class Sheet {
         // if no cell is affecting/affected by any other cell in the current version
         version2cellPos2affectingCellsPos.computeIfAbsent(currVersion, k -> new LinkedHashMap<>());
         version2cellPos2affectedByCellsPos.computeIfAbsent(currVersion, k -> new LinkedHashMap<>());
-        version2updatedCellsCount.computeIfAbsent(currVersion, k -> 0);
+        version2updatedCellsCount.putIfAbsent(currVersion, 0);
 
         if (newValue.matches("-?\\d+(\\.\\d+)?")) {
             cell = new NumberCell(newValue);
@@ -87,11 +91,11 @@ public class Sheet {
             cell = new BoolCell(newValue);
         }
         else if (newValue.charAt(0) == '{' && newValue.charAt(newValue.length() - 1) == '}') {
-            // EXPRESSION
-            // if the desired cell is not affecting any cell in the current version
-            if (version2cellPos2affectingCellsPos.get(currVersion).get(cellPosition) == null) {
-
-            }
+            cell = new ExpCell(newValue);
+//            // if the desired cell is not affecting any cell in the current version
+//            if (version2cellPos2affectingCellsPos.get(currVersion).get(cellPosition) == null) {
+//
+//            }
         }
         cell.setEffectiveValueByOriginalValue();
         version2cellTable[rowIndex][columnIndex].put(currVersion, cell);

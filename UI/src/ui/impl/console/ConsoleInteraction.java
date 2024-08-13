@@ -1,10 +1,10 @@
 package ui.impl.console;
 
-import engine.impl.entity.cell.CellDto;
-import engine.impl.entity.cell.CellPositionInSheet;
-import engine.impl.entity.sheet.Sheet;
+import engine.entity.cell.CellDto;
+import engine.entity.cell.CellPositionInSheet;
+import engine.entity.sheet.Sheet;
 import engine.impl.ShticellEngine;
-import engine.impl.entity.sheet.SheetDto;
+import engine.entity.sheet.SheetDto;
 import ui.api.Ui;
 
 import java.util.List;
