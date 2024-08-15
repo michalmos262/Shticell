@@ -11,20 +11,10 @@ public class CellPositionInSheet implements Cloneable {
         this.column = column;
     }
 
-    public CellPositionInSheet(String position) {
-        this.row = parseRow(position);
-        this.column = parseColumn(position);
-    }
-
-    public int parseRow(String position) {
-        String numberPart = position.substring(1);
-        return Integer.parseInt(numberPart) - 1;
-    }
-
-    public int parseColumn(String position) {
-        char letter = position.charAt(0);
-        return letter - 'A';
-    }
+//    public CellPositionInSheet(String position) {
+//        this.row = parseRow(position);
+//        this.column = parseColumn(position);
+//    }
 
     public int getRow() {
         return row;

@@ -1,8 +1,10 @@
 package engine.impl;
 
 import engine.api.Engine;
+import engine.entity.cell.Cell;
 import engine.entity.cell.CellDto;
 import engine.entity.cell.CellPositionInSheet;
+import engine.entity.cell.PositionFactory;
 import engine.entity.sheet.Sheet;
 import engine.entity.sheet.SheetDto;
 
@@ -38,32 +40,59 @@ public class ShticellEngine implements Engine {
     }
 
     @Override
-    public CellDto findCellInSheet(CellPositionInSheet cellPosition, int sheetVersion) {
+    public CellDto findCellInSheet(int row, int column, int sheetVersion) {
+        CellPositionInSheet cellPosition = PositionFactory.createPosition(row, column);
         return new CellDto(getSheetDto(sheetVersion).getCellTable()[cellPosition.getRow()][cellPosition.getColumn()]);
     }
 
     @Override
-    public int getLastCellVersion(CellPositionInSheet cellPosition) {
+    public int getLastCellVersion(int row, int column) {
+        CellPositionInSheet cellPosition = PositionFactory.createPosition(row, column);
         return sheet.getCellByVersion(cellPosition, getCurrentSheetVersion()).getKey();
     }
 
     @Override
-    public List<CellPositionInSheet> getAffectedByCellsList(CellPositionInSheet cellPosition, int sheetVersion) {
-        return getSheetDto(sheetVersion).getCellPos2affectedByCellsPos().get(cellPosition);
+    public List<Cell> getDependsOnList(int row, int column, int sheetVersion) {
+        CellPositionInSheet cellPosition = PositionFactory.createPosition(row, column);
+        Cell originalCell = sheet.getCellByVersion(cellPosition, sheetVersion).getValue();
+        return new CellDto(originalCell).getDependsOn();
     }
 
     @Override
-    public List<CellPositionInSheet> getAffectedCellsList(CellPositionInSheet cellPosition, int sheetVersion) {
-        return getSheetDto(sheetVersion).getCellPos2affectingCellsPos().get(cellPosition);
+    public List<Cell> getInfluencingOnList(int row, int column, int sheetVersion) {
+        CellPositionInSheet cellPosition = PositionFactory.createPosition(row, column);
+        Cell originalCell = sheet.getCellByVersion(cellPosition, sheetVersion).getValue();
+        return new CellDto(originalCell).getInfluencingOn();
     }
 
     @Override
-    public void updateSheetCell(CellPositionInSheet cellPosition, String newValue) {
+    public void updateSheetCell(int row, int column, String newValue) {
+        CellPositionInSheet cellPosition = PositionFactory.createPosition(row, column);
         sheet.updateCell(cellPosition, newValue);
     }
 
     @Override
     public Map<Integer, Integer> getSheetVersions() {
         return getSheetDto(getCurrentSheetVersion()).getVersion2updatedCellsCount();
+    }
+
+    @Override
+    public CellPositionInSheet getCellPositionInSheet(int row, int column) {
+        return PositionFactory.createPosition(row, column);
+    }
+
+    @Override
+    public CellPositionInSheet getCellPositionInSheet(String position) {
+        return PositionFactory.createPosition(position);
+    }
+
+    @Override
+    public int parseRowFromPosition(String position) {
+        return getCellPositionInSheet(position).getRow();
+    }
+
+    @Override
+    public int parseColumnFromPosition(String position) {
+        return getCellPositionInSheet(position).getColumn();
     }
 }

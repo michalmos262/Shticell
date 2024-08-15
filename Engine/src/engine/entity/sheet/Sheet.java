@@ -10,8 +10,6 @@ public class Sheet {
     private final String name;
     private final Dimension dimension;
     private final Map<Integer, Integer> version2updatedCellsCount;
-    private final Map<Integer, Map<CellPositionInSheet, List<CellPositionInSheet>>> version2cellPos2affectingCellsPos;
-    private final Map<Integer, Map<CellPositionInSheet, List<CellPositionInSheet>>> version2cellPos2affectedByCellsPos;
 
     public Sheet(String name, Dimension dimension) {
         this.dimension = dimension;
@@ -26,8 +24,6 @@ public class Sheet {
         }
         version2updatedCellsCount = new HashMap<>();
         version2updatedCellsCount.put(1, 0);
-        version2cellPos2affectingCellsPos = new HashMap<>();
-        version2cellPos2affectedByCellsPos = new HashMap<>();
     }
 
     public Map<Integer, Cell>[][] getVersion2cellTable() {
@@ -50,14 +46,6 @@ public class Sheet {
         return version2updatedCellsCount;
     }
 
-    public Map<Integer, Map<CellPositionInSheet, List<CellPositionInSheet>>> getVersion2cellPos2affectingCellsPos() {
-        return version2cellPos2affectingCellsPos;
-    }
-
-    public Map<Integer, Map<CellPositionInSheet, List<CellPositionInSheet>>> getVersion2cellPos2affectedByCellsPos() {
-        return version2cellPos2affectedByCellsPos;
-    }
-
     public Map.Entry<Integer, Cell> getCellByVersion(CellPositionInSheet cellPosition, int version) {
         Map.Entry<Integer, Cell> lastEntry = null;
         Map<Integer, Cell> version2Cell = version2cellTable[cellPosition.getRow()][cellPosition.getColumn()];
@@ -77,8 +65,6 @@ public class Sheet {
         Cell cell = new StringCell(newValue);
         currVersion++;
         // if no cell is affecting/affected by any other cell in the current version
-        version2cellPos2affectingCellsPos.computeIfAbsent(currVersion, k -> new LinkedHashMap<>());
-        version2cellPos2affectedByCellsPos.computeIfAbsent(currVersion, k -> new LinkedHashMap<>());
         version2updatedCellsCount.putIfAbsent(currVersion, 0);
 
         if (newValue.matches("-?\\d+(\\.\\d+)?")) {

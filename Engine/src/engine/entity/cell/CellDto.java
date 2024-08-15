@@ -1,5 +1,7 @@
 package engine.entity.cell;
 
+import java.util.List;
+
 public class CellDto {
     private final Cell cellDto;
 
@@ -13,5 +15,13 @@ public class CellDto {
 
     public String getEffectiveValue() {
         return cellDto.getEffectiveValue();
+    }
+
+    public List<Cell> getDependsOn() {
+        return cellDto.getDependsOn();
+    }
+
+    public List<Cell> getInfluencingOn() {
+        return cellDto.getInfluencingOn();
     }
 }
