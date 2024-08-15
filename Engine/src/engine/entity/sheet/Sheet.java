@@ -4,128 +4,39 @@ import engine.entity.cell.*;
 
 import java.util.*;
 
-public class Sheet {
-    private final Map<Integer, Cell>[][] version2cellTable;
-    private int currVersion;
-    private final String name;
-    private final Dimension dimension;
-    private final Map<Integer, Integer> version2updatedCellsCount;
+public class Sheet implements Cloneable {
+    private final Map<CellPositionInSheet, Cell> position2cell;
+    private int updatedCellsCount;
+    private int version;
 
-    public Sheet(String name, Dimension dimension) {
-        this.dimension = dimension;
-        version2cellTable = new LinkedHashMap[dimension.getNumOfRows()][dimension.getNumOfColumns()];
-        this.name = name;
-        currVersion = 1;
-        for (int i = 0; i < dimension.getNumOfRows(); i++) {
-            for (int j = 0; j < dimension.getNumOfColumns() ; j++) {
-                version2cellTable[i][j] = new LinkedHashMap<>();
-                version2cellTable[i][j].put(1, new StringCell(" "));
-            }
-        }
-        version2updatedCellsCount = new HashMap<>();
-        version2updatedCellsCount.put(1, 0);
+    public Sheet() {
+        position2cell = new LinkedHashMap<>();
+        updatedCellsCount = 0;
     }
 
-    public Map<Integer, Cell>[][] getVersion2cellTable() {
-        return version2cellTable;
-    }
-
-    public int getCurrVersion() {
-        return currVersion;
-    }
-
-    public String getName() {
-        return name;
-    }
-
-    public Dimension getDimension() {
-        return dimension;
-    }
-
-    public Map<Integer, Integer> getVersion2updatedCellsCount() {
-        return version2updatedCellsCount;
-    }
-
-    public Map.Entry<Integer, Cell> getCellByVersion(CellPositionInSheet cellPosition, int version) {
-        Map.Entry<Integer, Cell> lastEntry = null;
-        Map<Integer, Cell> version2Cell = version2cellTable[cellPosition.getRow()][cellPosition.getColumn()];
-        for (Map.Entry<Integer, Cell> entry : version2Cell.entrySet()) {
-            if (entry.getKey() <= version) {
-                lastEntry = entry;
-            } else {
-                break; // Since the map is sorted, we can break the loop early
-            }
-        }
-        return lastEntry;
+    public int getUpdatedCellsCount() {
+        return updatedCellsCount;
     }
 
     public void updateCell(CellPositionInSheet cellPosition, String newValue) {
-        int columnIndex = cellPosition.getColumn();
-        int rowIndex = cellPosition.getRow();
-        Cell cell = new StringCell(newValue);
-        currVersion++;
-        // if no cell is affecting/affected by any other cell in the current version
-        version2updatedCellsCount.putIfAbsent(currVersion, 0);
-
-        if (newValue.matches("-?\\d+(\\.\\d+)?")) {
-            cell = new NumberCell(newValue);
-        }
-        else if (newValue.equalsIgnoreCase("true") || newValue.equalsIgnoreCase("false")) {
-            cell = new BoolCell(newValue);
-        }
-        else if (newValue.charAt(0) == '{' && newValue.charAt(newValue.length() - 1) == '}') {
-            cell = new ExpCell(newValue);
-//            // if the desired cell is not affecting any cell in the current version
-//            if (version2cellPos2affectingCellsPos.get(currVersion).get(cellPosition) == null) {
-//
-//            }
-        }
-        cell.setEffectiveValueByOriginalValue(this);
-        version2cellTable[rowIndex][columnIndex].put(currVersion, cell);
-        version2updatedCellsCount.put(currVersion, version2updatedCellsCount.get(currVersion) + 1);
+        updatedCellsCount++;
+        position2cell.put(cellPosition, new Cell(newValue, version));
     }
 
-    public static class Dimension implements Cloneable {
-        private int numOfRows;
-        private int numOfColumns;
-        private int rowHeight;
-        private int columnWidth;
+    public Cell getCell(CellPositionInSheet cellPosition) {
+        return position2cell.get(cellPosition);
+    }
 
-        public Dimension(int numOfRows, int numOfColumns, int rowHeight, int columnWidth) {
-            this.numOfRows = numOfRows;
-            this.numOfColumns = numOfColumns;
-            this.rowHeight = rowHeight;
-            this.columnWidth = columnWidth;
-        }
-
-        public int getNumOfRows() {
-            return numOfRows;
-        }
-
-        public int getNumOfColumns() {
-            return numOfColumns;
-        }
-
-        public int getRowHeight() {
-            return rowHeight;
-        }
-
-        public int getColumnWidth() {
-            return columnWidth;
-        }
-
-        @Override
-        public Dimension clone() {
-            try {
-                Dimension clone = (Dimension) super.clone();
-                clone.numOfRows = numOfRows;
-                clone.numOfColumns = numOfColumns;
-                clone.rowHeight = rowHeight;
-                clone.columnWidth = columnWidth;
-                return clone;
-            } catch (CloneNotSupportedException e) {
-                throw new AssertionError();
-            }
+    @Override
+    public Sheet clone() {
+        try {
+            Sheet cloned = (Sheet) super.clone();
+            cloned.version = version;
+            cloned.updatedCellsCount = 0;
+            position2cell.forEach((k,v) -> cloned.position2cell.put(k.clone(), v.clone()));
+            return cloned;
+        } catch (CloneNotSupportedException e) {
+            throw new AssertionError();
         }
     }
 }

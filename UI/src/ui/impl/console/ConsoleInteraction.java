@@ -2,10 +2,8 @@ package ui.impl.console;
 
 import engine.entity.cell.Cell;
 import engine.entity.cell.CellDto;
-import engine.entity.cell.CellPositionInSheet;
-import engine.entity.sheet.Sheet;
+import engine.entity.sheet.SheetDimension;
 import engine.impl.ShticellEngine;
-import engine.entity.sheet.SheetDto;
 import ui.api.Ui;
 
 import java.util.List;
@@ -15,7 +13,6 @@ import java.util.Scanner;
 import static java.lang.System.exit;
 
 public class ConsoleInteraction implements Ui {
-    public static final int EXIT = -1;
     private final ShticellEngine engine;
     private final Scanner scanner = new Scanner(System.in);
 
@@ -28,8 +25,7 @@ public class ConsoleInteraction implements Ui {
     }
 
     private void showSheetTable(int version) {
-        SheetDto sheetDto = engine.getSheetDto(version);
-        Sheet.Dimension sheetDimension = engine.getSheetDimension();
+        SheetDimension sheetDimension = engine.getSheetDimension();
         int numOfRows = sheetDimension.getNumOfRows();
         int numOfColumns = sheetDimension.getNumOfColumns();
         int rowHeight = sheetDimension.getRowHeight();
@@ -52,7 +48,7 @@ public class ConsoleInteraction implements Ui {
             // Print each cell in the row
             for (int col = 0; col < numOfColumns; col++) {
                 CellDto cell = engine.findCellInSheet(row, col, version);
-                String text = cell == null ? "" : cell.getEffectiveValue();
+                String text = cell == null ? "" : cell.getEffectiveValue().toString();
                 text = text.length() > columnWidth ? text.substring(0, columnWidth) : text;
                 int paddingRight = columnWidth - text.length();
                 System.out.print("|" + text + " ".repeat(paddingRight));

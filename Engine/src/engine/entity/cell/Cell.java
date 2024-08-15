@@ -1,28 +1,31 @@
 package engine.entity.cell;
 
-import engine.entity.sheet.Sheet;
+import java.math.BigDecimal;
+import java.text.DecimalFormat;
+import java.util.*;
 
-import java.util.ArrayList;
-import java.util.List;
-import java.util.Objects;
+import static engine.expression.impl.ExpressionEvaluator.evaluateExpression;
 
-public abstract class Cell implements Cloneable {
-    protected String originalValue;
-    protected String effectiveValue = "";
-    protected final List<Cell> dependsOn;
-    protected final List<Cell> influencingOn;
+public class Cell implements Cloneable {
+    private String originalValue;
+    private EffectiveValue effectiveValue;
+    private final List<Cell> dependsOn;
+    private final List<Cell> influencingOn;
+    private int lastUpdatedInVersion;
 
-    protected Cell(String originalValue) {
+    public Cell(String originalValue, int lastUpdatedInVersion) {
         this.originalValue = originalValue;
+        setEffectiveValueByOriginalValue();
         dependsOn = new ArrayList<>();
         influencingOn = new ArrayList<>();
+        this.lastUpdatedInVersion = lastUpdatedInVersion;
     }
 
     public String getOriginalValue() {
         return originalValue;
     }
 
-    public String getEffectiveValue() {
+    public EffectiveValue getEffectiveValue() {
         return effectiveValue;
     }
 
@@ -34,9 +37,25 @@ public abstract class Cell implements Cloneable {
         return influencingOn;
     }
 
-    public abstract void setEffectiveValueByOriginalValue(Sheet sheet);
+    public int getLastUpdatedInVersion() {
+        return lastUpdatedInVersion;
+    }
 
-    protected abstract <T> T parseOriginalValue();
+    public void setEffectiveValueByOriginalValue() {
+        if (originalValue.matches("-?\\d+(\\.\\d+)?")) {
+            DecimalFormat formatter = new DecimalFormat("#,###.##");
+            effectiveValue = new EffectiveValue(CellType.NUMERIC, formatter.format(new BigDecimal(originalValue)));
+        }
+        else if (originalValue.equalsIgnoreCase("true") || originalValue.equalsIgnoreCase("false")) {
+            effectiveValue = new EffectiveValue(CellType.BOOLEAN, originalValue.toUpperCase());
+        }
+        else if (originalValue.charAt(0) == '{' && originalValue.charAt(originalValue.length() - 1) == '}') {
+            effectiveValue = evaluateExpression(originalValue);
+        }
+        else {
+            effectiveValue = new EffectiveValue(CellType.STRING, originalValue);
+        }
+    }
 
     @Override
     public boolean equals(Object o) {
@@ -59,6 +78,7 @@ public abstract class Cell implements Cloneable {
             cloned.effectiveValue = effectiveValue;
             dependsOn.forEach((cell) -> cloned.dependsOn.add(cell.clone()));
             influencingOn.forEach((cell) -> cloned.influencingOn.add(cell.clone()));
+            cloned.lastUpdatedInVersion = lastUpdatedInVersion;
             return cloned;
         } catch (CloneNotSupportedException e) {
             throw new AssertionError();

@@ -6,7 +6,6 @@ public class Program {
         while (1 == 1) {
             console.showSheet(console.getEngine().getCurrentSheetVersion());
             console.updateSheetCell();
-            console.showSheetCell();
             console.showSheetVersions();
         }
     }

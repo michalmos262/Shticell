@@ -1,20 +1,19 @@
 package engine.entity.cell;
 
+import java.util.AbstractMap;
+import java.util.Map;
 import java.util.Objects;
 
 public class CellPositionInSheet implements Cloneable {
     private int row;
     private int column;
+    private final Map.Entry<Integer, Cell> defaultInitVersionByCell;
 
     public CellPositionInSheet(int row, int column) {
         this.row = row;
         this.column = column;
+        defaultInitVersionByCell = new AbstractMap.SimpleEntry<>(1, new Cell(" ", 1));
     }
-
-//    public CellPositionInSheet(String position) {
-//        this.row = parseRow(position);
-//        this.column = parseColumn(position);
-//    }
 
     public int getRow() {
         return row;
@@ -35,21 +34,21 @@ public class CellPositionInSheet implements Cloneable {
         if (this == o) return true;
         if (o == null || getClass() != o.getClass()) return false;
         CellPositionInSheet that = (CellPositionInSheet) o;
-        return row == that.row && column == that.column;
+        return getRow() == that.getRow() && getColumn() == that.getColumn() && Objects.equals(defaultInitVersionByCell, that.defaultInitVersionByCell);
     }
 
     @Override
     public int hashCode() {
-        return Objects.hash(row, column);
+        return Objects.hash(getRow(), getColumn(), defaultInitVersionByCell);
     }
 
     @Override
     public CellPositionInSheet clone() {
         try {
-            CellPositionInSheet clone = (CellPositionInSheet) super.clone();
-            clone.row = this.row;
-            clone.column = this.column;
-            return clone;
+            CellPositionInSheet cloned = (CellPositionInSheet) super.clone();
+            cloned.row = row;
+            cloned.column = column;
+            return cloned;
         } catch (CloneNotSupportedException e) {
             throw new AssertionError();
         }

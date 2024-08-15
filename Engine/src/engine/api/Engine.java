@@ -3,17 +3,15 @@ package engine.api;
 import engine.entity.cell.Cell;
 import engine.entity.cell.CellDto;
 import engine.entity.cell.CellPositionInSheet;
-import engine.entity.sheet.Sheet;
-import engine.entity.sheet.SheetDto;
+import engine.entity.sheet.SheetDimension;
 
 import java.util.List;
 import java.util.Map;
 
 public interface Engine {
-    SheetDto getSheetDto(int version);
     String getSheetName();
     int getCurrentSheetVersion();
-    Sheet.Dimension getSheetDimension();
+    SheetDimension getSheetDimension();
     CellDto findCellInSheet(int row, int column, int sheetVersion);
     int getLastCellVersion(int row, int column);
     List<Cell> getDependsOnList(int row, int column, int sheetVersion);

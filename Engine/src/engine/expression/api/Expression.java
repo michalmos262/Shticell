@@ -1,13 +1,14 @@
 package engine.expression.api;
 
+import engine.entity.cell.EffectiveValue;
 import engine.operation.Operation;
 
-public interface Expression<T> {
+public interface Expression {
     /**
      * invokes the expression and returns the result
      *
      * @return the results of the expression
      */
-    T invoke();
+    EffectiveValue invoke();
     Operation getOperationSign();
 }
