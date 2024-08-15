@@ -1,23 +1,23 @@
 package engine.operation.function;
 
-import engine.entity.cell.Cell;
+import engine.entity.cell.*;
 import engine.expression.api.Expression;
 import engine.expression.impl.UnaryExpression;
 import engine.operation.Operation;
 
-public class Ref extends UnaryExpression<Cell, String> {
+public class Ref extends UnaryExpression {
 
-    public Ref(Expression<Cell> expression) {
+    public Ref(Expression expression) {
         super(expression);
-    }
-
-    @Override
-    protected String invoke(Cell cell) {
-        return cell.getEffectiveValue();
     }
 
     @Override
     public Operation getOperationSign() {
         return Operation.REF;
+    }
+
+    @Override
+    protected EffectiveValue invoke(EffectiveValue evaluate) {
+        return evaluate;
     }
 }

@@ -1,18 +1,21 @@
 package engine.operation.function;
 
+import engine.entity.cell.CellType;
+import engine.entity.cell.EffectiveValue;
 import engine.expression.api.Expression;
 import engine.expression.impl.BinaryExpression;
 import engine.operation.Operation;
 
-public class Plus extends BinaryExpression<Double, Double, Double> {
+public class Plus extends BinaryExpression {
 
-    public Plus(Expression<Double> expression1, Expression<Double> expression2) {
+    public Plus(Expression expression1, Expression expression2) {
         super(expression1, expression2);
     }
 
     @Override
-    protected Double invoke(Double evaluate1, Double evaluate2) {
-        return evaluate1 + evaluate2;
+    protected EffectiveValue invoke(EffectiveValue evaluate1, EffectiveValue evaluate2) {
+        double result = evaluate1.extractValueWithExpectation(Double.class) + evaluate2.extractValueWithExpectation(Double.class);
+        return new EffectiveValue(CellType.NUMERIC, result);
     }
 
     @Override

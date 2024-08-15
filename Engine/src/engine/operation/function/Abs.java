@@ -1,18 +1,21 @@
 package engine.operation.function;
 
+import engine.entity.cell.CellType;
+import engine.entity.cell.EffectiveValue;
 import engine.expression.api.Expression;
 import engine.expression.impl.UnaryExpression;
 import engine.operation.Operation;
 
-public class Abs extends UnaryExpression<Double, Double> {
+public class Abs extends UnaryExpression {
 
-    public Abs(Expression<Double> expression) {
+    public Abs(Expression expression) {
         super(expression);
     }
 
     @Override
-    protected Double invoke(Double evaluate) {
-        return Math.abs(evaluate);
+    protected EffectiveValue invoke(EffectiveValue evaluate) {
+        double result = Math.abs(evaluate.extractValueWithExpectation(Double.class));
+        return new EffectiveValue(CellType.NUMERIC, result);
     }
 
     @Override

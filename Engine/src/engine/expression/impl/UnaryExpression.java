@@ -1,28 +1,28 @@
 package engine.expression.impl;
 
+import engine.entity.cell.EffectiveValue;
+import engine.entity.sheet.SheetDto;
 import engine.expression.api.Expression;
 
 /**
  * Unary expression
- * @param <E> Expression type
- * @param <R> Return type
  */
-public abstract class UnaryExpression<E, R> implements Expression<R> {
-    private final Expression<E> expression;
+public abstract class UnaryExpression implements Expression {
+    private final Expression expression;
 
-    public UnaryExpression(Expression<E> expression) {
+    public UnaryExpression(Expression expression) {
         this.expression = expression;
     }
 
     @Override
-    public R invoke() {
+    public EffectiveValue invoke() {
         return invoke(expression.invoke());
     }
 
     @Override
     public String toString() {
-        return "{" + getOperationSign() + expression + "}";
+        return "{" + getOperationSign() + "," + expression + "}";
     }
 
-    abstract protected R invoke(E evaluate);
+    abstract protected EffectiveValue invoke(EffectiveValue evaluate);
 }
