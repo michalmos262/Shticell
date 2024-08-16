@@ -18,9 +18,20 @@ public class Sheet implements Cloneable {
         return updatedCellsCount;
     }
 
-    public void updateCell(CellPositionInSheet cellPosition, String newValue) {
+    public void updateCell(Cell cell, String originalValue, EffectiveValue effectiveValue) {
         updatedCellsCount++;
-        position2cell.put(cellPosition, new Cell(newValue, version));
+        cell.setLastUpdatedInVersion(version);
+        cell.setOriginalValue(originalValue);
+        cell.setEffectiveValue(effectiveValue);
+    }
+
+    public Cell getNewDefaultCell() {
+        return new Cell(" ", new EffectiveValue(CellType.STRING, " "), version);
+    }
+
+    public void createNewCell(CellPositionInSheet cellPosition, String originalValue, EffectiveValue effectiveValue) {
+        position2cell.put(cellPosition, new Cell(originalValue, effectiveValue, version));
+        updatedCellsCount++;
     }
 
     public Cell getCell(CellPositionInSheet cellPosition) {
@@ -31,7 +42,7 @@ public class Sheet implements Cloneable {
     public Sheet clone() {
         try {
             Sheet cloned = (Sheet) super.clone();
-            cloned.version = version;
+            cloned.version = version + 1;
             cloned.updatedCellsCount = 0;
             position2cell.forEach((k,v) -> cloned.position2cell.put(k.clone(), v.clone()));
             return cloned;

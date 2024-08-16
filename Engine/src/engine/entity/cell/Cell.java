@@ -1,23 +1,19 @@
 package engine.entity.cell;
 
-import java.math.BigDecimal;
-import java.text.DecimalFormat;
 import java.util.*;
-
-import static engine.expression.impl.ExpressionEvaluator.evaluateExpression;
 
 public class Cell implements Cloneable {
     private String originalValue;
     private EffectiveValue effectiveValue;
-    private final List<Cell> dependsOn;
-    private final List<Cell> influencingOn;
+    private final List<Cell> influencedBy;
+    private final List<Cell> influences;
     private int lastUpdatedInVersion;
 
-    public Cell(String originalValue, int lastUpdatedInVersion) {
+    public Cell(String originalValue, EffectiveValue effectiveValue, int lastUpdatedInVersion) {
         this.originalValue = originalValue;
-        setEffectiveValueByOriginalValue();
-        dependsOn = new ArrayList<>();
-        influencingOn = new ArrayList<>();
+        this.effectiveValue = effectiveValue;
+        influencedBy = new ArrayList<>();
+        influences = new ArrayList<>();
         this.lastUpdatedInVersion = lastUpdatedInVersion;
     }
 
@@ -29,32 +25,65 @@ public class Cell implements Cloneable {
         return effectiveValue;
     }
 
-    public List<Cell> getDependsOn() {
-        return dependsOn;
+    public List<Cell> getInfluencedBy() {
+        return influencedBy;
     }
 
-    public List<Cell> getInfluencingOn() {
-        return influencingOn;
+    public List<Cell> getInfluences() {
+        return influences;
     }
 
     public int getLastUpdatedInVersion() {
         return lastUpdatedInVersion;
     }
 
-    public void setEffectiveValueByOriginalValue() {
-        if (originalValue.matches("-?\\d+(\\.\\d+)?")) {
-            DecimalFormat formatter = new DecimalFormat("#,###.##");
-            effectiveValue = new EffectiveValue(CellType.NUMERIC, formatter.format(new BigDecimal(originalValue)));
+    private void addInfluence(Cell otherCell) {
+        influences.add(otherCell);
+        otherCell.influencedBy.add(this);
+    }
+
+    public void setEffectiveValue(EffectiveValue effectiveValue) {
+        this.effectiveValue = effectiveValue;
+    }
+
+    public void setOriginalValue(String originalValue) {
+        this.originalValue = originalValue;
+    }
+
+    public void setLastUpdatedInVersion(int lastUpdatedInVersion) {
+        this.lastUpdatedInVersion = lastUpdatedInVersion;
+    }
+
+    public boolean addConnectionTo(Cell otherCell) {
+        // Temporarily add x2 as a dependency of x1
+        addInfluence(otherCell);
+
+        // Check if there is a cycle starting from x2
+        boolean cycleDetected = detectCycle(otherCell, new HashSet<>());
+
+        if (cycleDetected) {
+            // Revert the temporary connection
+            influences.remove(otherCell);
+            otherCell.getInfluencedBy().remove(this);
+            //TODO: add throw cycle detected
         }
-        else if (originalValue.equalsIgnoreCase("true") || originalValue.equalsIgnoreCase("false")) {
-            effectiveValue = new EffectiveValue(CellType.BOOLEAN, originalValue.toUpperCase());
+        return cycleDetected;
+    }
+
+    private boolean detectCycle(Cell cell, Set<Cell> visited) {
+        if (visited.contains(cell)) {
+            return true; // Cycle detected
         }
-        else if (originalValue.charAt(0) == '{' && originalValue.charAt(originalValue.length() - 1) == '}') {
-            effectiveValue = evaluateExpression(originalValue);
+        visited.add(cell);
+
+        for (Cell nextCell : cell.getInfluences()) {
+            if (detectCycle(nextCell, visited)) {
+                return true;
+            }
         }
-        else {
-            effectiveValue = new EffectiveValue(CellType.STRING, originalValue);
-        }
+
+        visited.remove(cell); // Remove from visited for other DFS paths
+        return false;
     }
 
     @Override
@@ -62,12 +91,12 @@ public class Cell implements Cloneable {
         if (this == o) return true;
         if (o == null || getClass() != o.getClass()) return false;
         Cell cell = (Cell) o;
-        return Objects.equals(getOriginalValue(), cell.getOriginalValue()) && Objects.equals(getEffectiveValue(), cell.getEffectiveValue()) && Objects.equals(getDependsOn(), cell.getDependsOn()) && Objects.equals(getInfluencingOn(), cell.getInfluencingOn());
+        return lastUpdatedInVersion == cell.lastUpdatedInVersion && Objects.equals(originalValue, cell.originalValue);
     }
 
     @Override
     public int hashCode() {
-        return Objects.hash(getOriginalValue(), getEffectiveValue(), getDependsOn(), getInfluencingOn());
+        return Objects.hash(originalValue, lastUpdatedInVersion);
     }
 
     @Override
@@ -76,8 +105,8 @@ public class Cell implements Cloneable {
             Cell cloned = (Cell) super.clone();
             cloned.originalValue = originalValue;
             cloned.effectiveValue = effectiveValue;
-            dependsOn.forEach((cell) -> cloned.dependsOn.add(cell.clone()));
-            influencingOn.forEach((cell) -> cloned.influencingOn.add(cell.clone()));
+            influencedBy.forEach((cell) -> cloned.influencedBy.add(cell.clone()));
+            influences.forEach((cell) -> cloned.influences.add(cell.clone()));
             cloned.lastUpdatedInVersion = lastUpdatedInVersion;
             return cloned;
         } catch (CloneNotSupportedException e) {

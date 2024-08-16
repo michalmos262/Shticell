@@ -1,17 +1,18 @@
 package engine.impl;
 
 import engine.api.Engine;
-import engine.entity.cell.Cell;
-import engine.entity.cell.CellDto;
-import engine.entity.cell.CellPositionInSheet;
-import engine.entity.cell.PositionFactory;
+import engine.entity.cell.*;
 import engine.entity.sheet.Sheet;
 import engine.entity.sheet.SheetDimension;
 import engine.entity.sheet.SheetManager;
 
+import java.math.BigDecimal;
+import java.text.DecimalFormat;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
+
+import static engine.expression.impl.ExpressionEvaluator.evaluateExpression;
 
 public class ShticellEngine implements Engine {
     private final SheetManager sheetManager;
@@ -54,22 +55,66 @@ public class ShticellEngine implements Engine {
     public List<Cell> getDependsOnList(int row, int column, int sheetVersion) {
         Sheet sheet = sheetManager.getSheetByVersion(sheetManager.getCurrentVersion());
         CellPositionInSheet cellPosition = PositionFactory.createPosition(row, column);
-        return new CellDto(sheet.getCell(cellPosition)).getDependsOn();
+        return new CellDto(sheet.getCell(cellPosition)).getInfluencedBy();
     }
 
     @Override
     public List<Cell> getInfluencingOnList(int row, int column, int sheetVersion) {
         Sheet sheet = sheetManager.getSheetByVersion(sheetManager.getCurrentVersion());
         CellPositionInSheet cellPosition = PositionFactory.createPosition(row, column);
-        return new CellDto(sheet.getCell(cellPosition)).getInfluencingOn();
+        return new CellDto(sheet.getCell(cellPosition)).getInfluences();
+    }
+
+    private EffectiveValue getEffectiveValue(Sheet sheet, String originalValue) {
+        EffectiveValue effectiveValue;
+
+        if (originalValue.matches("-?\\d+(\\.\\d+)?")) {
+            DecimalFormat formatter = new DecimalFormat("#,###.##");
+            effectiveValue = new EffectiveValue(CellType.NUMERIC, formatter.format(new BigDecimal(originalValue)));
+        }
+        else if (originalValue.equalsIgnoreCase("true") || originalValue.equalsIgnoreCase("false")) {
+            effectiveValue = new EffectiveValue(CellType.BOOLEAN, originalValue.toUpperCase());
+        }
+        else if (originalValue.charAt(0) == '{' && originalValue.charAt(originalValue.length() - 1) == '}') {
+            effectiveValue = evaluateExpression(sheet, originalValue);
+            // TODO: add influencers!!
+        }
+        else {
+            effectiveValue = new EffectiveValue(CellType.STRING, originalValue);
+        }
+
+        return effectiveValue;
+    }
+
+    //RECURSIVE UPDATE
+    private void updateInfluencedByCell(Sheet sheet, Cell cell) {
+        String originalValue = cell.getOriginalValue();
+        EffectiveValue effectiveValue = getEffectiveValue(sheet, originalValue);
+
+        cell.getInfluences()
+                .forEach((influencedCell) -> {
+                    sheet.updateCell(influencedCell, originalValue, effectiveValue);
+                    updateInfluencedByCell(sheet, influencedCell);
+                }
+        );
     }
 
     @Override
-    public void updateSheetCell(int row, int column, String newValue) {
-        Sheet newSheet = sheetManager.getSheetByVersion(sheetManager.getCurrentVersion()).clone();
-        newSheet.updateCell(PositionFactory.createPosition(row, column), newValue);
+    //THE FIRST UPDATE
+    public void updateSheetCell(int row, int column, String newOriginalValue) {
+        Sheet clonedSheet = sheetManager.getSheetByVersion(sheetManager.getCurrentVersion()).clone();
+        CellPositionInSheet cellPosition = PositionFactory.createPosition(row, column);
+        Cell cellInUpdate = clonedSheet.getCell(cellPosition);
+        EffectiveValue effectiveValue = getEffectiveValue(clonedSheet, newOriginalValue);
 
-        sheetManager.addNewSheet(newSheet);
+        if (cellInUpdate == null) { // need to create new cell
+            clonedSheet.createNewCell(cellPosition, newOriginalValue, effectiveValue);
+        } else {
+            clonedSheet.updateCell(cellInUpdate, newOriginalValue, effectiveValue);
+            updateInfluencedByCell(clonedSheet, cellInUpdate);
+            cellInUpdate.getInfluencedBy().removeAll(cellInUpdate.getInfluencedBy());
+        }
+        sheetManager.addNewSheet(clonedSheet);
     }
 
     @Override

@@ -39,11 +39,11 @@ public class EffectiveValue {
         if (this == o) return true;
         if (o == null || getClass() != o.getClass()) return false;
         EffectiveValue that = (EffectiveValue) o;
-        return getCellType() == that.getCellType() && Objects.equals(getValue(), that.getValue());
+        return cellType == that.cellType && Objects.equals(value, that.value);
     }
 
     @Override
     public int hashCode() {
-        return Objects.hash(getCellType(), getValue());
+        return Objects.hash(cellType, value);
     }
 }

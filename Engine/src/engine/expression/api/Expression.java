@@ -1,6 +1,7 @@
 package engine.expression.api;
 
 import engine.entity.cell.EffectiveValue;
+import engine.entity.sheet.SheetDto;
 import engine.operation.Operation;
 
 public interface Expression {
@@ -9,6 +10,6 @@ public interface Expression {
      *
      * @return the results of the expression
      */
-    EffectiveValue invoke();
+    EffectiveValue invoke(SheetDto sheetDto);
     Operation getOperationSign();
 }

@@ -1,6 +1,8 @@
 package engine.expression.impl;
 
 import engine.entity.cell.EffectiveValue;
+import engine.entity.sheet.Sheet;
+import engine.entity.sheet.SheetDto;
 import engine.expression.api.Expression;
 
 /**
@@ -18,8 +20,8 @@ public abstract class TrinaryExpression implements Expression {
     }
 
     @Override
-    public EffectiveValue invoke() {
-        return invoke(expression1.invoke(), expression2.invoke(), expression3.invoke());
+    public EffectiveValue invoke(SheetDto sheetDto) {
+        return invoke(sheetDto, expression1.invoke(sheetDto), expression2.invoke(sheetDto), expression3.invoke(sheetDto));
     }
 
     @Override
@@ -27,5 +29,5 @@ public abstract class TrinaryExpression implements Expression {
         return "{" + getOperationSign() + "," + expression1 + "," + expression2 + "," + expression3 + "}";
     }
 
-    abstract protected EffectiveValue invoke(EffectiveValue evaluate1, EffectiveValue evaluate2, EffectiveValue evaluate3);
+    abstract protected EffectiveValue invoke(SheetDto sheetDto, EffectiveValue evaluate1, EffectiveValue evaluate2, EffectiveValue evaluate3);
 }

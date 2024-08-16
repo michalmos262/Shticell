@@ -15,8 +15,8 @@ public abstract class UnaryExpression implements Expression {
     }
 
     @Override
-    public EffectiveValue invoke() {
-        return invoke(expression.invoke());
+    public EffectiveValue invoke(SheetDto sheetDto) {
+        return invoke(sheetDto, expression.invoke(sheetDto));
     }
 
     @Override
@@ -24,5 +24,5 @@ public abstract class UnaryExpression implements Expression {
         return "{" + getOperationSign() + "," + expression + "}";
     }
 
-    abstract protected EffectiveValue invoke(EffectiveValue evaluate);
+    abstract protected EffectiveValue invoke(SheetDto sheetDto, EffectiveValue evaluate);
 }
