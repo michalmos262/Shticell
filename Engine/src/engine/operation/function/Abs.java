@@ -14,7 +14,7 @@ public class Abs extends UnaryExpression {
     }
 
     @Override
-    protected EffectiveValue invoke(SheetDto sheetDto, EffectiveValue evaluate) {
+    protected EffectiveValue invoke(EffectiveValue evaluate) {
         double result = Math.abs(evaluate.extractValueWithExpectation(Double.class));
         return new EffectiveValue(CellType.NUMERIC, result);
     }

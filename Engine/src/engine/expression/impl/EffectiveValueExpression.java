@@ -14,7 +14,7 @@ public class EffectiveValueExpression implements Expression {
     }
 
     @Override
-    public EffectiveValue invoke(SheetDto sheetDto) {
+    public EffectiveValue invoke() {
         return value;
     }
 

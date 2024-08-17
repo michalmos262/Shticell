@@ -2,7 +2,6 @@ package engine.operation.function;
 
 import engine.entity.cell.CellType;
 import engine.entity.cell.EffectiveValue;
-import engine.entity.sheet.SheetDto;
 import engine.expression.api.Expression;
 import engine.expression.impl.TrinaryExpression;
 import engine.operation.Operation;
@@ -14,7 +13,7 @@ public class Sub extends TrinaryExpression {
     }
 
     @Override
-    protected EffectiveValue invoke(SheetDto sheetDto, EffectiveValue evaluate1, EffectiveValue evaluate2, EffectiveValue evaluate3) {
+    protected EffectiveValue invoke(EffectiveValue evaluate1, EffectiveValue evaluate2, EffectiveValue evaluate3) {
         String str = evaluate1.toString();
         int beginIndex = evaluate2.extractValueWithExpectation(Integer.class);
         int endIndex = evaluate3.extractValueWithExpectation(Integer.class);

@@ -4,15 +4,13 @@
     <option name="autoReloadType" value="SELECTIVE" />
   </component>
   <component name="ChangeListManager">
-    <list default="true" id="35d24eeb-d633-4243-8af7-453c9914951b" name="Changes" comment="BIG REFACTORING">
-      <change afterPath="$PROJECT_DIR$/Engine/src/engine/impl/CellCycleDetector.java" afterDir="false" />
+    <list default="true" id="35d24eeb-d633-4243-8af7-453c9914951b" name="Changes" comment="in the middle of REF command - need to add influencers, added TODO">
+      <change afterPath="$PROJECT_DIR$/Engine/src/engine/expression/impl/SystemExpression.java" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/Engine/src/engine/expression/impl/ValueAndPositions.java" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/.idea/workspace.xml" beforeDir="false" afterPath="$PROJECT_DIR$/.idea/workspace.xml" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/Engine/src/engine/entity/cell/Cell.java" beforeDir="false" afterPath="$PROJECT_DIR$/Engine/src/engine/entity/cell/Cell.java" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/Engine/src/engine/entity/cell/CellDto.java" beforeDir="false" afterPath="$PROJECT_DIR$/Engine/src/engine/entity/cell/CellDto.java" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/Engine/src/engine/entity/cell/CellPositionInSheet.java" beforeDir="false" afterPath="$PROJECT_DIR$/Engine/src/engine/entity/cell/CellPositionInSheet.java" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/Engine/src/engine/entity/cell/CellType.java" beforeDir="false" afterPath="$PROJECT_DIR$/Engine/src/engine/entity/cell/CellType.java" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/Engine/src/engine/entity/cell/EffectiveValue.java" beforeDir="false" afterPath="$PROJECT_DIR$/Engine/src/engine/entity/cell/EffectiveValue.java" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/Engine/src/engine/entity/sheet/Sheet.java" beforeDir="false" afterPath="$PROJECT_DIR$/Engine/src/engine/entity/sheet/Sheet.java" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/Engine/src/engine/entity/sheet/SheetDto.java" beforeDir="false" afterPath="$PROJECT_DIR$/Engine/src/engine/entity/sheet/SheetDto.java" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/Engine/src/engine/expression/api/Expression.java" beforeDir="false" afterPath="$PROJECT_DIR$/Engine/src/engine/expression/api/Expression.java" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/Engine/src/engine/expression/impl/BinaryExpression.java" beforeDir="false" afterPath="$PROJECT_DIR$/Engine/src/engine/expression/impl/BinaryExpression.java" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/Engine/src/engine/expression/impl/EffectiveValueExpression.java" beforeDir="false" afterPath="$PROJECT_DIR$/Engine/src/engine/expression/impl/EffectiveValueExpression.java" afterDir="false" />
@@ -89,7 +87,7 @@
     "Application.Program.executor": "Debug",
     "RunOnceActivity.ShowReadmeOnStart": "true",
     "SHARE_PROJECT_CONFIGURATION_FILES": "true",
-    "git-widget-placeholder": "branch-4",
+    "git-widget-placeholder": "#6 on branch-4",
     "kotlin-language-version-configured": "true",
     "last_opened_file_path": "C:/Users/asafl/Downloads/06. Java 8/06. Java 8",
     "node.js.detected.package.eslint": "true",
@@ -105,7 +103,7 @@
     "vue.rearranger.settings.migration": "true"
   }
 }]]></component>
-  <component name="RunManager" selected="Application.Program">
+  <component name="RunManager" selected="Application.ExpressionEvaluator">
     <configuration name="CellCycleDetector" type="Application" factoryName="Application" temporary="true" nameIsGenerated="true">
       <option name="MAIN_CLASS_NAME" value="engine.impl.CellCycleDetector" />
       <module name="Engine" />
@@ -149,9 +147,9 @@
     </configuration>
     <recent_temporary>
       <list>
+        <item itemvalue="Application.ExpressionEvaluator" />
         <item itemvalue="Application.Program" />
         <item itemvalue="Application.CellCycleDetector" />
-        <item itemvalue="Application.ExpressionEvaluator" />
       </list>
     </recent_temporary>
   </component>
@@ -257,7 +255,15 @@
       <option name="project" value="LOCAL" />
       <updated>1723747877804</updated>
     </task>
-    <option name="localTasksCounter" value="11" />
+    <task id="LOCAL-00011" summary="in the middle of REF command - need to add influencers, added TODO">
+      <option name="closed" value="true" />
+      <created>1723820930655</created>
+      <option name="number" value="00011" />
+      <option name="presentableId" value="LOCAL-00011" />
+      <option name="project" value="LOCAL" />
+      <updated>1723820930655</updated>
+    </task>
+    <option name="localTasksCounter" value="12" />
     <servers />
   </component>
   <component name="TypeScriptGeneratedFilesManager">
@@ -286,12 +292,24 @@
     <MESSAGE value="continued expressions, haven't done" />
     <MESSAGE value="refactor of creating positions + moved lists of cells to cell object + changed parameters in engine" />
     <MESSAGE value="BIG REFACTORING" />
-    <option name="LAST_COMMIT_MESSAGE" value="BIG REFACTORING" />
+    <MESSAGE value="in the middle of REF command - need to add influencers, added TODO" />
+    <option name="LAST_COMMIT_MESSAGE" value="in the middle of REF command - need to add influencers, added TODO" />
   </component>
   <component name="XDebuggerManager">
+    <breakpoint-manager>
+      <breakpoints>
+        <line-breakpoint enabled="true" type="java-line">
+          <url>file://$PROJECT_DIR$/Engine/src/engine/expression/impl/ExpressionEvaluator.java</url>
+          <line>97</line>
+          <option name="timeStamp" value="44" />
+        </line-breakpoint>
+      </breakpoints>
+    </breakpoint-manager>
     <watches-manager>
       <configuration name="Application">
         <watch expression="b" />
+        <watch expression="effectiveValue2.value" language="JAVA" />
+        <watch expression="args.get(2)" />
       </configuration>
     </watches-manager>
   </component>

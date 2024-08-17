@@ -1,8 +1,11 @@
 package engine.expression.impl;
 
+import engine.entity.cell.CellPositionInSheet;
 import engine.entity.cell.EffectiveValue;
 import engine.entity.sheet.SheetDto;
 import engine.expression.api.Expression;
+
+import java.util.List;
 
 /**
  * Unary expression
@@ -15,8 +18,8 @@ public abstract class UnaryExpression implements Expression {
     }
 
     @Override
-    public EffectiveValue invoke(SheetDto sheetDto) {
-        return invoke(sheetDto, expression.invoke(sheetDto));
+    public EffectiveValue invoke() {
+        return invoke(expression.invoke());
     }
 
     @Override
@@ -24,5 +27,5 @@ public abstract class UnaryExpression implements Expression {
         return "{" + getOperationSign() + "," + expression + "}";
     }
 
-    abstract protected EffectiveValue invoke(SheetDto sheetDto, EffectiveValue evaluate);
+    abstract protected EffectiveValue invoke(EffectiveValue evaluate);
 }

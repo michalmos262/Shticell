@@ -19,7 +19,7 @@ public class Concat extends BinaryExpression {
     }
 
     @Override
-    protected EffectiveValue invoke(SheetDto sheetDto, EffectiveValue evaluate1, EffectiveValue evaluate2) {
+    protected EffectiveValue invoke(EffectiveValue evaluate1, EffectiveValue evaluate2) {
         String left = evaluate1.toString();
         String right = evaluate2.toString();
         String result = left.concat(right);

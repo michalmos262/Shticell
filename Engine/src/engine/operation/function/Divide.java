@@ -14,7 +14,7 @@ public class Divide extends BinaryExpression {
     }
 
     @Override
-    protected EffectiveValue invoke(SheetDto sheetDto, EffectiveValue evaluate1, EffectiveValue evaluate2) {
+    protected EffectiveValue invoke(EffectiveValue evaluate1, EffectiveValue evaluate2) {
         double left = evaluate1.extractValueWithExpectation(Double.class);
         double right = evaluate2.extractValueWithExpectation(Double.class);
         if (right == 0) {

@@ -9,6 +9,7 @@ import engine.entity.sheet.SheetManager;
 import java.math.BigDecimal;
 import java.text.DecimalFormat;
 import java.util.HashMap;
+import java.util.LinkedList;
 import java.util.List;
 import java.util.Map;
 
@@ -65,7 +66,7 @@ public class ShticellEngine implements Engine {
         return new CellDto(sheet.getCell(cellPosition)).getInfluences();
     }
 
-    private EffectiveValue getEffectiveValue(Sheet sheet, String originalValue) {
+    private EffectiveValue getEffectiveValue(Sheet sheet, CellPositionInSheet cellPosition, String originalValue) {
         EffectiveValue effectiveValue;
 
         if (originalValue.matches("-?\\d+(\\.\\d+)?")) {
@@ -76,7 +77,8 @@ public class ShticellEngine implements Engine {
             effectiveValue = new EffectiveValue(CellType.BOOLEAN, originalValue.toUpperCase());
         }
         else if (originalValue.charAt(0) == '{' && originalValue.charAt(originalValue.length() - 1) == '}') {
-            effectiveValue = evaluateExpression(sheet, originalValue);
+            List<CellPositionInSheet> influencingCellPositions = new LinkedList<>();
+            effectiveValue = evaluateExpression(sheet, originalValue, influencingCellPositions).getEffectiveValue();
             // TODO: add influencers!!
         }
         else {
@@ -87,14 +89,15 @@ public class ShticellEngine implements Engine {
     }
 
     //RECURSIVE UPDATE
-    private void updateInfluencedByCell(Sheet sheet, Cell cell) {
+    private void updateInfluencedByCell(Sheet sheet, CellPositionInSheet cellPosition) {
+        Cell cell = sheet.getCell(cellPosition);
         String originalValue = cell.getOriginalValue();
-        EffectiveValue effectiveValue = getEffectiveValue(sheet, originalValue);
+        EffectiveValue effectiveValue = getEffectiveValue(sheet, cellPosition, originalValue);
 
         cell.getInfluences()
                 .forEach((influencedCell) -> {
                     sheet.updateCell(influencedCell, originalValue, effectiveValue);
-                    updateInfluencedByCell(sheet, influencedCell);
+                    updateInfluencedByCell(sheet, cellPosition);
                 }
         );
     }
@@ -105,13 +108,13 @@ public class ShticellEngine implements Engine {
         Sheet clonedSheet = sheetManager.getSheetByVersion(sheetManager.getCurrentVersion()).clone();
         CellPositionInSheet cellPosition = PositionFactory.createPosition(row, column);
         Cell cellInUpdate = clonedSheet.getCell(cellPosition);
-        EffectiveValue effectiveValue = getEffectiveValue(clonedSheet, newOriginalValue);
+        EffectiveValue effectiveValue = getEffectiveValue(clonedSheet, cellPosition, newOriginalValue);
 
         if (cellInUpdate == null) { // need to create new cell
             clonedSheet.createNewCell(cellPosition, newOriginalValue, effectiveValue);
         } else {
             clonedSheet.updateCell(cellInUpdate, newOriginalValue, effectiveValue);
-            updateInfluencedByCell(clonedSheet, cellInUpdate);
+            updateInfluencedByCell(clonedSheet, cellPosition);
             cellInUpdate.getInfluencedBy().removeAll(cellInUpdate.getInfluencedBy());
         }
         sheetManager.addNewSheet(clonedSheet);

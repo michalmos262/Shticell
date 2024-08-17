@@ -29,9 +29,11 @@ public class Sheet implements Cloneable {
         return new Cell(" ", new EffectiveValue(CellType.STRING, " "), version);
     }
 
-    public void createNewCell(CellPositionInSheet cellPosition, String originalValue, EffectiveValue effectiveValue) {
-        position2cell.put(cellPosition, new Cell(originalValue, effectiveValue, version));
+    public Cell createNewCell(CellPositionInSheet cellPosition, String originalValue, EffectiveValue effectiveValue) {
+        Cell newCell = new Cell(originalValue, effectiveValue, version);
+        position2cell.put(cellPosition, newCell);
         updatedCellsCount++;
+        return newCell;
     }
 
     public Cell getCell(CellPositionInSheet cellPosition) {

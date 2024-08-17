@@ -1,5 +1,7 @@
 package engine.entity.cell;
 
+import engine.expression.impl.ValueAndPositions;
+
 import java.util.Objects;
 
 public class EffectiveValue {
@@ -23,6 +25,9 @@ public class EffectiveValue {
         if (cellType.isAssignableFrom(type)) {
             if (value instanceof EffectiveValue) {
                     value = ((EffectiveValue) value).extractValueWithExpectation(type);
+            }
+            if (value instanceof ValueAndPositions) {
+                    value = ((ValueAndPositions) value).getEffectiveValue().extractValueWithExpectation(type);
             }
             return type.cast(value);
         }

@@ -1,8 +1,11 @@
 package engine.expression.api;
 
+import engine.entity.cell.CellPositionInSheet;
 import engine.entity.cell.EffectiveValue;
 import engine.entity.sheet.SheetDto;
 import engine.operation.Operation;
+
+import java.util.List;
 
 public interface Expression {
     /**
@@ -10,6 +13,6 @@ public interface Expression {
      *
      * @return the results of the expression
      */
-    EffectiveValue invoke(SheetDto sheetDto);
+    EffectiveValue invoke();
     Operation getOperationSign();
 }

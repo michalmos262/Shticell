@@ -17,8 +17,8 @@ public abstract class BinaryExpression implements Expression {
     }
 
     @Override
-    public EffectiveValue invoke(SheetDto sheetDto) {
-        return invoke(sheetDto, expression1.invoke(sheetDto), expression2.invoke(sheetDto));
+    public EffectiveValue invoke() {
+        return invoke(expression1.invoke(), expression2.invoke());
     }
 
     @Override
@@ -26,5 +26,5 @@ public abstract class BinaryExpression implements Expression {
         return "{" + getOperationSign() + "," + expression1 + "," + expression2 + "}";
     }
 
-    abstract protected EffectiveValue invoke(SheetDto sheetDto, EffectiveValue evaluate1, EffectiveValue evaluate2);
+    abstract protected EffectiveValue invoke(EffectiveValue evaluate1, EffectiveValue evaluate2);
 }
