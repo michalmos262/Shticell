@@ -25,11 +25,11 @@ public class CellDto {
         return cellDto.getEffectiveValue();
     }
 
-    public List<Cell> getInfluencedBy() {
+    public List<CellPositionInSheet> getInfluencedBy() {
         return cellDto.getInfluencedBy();
     }
 
-    public List<Cell> getInfluences() {
+    public List<CellPositionInSheet> getInfluences() {
         return cellDto.getInfluences();
     }
 

@@ -5,29 +5,17 @@
   </component>
   <component name="ChangeListManager">
     <list default="true" id="35d24eeb-d633-4243-8af7-453c9914951b" name="Changes" comment="in the middle of REF command - need to add influencers, added TODO">
-      <change afterPath="$PROJECT_DIR$/Engine/src/engine/expression/impl/SystemExpression.java" afterDir="false" />
-      <change afterPath="$PROJECT_DIR$/Engine/src/engine/expression/impl/ValueAndPositions.java" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/.idea/workspace.xml" beforeDir="false" afterPath="$PROJECT_DIR$/.idea/workspace.xml" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/Engine/src/engine/entity/cell/CellType.java" beforeDir="false" afterPath="$PROJECT_DIR$/Engine/src/engine/entity/cell/CellType.java" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/Engine/src/engine/api/Engine.java" beforeDir="false" afterPath="$PROJECT_DIR$/Engine/src/engine/api/Engine.java" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/Engine/src/engine/entity/cell/Cell.java" beforeDir="false" afterPath="$PROJECT_DIR$/Engine/src/engine/entity/cell/Cell.java" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/Engine/src/engine/entity/cell/CellDto.java" beforeDir="false" afterPath="$PROJECT_DIR$/Engine/src/engine/entity/cell/CellDto.java" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/Engine/src/engine/entity/cell/EffectiveValue.java" beforeDir="false" afterPath="$PROJECT_DIR$/Engine/src/engine/entity/cell/EffectiveValue.java" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/Engine/src/engine/entity/sheet/Sheet.java" beforeDir="false" afterPath="$PROJECT_DIR$/Engine/src/engine/entity/sheet/Sheet.java" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/Engine/src/engine/expression/api/Expression.java" beforeDir="false" afterPath="$PROJECT_DIR$/Engine/src/engine/expression/api/Expression.java" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/Engine/src/engine/expression/impl/BinaryExpression.java" beforeDir="false" afterPath="$PROJECT_DIR$/Engine/src/engine/expression/impl/BinaryExpression.java" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/Engine/src/engine/expression/impl/EffectiveValueExpression.java" beforeDir="false" afterPath="$PROJECT_DIR$/Engine/src/engine/expression/impl/EffectiveValueExpression.java" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/Engine/src/engine/expression/impl/ExpressionEvaluator.java" beforeDir="false" afterPath="$PROJECT_DIR$/Engine/src/engine/expression/impl/ExpressionEvaluator.java" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/Engine/src/engine/expression/impl/TrinaryExpression.java" beforeDir="false" afterPath="$PROJECT_DIR$/Engine/src/engine/expression/impl/TrinaryExpression.java" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/Engine/src/engine/expression/impl/UnaryExpression.java" beforeDir="false" afterPath="$PROJECT_DIR$/Engine/src/engine/expression/impl/UnaryExpression.java" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/Engine/src/engine/impl/CellCycleDetector.java" beforeDir="false" afterPath="$PROJECT_DIR$/Engine/src/engine/impl/CellCycleDetector.java" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/Engine/src/engine/impl/ShticellEngine.java" beforeDir="false" afterPath="$PROJECT_DIR$/Engine/src/engine/impl/ShticellEngine.java" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/Engine/src/engine/operation/function/Abs.java" beforeDir="false" afterPath="$PROJECT_DIR$/Engine/src/engine/operation/function/Abs.java" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/Engine/src/engine/operation/function/Concat.java" beforeDir="false" afterPath="$PROJECT_DIR$/Engine/src/engine/operation/function/Concat.java" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/Engine/src/engine/operation/function/Divide.java" beforeDir="false" afterPath="$PROJECT_DIR$/Engine/src/engine/operation/function/Divide.java" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/Engine/src/engine/operation/function/Minus.java" beforeDir="false" afterPath="$PROJECT_DIR$/Engine/src/engine/operation/function/Minus.java" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/Engine/src/engine/operation/function/Mod.java" beforeDir="false" afterPath="$PROJECT_DIR$/Engine/src/engine/operation/function/Mod.java" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/Engine/src/engine/operation/function/Plus.java" beforeDir="false" afterPath="$PROJECT_DIR$/Engine/src/engine/operation/function/Plus.java" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/Engine/src/engine/operation/function/Pow.java" beforeDir="false" afterPath="$PROJECT_DIR$/Engine/src/engine/operation/function/Pow.java" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/Engine/src/engine/operation/function/Ref.java" beforeDir="false" afterPath="$PROJECT_DIR$/Engine/src/engine/operation/function/Ref.java" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/Engine/src/engine/operation/function/Sub.java" beforeDir="false" afterPath="$PROJECT_DIR$/Engine/src/engine/operation/function/Sub.java" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/Engine/src/engine/operation/function/Times.java" beforeDir="false" afterPath="$PROJECT_DIR$/Engine/src/engine/operation/function/Times.java" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/UI/src/ui/impl/console/ConsoleInteraction.java" beforeDir="false" afterPath="$PROJECT_DIR$/UI/src/ui/impl/console/ConsoleInteraction.java" afterDir="false" />
     </list>
     <option name="SHOW_DIALOG" value="false" />
     <option name="HIGHLIGHT_CONFLICTS" value="true" />
@@ -87,7 +75,7 @@
     "Application.Program.executor": "Debug",
     "RunOnceActivity.ShowReadmeOnStart": "true",
     "SHARE_PROJECT_CONFIGURATION_FILES": "true",
-    "git-widget-placeholder": "#6 on branch-4",
+    "git-widget-placeholder": "branch-5",
     "kotlin-language-version-configured": "true",
     "last_opened_file_path": "C:/Users/asafl/Downloads/06. Java 8/06. Java 8",
     "node.js.detected.package.eslint": "true",
@@ -103,7 +91,7 @@
     "vue.rearranger.settings.migration": "true"
   }
 }]]></component>
-  <component name="RunManager" selected="Application.ExpressionEvaluator">
+  <component name="RunManager" selected="Application.Program">
     <configuration name="CellCycleDetector" type="Application" factoryName="Application" temporary="true" nameIsGenerated="true">
       <option name="MAIN_CLASS_NAME" value="engine.impl.CellCycleDetector" />
       <module name="Engine" />
@@ -147,8 +135,8 @@
     </configuration>
     <recent_temporary>
       <list>
-        <item itemvalue="Application.ExpressionEvaluator" />
         <item itemvalue="Application.Program" />
+        <item itemvalue="Application.ExpressionEvaluator" />
         <item itemvalue="Application.CellCycleDetector" />
       </list>
     </recent_temporary>
@@ -300,8 +288,28 @@
       <breakpoints>
         <line-breakpoint enabled="true" type="java-line">
           <url>file://$PROJECT_DIR$/Engine/src/engine/expression/impl/ExpressionEvaluator.java</url>
-          <line>97</line>
-          <option name="timeStamp" value="44" />
+          <line>20</line>
+          <option name="timeStamp" value="56" />
+        </line-breakpoint>
+        <line-breakpoint enabled="true" type="java-line">
+          <url>file://$PROJECT_DIR$/Engine/src/engine/impl/ShticellEngine.java</url>
+          <line>126</line>
+          <option name="timeStamp" value="82" />
+        </line-breakpoint>
+        <line-breakpoint enabled="true" type="java-line">
+          <url>file://$PROJECT_DIR$/Engine/src/engine/impl/ShticellEngine.java</url>
+          <line>107</line>
+          <option name="timeStamp" value="83" />
+        </line-breakpoint>
+        <line-breakpoint enabled="true" type="java-line">
+          <url>file://$PROJECT_DIR$/Engine/src/engine/entity/sheet/Sheet.java</url>
+          <line>92</line>
+          <option name="timeStamp" value="85" />
+        </line-breakpoint>
+        <line-breakpoint enabled="true" type="java-line">
+          <url>file://$PROJECT_DIR$/UI/src/ui/impl/console/ConsoleInteraction.java</url>
+          <line>127</line>
+          <option name="timeStamp" value="87" />
         </line-breakpoint>
       </breakpoints>
     </breakpoint-manager>
@@ -310,6 +318,11 @@
         <watch expression="b" />
         <watch expression="effectiveValue2.value" language="JAVA" />
         <watch expression="args.get(2)" />
+        <watch expression="clonedSheet.position2cell" />
+        <watch expression="((LinkedHashMap)clonedSheet.position2cell).entrySet().toArray()[0]" custom="java.util.LinkedHashMap" />
+        <watch expression="clonedSheet" />
+        <watch expression="clonedSheet" />
+        <watch expression="clonedSheet" />
       </configuration>
     </watches-manager>
   </component>

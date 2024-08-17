@@ -16,14 +16,15 @@ public class ExpressionEvaluator {
     public static void main(String[] args) {
         Sheet sheet = new Sheet();
         List<CellPositionInSheet> influencingCellPositions = new LinkedList<>();
+
         // Test examples
         System.out.println(evaluateExpression(sheet, "{PLUS,2,3}", influencingCellPositions).getEffectiveValue()); // Output: 5
         System.out.println(evaluateExpression(sheet, "{MINUS,{PLUS,4,5},{POW,2,3}}", influencingCellPositions).getEffectiveValue()); // Output: 1
         System.out.println(evaluateExpression(sheet, "{CONCAT,Hello,World}", influencingCellPositions).getEffectiveValue()); // Output: HelloWorld
         System.out.println(evaluateExpression(sheet, "{ABS,{MINUS,4,5}}", influencingCellPositions).getEffectiveValue()); // Output: 1
         System.out.println(evaluateExpression(sheet, "{POW,2,3}", influencingCellPositions).getEffectiveValue()); // Output: 8
-        System.out.println(evaluateExpression(sheet, "{SUB,hello,2,3}", influencingCellPositions).getEffectiveValue()); // Output: 8
-        System.out.println(evaluateExpression(sheet, "{MOD,4, 2}", influencingCellPositions).getEffectiveValue()); // Output: 0
+        System.out.println(evaluateExpression(sheet, "{SUB,hello,2,3}", influencingCellPositions).getEffectiveValue()); // Output: l
+        System.out.println(evaluateExpression(sheet, "{MOD,4,2}", influencingCellPositions).getEffectiveValue()); // Output: 0
     }
 
     public static ValueAndPositions evaluateExpression(Sheet sheet, String expression, List<CellPositionInSheet> influencingCellPositions) {
@@ -125,12 +126,8 @@ public class ExpressionEvaluator {
             // If the argument is an expression, recursively evaluate it
             return evaluateExpression(sheet, arg, influencingCellPositions);
         } else if (arg.matches("-?\\d+(\\.\\d+)?")) {
-            // If the argument is a number, return it as an Integer or Double
-            if (arg.contains(".")) {
-                return Double.parseDouble(arg);
-            } else {
-                return Integer.parseInt(arg);
-            }
+            // If the argument is a number, return it as a Double
+            return Double.parseDouble(arg);
         } else {
             // Otherwise, return it as a string (e.g., for CONCAT or SUB or REF)
             return arg;

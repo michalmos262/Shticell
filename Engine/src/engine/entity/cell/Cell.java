@@ -5,8 +5,8 @@ import java.util.*;
 public class Cell implements Cloneable {
     private String originalValue;
     private EffectiveValue effectiveValue;
-    private final List<Cell> influencedBy;
-    private final List<Cell> influences;
+    private final List<CellPositionInSheet> influencedBy;
+    private final List<CellPositionInSheet> influences;
     private int lastUpdatedInVersion;
 
     public Cell(String originalValue, EffectiveValue effectiveValue, int lastUpdatedInVersion) {
@@ -25,21 +25,16 @@ public class Cell implements Cloneable {
         return effectiveValue;
     }
 
-    public List<Cell> getInfluencedBy() {
+    public List<CellPositionInSheet> getInfluencedBy() {
         return influencedBy;
     }
 
-    public List<Cell> getInfluences() {
+    public List<CellPositionInSheet> getInfluences() {
         return influences;
     }
 
     public int getLastUpdatedInVersion() {
         return lastUpdatedInVersion;
-    }
-
-    private void addInfluence(Cell otherCell) {
-        influences.add(otherCell);
-        otherCell.influencedBy.add(this);
     }
 
     public void setEffectiveValue(EffectiveValue effectiveValue) {
@@ -54,36 +49,24 @@ public class Cell implements Cloneable {
         this.lastUpdatedInVersion = lastUpdatedInVersion;
     }
 
-    public boolean addConnectionTo(Cell otherCell) {
-        // Temporarily add x2 as a dependency of x1
-        addInfluence(otherCell);
-
-        // Check if there is a cycle starting from x2
-        boolean cycleDetected = detectCycle(otherCell, new HashSet<>());
-
-        if (cycleDetected) {
-            // Revert the temporary connection
-            influences.remove(otherCell);
-            otherCell.getInfluencedBy().remove(this);
-            //TODO: add throw cycle detected
+    public void addInfluence(CellPositionInSheet influencedCellPosition) {
+        if (!influences.contains(influencedCellPosition)) {
+            influences.add(influencedCellPosition);
         }
-        return cycleDetected;
     }
 
-    private boolean detectCycle(Cell cell, Set<Cell> visited) {
-        if (visited.contains(cell)) {
-            return true; // Cycle detected
-        }
-        visited.add(cell);
+    public void removeInfluence(CellPositionInSheet influencedCellPosition) {
+        influences.remove(influencedCellPosition);
+    }
 
-        for (Cell nextCell : cell.getInfluences()) {
-            if (detectCycle(nextCell, visited)) {
-                return true;
-            }
+    public void addInfluencedBy(CellPositionInSheet influencingCellPosition) {
+        if (!influencedBy.contains(influencingCellPosition)) {
+            influencedBy.add(influencingCellPosition);
         }
+    }
 
-        visited.remove(cell); // Remove from visited for other DFS paths
-        return false;
+    public void removeInfluencedBy(CellPositionInSheet influencingCellPosition) {
+        influencedBy.remove(influencingCellPosition);
     }
 
     @Override
@@ -105,8 +88,6 @@ public class Cell implements Cloneable {
             Cell cloned = (Cell) super.clone();
             cloned.originalValue = originalValue;
             cloned.effectiveValue = effectiveValue;
-            influencedBy.forEach((cell) -> cloned.influencedBy.add(cell.clone()));
-            influences.forEach((cell) -> cloned.influences.add(cell.clone()));
             cloned.lastUpdatedInVersion = lastUpdatedInVersion;
             return cloned;
         } catch (CloneNotSupportedException e) {
