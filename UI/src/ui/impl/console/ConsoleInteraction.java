@@ -2,6 +2,7 @@ package ui.impl.console;
 
 import engine.entity.cell.Cell;
 import engine.entity.cell.CellDto;
+import engine.entity.cell.CellPositionInSheet;
 import engine.entity.sheet.SheetDimension;
 import engine.impl.ShticellEngine;
 import ui.api.Ui;
@@ -93,8 +94,8 @@ public class ConsoleInteraction implements Ui {
         int column = engine.parseColumnFromPosition(cellPosition);
         printSomeCellData(row, column);
         System.out.println("Last cell version: " + engine.getLastCellVersion(row, column));
-        List<Cell> affectedCellsList = engine.getInfluencingOnList(row, column, engine.getCurrentSheetVersion());
-        List<Cell> affectedByCellsList = engine.getDependsOnList(row, column, engine.getCurrentSheetVersion());
+        List<CellPositionInSheet> affectedCellsList = engine.getInfluencingOnList(row, column, engine.getCurrentSheetVersion());
+        List<CellPositionInSheet> affectedByCellsList = engine.getDependsOnList(row, column, engine.getCurrentSheetVersion());
         System.out.println("The cells that the required cell is affecting: " + (affectedCellsList.isEmpty() ? "None" : affectedCellsList));
         System.out.println("The cells that the required cell is affected by: " + (affectedByCellsList.isEmpty() ? "None" : affectedByCellsList));
     }

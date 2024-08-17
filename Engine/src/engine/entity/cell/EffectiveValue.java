@@ -1,9 +1,11 @@
 package engine.entity.cell;
 
+import engine.expression.impl.ValueAndPositions;
+
 import java.util.Objects;
 
-public class EffectiveValue {
-    private final CellType cellType;
+public class EffectiveValue implements Cloneable {
+    private CellType cellType;
     private Object value;
 
     public EffectiveValue(CellType cellType, Object value) {
@@ -24,9 +26,15 @@ public class EffectiveValue {
             if (value instanceof EffectiveValue) {
                     value = ((EffectiveValue) value).extractValueWithExpectation(type);
             }
+            if (value instanceof ValueAndPositions) {
+                    value = ((ValueAndPositions) value).getEffectiveValue().extractValueWithExpectation(type);
+            }
+            if (type == Double.class) {
+                return type.cast(Double.parseDouble(value.toString()));
+            }
             return type.cast(value);
         }
-        throw new ClassCastException("Could not cast value to " + type);
+        throw new ClassCastException("Could not cast value type " + value.getClass() + " to " + type);
     }
 
     @Override
@@ -39,11 +47,23 @@ public class EffectiveValue {
         if (this == o) return true;
         if (o == null || getClass() != o.getClass()) return false;
         EffectiveValue that = (EffectiveValue) o;
-        return getCellType() == that.getCellType() && Objects.equals(getValue(), that.getValue());
+        return cellType == that.cellType && Objects.equals(value, that.value);
     }
 
     @Override
     public int hashCode() {
-        return Objects.hash(getCellType(), getValue());
+        return Objects.hash(cellType, value);
+    }
+
+    @Override
+    public EffectiveValue clone() {
+        try {
+            EffectiveValue cloned = (EffectiveValue) super.clone();
+            cloned.value = value;
+            cloned.cellType = cellType;
+            return cloned;
+        } catch (CloneNotSupportedException e) {
+            throw new AssertionError();
+        }
     }
 }

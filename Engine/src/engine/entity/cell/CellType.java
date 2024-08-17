@@ -3,8 +3,7 @@ package engine.entity.cell;
 public enum CellType {
     NUMERIC(Double.class),
     STRING(String.class),
-    BOOLEAN(Boolean.class),
-    POSITION(CellPositionInSheet.class);
+    BOOLEAN(Boolean.class);
 
     private final Class<?> type;
 

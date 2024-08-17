@@ -1,7 +1,11 @@
 package engine.expression.api;
 
+import engine.entity.cell.CellPositionInSheet;
 import engine.entity.cell.EffectiveValue;
+import engine.entity.sheet.SheetDto;
 import engine.operation.Operation;
+
+import java.util.List;
 
 public interface Expression {
     /**

@@ -15,19 +15,19 @@ public class Sub extends TrinaryExpression {
     @Override
     protected EffectiveValue invoke(EffectiveValue evaluate1, EffectiveValue evaluate2, EffectiveValue evaluate3) {
         String str = evaluate1.toString();
-        int beginIndex = evaluate2.extractValueWithExpectation(Integer.class);
-        int endIndex = evaluate3.extractValueWithExpectation(Integer.class);
+        double beginIndex = evaluate2.extractValueWithExpectation(Double.class);
+        double endIndex = evaluate3.extractValueWithExpectation(Double.class);
         if (beginIndex < 0) {
-            throw new StringIndexOutOfBoundsException(beginIndex);
+            throw new StringIndexOutOfBoundsException((int)beginIndex);
         }
         if (endIndex > str.length()) {
-            throw new StringIndexOutOfBoundsException(endIndex);
+            throw new StringIndexOutOfBoundsException((int)endIndex);
         }
-        int subLen = endIndex - beginIndex;
+        double subLen = endIndex - beginIndex;
         if (subLen < 0) {
-            throw new StringIndexOutOfBoundsException(subLen);
+            throw new StringIndexOutOfBoundsException((int)subLen);
         }
-        String result = str.substring(beginIndex, endIndex);
+        String result = str.substring((int)beginIndex, (int)endIndex);
         return new EffectiveValue(CellType.STRING, result);
     }
 

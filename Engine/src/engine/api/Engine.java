@@ -14,8 +14,8 @@ public interface Engine {
     SheetDimension getSheetDimension();
     CellDto findCellInSheet(int row, int column, int sheetVersion);
     int getLastCellVersion(int row, int column);
-    List<Cell> getDependsOnList(int row, int column, int sheetVersion);
-    List<Cell> getInfluencingOnList(int row, int column, int sheetVersion);
+    List<CellPositionInSheet> getDependsOnList(int row, int column, int sheetVersion);
+    List<CellPositionInSheet> getInfluencingOnList(int row, int column, int sheetVersion);
     void updateSheetCell(int row, int column, String newValue);
     Map<Integer, Integer> getSheetVersions();
     CellPositionInSheet getCellPositionInSheet(int row, int column);

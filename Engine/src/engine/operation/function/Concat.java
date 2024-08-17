@@ -2,6 +2,7 @@ package engine.operation.function;
 
 import engine.entity.cell.CellType;
 import engine.entity.cell.EffectiveValue;
+import engine.entity.sheet.SheetDto;
 import engine.expression.api.Expression;
 import engine.expression.impl.BinaryExpression;
 import engine.operation.Operation;

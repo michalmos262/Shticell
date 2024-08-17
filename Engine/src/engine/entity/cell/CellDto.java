@@ -8,7 +8,9 @@ public class CellDto {
 
     public CellDto(Cell originalCell) {
         if (originalCell == null) {
-            this.cellDto = new Cell(" ", 1);
+            this.cellDto = new Cell(" ",
+                    new EffectiveValue(CellType.STRING, " "),
+                    1);
         }
         else {
             this.cellDto = originalCell.clone();
@@ -23,12 +25,12 @@ public class CellDto {
         return cellDto.getEffectiveValue();
     }
 
-    public List<Cell> getDependsOn() {
-        return cellDto.getDependsOn();
+    public List<CellPositionInSheet> getInfluencedBy() {
+        return cellDto.getInfluencedBy();
     }
 
-    public List<Cell> getInfluencingOn() {
-        return cellDto.getInfluencingOn();
+    public List<CellPositionInSheet> getInfluences() {
+        return cellDto.getInfluences();
     }
 
     @Override
