@@ -1,11 +1,10 @@
 package engine.operation.function;
 
 import engine.entity.cell.*;
-import engine.entity.sheet.SheetDto;
+import engine.entity.dto.CellDto;
+import engine.entity.dto.SheetDto;
 import engine.expression.api.Expression;
 import engine.expression.impl.SystemExpression;
-import engine.expression.impl.UnaryExpression;
-import engine.operation.Operation;
 
 import java.util.List;
 

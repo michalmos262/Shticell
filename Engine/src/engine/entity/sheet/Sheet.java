@@ -22,6 +22,10 @@ public class Sheet implements Cloneable {
         this.updatedCellsCount = updatedCellsCount;
     }
 
+    public Map<CellPositionInSheet, Cell> getPosition2cell() {
+        return position2cell;
+    }
+
     public void updateCell(CellPositionInSheet cellPosition, String originalValue, EffectiveValue effectiveValue) {
         Cell cell = position2cell.get(cellPosition);
         cell.setLastUpdatedInVersion(version);
@@ -72,10 +76,6 @@ public class Sheet implements Cloneable {
 
         visited.remove(to); // Remove from visited for other DFS paths
         return false;
-    }
-
-    public Cell getNewDefaultCell() {
-        return new Cell(" ", new EffectiveValue(CellType.STRING, " "), version);
     }
 
     public void createNewCell(CellPositionInSheet cellPosition, String originalValue) {

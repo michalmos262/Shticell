@@ -2,7 +2,7 @@ package engine.expression.impl;
 
 import engine.entity.cell.CellPositionInSheet;
 import engine.entity.cell.EffectiveValue;
-import engine.entity.sheet.SheetDto;
+import engine.entity.dto.SheetDto;
 import engine.expression.api.Expression;
 import engine.operation.Operation;
 

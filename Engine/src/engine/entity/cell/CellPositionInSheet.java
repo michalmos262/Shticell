@@ -22,7 +22,7 @@ public class CellPositionInSheet implements Cloneable {
     @Override
     public String toString() {
         char columnChar = (char) ('A' + column);
-        return "" + columnChar + (row + 1);
+        return "" + columnChar + (row);
     }
 
     @Override
