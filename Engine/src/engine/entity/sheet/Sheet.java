@@ -49,6 +49,7 @@ public class Sheet implements Cloneable {
             position2cell.get(from).getInfluences().remove(to);
             position2cell.get(to).getInfluencedBy().remove(from);
             //TODO: add throw cycle detected
+            System.out.println("CYCLE!!!!!!!!!!!");
         }
     }
 

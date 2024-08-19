@@ -79,7 +79,7 @@ public class ShticellEngine implements Engine {
         }
         else if (originalValue.charAt(0) == '{' && originalValue.charAt(originalValue.length() - 1) == '}') {
             List<CellPositionInSheet> influencingCellPositions = new LinkedList<>();
-            effectiveValue = evaluateExpression(sheet, originalValue, influencingCellPositions).getEffectiveValue();
+            effectiveValue = evaluateExpression(sheet, originalValue, influencingCellPositions);
             //NEED TO CHECK IF WORKS!
 //            effectiveValue = handleEffectiveValue(sheet, cellPosition, effectiveValue.toString());
             for (CellPositionInSheet influencingPosition : influencingCellPositions) {
@@ -110,27 +110,31 @@ public class ShticellEngine implements Engine {
     @Override
     //THE FIRST UPDATE
     public void updateSheetCell(int row, int column, String newOriginalValue) {
-        int cellsUpdatedCounter = 1;
         Sheet clonedSheet = sheetManager.getSheetByVersion(sheetManager.getCurrentVersion()).clone();
         CellPositionInSheet cellPosition = PositionFactory.createPosition(row, column);
-        Cell cellInUpdate = clonedSheet.getCell(cellPosition);
+        setCellInfo(clonedSheet, cellPosition, newOriginalValue);
+        sheetManager.addNewSheet(clonedSheet);
+    }
+
+    private void setCellInfo(Sheet sheet, CellPositionInSheet cellPosition, String originalValue) {
+        int cellsUpdatedCounter = 1;
+        Cell cellInUpdate = sheet.getCell(cellPosition);
         EffectiveValue effectiveValue;
 
         if (cellInUpdate == null) { // need to create new cell
-            clonedSheet.createNewCell(cellPosition, newOriginalValue);
+            sheet.createNewCell(cellPosition, originalValue);
         } else {
             List<CellPositionInSheet> influencedByCellPositions = new LinkedList<>(cellInUpdate.getInfluencedBy());
             for (CellPositionInSheet influencingCellPosition: influencedByCellPositions) {
-                clonedSheet.removeCellConnection(influencingCellPosition, cellPosition);
+                sheet.removeCellConnection(influencingCellPosition, cellPosition);
             }
         }
-        effectiveValue = handleEffectiveValue(clonedSheet, cellPosition, newOriginalValue);
-        clonedSheet.updateCell(cellPosition, newOriginalValue, effectiveValue);
+        effectiveValue = handleEffectiveValue(sheet, cellPosition, originalValue);
+        sheet.updateCell(cellPosition, originalValue, effectiveValue);
         Set<CellPositionInSheet> visitedCellPositions = new HashSet<>();
-        updateInfluencedByCell(clonedSheet, cellPosition, visitedCellPositions);
+        updateInfluencedByCell(sheet, cellPosition, visitedCellPositions);
         cellsUpdatedCounter += visitedCellPositions.size();
-        clonedSheet.setUpdatedCellsCount(cellsUpdatedCounter);
-        sheetManager.addNewSheet(clonedSheet);
+        sheet.setUpdatedCellsCount(cellsUpdatedCounter);
     }
 
     public SheetManager buildSheetManagerFromXml(String fileName) throws JAXBException {
@@ -147,19 +151,11 @@ public class ShticellEngine implements Engine {
         SheetDimension dimension = new SheetDimension(numOfRows, numOfColumns, rowHeight, columnWidth);
         SheetManager sheetManager = new SheetManager(jaxbSheet.getName(), dimension);
         Sheet sheet = new Sheet();
-        int cellsUpdatedCounter = 1;
 
         for (STLCell jaxbCell: jaxbSheet.getSTLCells().getSTLCell()) {
             CellPositionInSheet cellPosition = PositionFactory.createPosition(jaxbCell.getRow(), jaxbCell.getColumn());
             String originalValue = jaxbCell.getSTLOriginalValue();
-            sheet.createNewCell(cellPosition, originalValue);
-
-            EffectiveValue effectiveValue = handleEffectiveValue(sheet, cellPosition, originalValue);
-            sheet.updateCell(cellPosition, originalValue, effectiveValue);
-            Set<CellPositionInSheet> visitedCellPositions = new HashSet<>();
-            updateInfluencedByCell(sheet, cellPosition, visitedCellPositions);
-            cellsUpdatedCounter += visitedCellPositions.size();
-            sheet.setUpdatedCellsCount(cellsUpdatedCounter);
+            setCellInfo(sheet, cellPosition, originalValue);
         }
         sheetManager.addNewSheet(sheet);
         return sheetManager;

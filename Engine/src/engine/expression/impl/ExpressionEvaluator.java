@@ -18,16 +18,16 @@ public class ExpressionEvaluator {
         List<CellPositionInSheet> influencingCellPositions = new LinkedList<>();
 
         // Test examples
-        System.out.println(evaluateExpression(sheet, "{PLUS,2,3}", influencingCellPositions).getEffectiveValue()); // Output: 5
-        System.out.println(evaluateExpression(sheet, "{MINUS,{PLUS,4,5},{POW,2,3}}", influencingCellPositions).getEffectiveValue()); // Output: 1
-        System.out.println(evaluateExpression(sheet, "{CONCAT,Hello,World}", influencingCellPositions).getEffectiveValue()); // Output: HelloWorld
-        System.out.println(evaluateExpression(sheet, "{ABS,{MINUS,4,5}}", influencingCellPositions).getEffectiveValue()); // Output: 1
-        System.out.println(evaluateExpression(sheet, "{POW,2,3}", influencingCellPositions).getEffectiveValue()); // Output: 8
-        System.out.println(evaluateExpression(sheet, "{SUB,hello,2,3}", influencingCellPositions).getEffectiveValue()); // Output: l
-        System.out.println(evaluateExpression(sheet, "{MOD,4,2}", influencingCellPositions).getEffectiveValue()); // Output: 0
+        System.out.println(evaluateExpression(sheet, "{PLUS,2,3}", influencingCellPositions)); // Output: 5
+        System.out.println(evaluateExpression(sheet, "{MINUS,{PLUS,4,5},{POW,2,3}}", influencingCellPositions)); // Output: 1
+        System.out.println(evaluateExpression(sheet, "{CONCAT,Hello,World}", influencingCellPositions)); // Output: HelloWorld
+        System.out.println(evaluateExpression(sheet, "{ABS,{MINUS,4,5}}", influencingCellPositions)); // Output: 1
+        System.out.println(evaluateExpression(sheet, "{POW,2,3}", influencingCellPositions)); // Output: 8
+        System.out.println(evaluateExpression(sheet, "{SUB,hello,2,3}", influencingCellPositions)); // Output: l
+        System.out.println(evaluateExpression(sheet, "{MOD,4,2}", influencingCellPositions)); // Output: 0
     }
 
-    public static ValueAndPositions evaluateExpression(Sheet sheet, String expression, List<CellPositionInSheet> influencingCellPositions) {
+    public static EffectiveValue evaluateExpression(Sheet sheet, String expression, List<CellPositionInSheet> influencingCellPositions) {
         // Remove the outer curly braces
         expression = expression.substring(1, expression.length() - 1);
 
@@ -42,7 +42,7 @@ public class ExpressionEvaluator {
         return evaluateFunction(sheet, functionName, args, influencingCellPositions);
     }
 
-    public static ValueAndPositions evaluateFunction(Sheet sheet, String operationName, List<String> args, List<CellPositionInSheet> influencingCellPositions) {
+    public static EffectiveValue evaluateFunction(Sheet sheet, String operationName, List<String> args, List<CellPositionInSheet> influencingCellPositions) {
         Operation operation = Operation.valueOf(operationName);
         EffectiveValue effectiveValue1, effectiveValue2, effectiveValue3;
         Expression exp1, exp2, exp3;
@@ -118,7 +118,7 @@ public class ExpressionEvaluator {
             default:
                 throw new IllegalArgumentException("Unknown function: " + operationName);
         }
-        return new ValueAndPositions(returnedEffectiveValue, influencingCellPositions);
+        return returnedEffectiveValue;
     }
 
     private static Object evaluateArgument(Sheet sheet, String arg, List<CellPositionInSheet> influencingCellPositions) {
