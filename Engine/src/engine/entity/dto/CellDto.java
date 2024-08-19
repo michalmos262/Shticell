@@ -1,4 +1,9 @@
-package engine.entity.cell;
+package engine.entity.dto;
+
+import engine.entity.cell.Cell;
+import engine.entity.cell.CellPositionInSheet;
+import engine.entity.cell.CellType;
+import engine.entity.cell.EffectiveValue;
 
 import java.util.List;
 import java.util.Objects;

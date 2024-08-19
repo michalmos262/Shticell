@@ -2,7 +2,7 @@ package engine.expression.impl;
 
 import engine.entity.cell.*;
 import engine.entity.sheet.Sheet;
-import engine.entity.sheet.SheetDto;
+import engine.entity.dto.SheetDto;
 import engine.expression.api.Expression;
 import engine.operation.Operation;
 import engine.operation.function.*;

@@ -2,7 +2,7 @@ package ui.api;
 
 public interface Ui {
     String getCellPositionFromUser();
-    void showSheet(int version);
+    void showCurrentVersionSheet();
     void showSheetCell();
     void updateSheetCell();
     void showSheetVersions();

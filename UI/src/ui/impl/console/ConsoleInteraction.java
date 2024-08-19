@@ -1,10 +1,11 @@
 package ui.impl.console;
 
-import engine.entity.cell.Cell;
-import engine.entity.cell.CellDto;
+import engine.api.Engine;
+import engine.entity.dto.CellDto;
 import engine.entity.cell.CellPositionInSheet;
 import engine.entity.sheet.SheetDimension;
 import engine.impl.ShticellEngine;
+import jakarta.xml.bind.JAXBException;
 import ui.api.Ui;
 
 import java.util.List;
@@ -14,15 +15,15 @@ import java.util.Scanner;
 import static java.lang.System.exit;
 
 public class ConsoleInteraction implements Ui {
-    private final ShticellEngine engine;
+    private Engine engine = null;
     private final Scanner scanner = new Scanner(System.in);
 
     public ConsoleInteraction() {
-        engine = new ShticellEngine("Some name", 3, 5, 3, 15);
-    }
-
-    public ShticellEngine getEngine() {
-        return engine;
+        try {
+            engine = new ShticellEngine("C:\\Users\\asafl\\Downloads\\basic.xml");
+        } catch (JAXBException e) {
+            e.printStackTrace();
+        }
     }
 
     private void showSheetTable(int version) {
@@ -48,7 +49,7 @@ public class ConsoleInteraction implements Ui {
 
             // Print each cell in the row
             for (int col = 0; col < numOfColumns; col++) {
-                CellDto cell = engine.findCellInSheet(row, col, version);
+                CellDto cell = engine.findCellInSheet(row + 1, col, version);
                 String text = cell == null ? "" : cell.getEffectiveValue().toString();
                 text = text.length() > columnWidth ? text.substring(0, columnWidth) : text;
                 int paddingRight = columnWidth - text.length();
@@ -74,17 +75,17 @@ public class ConsoleInteraction implements Ui {
     }
 
     @Override
-    public void showSheet(int version) {
+    public void showCurrentVersionSheet() {
         System.out.println("Sheet name: " + engine.getSheetName());
         System.out.println("Current sheet version: " + engine.getCurrentSheetVersion());
-        showSheetTable(version);
+        showSheetTable(engine.getCurrentSheetVersion());
     }
 
     private void printSomeCellData(int row, int column) {
         System.out.println("Cell position in sheet: " + engine.getCellPositionInSheet(row, column));
         CellDto cell = engine.findCellInSheet(row, column, engine.getCurrentSheetVersion());
-        System.out.println("Current original value: " + cell.getOriginalValue());
-        System.out.println("Current effective value: " + cell.getEffectiveValue());
+        System.out.println("Current original value: " + (cell == null ? " " : cell.getOriginalValue()));
+        System.out.println("Current effective value: " + (cell == null ? " " : cell.getEffectiveValue()));
     }
 
     @Override
@@ -94,8 +95,8 @@ public class ConsoleInteraction implements Ui {
         int column = engine.parseColumnFromPosition(cellPosition);
         printSomeCellData(row, column);
         System.out.println("Last cell version: " + engine.getLastCellVersion(row, column));
-        List<CellPositionInSheet> affectedCellsList = engine.getInfluencingOnList(row, column, engine.getCurrentSheetVersion());
-        List<CellPositionInSheet> affectedByCellsList = engine.getDependsOnList(row, column, engine.getCurrentSheetVersion());
+        List<CellPositionInSheet> affectedCellsList = engine.getInfluencesList(row, column, engine.getCurrentSheetVersion());
+        List<CellPositionInSheet> affectedByCellsList = engine.getInfluencedByList(row, column, engine.getCurrentSheetVersion());
         System.out.println("The cells that the required cell is affecting: " + (affectedCellsList.isEmpty() ? "None" : affectedCellsList));
         System.out.println("The cells that the required cell is affected by: " + (affectedByCellsList.isEmpty() ? "None" : affectedByCellsList));
     }
@@ -109,6 +110,7 @@ public class ConsoleInteraction implements Ui {
         System.out.println("Enter new cell value:");
         String newCellValue = scanner.nextLine();
         engine.updateSheetCell(row, column, newCellValue);
+        showSheetTable(engine.getCurrentSheetVersion());
     }
 
     private void printVersion2updatedCellsCountAsTable(Map<Integer, Integer> map) {
@@ -130,6 +132,7 @@ public class ConsoleInteraction implements Ui {
 
     @Override
     public void exitProgram() {
+        System.out.println("Goodbye!");
         exit(200);
     }
 }

@@ -16,19 +16,21 @@ public class PositionFactory {
         return cellPosition;
     }
 
+    public static CellPositionInSheet createPosition(String position) {
+        return createPosition(parseRow(position), parseColumn(position));
+    }
+
+    public static CellPositionInSheet createPosition(int row, String column) {
+        return createPosition(row, parseColumn(column));
+    }
+
     public static int parseRow(String position) {
         String numberPart = position.substring(1);
-        return Integer.parseInt(numberPart) - 1;
+        return Integer.parseInt(numberPart);
     }
 
     public static int parseColumn(String position) {
         char letter = position.charAt(0);
         return letter - 'A';
-    }
-
-    public static CellPositionInSheet createPosition(String position) {
-        int row = parseRow(position);
-        int column = parseColumn(position);
-        return createPosition(row, column);
     }
 }

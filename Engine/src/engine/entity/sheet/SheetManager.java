@@ -10,7 +10,7 @@ public class SheetManager {
     private final SheetDimension dimension;
 
     public SheetManager(String name, SheetDimension dimension) {
-        currentVersion = 1;
+        currentVersion = 0;
         version2sheet = new LinkedHashMap<>();
         version2sheet.put(1, new Sheet());
         this.name = name;
