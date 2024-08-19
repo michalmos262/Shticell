@@ -4,8 +4,7 @@ import engine.api.Engine;
 import engine.entity.dto.CellDto;
 import engine.entity.cell.CellPositionInSheet;
 import engine.entity.sheet.SheetDimension;
-import engine.impl.ShticellEngine;
-import jakarta.xml.bind.JAXBException;
+import engine.impl.EngineImpl;
 import ui.api.Ui;
 
 import java.util.List;
@@ -15,14 +14,22 @@ import java.util.Scanner;
 import static java.lang.System.exit;
 
 public class ConsoleInteraction implements Ui {
-    private Engine engine = null;
+    private final Engine engine;
     private final Scanner scanner = new Scanner(System.in);
 
     public ConsoleInteraction() {
+        engine = new EngineImpl();
+    }
+
+    @Override
+    public void loadFile() {
+        System.out.println("Enter file name:");
         try {
-            engine = new ShticellEngine("C:\\Users\\asafl\\Downloads\\basic.xml");
-        } catch (JAXBException e) {
-            e.printStackTrace();
+            String filename = scanner.nextLine();
+            engine.loadFile(filename);
+            System.out.println("File was loaded successfully!");
+        } catch (Exception e) {
+            System.out.println("Error loading file: " + e.getMessage());
         }
     }
 
@@ -50,7 +57,7 @@ public class ConsoleInteraction implements Ui {
             // Print each cell in the row
             for (int col = 0; col < numOfColumns; col++) {
                 CellDto cell = engine.findCellInSheet(row + 1, col, version);
-                String text = cell == null ? "" : cell.getEffectiveValue().toString();
+                String text = cell == null ? "" : cell.getEffectiveValueForDisplay().toString();
                 text = text.length() > columnWidth ? text.substring(0, columnWidth) : text;
                 int paddingRight = columnWidth - text.length();
                 System.out.print("|" + text + " ".repeat(paddingRight));
@@ -68,8 +75,7 @@ public class ConsoleInteraction implements Ui {
         }
     }
 
-    @Override
-    public String getCellPositionFromUser() {
+    private String getCellPositionFromUser() {
         System.out.println("Enter sheet cell position (for example 'A1' - means row 1, column A): ");
         return scanner.nextLine();
     }
@@ -85,7 +91,7 @@ public class ConsoleInteraction implements Ui {
         System.out.println("Cell position in sheet: " + engine.getCellPositionInSheet(row, column));
         CellDto cell = engine.findCellInSheet(row, column, engine.getCurrentSheetVersion());
         System.out.println("Current original value: " + (cell == null ? " " : cell.getOriginalValue()));
-        System.out.println("Current effective value: " + (cell == null ? " " : cell.getEffectiveValue()));
+        System.out.println("Current effective value: " + (cell == null ? " " : cell.getEffectiveValueForDisplay()));
     }
 
     @Override
@@ -122,7 +128,7 @@ public class ConsoleInteraction implements Ui {
     }
 
     @Override
-    public void showSheetVersions() {
+    public void showSheetVersionsForDisplay() {
         System.out.println("The sheet versions available:");
         printVersion2updatedCellsCountAsTable(engine.getSheetVersions());
         System.out.println("Enter the version you want to show its sheet:");

@@ -4,11 +4,19 @@
     <option name="autoReloadType" value="SELECTIVE" />
   </component>
   <component name="ChangeListManager">
-    <list default="true" id="35d24eeb-d633-4243-8af7-453c9914951b" name="Changes" comment="load file logics">
+    <list default="true" id="35d24eeb-d633-4243-8af7-453c9914951b" name="Changes" comment="separated function">
       <change beforePath="$PROJECT_DIR$/.idea/workspace.xml" beforeDir="false" afterPath="$PROJECT_DIR$/.idea/workspace.xml" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/Engine/src/engine/entity/sheet/Sheet.java" beforeDir="false" afterPath="$PROJECT_DIR$/Engine/src/engine/entity/sheet/Sheet.java" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/Engine/src/engine/api/Engine.java" beforeDir="false" afterPath="$PROJECT_DIR$/Engine/src/engine/api/Engine.java" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/Engine/src/engine/entity/cell/EffectiveValue.java" beforeDir="false" afterPath="$PROJECT_DIR$/Engine/src/engine/entity/cell/EffectiveValue.java" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/Engine/src/engine/entity/dto/CellDto.java" beforeDir="false" afterPath="$PROJECT_DIR$/Engine/src/engine/entity/dto/CellDto.java" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/Engine/src/engine/expression/impl/ExpressionEvaluator.java" beforeDir="false" afterPath="$PROJECT_DIR$/Engine/src/engine/expression/impl/ExpressionEvaluator.java" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/Engine/src/engine/impl/ShticellEngine.java" beforeDir="false" afterPath="$PROJECT_DIR$/Engine/src/engine/impl/ShticellEngine.java" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/Engine/src/engine/expression/impl/ValueAndPositions.java" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/Engine/src/engine/impl/CellCycleDetector.java" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/Engine/src/engine/impl/ShticellEngine.java" beforeDir="false" afterPath="$PROJECT_DIR$/Engine/src/engine/impl/EngineImpl.java" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/UI/src/ui/api/Ui.java" beforeDir="false" afterPath="$PROJECT_DIR$/UI/src/ui/api/Ui.java" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/UI/src/ui/impl/console/ConsoleInteraction.java" beforeDir="false" afterPath="$PROJECT_DIR$/UI/src/ui/impl/console/ConsoleInteraction.java" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/UI/src/ui/impl/console/Menu.java" beforeDir="false" afterPath="$PROJECT_DIR$/UI/src/ui/impl/console/Menu.java" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/UI/src/ui/impl/console/Program.java" beforeDir="false" afterPath="$PROJECT_DIR$/UI/src/ui/impl/console/Program.java" afterDir="false" />
     </list>
     <option name="SHOW_DIALOG" value="false" />
     <option name="HIGHLIGHT_CONFLICTS" value="true" />
@@ -296,7 +304,15 @@
       <option name="project" value="LOCAL" />
       <updated>1724081272221</updated>
     </task>
-    <option name="localTasksCounter" value="15" />
+    <task id="LOCAL-00015" summary="separated function">
+      <option name="closed" value="true" />
+      <created>1724083177210</created>
+      <option name="number" value="00015" />
+      <option name="presentableId" value="LOCAL-00015" />
+      <option name="project" value="LOCAL" />
+      <updated>1724083177210</updated>
+    </task>
+    <option name="localTasksCounter" value="16" />
     <servers />
   </component>
   <component name="TypeScriptGeneratedFilesManager">
@@ -328,7 +344,8 @@
     <MESSAGE value="in the middle of REF command - need to add influencers, added TODO" />
     <MESSAGE value="done logics" />
     <MESSAGE value="load file logics" />
-    <option name="LAST_COMMIT_MESSAGE" value="load file logics" />
+    <MESSAGE value="separated function" />
+    <option name="LAST_COMMIT_MESSAGE" value="separated function" />
   </component>
   <component name="XDebuggerManager">
     <watches-manager>

@@ -21,4 +21,5 @@ public interface Engine {
     CellPositionInSheet getCellPositionInSheet(String position);
     int parseRowFromPosition(String position);
     int parseColumnFromPosition(String position);
+    void loadFile(String fileName) throws Exception;
 }

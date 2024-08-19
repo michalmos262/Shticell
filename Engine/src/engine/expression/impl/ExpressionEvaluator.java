@@ -1,8 +1,8 @@
 package engine.expression.impl;
 
 import engine.entity.cell.*;
-import engine.entity.sheet.Sheet;
 import engine.entity.dto.SheetDto;
+import engine.entity.sheet.Sheet;
 import engine.expression.api.Expression;
 import engine.operation.Operation;
 import engine.operation.function.*;
@@ -28,25 +28,39 @@ public class ExpressionEvaluator {
     }
 
     public static EffectiveValue evaluateExpression(Sheet sheet, String expression, List<CellPositionInSheet> influencingCellPositions) {
-        // Remove the outer curly braces
-        expression = expression.substring(1, expression.length() - 1);
+        EffectiveValue effectiveValue;
 
-        // Split the expression into function name and arguments
-        String[] parts = splitExpression(expression);
+         if (expression.matches("-?\\d+(\\.\\d+)?")) {
+                effectiveValue = new EffectiveValue(CellType.NUMERIC, Double.parseDouble(expression));
+        }
+        else if (expression.equalsIgnoreCase("true") || expression.equalsIgnoreCase("false")) {
+            effectiveValue = new EffectiveValue(CellType.BOOLEAN, Boolean.parseBoolean(expression));
+        }
+        else if (expression.charAt(0) == '{' && expression.charAt(expression.length() - 1) == '}') {
+            // Remove the outer curly braces
+            expression = expression.substring(1, expression.length() - 1);
 
-        String functionName = parts[0];
+            // Split the expression into function name and arguments
+            String[] parts = splitExpression(expression);
 
-        List<String> args = new ArrayList<>(Arrays.asList(parts).subList(1, parts.length));
+            String functionName = parts[0];
 
-        // Evaluate the function
-        return evaluateFunction(sheet, functionName, args, influencingCellPositions);
+            List<String> args = new ArrayList<>(Arrays.asList(parts).subList(1, parts.length));
+
+            // Evaluate the function
+            effectiveValue = evaluateFunction(sheet, functionName, args, influencingCellPositions);
+        }
+        else {
+            effectiveValue = new EffectiveValue(CellType.STRING, expression);
+         }
+
+        return effectiveValue;
     }
 
     public static EffectiveValue evaluateFunction(Sheet sheet, String operationName, List<String> args, List<CellPositionInSheet> influencingCellPositions) {
         Operation operation = Operation.valueOf(operationName);
         EffectiveValue effectiveValue1, effectiveValue2, effectiveValue3;
         Expression exp1, exp2, exp3;
-        SheetDto sheetDto = new SheetDto(sheet);
         EffectiveValue returnedEffectiveValue = null;
         switch (operation) {
             case PLUS, MINUS, TIMES, DIVIDE, MOD, POW:
@@ -113,7 +127,7 @@ public class ExpressionEvaluator {
                 }
                 effectiveValue1 = new EffectiveValue(CellType.STRING, evaluateArgument(sheet, args.getFirst(), influencingCellPositions));
                 exp1 = new EffectiveValueExpression(effectiveValue1);
-                returnedEffectiveValue = new Ref(exp1).invoke(sheetDto, influencingCellPositions);
+                returnedEffectiveValue = new Ref(exp1).invoke(new SheetDto(sheet), influencingCellPositions);
                 break;
             default:
                 throw new IllegalArgumentException("Unknown function: " + operationName);

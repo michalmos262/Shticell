@@ -10,22 +10,15 @@ import engine.entity.sheet.SheetManager;
 import engine.jaxb.schema.generated.STLCell;
 import engine.jaxb.schema.generated.STLSheet;
 import jakarta.xml.bind.JAXBContext;
-import jakarta.xml.bind.JAXBException;
 import jakarta.xml.bind.Unmarshaller;
 
 import java.io.File;
-import java.math.BigDecimal;
-import java.text.DecimalFormat;
 import java.util.*;
 
 import static engine.expression.impl.ExpressionEvaluator.evaluateExpression;
 
-public class ShticellEngine implements Engine {
-    private final SheetManager sheetManager;
-
-    public ShticellEngine(String fileName) throws JAXBException {
-        sheetManager = buildSheetManagerFromXml(fileName);
-    }
+public class EngineImpl implements Engine {
+    private SheetManager sheetManager;
 
     @Override
     public String getSheetName() {
@@ -67,27 +60,13 @@ public class ShticellEngine implements Engine {
         return findCellInSheet(row, column, sheetVersion).getInfluences();
     }
 
-    public static EffectiveValue handleEffectiveValue(Sheet sheet, CellPositionInSheet cellPosition, String originalValue) {
+    public EffectiveValue handleEffectiveValue(Sheet sheet, CellPositionInSheet cellPosition, String originalValue) {
         EffectiveValue effectiveValue;
+        List<CellPositionInSheet> influencingCellPositions = new LinkedList<>();
+        effectiveValue = evaluateExpression(sheet, originalValue, influencingCellPositions);
 
-        if (originalValue.matches("-?\\d+(\\.\\d+)?")) {
-            DecimalFormat formatter = new DecimalFormat("#,###.##");
-            effectiveValue = new EffectiveValue(CellType.NUMERIC, formatter.format(new BigDecimal(originalValue)));
-        }
-        else if (originalValue.equalsIgnoreCase("true") || originalValue.equalsIgnoreCase("false")) {
-            effectiveValue = new EffectiveValue(CellType.BOOLEAN, originalValue.toUpperCase());
-        }
-        else if (originalValue.charAt(0) == '{' && originalValue.charAt(originalValue.length() - 1) == '}') {
-            List<CellPositionInSheet> influencingCellPositions = new LinkedList<>();
-            effectiveValue = evaluateExpression(sheet, originalValue, influencingCellPositions);
-            //NEED TO CHECK IF WORKS!
-//            effectiveValue = handleEffectiveValue(sheet, cellPosition, effectiveValue.toString());
-            for (CellPositionInSheet influencingPosition : influencingCellPositions) {
-                sheet.addCellConnection(influencingPosition, cellPosition);
-            }
-        }
-        else {
-            effectiveValue = new EffectiveValue(CellType.STRING, originalValue);
+        for (CellPositionInSheet influencingPosition : influencingCellPositions) {
+            sheet.addCellConnection(influencingPosition, cellPosition);
         }
 
         return effectiveValue;
@@ -111,13 +90,18 @@ public class ShticellEngine implements Engine {
     //THE FIRST UPDATE
     public void updateSheetCell(int row, int column, String newOriginalValue) {
         Sheet clonedSheet = sheetManager.getSheetByVersion(sheetManager.getCurrentVersion()).clone();
+        Set<CellPositionInSheet> visitedCellPositions = new HashSet<>();
         CellPositionInSheet cellPosition = PositionFactory.createPosition(row, column);
+        int cellsUpdatedCounter = 1;
+
         setCellInfo(clonedSheet, cellPosition, newOriginalValue);
+        updateInfluencedByCell(clonedSheet, cellPosition, visitedCellPositions);
+        cellsUpdatedCounter += visitedCellPositions.size();
+        clonedSheet.setUpdatedCellsCount(cellsUpdatedCounter);
         sheetManager.addNewSheet(clonedSheet);
     }
 
     private void setCellInfo(Sheet sheet, CellPositionInSheet cellPosition, String originalValue) {
-        int cellsUpdatedCounter = 1;
         Cell cellInUpdate = sheet.getCell(cellPosition);
         EffectiveValue effectiveValue;
 
@@ -131,14 +115,13 @@ public class ShticellEngine implements Engine {
         }
         effectiveValue = handleEffectiveValue(sheet, cellPosition, originalValue);
         sheet.updateCell(cellPosition, originalValue, effectiveValue);
-        Set<CellPositionInSheet> visitedCellPositions = new HashSet<>();
-        updateInfluencedByCell(sheet, cellPosition, visitedCellPositions);
-        cellsUpdatedCounter += visitedCellPositions.size();
-        sheet.setUpdatedCellsCount(cellsUpdatedCounter);
     }
 
-    public SheetManager buildSheetManagerFromXml(String fileName) throws JAXBException {
+    public void loadFile(String fileName) throws Exception {
         File file = new File(fileName);
+        if (!file.exists()) {
+            throw new RuntimeException("File doesn't exist!");
+        }
         JAXBContext jaxbContext = JAXBContext.newInstance(STLSheet.class);
         Unmarshaller jaxbUnmarshaller = jaxbContext.createUnmarshaller();
         STLSheet jaxbSheet = (STLSheet) jaxbUnmarshaller.unmarshal(file);
@@ -151,14 +134,17 @@ public class ShticellEngine implements Engine {
         SheetDimension dimension = new SheetDimension(numOfRows, numOfColumns, rowHeight, columnWidth);
         SheetManager sheetManager = new SheetManager(jaxbSheet.getName(), dimension);
         Sheet sheet = new Sheet();
+        int cellsUpdatedCounter = 0;
 
         for (STLCell jaxbCell: jaxbSheet.getSTLCells().getSTLCell()) {
             CellPositionInSheet cellPosition = PositionFactory.createPosition(jaxbCell.getRow(), jaxbCell.getColumn());
             String originalValue = jaxbCell.getSTLOriginalValue();
             setCellInfo(sheet, cellPosition, originalValue);
+            cellsUpdatedCounter++;
         }
+        sheet.setUpdatedCellsCount(cellsUpdatedCounter);
         sheetManager.addNewSheet(sheet);
-        return sheetManager;
+        this.sheetManager = sheetManager;
     }
 
     @Override
