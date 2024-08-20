@@ -5,7 +5,10 @@ import engine.entity.dto.SheetDto;
 import engine.entity.sheet.Sheet;
 import engine.expression.api.Expression;
 import engine.operation.Operation;
-import engine.operation.function.*;
+import engine.operation.function.numeric.*;
+import engine.operation.function.systemic.Ref;
+import engine.operation.function.textual.Concat;
+import engine.operation.function.textual.Sub;
 
 import java.util.ArrayList;
 import java.util.Arrays;
@@ -13,35 +16,35 @@ import java.util.LinkedList;
 import java.util.List;
 
 public class ExpressionEvaluator {
-    public static void main(String[] args) {
+    public static void main(String[] args) throws Exception {
         Sheet sheet = new Sheet();
         List<CellPositionInSheet> influencingCellPositions = new LinkedList<>();
 
         // Test examples
-        System.out.println(evaluateExpression(sheet, "{PLUS,2,3}", influencingCellPositions)); // Output: 5
-        System.out.println(evaluateExpression(sheet, "{MINUS,{PLUS,4,5},{POW,2,3}}", influencingCellPositions)); // Output: 1
-        System.out.println(evaluateExpression(sheet, "{CONCAT,Hello,World}", influencingCellPositions)); // Output: HelloWorld
-        System.out.println(evaluateExpression(sheet, "{ABS,{MINUS,4,5}}", influencingCellPositions)); // Output: 1
-        System.out.println(evaluateExpression(sheet, "{POW,2,3}", influencingCellPositions)); // Output: 8
-        System.out.println(evaluateExpression(sheet, "{SUB,hello,2,3}", influencingCellPositions)); // Output: l
-        System.out.println(evaluateExpression(sheet, "{MOD,4,2}", influencingCellPositions)); // Output: 0
+        System.out.println(evaluateArgument(sheet, "{PLUS,2,3}", influencingCellPositions)); // Output: 5
+        System.out.println(evaluateArgument(sheet, "{MINUS,{PLUS,4,5},{POW,2,3}}", influencingCellPositions)); // Output: 1
+        System.out.println(evaluateArgument(sheet, "{CONCAT,Hello,World}", influencingCellPositions)); // Output: HelloWorld
+        System.out.println(evaluateArgument(sheet, "{ABS,{MINUS,4,5}}", influencingCellPositions)); // Output: 1
+        System.out.println(evaluateArgument(sheet, "{POW,2,3}", influencingCellPositions)); // Output: 8
+        System.out.println(evaluateArgument(sheet, "{SUB,hello,2,3}", influencingCellPositions)); // Output: l
+        System.out.println(evaluateArgument(sheet, "{MOD,4,2}", influencingCellPositions)); // Output: 0
     }
 
-    public static EffectiveValue evaluateExpression(Sheet sheet, String expression, List<CellPositionInSheet> influencingCellPositions) {
+    public static EffectiveValue evaluateArgument(Sheet sheet, String argument, List<CellPositionInSheet> influencingCellPositions) throws Exception {
         EffectiveValue effectiveValue;
 
-         if (expression.matches("-?\\d+(\\.\\d+)?")) {
-                effectiveValue = new EffectiveValue(CellType.NUMERIC, Double.parseDouble(expression));
+         if (argument.matches("-?\\d+(\\.\\d+)?")) {
+                effectiveValue = new EffectiveValue(CellType.NUMERIC, Double.parseDouble(argument));
         }
-        else if (expression.equalsIgnoreCase("true") || expression.equalsIgnoreCase("false")) {
-            effectiveValue = new EffectiveValue(CellType.BOOLEAN, Boolean.parseBoolean(expression));
+        else if (argument.equalsIgnoreCase("true") || argument.equalsIgnoreCase("false")) {
+            effectiveValue = new EffectiveValue(CellType.BOOLEAN, Boolean.parseBoolean(argument));
         }
-        else if (expression.charAt(0) == '{' && expression.charAt(expression.length() - 1) == '}') {
+        else if (argument.charAt(0) == '{' && argument.charAt(argument.length() - 1) == '}') {
             // Remove the outer curly braces
-            expression = expression.substring(1, expression.length() - 1);
+            argument = argument.substring(1, argument.length() - 1);
 
             // Split the expression into function name and arguments
-            String[] parts = splitExpression(expression);
+            String[] parts = splitExpression(argument);
 
             String functionName = parts[0];
 
@@ -51,13 +54,13 @@ public class ExpressionEvaluator {
             effectiveValue = evaluateFunction(sheet, functionName, args, influencingCellPositions);
         }
         else {
-            effectiveValue = new EffectiveValue(CellType.STRING, expression);
+            effectiveValue = new EffectiveValue(CellType.STRING, argument);
          }
 
         return effectiveValue;
     }
 
-    public static EffectiveValue evaluateFunction(Sheet sheet, String operationName, List<String> args, List<CellPositionInSheet> influencingCellPositions) {
+    public static EffectiveValue evaluateFunction(Sheet sheet, String operationName, List<String> args, List<CellPositionInSheet> influencingCellPositions) throws Exception {
         Operation operation = Operation.valueOf(operationName);
         EffectiveValue effectiveValue1, effectiveValue2, effectiveValue3;
         Expression exp1, exp2, exp3;
@@ -67,8 +70,8 @@ public class ExpressionEvaluator {
                 if (args.size() != 2) {
                     throw new IllegalArgumentException("Wrong number of arguments to function: " + operationName);
                 }
-                effectiveValue1 = new EffectiveValue(CellType.NUMERIC, evaluateArgument(sheet, args.getFirst(), influencingCellPositions));
-                effectiveValue2 = new EffectiveValue(CellType.NUMERIC, evaluateArgument(sheet, args.get(1), influencingCellPositions));
+                effectiveValue1 = evaluateArgument(sheet, args.getFirst(), influencingCellPositions);
+                effectiveValue2 = evaluateArgument(sheet, args.get(1), influencingCellPositions);
                 exp1 = new EffectiveValueExpression(effectiveValue1);
                 exp2 = new EffectiveValueExpression(effectiveValue2);
 
@@ -95,7 +98,7 @@ public class ExpressionEvaluator {
                 if (args.size() != 1) {
                     throw new IllegalArgumentException("Wrong number of arguments to function: " + operationName);
                 }
-                effectiveValue1 = new EffectiveValue(CellType.NUMERIC, evaluateArgument(sheet, args.getFirst(), influencingCellPositions));
+                effectiveValue1 = evaluateArgument(sheet, args.getFirst(), influencingCellPositions);
                 exp1 = new EffectiveValueExpression(effectiveValue1);
                 returnedEffectiveValue = new Abs(exp1).invoke();
                 break;
@@ -103,8 +106,8 @@ public class ExpressionEvaluator {
                 if (args.size() != 2) {
                     throw new IllegalArgumentException("Wrong number of arguments to function: " + operationName);
                 }
-                effectiveValue1 = new EffectiveValue(CellType.STRING, evaluateArgument(sheet, args.getFirst(), influencingCellPositions));
-                effectiveValue2 = new EffectiveValue(CellType.STRING, evaluateArgument(sheet, args.getLast(), influencingCellPositions));
+                effectiveValue1 = evaluateArgument(sheet, args.getFirst(), influencingCellPositions);
+                effectiveValue2 = evaluateArgument(sheet, args.getLast(), influencingCellPositions);
                 exp1 = new EffectiveValueExpression(effectiveValue1);
                 exp2 = new EffectiveValueExpression(effectiveValue2);
                 returnedEffectiveValue = new Concat(exp1, exp2).invoke();
@@ -113,9 +116,9 @@ public class ExpressionEvaluator {
                 if (args.size() != 3) {
                     throw new IllegalArgumentException("Wrong number of arguments to function: " + operationName);
                 }
-                effectiveValue1 = new EffectiveValue(CellType.STRING, evaluateArgument(sheet, args.getFirst(), influencingCellPositions));
-                effectiveValue2 = new EffectiveValue(CellType.STRING, evaluateArgument(sheet, args.get(1), influencingCellPositions));
-                effectiveValue3 = new EffectiveValue(CellType.STRING, evaluateArgument(sheet, args.get(2), influencingCellPositions));
+                effectiveValue1 = evaluateArgument(sheet, args.getFirst(), influencingCellPositions);
+                effectiveValue2 = evaluateArgument(sheet, args.get(1), influencingCellPositions);
+                effectiveValue3 = evaluateArgument(sheet, args.get(2), influencingCellPositions);
                 exp1 = new EffectiveValueExpression(effectiveValue1);
                 exp2 = new EffectiveValueExpression(effectiveValue2);
                 exp3 = new EffectiveValueExpression(effectiveValue3);
@@ -125,7 +128,7 @@ public class ExpressionEvaluator {
                 if (args.size() != 1) {
                     throw new IllegalArgumentException("Wrong number of arguments to function " + operationName);
                 }
-                effectiveValue1 = new EffectiveValue(CellType.STRING, evaluateArgument(sheet, args.getFirst(), influencingCellPositions));
+                effectiveValue1 = evaluateArgument(sheet, args.getFirst(), influencingCellPositions);
                 exp1 = new EffectiveValueExpression(effectiveValue1);
                 returnedEffectiveValue = new Ref(exp1).invoke(new SheetDto(sheet), influencingCellPositions);
                 break;
@@ -133,19 +136,6 @@ public class ExpressionEvaluator {
                 throw new IllegalArgumentException("Unknown function: " + operationName);
         }
         return returnedEffectiveValue;
-    }
-
-    private static Object evaluateArgument(Sheet sheet, String arg, List<CellPositionInSheet> influencingCellPositions) {
-        if (arg.startsWith("{")) {
-            // If the argument is an expression, recursively evaluate it
-            return evaluateExpression(sheet, arg, influencingCellPositions);
-        } else if (arg.matches("-?\\d+(\\.\\d+)?")) {
-            // If the argument is a number, return it as a Double
-            return Double.parseDouble(arg);
-        } else {
-            // Otherwise, return it as a string (e.g., for CONCAT or SUB or REF)
-            return arg;
-        }
     }
 
     private static String[] splitExpression(String expression) {

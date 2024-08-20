@@ -1,45 +1,39 @@
 package engine.entity.sheet;
 
-public class SheetDimension implements Cloneable {
-    private int numOfRows;
-    private int numOfColumns;
-    private int rowHeight;
-    private int columnWidth;
+public class SheetDimension {
+    public static final int MAX_NUM_OF_ROWS = 50;
+    public static final int MAX_NUM_OF_COLUMNS = 20;
+    private static int numOfRows;
+    private static int numOfColumns;
+    private static int rowHeight;
+    private static int columnWidth;
 
     public SheetDimension(int numOfRows, int numOfColumns, int rowHeight, int columnWidth) {
-        this.numOfRows = numOfRows;
-        this.numOfColumns = numOfColumns;
-        this.rowHeight = rowHeight;
-        this.columnWidth = columnWidth;
+        if (!(numOfRows >= 1 && numOfRows <= MAX_NUM_OF_ROWS)) {
+            throw new IndexOutOfBoundsException("The number of sheet rows must be between 1 and " + MAX_NUM_OF_ROWS + ", but " + numOfRows + " was inserted.");
+        }
+        if (!(numOfColumns >= 1 && numOfColumns <= MAX_NUM_OF_COLUMNS)) {
+            throw new IndexOutOfBoundsException("The number of sheet columns must be between 1 and " + MAX_NUM_OF_COLUMNS + ", but " + numOfColumns + " was inserted.");
+        }
+        SheetDimension.numOfRows = numOfRows;
+        SheetDimension.numOfColumns = numOfColumns;
+        SheetDimension.rowHeight = rowHeight;
+        SheetDimension.columnWidth = columnWidth;
     }
 
-    public int getNumOfRows() {
+    public static int getNumOfRows() {
         return numOfRows;
     }
 
-    public int getNumOfColumns() {
+    public static int getNumOfColumns() {
         return numOfColumns;
     }
 
-    public int getRowHeight() {
+    public static int getRowHeight() {
         return rowHeight;
     }
 
-    public int getColumnWidth() {
+    public static int getColumnWidth() {
         return columnWidth;
-    }
-
-    @Override
-    public SheetDimension clone() {
-        try {
-            SheetDimension clone = (SheetDimension) super.clone();
-            clone.numOfRows = numOfRows;
-            clone.numOfColumns = numOfColumns;
-            clone.rowHeight = rowHeight;
-            clone.columnWidth = columnWidth;
-            return clone;
-        } catch (CloneNotSupportedException e) {
-            throw new AssertionError();
-        }
     }
 }

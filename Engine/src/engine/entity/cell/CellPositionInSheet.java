@@ -1,5 +1,7 @@
 package engine.entity.cell;
 
+import engine.entity.sheet.SheetDimension;
+
 import java.util.Objects;
 
 public class CellPositionInSheet implements Cloneable {
@@ -7,6 +9,9 @@ public class CellPositionInSheet implements Cloneable {
     private int column;
 
     public CellPositionInSheet(int row, int column) {
+        if (!(row >= 1 && row <= SheetDimension.getNumOfRows() && column >= 0 && column <= SheetDimension.getNumOfColumns())) {
+            throw new IndexOutOfBoundsException("Cell position is out of sheet bounds. Row should be between 1 to " + SheetDimension.getNumOfRows() + " and column between A to " + parseColumn(SheetDimension.getNumOfColumns()));
+        }
         this.row = row;
         this.column = column;
     }
@@ -19,10 +24,23 @@ public class CellPositionInSheet implements Cloneable {
         return column;
     }
 
+    public String parseColumn(int column) {
+        StringBuilder result = new StringBuilder();
+
+        while (column > 0) {
+            column--; // Adjust for zero-based indexing
+            int remainder = column % 26;
+            char letter = (char) (remainder + 'A');
+            result.insert(0, letter); // Prepend the letter
+            column /= 26;
+        }
+
+        return result.toString();
+    }
+
     @Override
     public String toString() {
-        char columnChar = (char) ('A' + column);
-        return "" + columnChar + (row);
+        return "" + parseColumn(column) + (row);
     }
 
     @Override

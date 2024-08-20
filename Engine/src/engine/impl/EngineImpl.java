@@ -11,14 +11,22 @@ import engine.jaxb.schema.generated.STLCell;
 import engine.jaxb.schema.generated.STLSheet;
 import jakarta.xml.bind.JAXBContext;
 import jakarta.xml.bind.Unmarshaller;
+import org.xml.sax.SAXException;
 
 import java.io.File;
+import java.io.FileNotFoundException;
 import java.util.*;
 
-import static engine.expression.impl.ExpressionEvaluator.evaluateExpression;
+import static engine.expression.impl.ExpressionEvaluator.evaluateArgument;
 
 public class EngineImpl implements Engine {
     private SheetManager sheetManager;
+    private boolean isDataLoaded = false;
+
+    @Override
+    public boolean isDataLoaded() {
+        return isDataLoaded;
+    }
 
     @Override
     public String getSheetName() {
@@ -60,10 +68,10 @@ public class EngineImpl implements Engine {
         return findCellInSheet(row, column, sheetVersion).getInfluences();
     }
 
-    public EffectiveValue handleEffectiveValue(Sheet sheet, CellPositionInSheet cellPosition, String originalValue) {
+    public EffectiveValue handleEffectiveValue(Sheet sheet, CellPositionInSheet cellPosition, String originalValue) throws Exception {
         EffectiveValue effectiveValue;
         List<CellPositionInSheet> influencingCellPositions = new LinkedList<>();
-        effectiveValue = evaluateExpression(sheet, originalValue, influencingCellPositions);
+        effectiveValue = evaluateArgument(sheet, originalValue, influencingCellPositions);
 
         for (CellPositionInSheet influencingPosition : influencingCellPositions) {
             sheet.addCellConnection(influencingPosition, cellPosition);
@@ -73,7 +81,7 @@ public class EngineImpl implements Engine {
     }
 
     //RECURSIVE UPDATE
-    private void updateInfluencedByCell(Sheet sheet, CellPositionInSheet InfluencerCellPosition, Set<CellPositionInSheet> visited) {
+    private void updateInfluencedByCell(Sheet sheet, CellPositionInSheet InfluencerCellPosition, Set<CellPositionInSheet> visited) throws Exception {
         Cell cell = sheet.getCell(InfluencerCellPosition);
         List<CellPositionInSheet> influencedCellPositions = new LinkedList<>(cell.getInfluences());
         for (CellPositionInSheet influencedByCellPosition : influencedCellPositions) {
@@ -88,7 +96,7 @@ public class EngineImpl implements Engine {
 
     @Override
     //THE FIRST UPDATE
-    public void updateSheetCell(int row, int column, String newOriginalValue) {
+    public void updateSheetCell(int row, int column, String newOriginalValue) throws Exception {
         Sheet clonedSheet = sheetManager.getSheetByVersion(sheetManager.getCurrentVersion()).clone();
         Set<CellPositionInSheet> visitedCellPositions = new HashSet<>();
         CellPositionInSheet cellPosition = PositionFactory.createPosition(row, column);
@@ -101,7 +109,7 @@ public class EngineImpl implements Engine {
         sheetManager.addNewSheet(clonedSheet);
     }
 
-    private void setCellInfo(Sheet sheet, CellPositionInSheet cellPosition, String originalValue) {
+    private void setCellInfo(Sheet sheet, CellPositionInSheet cellPosition, String originalValue) throws Exception {
         Cell cellInUpdate = sheet.getCell(cellPosition);
         EffectiveValue effectiveValue;
 
@@ -117,10 +125,13 @@ public class EngineImpl implements Engine {
         sheet.updateCell(cellPosition, originalValue, effectiveValue);
     }
 
-    public void loadFile(String fileName) throws Exception {
-        File file = new File(fileName);
-        if (!file.exists()) {
-            throw new RuntimeException("File doesn't exist!");
+    public void loadFile(String filePath) throws Exception {
+        File file = new File(filePath);
+        if (!(file.exists() && file.isFile())) {
+            throw new FileNotFoundException("File does not exist in path " + filePath + ", make sure you put the right file path.");
+        }
+        else if (!file.getName().endsWith("." + SUPPORTED_FILE_TYPE)) {
+            throw new SAXException("File " + filePath + " is not a valid " + SUPPORTED_FILE_TYPE.toUpperCase() + ".");
         }
         JAXBContext jaxbContext = JAXBContext.newInstance(STLSheet.class);
         Unmarshaller jaxbUnmarshaller = jaxbContext.createUnmarshaller();
@@ -145,6 +156,7 @@ public class EngineImpl implements Engine {
         sheet.setUpdatedCellsCount(cellsUpdatedCounter);
         sheetManager.addNewSheet(sheet);
         this.sheetManager = sheetManager;
+        isDataLoaded = true;
     }
 
     @Override

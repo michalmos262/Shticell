@@ -1,6 +1,8 @@
-package engine.operation.function;
+package engine.operation.function.systemic;
 
-import engine.entity.cell.*;
+import engine.entity.cell.CellPositionInSheet;
+import engine.entity.cell.EffectiveValue;
+import engine.entity.cell.PositionFactory;
 import engine.entity.dto.CellDto;
 import engine.entity.dto.SheetDto;
 import engine.expression.api.Expression;

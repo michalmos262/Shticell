@@ -8,6 +8,9 @@ import java.util.List;
 import java.util.Map;
 
 public interface Engine {
+    public static final String SUPPORTED_FILE_TYPE = "xml";
+
+    public boolean isDataLoaded();
     String getSheetName();
     int getCurrentSheetVersion();
     SheetDimension getSheetDimension();
@@ -15,7 +18,7 @@ public interface Engine {
     int getLastCellVersion(int row, int column);
     List<CellPositionInSheet> getInfluencedByList(int row, int column, int sheetVersion);
     List<CellPositionInSheet> getInfluencesList(int row, int column, int sheetVersion);
-    void updateSheetCell(int row, int column, String newValue);
+    void updateSheetCell(int row, int column, String newValue) throws Exception;
     Map<Integer, Integer> getSheetVersions();
     CellPositionInSheet getCellPositionInSheet(int row, int column);
     CellPositionInSheet getCellPositionInSheet(String position);

@@ -3,6 +3,8 @@ package engine.expression.impl;
 import engine.entity.cell.EffectiveValue;
 import engine.expression.api.Expression;
 
+import java.lang.invoke.StringConcatException;
+
 /**
  * Binary expression
  */
@@ -16,7 +18,7 @@ public abstract class BinaryExpression implements Expression {
     }
 
     @Override
-    public EffectiveValue invoke() {
+    public EffectiveValue invoke() throws Exception {
         return invoke(expression1.invoke(), expression2.invoke());
     }
 
@@ -25,5 +27,5 @@ public abstract class BinaryExpression implements Expression {
         return "{" + getOperationSign() + "," + expression1 + "," + expression2 + "}";
     }
 
-    abstract protected EffectiveValue invoke(EffectiveValue evaluate1, EffectiveValue evaluate2);
+    abstract protected EffectiveValue invoke(EffectiveValue evaluate1, EffectiveValue evaluate2) throws StringConcatException;
 }

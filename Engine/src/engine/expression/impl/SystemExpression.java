@@ -6,6 +6,7 @@ import engine.entity.dto.SheetDto;
 import engine.expression.api.Expression;
 import engine.operation.Operation;
 
+import java.lang.invoke.StringConcatException;
 import java.util.List;
 
 public abstract class SystemExpression {
@@ -15,7 +16,7 @@ public abstract class SystemExpression {
         this.expression = expression;
     }
 
-    public EffectiveValue invoke(SheetDto sheetDto, List<CellPositionInSheet> influencingCellPositions) {
+    public EffectiveValue invoke(SheetDto sheetDto, List<CellPositionInSheet> influencingCellPositions) throws Exception {
         return invoke(expression.invoke(), sheetDto, influencingCellPositions);
     }
 

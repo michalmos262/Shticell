@@ -23,7 +23,7 @@ public enum Menu {
     },
     UPDATE_CELL("Update cell") {
         @Override
-        void run() {
+        void run() throws Exception {
             console.updateSheetCell();
         }
     },
@@ -47,7 +47,7 @@ public enum Menu {
         this.name = name;
     }
 
-    abstract void run();
+    abstract void run() throws Exception;
 
     public int getOrdinal() {
         return ordinal() + 1;

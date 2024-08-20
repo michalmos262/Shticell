@@ -3,6 +3,8 @@ package engine.expression.impl;
 import engine.entity.cell.EffectiveValue;
 import engine.expression.api.Expression;
 
+import java.lang.invoke.StringConcatException;
+
 /**
  * Unary expression
  */
@@ -14,7 +16,7 @@ public abstract class UnaryExpression implements Expression {
     }
 
     @Override
-    public EffectiveValue invoke() {
+    public EffectiveValue invoke() throws Exception {
         return invoke(expression.invoke());
     }
 

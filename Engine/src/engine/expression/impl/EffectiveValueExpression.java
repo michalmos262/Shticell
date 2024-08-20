@@ -9,6 +9,9 @@ public class EffectiveValueExpression implements Expression {
     private final EffectiveValue value;
 
     public EffectiveValueExpression(EffectiveValue value) {
+        if (value.getValue() == EffectiveValue.NAN_VALUE || value.getValue() == EffectiveValue.UNDEFINED_VALUE) {
+            throw new IllegalArgumentException("Cannot invoke an expression on an invalid value, value is " + value.getValue());
+        }
         this.value = value;
     }
 

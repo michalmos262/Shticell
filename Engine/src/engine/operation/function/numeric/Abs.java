@@ -1,4 +1,4 @@
-package engine.operation.function;
+package engine.operation.function.numeric;
 
 import engine.entity.cell.CellType;
 import engine.entity.cell.EffectiveValue;

@@ -1,4 +1,4 @@
-package engine.operation.function;
+package engine.operation.function.textual;
 
 import engine.entity.cell.CellType;
 import engine.entity.cell.EffectiveValue;
@@ -17,15 +17,10 @@ public class Sub extends TrinaryExpression {
         String str = evaluate1.toString();
         double beginIndex = evaluate2.extractValueWithExpectation(Double.class);
         double endIndex = evaluate3.extractValueWithExpectation(Double.class);
-        if (beginIndex < 0) {
-            throw new StringIndexOutOfBoundsException((int)beginIndex);
-        }
-        if (endIndex > str.length()) {
-            throw new StringIndexOutOfBoundsException((int)endIndex);
-        }
         double subLen = endIndex - beginIndex;
-        if (subLen < 0) {
-            throw new StringIndexOutOfBoundsException((int)subLen);
+
+        if (beginIndex < 0 || endIndex > str.length() || subLen < 0) {
+            return new EffectiveValue(CellType.STRING, EffectiveValue.UNDEFINED_VALUE);
         }
         String result = str.substring((int)beginIndex, (int)endIndex);
         return new EffectiveValue(CellType.STRING, result);

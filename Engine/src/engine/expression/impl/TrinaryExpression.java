@@ -3,6 +3,8 @@ package engine.expression.impl;
 import engine.entity.cell.EffectiveValue;
 import engine.expression.api.Expression;
 
+import java.lang.invoke.StringConcatException;
+
 /**
  * Trinary expression
  */
@@ -18,7 +20,7 @@ public abstract class TrinaryExpression implements Expression {
     }
 
     @Override
-    public EffectiveValue invoke() {
+    public EffectiveValue invoke() throws Exception {
         return invoke(expression1.invoke(), expression2.invoke(), expression3.invoke());
     }
 

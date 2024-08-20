@@ -12,7 +12,7 @@ public class Program {
         }
     }
 
-    public static void main(String[] args) {
+    public static void main(String[] args) throws Exception {
         final Scanner scanner = new Scanner(System.in);
         final int exitOption = Menu.EXIT.getOrdinal();
 
