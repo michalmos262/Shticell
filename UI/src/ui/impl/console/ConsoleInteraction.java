@@ -35,8 +35,6 @@ public class ConsoleInteraction implements Ui {
             System.out.println("File was loaded successfully!");
         } catch (Exception e) {
             System.out.println("Error with loading file: " + e.getMessage());
-            printTryAgain();
-            loadFile();
         }
     }
 

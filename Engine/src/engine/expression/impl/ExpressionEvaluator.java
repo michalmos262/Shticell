@@ -63,7 +63,7 @@ public class ExpressionEvaluator {
             return operation.eval(sheetDto, influencingCellPositions, effectiveValueExpressions);
 
         } catch (IllegalArgumentException e) {
-            throw new IllegalArgumentException("Error occurred while executing an operation: ", e);
+            throw new IllegalArgumentException("Unknown operation: " + operationName);
         }
     }
 

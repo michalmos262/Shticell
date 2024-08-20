@@ -4,14 +4,8 @@
     <option name="autoReloadType" value="SELECTIVE" />
   </component>
   <component name="ChangeListManager">
-    <list default="true" id="35d24eeb-d633-4243-8af7-453c9914951b" name="Changes" comment="started exceptions">
-      <change beforePath="$PROJECT_DIR$/.idea/workspace.xml" beforeDir="false" afterPath="$PROJECT_DIR$/.idea/workspace.xml" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/Engine/src/engine/entity/cell/CellPositionInSheet.java" beforeDir="false" afterPath="$PROJECT_DIR$/Engine/src/engine/entity/cell/CellPositionInSheet.java" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/Engine/src/engine/entity/dto/CellDto.java" beforeDir="false" afterPath="$PROJECT_DIR$/Engine/src/engine/entity/dto/CellDto.java" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/Engine/src/engine/entity/dto/SheetDto.java" beforeDir="false" afterPath="$PROJECT_DIR$/Engine/src/engine/entity/dto/SheetDto.java" afterDir="false" />
+    <list default="true" id="35d24eeb-d633-4243-8af7-453c9914951b" name="Changes" comment="moved evaluate expressions to enum and changed dto's">
       <change beforePath="$PROJECT_DIR$/Engine/src/engine/expression/impl/ExpressionEvaluator.java" beforeDir="false" afterPath="$PROJECT_DIR$/Engine/src/engine/expression/impl/ExpressionEvaluator.java" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/Engine/src/engine/impl/EngineImpl.java" beforeDir="false" afterPath="$PROJECT_DIR$/Engine/src/engine/impl/EngineImpl.java" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/Engine/src/engine/operation/Operation.java" beforeDir="false" afterPath="$PROJECT_DIR$/Engine/src/engine/operation/Operation.java" afterDir="false" />
     </list>
     <option name="SHOW_DIALOG" value="false" />
     <option name="HIGHLIGHT_CONFLICTS" value="true" />
@@ -74,7 +68,7 @@
     "Application.CellCycleDetector.executor": "Run",
     "Application.ExpressionEvaluator.executor": "Debug",
     "Application.JAXBObjectsParser.executor": "Debug",
-    "Application.Program.executor": "Run",
+    "Application.Program.executor": "Debug",
     "RunOnceActivity.ShowReadmeOnStart": "true",
     "SHARE_PROJECT_CONFIGURATION_FILES": "true",
     "git-widget-placeholder": "#9 on exceptions",
@@ -315,7 +309,15 @@
       <option name="project" value="LOCAL" />
       <updated>1724163775065</updated>
     </task>
-    <option name="localTasksCounter" value="17" />
+    <task id="LOCAL-00017" summary="moved evaluate expressions to enum and changed dto's">
+      <option name="closed" value="true" />
+      <created>1724182317512</created>
+      <option name="number" value="00017" />
+      <option name="presentableId" value="LOCAL-00017" />
+      <option name="project" value="LOCAL" />
+      <updated>1724182317512</updated>
+    </task>
+    <option name="localTasksCounter" value="18" />
     <servers />
   </component>
   <component name="TypeScriptGeneratedFilesManager">
@@ -350,18 +352,10 @@
     <MESSAGE value="separated function" />
     <MESSAGE value="loading file is done" />
     <MESSAGE value="started exceptions" />
-    <option name="LAST_COMMIT_MESSAGE" value="started exceptions" />
+    <MESSAGE value="moved evaluate expressions to enum and changed dto's" />
+    <option name="LAST_COMMIT_MESSAGE" value="moved evaluate expressions to enum and changed dto's" />
   </component>
   <component name="XDebuggerManager">
-    <breakpoint-manager>
-      <breakpoints>
-        <line-breakpoint enabled="true" type="java-line">
-          <url>file://$PROJECT_DIR$/Engine/src/engine/impl/EngineImpl.java</url>
-          <line>163</line>
-          <option name="timeStamp" value="134" />
-        </line-breakpoint>
-      </breakpoints>
-    </breakpoint-manager>
     <watches-manager>
       <configuration name="Application">
         <watch expression="((LinkedHashMap)((Sheet)((LinkedHashMap.Entry)((LinkedHashMap)sheetManager.version2sheet).entrySet().toArray()[0]).getValue()).position2cell).entrySet().toArray()[2]" custom="java.util.LinkedHashMap,engine.entity.sheet.Sheet,java.util.LinkedHashMap.Entry" />
