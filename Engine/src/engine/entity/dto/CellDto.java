@@ -1,68 +1,43 @@
 package engine.entity.dto;
 
-import engine.entity.cell.Cell;
 import engine.entity.cell.CellPositionInSheet;
-import engine.entity.cell.CellType;
 import engine.entity.cell.EffectiveValue;
 
-import java.math.BigDecimal;
-import java.text.DecimalFormat;
 import java.util.List;
-import java.util.Objects;
 
 public class CellDto {
-    private final Cell cellDto;
+    private final String originalValue;
+    private final EffectiveValue effectiveValue;
+    private final EffectiveValue effectiveValueForDisplay;
+    private final List<CellPositionInSheet> influencedBy;
+    private final List<CellPositionInSheet> influences;
 
-    public CellDto(Cell originalCell) {
-        if (originalCell == null) {
-            this.cellDto = new Cell(" ",
-                    new EffectiveValue(CellType.STRING, " "),
-                    1);
-        }
-        else {
-            this.cellDto = originalCell.clone();
-        }
+    public CellDto(String originalValue, EffectiveValue effectiveValue, EffectiveValue effectiveValueForDisplay,
+                   List<CellPositionInSheet> influencedBy, List<CellPositionInSheet> influences) {
+        this.originalValue = originalValue;
+        this.effectiveValue = effectiveValue;
+        this.effectiveValueForDisplay = effectiveValueForDisplay;
+        this.influencedBy = influencedBy;
+        this.influences = influences;
     }
 
     public String getOriginalValue() {
-        return cellDto.getOriginalValue();
+        return originalValue;
     }
 
     public EffectiveValue getEffectiveValue() {
-        return new EffectiveValue(cellDto.getEffectiveValue().getCellType(),
-                cellDto.getEffectiveValue().getValue());
+        return effectiveValue;
     }
 
     public EffectiveValue getEffectiveValueForDisplay() {
-        String effectiveValueStr = cellDto.getEffectiveValue().getValue().toString();
-        if (effectiveValueStr.matches("-?\\d+(\\.\\d+)?")) {
-            DecimalFormat formatter = new DecimalFormat("#,###.##");
-            return new EffectiveValue(CellType.NUMERIC, formatter.format(new BigDecimal(effectiveValueStr)));
-        }
-        else if (effectiveValueStr.equalsIgnoreCase("true") || effectiveValueStr.equalsIgnoreCase("false")) {
-            return new EffectiveValue(CellType.BOOLEAN, effectiveValueStr.toUpperCase());
-        }
-        return new EffectiveValue(CellType.STRING, effectiveValueStr);
+        return effectiveValueForDisplay;
     }
 
     public List<CellPositionInSheet> getInfluencedBy() {
-        return cellDto.getInfluencedBy();
+        return influencedBy;
     }
 
     public List<CellPositionInSheet> getInfluences() {
-        return cellDto.getInfluences();
-    }
-
-    @Override
-    public boolean equals(Object o) {
-        if (this == o) return true;
-        if (o == null || getClass() != o.getClass()) return false;
-        CellDto cellDto1 = (CellDto) o;
-        return Objects.equals(cellDto, cellDto1.cellDto);
-    }
-
-    @Override
-    public int hashCode() {
-        return Objects.hashCode(cellDto);
+        return influences;
     }
 }

@@ -40,7 +40,7 @@ public class CellPositionInSheet implements Cloneable {
 
     @Override
     public String toString() {
-        return "" + parseColumn(column) + (row);
+        return parseColumn(column) + (row);
     }
 
     @Override

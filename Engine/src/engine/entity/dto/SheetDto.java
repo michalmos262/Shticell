@@ -1,20 +1,14 @@
 package engine.entity.dto;
 
-import engine.entity.cell.Cell;
 import engine.entity.cell.CellPositionInSheet;
-import engine.entity.sheet.Sheet;
 
-import java.util.HashMap;
 import java.util.Map;
 
 public class SheetDto {
     private final Map<CellPositionInSheet, CellDto> position2cell;
 
-    public SheetDto(Sheet sheet) {
-        position2cell = new HashMap<>();
-        for (Map.Entry<CellPositionInSheet, Cell> entry: sheet.getPosition2cell().entrySet()) {
-            position2cell.put(entry.getKey(), new CellDto(entry.getValue()));
-        }
+    public SheetDto(Map<CellPositionInSheet, CellDto> position2cell) {
+        this.position2cell = position2cell;
     }
 
     public CellDto getCell(CellPositionInSheet position) {

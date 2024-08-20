@@ -15,6 +15,8 @@ import org.xml.sax.SAXException;
 
 import java.io.File;
 import java.io.FileNotFoundException;
+import java.math.BigDecimal;
+import java.text.DecimalFormat;
 import java.util.*;
 
 import static engine.expression.impl.ExpressionEvaluator.evaluateArgument;
@@ -22,6 +24,39 @@ import static engine.expression.impl.ExpressionEvaluator.evaluateArgument;
 public class EngineImpl implements Engine {
     private SheetManager sheetManager;
     private boolean isDataLoaded = false;
+
+    public SheetDto createSheetDto(Sheet sheet) {
+        Map<CellPositionInSheet, CellDto> position2cell;
+        position2cell = new HashMap<>();
+        for (Map.Entry<CellPositionInSheet, Cell> entry: sheet.getPosition2cell().entrySet()) {
+            Cell cell = entry.getValue();
+            CellDto cellDto;
+            if (cell == null) {
+                EffectiveValue effectiveValue = new EffectiveValue(CellType.STRING, " ");
+                cellDto = new CellDto(" ", effectiveValue, effectiveValue, new LinkedList<>(), new LinkedList<>());
+            }
+            else {
+                cellDto = new CellDto(cell.getOriginalValue(), cell.getEffectiveValue(), getEffectiveValueForDisplay(cell), cell.getInfluencedBy(), cell.getInfluences());
+            }
+            position2cell.put(entry.getKey(), cellDto);
+        }
+
+        return new SheetDto(position2cell);
+    }
+
+    public EffectiveValue getEffectiveValueForDisplay(Cell cell) {
+        if (cell.getEffectiveValue() != null) {
+            String effectiveValueStr = cell.getEffectiveValue().getValue().toString();
+            if (effectiveValueStr.matches("-?\\d+(\\.\\d+)?")) {
+                DecimalFormat formatter = new DecimalFormat("#,###.##");
+                return new EffectiveValue(CellType.NUMERIC, formatter.format(new BigDecimal(effectiveValueStr)));
+            } else if (effectiveValueStr.equalsIgnoreCase("true") || effectiveValueStr.equalsIgnoreCase("false")) {
+                return new EffectiveValue(CellType.BOOLEAN, effectiveValueStr.toUpperCase());
+            }
+            return new EffectiveValue(CellType.STRING, effectiveValueStr);
+        }
+        return null;
+    }
 
     @Override
     public boolean isDataLoaded() {
@@ -46,7 +81,7 @@ public class EngineImpl implements Engine {
     @Override
     public CellDto findCellInSheet(int row, int column, int sheetVersion) {
         Sheet sheet = sheetManager.getSheetByVersion(sheetVersion);
-        SheetDto sheetDto = new SheetDto(sheet);
+        SheetDto sheetDto = createSheetDto(sheet);
         CellPositionInSheet cellPosition = PositionFactory.createPosition(row, column);
         return sheetDto.getCell(cellPosition);
     }
@@ -71,7 +106,7 @@ public class EngineImpl implements Engine {
     public EffectiveValue handleEffectiveValue(Sheet sheet, CellPositionInSheet cellPosition, String originalValue) throws Exception {
         EffectiveValue effectiveValue;
         List<CellPositionInSheet> influencingCellPositions = new LinkedList<>();
-        effectiveValue = evaluateArgument(sheet, originalValue, influencingCellPositions);
+        effectiveValue = evaluateArgument(createSheetDto(sheet), originalValue, influencingCellPositions);
 
         for (CellPositionInSheet influencingPosition : influencingCellPositions) {
             sheet.addCellConnection(influencingPosition, cellPosition);
