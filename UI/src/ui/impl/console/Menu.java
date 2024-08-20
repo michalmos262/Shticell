@@ -6,38 +6,33 @@ public enum Menu {
     LOAD_FILE("Load a file") {
         @Override
         void run() {
-
+            console.loadFile();
         }
     },
-
     SHOW_SHEET("Show current version sheet") {
         @Override
         void run() {
             console.showCurrentVersionSheet();
         }
     },
-
     SHOW_CELL("Show current version cell") {
         @Override
         void run() {
             console.showSheetCell();
         }
     },
-
     UPDATE_CELL("Update cell") {
         @Override
         void run() {
             console.updateSheetCell();
         }
     },
-
-    SHOW_VERSIONS("Show all sheet versions") {
+    SHOW_VERSIONS("Choose a sheet version for display") {
         @Override
         void run() {
-            console.showSheetVersions();
+            console.showSheetVersionsForDisplay();
         }
     },
-
     EXIT("Exit program") {
         @Override
         void run() {

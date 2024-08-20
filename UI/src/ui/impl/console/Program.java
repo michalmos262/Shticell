@@ -7,14 +7,15 @@ public class Program {
     public static void printMenu() {
         System.out.println();
         System.out.println("Choose an option form the menu below:");
-        for (Menu s : Menu.values()) {
-            System.out.println("(" + s.getOrdinal() + ") " + s);
+        for (Menu item: Menu.values()) {
+            System.out.println("(" + item.getOrdinal() + ") " + item);
         }
     }
 
     public static void main(String[] args) {
-        Scanner scanner = new Scanner(System.in);
-        int exitOption = Menu.EXIT.getOrdinal();
+        final Scanner scanner = new Scanner(System.in);
+        final int exitOption = Menu.EXIT.getOrdinal();
+
         System.out.println("Welcome!");
         printMenu();
         String userOptionStr = scanner.nextLine();

@@ -5,6 +5,8 @@ import engine.entity.cell.CellPositionInSheet;
 import engine.entity.cell.CellType;
 import engine.entity.cell.EffectiveValue;
 
+import java.math.BigDecimal;
+import java.text.DecimalFormat;
 import java.util.List;
 import java.util.Objects;
 
@@ -27,7 +29,20 @@ public class CellDto {
     }
 
     public EffectiveValue getEffectiveValue() {
-        return cellDto.getEffectiveValue();
+        return new EffectiveValue(cellDto.getEffectiveValue().getCellType(),
+                cellDto.getEffectiveValue().getValue());
+    }
+
+    public EffectiveValue getEffectiveValueForDisplay() {
+        String effectiveValueStr = cellDto.getEffectiveValue().getValue().toString();
+        if (effectiveValueStr.matches("-?\\d+(\\.\\d+)?")) {
+            DecimalFormat formatter = new DecimalFormat("#,###.##");
+            return new EffectiveValue(CellType.NUMERIC, formatter.format(new BigDecimal(effectiveValueStr)));
+        }
+        else if (effectiveValueStr.equalsIgnoreCase("true") || effectiveValueStr.equalsIgnoreCase("false")) {
+            return new EffectiveValue(CellType.BOOLEAN, effectiveValueStr.toUpperCase());
+        }
+        return new EffectiveValue(CellType.STRING, effectiveValueStr);
     }
 
     public List<CellPositionInSheet> getInfluencedBy() {
