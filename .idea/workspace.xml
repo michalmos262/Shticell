@@ -4,20 +4,7 @@
     <option name="autoReloadType" value="SELECTIVE" />
   </component>
   <component name="ChangeListManager">
-    <list default="true" id="35d24eeb-d633-4243-8af7-453c9914951b" name="Changes" comment="separated function">
-      <change beforePath="$PROJECT_DIR$/.idea/workspace.xml" beforeDir="false" afterPath="$PROJECT_DIR$/.idea/workspace.xml" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/Engine/src/engine/api/Engine.java" beforeDir="false" afterPath="$PROJECT_DIR$/Engine/src/engine/api/Engine.java" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/Engine/src/engine/entity/cell/EffectiveValue.java" beforeDir="false" afterPath="$PROJECT_DIR$/Engine/src/engine/entity/cell/EffectiveValue.java" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/Engine/src/engine/entity/dto/CellDto.java" beforeDir="false" afterPath="$PROJECT_DIR$/Engine/src/engine/entity/dto/CellDto.java" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/Engine/src/engine/expression/impl/ExpressionEvaluator.java" beforeDir="false" afterPath="$PROJECT_DIR$/Engine/src/engine/expression/impl/ExpressionEvaluator.java" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/Engine/src/engine/expression/impl/ValueAndPositions.java" beforeDir="false" />
-      <change beforePath="$PROJECT_DIR$/Engine/src/engine/impl/CellCycleDetector.java" beforeDir="false" />
-      <change beforePath="$PROJECT_DIR$/Engine/src/engine/impl/ShticellEngine.java" beforeDir="false" afterPath="$PROJECT_DIR$/Engine/src/engine/impl/EngineImpl.java" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/UI/src/ui/api/Ui.java" beforeDir="false" afterPath="$PROJECT_DIR$/UI/src/ui/api/Ui.java" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/UI/src/ui/impl/console/ConsoleInteraction.java" beforeDir="false" afterPath="$PROJECT_DIR$/UI/src/ui/impl/console/ConsoleInteraction.java" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/UI/src/ui/impl/console/Menu.java" beforeDir="false" afterPath="$PROJECT_DIR$/UI/src/ui/impl/console/Menu.java" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/UI/src/ui/impl/console/Program.java" beforeDir="false" afterPath="$PROJECT_DIR$/UI/src/ui/impl/console/Program.java" afterDir="false" />
-    </list>
+    <list default="true" id="35d24eeb-d633-4243-8af7-453c9914951b" name="Changes" comment="loading file is done" />
     <option name="SHOW_DIALOG" value="false" />
     <option name="HIGHLIGHT_CONFLICTS" value="true" />
     <option name="HIGHLIGHT_NON_ACTIVE_CHANGELIST" value="false" />
@@ -82,7 +69,7 @@
     "Application.Program.executor": "Run",
     "RunOnceActivity.ShowReadmeOnStart": "true",
     "SHARE_PROJECT_CONFIGURATION_FILES": "true",
-    "git-widget-placeholder": "#8 on branch-5",
+    "git-widget-placeholder": "#8 on Merging branch-5",
     "kotlin-language-version-configured": "true",
     "last_opened_file_path": "C:/Users/asafl/Downloads/jaxb-ri-4.0.5/jaxb-ri-4.0.5/mod/jaxb-xjc.jar",
     "node.js.detected.package.eslint": "true",
@@ -345,7 +332,8 @@
     <MESSAGE value="done logics" />
     <MESSAGE value="load file logics" />
     <MESSAGE value="separated function" />
-    <option name="LAST_COMMIT_MESSAGE" value="separated function" />
+    <MESSAGE value="loading file is done" />
+    <option name="LAST_COMMIT_MESSAGE" value="loading file is done" />
   </component>
   <component name="XDebuggerManager">
     <watches-manager>
