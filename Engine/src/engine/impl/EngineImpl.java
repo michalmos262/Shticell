@@ -3,22 +3,70 @@ package engine.impl;
 import engine.api.Engine;
 import engine.entity.cell.*;
 import engine.entity.dto.CellDto;
-import engine.entity.sheet.Sheet;
-import engine.entity.sheet.SheetDimension;
+import engine.entity.sheet.api.Sheet;
+import engine.entity.sheet.impl.SheetDimension;
 import engine.entity.dto.SheetDto;
-import engine.entity.sheet.SheetManager;
+import engine.entity.sheet.impl.SheetImpl;
+import engine.entity.sheet.impl.SheetManager;
+import engine.exception.file.FileNotExistException;
+import engine.exception.file.InvalidFileTypeException;
+import engine.file.CellConnectionsGraph;
 import engine.jaxb.schema.generated.STLCell;
+import engine.jaxb.schema.generated.STLCells;
 import engine.jaxb.schema.generated.STLSheet;
 import jakarta.xml.bind.JAXBContext;
 import jakarta.xml.bind.Unmarshaller;
 
 import java.io.File;
+import java.math.BigDecimal;
+import java.text.DecimalFormat;
 import java.util.*;
+import java.util.regex.Matcher;
+import java.util.regex.Pattern;
 
-import static engine.expression.impl.ExpressionEvaluator.evaluateExpression;
+import static engine.expression.impl.ExpressionEvaluator.evaluateArgument;
 
 public class EngineImpl implements Engine {
     private SheetManager sheetManager;
+    private boolean isDataLoaded = false;
+
+    public SheetDto createSheetDto(Sheet sheet) {
+        Map<CellPositionInSheet, CellDto> position2cell;
+        position2cell = new HashMap<>();
+        for (Map.Entry<CellPositionInSheet, Cell> entry: sheet.getPosition2cell().entrySet()) {
+            Cell cell = entry.getValue();
+            CellDto cellDto;
+            if (cell == null) {
+                EffectiveValue effectiveValue = new EffectiveValue(CellType.STRING, " ");
+                cellDto = new CellDto(" ", effectiveValue, effectiveValue, new LinkedList<>(), new LinkedList<>());
+            }
+            else {
+                cellDto = new CellDto(cell.getOriginalValue(), cell.getEffectiveValue(), getEffectiveValueForDisplay(cell), cell.getInfluencedBy(), cell.getInfluences());
+            }
+            position2cell.put(entry.getKey(), cellDto);
+        }
+
+        return new SheetDto(position2cell);
+    }
+
+    public EffectiveValue getEffectiveValueForDisplay(Cell cell) {
+        if (cell.getEffectiveValue() != null) {
+            String effectiveValueStr = cell.getEffectiveValue().getValue().toString();
+            if (effectiveValueStr.matches("-?\\d+(\\.\\d+)?")) {
+                DecimalFormat formatter = new DecimalFormat("#,###.##");
+                return new EffectiveValue(CellType.NUMERIC, formatter.format(new BigDecimal(effectiveValueStr)));
+            } else if (effectiveValueStr.equalsIgnoreCase("true") || effectiveValueStr.equalsIgnoreCase("false")) {
+                return new EffectiveValue(CellType.BOOLEAN, effectiveValueStr.toUpperCase());
+            }
+            return new EffectiveValue(CellType.STRING, effectiveValueStr);
+        }
+        return null;
+    }
+
+    @Override
+    public boolean isDataLoaded() {
+        return isDataLoaded;
+    }
 
     @Override
     public String getSheetName() {
@@ -38,7 +86,7 @@ public class EngineImpl implements Engine {
     @Override
     public CellDto findCellInSheet(int row, int column, int sheetVersion) {
         Sheet sheet = sheetManager.getSheetByVersion(sheetVersion);
-        SheetDto sheetDto = new SheetDto(sheet);
+        SheetDto sheetDto = createSheetDto(sheet);
         CellPositionInSheet cellPosition = PositionFactory.createPosition(row, column);
         return sheetDto.getCell(cellPosition);
     }
@@ -63,7 +111,7 @@ public class EngineImpl implements Engine {
     public EffectiveValue handleEffectiveValue(Sheet sheet, CellPositionInSheet cellPosition, String originalValue) {
         EffectiveValue effectiveValue;
         List<CellPositionInSheet> influencingCellPositions = new LinkedList<>();
-        effectiveValue = evaluateExpression(sheet, originalValue, influencingCellPositions);
+        effectiveValue = evaluateArgument(sheet, originalValue, influencingCellPositions);
 
         for (CellPositionInSheet influencingPosition : influencingCellPositions) {
             sheet.addCellConnection(influencingPosition, cellPosition);
@@ -73,7 +121,7 @@ public class EngineImpl implements Engine {
     }
 
     //RECURSIVE UPDATE
-    private void updateInfluencedByCell(Sheet sheet, CellPositionInSheet InfluencerCellPosition, Set<CellPositionInSheet> visited) {
+    private void updateInfluencedByCell(Sheet sheet, CellPositionInSheet InfluencerCellPosition, Set<CellPositionInSheet> visited) throws Exception {
         Cell cell = sheet.getCell(InfluencerCellPosition);
         List<CellPositionInSheet> influencedCellPositions = new LinkedList<>(cell.getInfluences());
         for (CellPositionInSheet influencedByCellPosition : influencedCellPositions) {
@@ -88,7 +136,7 @@ public class EngineImpl implements Engine {
 
     @Override
     //THE FIRST UPDATE
-    public void updateSheetCell(int row, int column, String newOriginalValue) {
+    public void updateSheetCell(int row, int column, String newOriginalValue) throws Exception {
         Sheet clonedSheet = sheetManager.getSheetByVersion(sheetManager.getCurrentVersion()).clone();
         Set<CellPositionInSheet> visitedCellPositions = new HashSet<>();
         CellPositionInSheet cellPosition = PositionFactory.createPosition(row, column);
@@ -102,25 +150,55 @@ public class EngineImpl implements Engine {
     }
 
     private void setCellInfo(Sheet sheet, CellPositionInSheet cellPosition, String originalValue) {
-        Cell cellInUpdate = sheet.getCell(cellPosition);
-        EffectiveValue effectiveValue;
+        try {
+            Cell cellInUpdate = sheet.getCell(cellPosition);
+            EffectiveValue effectiveValue;
 
-        if (cellInUpdate == null) { // need to create new cell
-            sheet.createNewCell(cellPosition, originalValue);
-        } else {
-            List<CellPositionInSheet> influencedByCellPositions = new LinkedList<>(cellInUpdate.getInfluencedBy());
-            for (CellPositionInSheet influencingCellPosition: influencedByCellPositions) {
-                sheet.removeCellConnection(influencingCellPosition, cellPosition);
+            if (cellInUpdate == null) { // need to create new cell
+                sheet.createNewCell(cellPosition, originalValue);
+            } else {
+                List<CellPositionInSheet> influencedByCellPositions = new LinkedList<>(cellInUpdate.getInfluencedBy());
+                for (CellPositionInSheet influencingCellPosition: influencedByCellPositions) {
+                    sheet.removeCellConnection(influencingCellPosition, cellPosition);
+                }
             }
+            effectiveValue = handleEffectiveValue(sheet, cellPosition, originalValue);
+            sheet.updateCell(cellPosition, originalValue, effectiveValue);
+        } catch (Exception e) {
+            throw new IllegalArgumentException("Error occurred on update position " + cellPosition + ": " + e.getMessage());
         }
-        effectiveValue = handleEffectiveValue(sheet, cellPosition, originalValue);
-        sheet.updateCell(cellPosition, originalValue, effectiveValue);
     }
 
-    public void loadFile(String fileName) throws Exception {
-        File file = new File(fileName);
-        if (!file.exists()) {
-            throw new RuntimeException("File doesn't exist!");
+    private void createCellsFromFile(Sheet sheet, STLCells jaxbCells, int cellsUpdatedCounter) {
+        // Create a graph of REF connections
+        CellConnectionsGraph refConnectionsGraph = new CellConnectionsGraph(jaxbCells);
+
+        // Sort the graph topologically
+        List<CellPositionInSheet> topologicalSortedGraph = refConnectionsGraph.sortTopologically();
+
+        // Move jaxb cells list to map
+        Map<CellPositionInSheet, STLCell> jaxbCellsMap = new HashMap<>();
+        for (STLCell jaxbCell: jaxbCells.getSTLCell()) {
+            CellPositionInSheet cellPosition = PositionFactory.createPosition(jaxbCell.getRow(), jaxbCell.getColumn());
+            jaxbCellsMap.put(cellPosition, jaxbCell);
+        }
+
+        // Create the real cells by the topological sort
+        for (CellPositionInSheet cellPositionInSheet : topologicalSortedGraph) {
+            String originalValue = jaxbCellsMap.get(cellPositionInSheet).getSTLOriginalValue();
+            setCellInfo(sheet, cellPositionInSheet, originalValue);
+            cellsUpdatedCounter++;
+        }
+
+    }
+
+    public void loadFile(String filePath) throws Exception {
+        File file = new File(filePath);
+        if (!(file.exists() && file.isFile())) {
+            throw new FileNotExistException(filePath);
+        }
+        else if (!file.getName().endsWith("." + SUPPORTED_FILE_TYPE)) {
+            throw new InvalidFileTypeException(filePath, SUPPORTED_FILE_TYPE.toUpperCase());
         }
         JAXBContext jaxbContext = JAXBContext.newInstance(STLSheet.class);
         Unmarshaller jaxbUnmarshaller = jaxbContext.createUnmarshaller();
@@ -133,18 +211,15 @@ public class EngineImpl implements Engine {
 
         SheetDimension dimension = new SheetDimension(numOfRows, numOfColumns, rowHeight, columnWidth);
         SheetManager sheetManager = new SheetManager(jaxbSheet.getName(), dimension);
-        Sheet sheet = new Sheet();
+        Sheet sheet = new SheetImpl();
         int cellsUpdatedCounter = 0;
 
-        for (STLCell jaxbCell: jaxbSheet.getSTLCells().getSTLCell()) {
-            CellPositionInSheet cellPosition = PositionFactory.createPosition(jaxbCell.getRow(), jaxbCell.getColumn());
-            String originalValue = jaxbCell.getSTLOriginalValue();
-            setCellInfo(sheet, cellPosition, originalValue);
-            cellsUpdatedCounter++;
-        }
+        createCellsFromFile(sheet, jaxbSheet.getSTLCells(), cellsUpdatedCounter);
+        
         sheet.setUpdatedCellsCount(cellsUpdatedCounter);
         sheetManager.addNewSheet(sheet);
         this.sheetManager = sheetManager;
+        isDataLoaded = true;
     }
 
     @Override

@@ -18,7 +18,7 @@ public abstract class TrinaryExpression implements Expression {
     }
 
     @Override
-    public EffectiveValue invoke() {
+    public EffectiveValue invoke()  {
         return invoke(expression1.invoke(), expression2.invoke(), expression3.invoke());
     }
 

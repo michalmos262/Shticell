@@ -1,31 +1,41 @@
-package engine.entity.sheet;
+package engine.entity.sheet.impl;
 
 import engine.entity.cell.*;
+import engine.entity.sheet.api.Sheet;
 
 import java.util.*;
 
-public class Sheet implements Cloneable {
+public class SheetImpl implements Cloneable, Sheet {
     private Map<CellPositionInSheet, Cell> position2cell;
     private int updatedCellsCount;
     private int version = 1;
 
-    public Sheet() {
+    public SheetImpl() {
         position2cell = new LinkedHashMap<>();
         updatedCellsCount = 0;
     }
 
+    @Override
     public int getUpdatedCellsCount() {
         return updatedCellsCount;
     }
 
+    @Override
+    public EffectiveValue getCellEffectiveValue(CellPositionInSheet cellPosition) {
+        return position2cell.get(cellPosition).getEffectiveValue();
+    }
+
+    @Override
     public void setUpdatedCellsCount(int updatedCellsCount) {
         this.updatedCellsCount = updatedCellsCount;
     }
 
+    @Override
     public Map<CellPositionInSheet, Cell> getPosition2cell() {
         return position2cell;
     }
 
+    @Override
     public void updateCell(CellPositionInSheet cellPosition, String originalValue, EffectiveValue effectiveValue) {
         Cell cell = position2cell.get(cellPosition);
         cell.setLastUpdatedInVersion(version);
@@ -33,6 +43,7 @@ public class Sheet implements Cloneable {
         cell.setEffectiveValue(effectiveValue);
     }
 
+    @Override
     public void addCellConnection(CellPositionInSheet from, CellPositionInSheet to) {
         Cell influencingCell = position2cell.get(from);
         Cell influencedCell = position2cell.get(to);
@@ -53,6 +64,7 @@ public class Sheet implements Cloneable {
         }
     }
 
+    @Override
     public void removeCellConnection(CellPositionInSheet from, CellPositionInSheet to) {
         Cell influencingCell = position2cell.get(from);
         Cell influencedCell = position2cell.get(to);
@@ -79,19 +91,21 @@ public class Sheet implements Cloneable {
         return false;
     }
 
+    @Override
     public void createNewCell(CellPositionInSheet cellPosition, String originalValue) {
         Cell newCell = new Cell(originalValue, null, version);
         position2cell.put(cellPosition, newCell);
     }
 
+    @Override
     public Cell getCell(CellPositionInSheet cellPosition) {
         return position2cell.get(cellPosition);
     }
 
     @Override
-    public Sheet clone() {
+    public SheetImpl clone() {
         try {
-            Sheet cloned = (Sheet) super.clone();
+            SheetImpl cloned = (SheetImpl) super.clone();
             cloned.version = version + 1;
             cloned.updatedCellsCount = 0;
             // Make sure to create a new map for the cloned object
@@ -111,7 +125,7 @@ public class Sheet implements Cloneable {
     public boolean equals(Object o) {
         if (this == o) return true;
         if (o == null || getClass() != o.getClass()) return false;
-        Sheet sheet = (Sheet) o;
+        SheetImpl sheet = (SheetImpl) o;
         return updatedCellsCount == sheet.updatedCellsCount && version == sheet.version && Objects.equals(position2cell, sheet.position2cell);
     }
 

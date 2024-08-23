@@ -2,12 +2,15 @@ package engine.api;
 
 import engine.entity.dto.CellDto;
 import engine.entity.cell.CellPositionInSheet;
-import engine.entity.sheet.SheetDimension;
+import engine.entity.sheet.impl.SheetDimension;
 
 import java.util.List;
 import java.util.Map;
 
 public interface Engine {
+    String SUPPORTED_FILE_TYPE = "xml";
+
+    boolean isDataLoaded();
     String getSheetName();
     int getCurrentSheetVersion();
     SheetDimension getSheetDimension();
@@ -15,7 +18,7 @@ public interface Engine {
     int getLastCellVersion(int row, int column);
     List<CellPositionInSheet> getInfluencedByList(int row, int column, int sheetVersion);
     List<CellPositionInSheet> getInfluencesList(int row, int column, int sheetVersion);
-    void updateSheetCell(int row, int column, String newValue);
+    void updateSheetCell(int row, int column, String newValue) throws Exception;
     Map<Integer, Integer> getSheetVersions();
     CellPositionInSheet getCellPositionInSheet(int row, int column);
     CellPositionInSheet getCellPositionInSheet(String position);

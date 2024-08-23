@@ -10,5 +10,9 @@ public interface Expression {
      * @return the results of the expression
      */
     EffectiveValue invoke();
+
     Operation getOperationSign();
+
+    @Override
+    String toString();
 }

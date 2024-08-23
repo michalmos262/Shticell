@@ -3,8 +3,10 @@ package ui.impl.console;
 import engine.api.Engine;
 import engine.entity.dto.CellDto;
 import engine.entity.cell.CellPositionInSheet;
-import engine.entity.sheet.SheetDimension;
+import engine.entity.sheet.impl.SheetDimension;
+import engine.exception.sheet.NoDataLoadedException;
 import engine.impl.EngineImpl;
+import engine.operation.Operation;
 import ui.api.Ui;
 
 import java.util.List;
@@ -23,105 +25,151 @@ public class ConsoleInteraction implements Ui {
 
     @Override
     public void loadFile() {
-        System.out.println("Enter file name:");
         try {
+            System.out.println("Enter a " + Engine.SUPPORTED_FILE_TYPE.toUpperCase() + " file path:");
             String filename = scanner.nextLine();
             engine.loadFile(filename);
             System.out.println("File was loaded successfully!");
         } catch (Exception e) {
-            System.out.println("Error loading file: " + e.getMessage());
+            System.out.println("Error with loading file: " + e.getMessage());
+        }
+    }
+
+    @Override
+    public void checkIfThereIsData() {
+        if (!engine.isDataLoaded()) {
+            throw new NoDataLoadedException();
         }
     }
 
     private void showSheetTable(int version) {
-        SheetDimension sheetDimension = engine.getSheetDimension();
-        int numOfRows = sheetDimension.getNumOfRows();
-        int numOfColumns = sheetDimension.getNumOfColumns();
-        int rowHeight = sheetDimension.getRowHeight();
-        int columnWidth = sheetDimension.getColumnWidth();
+        try {
+            int numOfRows = SheetDimension.getNumOfRows();
+            int numOfColumns = SheetDimension.getNumOfColumns();
+            int rowHeight = SheetDimension.getRowHeight();
+            int columnWidth = SheetDimension.getColumnWidth();
 
-        // Print the column headers
-        System.out.print("   |"); // Space for row numbers
-        for (int col = 0; col < numOfColumns; col++) {
-            int padding = columnWidth - 1; // Space after the letter
-            System.out.print((char) ('A' + col) + " ".repeat(padding) + "|");
-        }
-        System.out.println();
-
-        // Print the table
-        for (int row = 0; row < numOfRows; row++) {
-            // Print row number
-            if (row + 1 < 10) System.out.print("0");
-            System.out.print((row + 1) + " ");
-
-            // Print each cell in the row
+            // Print the column headers
+            System.out.print("   |"); // Space for row numbers
             for (int col = 0; col < numOfColumns; col++) {
-                CellDto cell = engine.findCellInSheet(row + 1, col, version);
-                String text = cell == null ? "" : cell.getEffectiveValueForDisplay().toString();
-                text = text.length() > columnWidth ? text.substring(0, columnWidth) : text;
-                int paddingRight = columnWidth - text.length();
-                System.out.print("|" + text + " ".repeat(paddingRight));
+                int padding = columnWidth - 1; // Space after the letter
+                System.out.print((char) ('A' + col) + " ".repeat(padding) + "|");
             }
-            System.out.println("|");
+            System.out.println();
 
-            // Print the remaining cell rows (without row number)
-            for (int h = 1; h < rowHeight; h++) {
-                System.out.print("   "); // Space for row numbers
-                for (int i = 0; i < numOfColumns; i++) {
-                    System.out.print("|" + " ".repeat(columnWidth));
+            // Print the table
+            for (int row = 0; row < numOfRows; row++) {
+                // Print row number
+                if (row + 1 < 10) System.out.print("0");
+                System.out.print((row + 1) + " ");
+
+                // Print each cell in the row
+                for (int col = 0; col < numOfColumns; col++) {
+                    CellDto cell = engine.findCellInSheet(row + 1, col + 1, version);
+                    String text = cell == null ? "" : cell.getEffectiveValueForDisplay().toString();
+                    text = text.length() > columnWidth ? text.substring(0, columnWidth) : text;
+                    int paddingRight = columnWidth - text.length();
+                    System.out.print("|" + text + " ".repeat(paddingRight));
                 }
                 System.out.println("|");
+
+                // Print the remaining cell rows (without row number)
+                for (int h = 1; h < rowHeight; h++) {
+                    System.out.print("   "); // Space for row numbers
+                    for (int i = 0; i < numOfColumns; i++) {
+                        System.out.print("|" + " ".repeat(columnWidth));
+                    }
+                    System.out.println("|");
+                }
             }
+        } catch (Exception e) {
+            System.out.println(e.getMessage());
         }
     }
 
-    private String getCellPositionFromUser() {
-        System.out.println("Enter sheet cell position (for example 'A1' - means row 1, column A): ");
-        return scanner.nextLine();
+    private CellPositionInSheet getCellPositionFromUser() {
+        String userInput;
+        CellPositionInSheet cellPositionInSheet;
+
+        System.out.println("Enter sheet cell position (for example 'A1' - means row 1, column A):");
+        userInput = scanner.nextLine();
+        cellPositionInSheet = engine.getCellPositionInSheet(userInput);
+        return cellPositionInSheet;
     }
 
     @Override
     public void showCurrentVersionSheet() {
-        System.out.println("Sheet name: " + engine.getSheetName());
-        System.out.println("Current sheet version: " + engine.getCurrentSheetVersion());
-        showSheetTable(engine.getCurrentSheetVersion());
+        try {
+            checkIfThereIsData();
+            System.out.println("Sheet name: " + engine.getSheetName());
+            System.out.println("Current sheet version: " + engine.getCurrentSheetVersion());
+            showSheetTable(engine.getCurrentSheetVersion());
+        } catch (Exception e) {
+            System.out.println(e.getMessage());
+        }
+
     }
 
     private void printSomeCellData(int row, int column) {
-        System.out.println("Cell position in sheet: " + engine.getCellPositionInSheet(row, column));
-        CellDto cell = engine.findCellInSheet(row, column, engine.getCurrentSheetVersion());
-        System.out.println("Current original value: " + (cell == null ? " " : cell.getOriginalValue()));
-        System.out.println("Current effective value: " + (cell == null ? " " : cell.getEffectiveValueForDisplay()));
+        try {
+            System.out.println("Cell position in sheet: " + engine.getCellPositionInSheet(row, column));
+            CellDto cell = engine.findCellInSheet(row, column, engine.getCurrentSheetVersion());
+            System.out.println("Current original value: " + (cell == null ? " " : cell.getOriginalValue()));
+            System.out.println("Current effective value: " + (cell == null ? " " : cell.getEffectiveValueForDisplay()));
+        } catch (Exception e) {
+            System.out.println(e.getMessage());
+        }
     }
 
     @Override
     public void showSheetCell() {
-        String cellPosition = getCellPositionFromUser();
-        int row = engine.parseRowFromPosition(cellPosition);
-        int column = engine.parseColumnFromPosition(cellPosition);
-        printSomeCellData(row, column);
-        System.out.println("Last cell version: " + engine.getLastCellVersion(row, column));
-        List<CellPositionInSheet> affectedCellsList = engine.getInfluencesList(row, column, engine.getCurrentSheetVersion());
-        List<CellPositionInSheet> affectedByCellsList = engine.getInfluencedByList(row, column, engine.getCurrentSheetVersion());
-        System.out.println("The cells that the required cell is affecting: " + (affectedCellsList.isEmpty() ? "None" : affectedCellsList));
-        System.out.println("The cells that the required cell is affected by: " + (affectedByCellsList.isEmpty() ? "None" : affectedByCellsList));
+        try {
+            checkIfThereIsData();
+            CellPositionInSheet cellPosition = getCellPositionFromUser();
+            int row = cellPosition.getRow();
+            int column = cellPosition.getColumn();
+            printSomeCellData(row, column);
+            System.out.println("Last cell version: " + engine.getLastCellVersion(row, column));
+            List<CellPositionInSheet> affectedCellsList = engine.getInfluencesList(row, column, engine.getCurrentSheetVersion());
+            List<CellPositionInSheet> affectedByCellsList = engine.getInfluencedByList(row, column, engine.getCurrentSheetVersion());
+            System.out.println("The cells that the required cell is affecting: " + (affectedCellsList.isEmpty() ? "None" : affectedCellsList));
+            System.out.println("The cells that the required cell is affected by: " + (affectedByCellsList.isEmpty() ? "None" : affectedByCellsList));
+        } catch (Exception e) {
+            System.out.println(e.getMessage());
+        }
+    }
+
+    private void printWhatCellCanUpdate() {
+        System.out.println("You can enter any text you'd like, even an expression.");
+        System.out.println("Functions documentation:");
+        System.out.println("-----------------------");
+
+        for(Operation operation : Operation.values()) {
+            System.out.println(operation.getDocumentation());
+        }
+        System.out.println("Enter the value:");
     }
 
     @Override
     public void updateSheetCell() {
-        String cellPosition = getCellPositionFromUser();
-        int row = engine.parseRowFromPosition(cellPosition);
-        int column = engine.parseColumnFromPosition(cellPosition);
-        printSomeCellData(row, column);
-        System.out.println("Enter new cell value:");
-        String newCellValue = scanner.nextLine();
-        engine.updateSheetCell(row, column, newCellValue);
-        showSheetTable(engine.getCurrentSheetVersion());
+        try {
+            checkIfThereIsData();
+            CellPositionInSheet cellPosition = getCellPositionFromUser();
+            int row = cellPosition.getRow();
+            int column = cellPosition.getColumn();
+            printSomeCellData(row, column);
+            printWhatCellCanUpdate();
+            String newCellValue = scanner.nextLine();
+            engine.updateSheetCell(row, column, newCellValue);
+            showSheetTable(engine.getCurrentSheetVersion());
+        } catch (Exception e) {
+            System.out.println(e.getMessage());
+        }
     }
 
     private void printVersion2updatedCellsCountAsTable(Map<Integer, Integer> map) {
         System.out.printf("%-10s %-10s%n", "Version", "Updated cells amount");
-        System.out.println("----------------------");
+        System.out.println("-------------------------------");
         for (Map.Entry<Integer, Integer> entry : map.entrySet()) {
             System.out.printf("%-10d %-10d%n", entry.getKey(), entry.getValue());
         }
@@ -129,11 +177,16 @@ public class ConsoleInteraction implements Ui {
 
     @Override
     public void showSheetVersionsForDisplay() {
-        System.out.println("The sheet versions available:");
-        printVersion2updatedCellsCountAsTable(engine.getSheetVersions());
-        System.out.println("Enter the version you want to show its sheet:");
-        String versionStr = scanner.nextLine();
-        showSheetTable(Integer.parseInt(versionStr));
+        try {
+            checkIfThereIsData();
+            System.out.println("The sheet versions available:");
+            printVersion2updatedCellsCountAsTable(engine.getSheetVersions());
+            System.out.println("Enter the version you want to show its sheet:");
+            String versionStr = scanner.nextLine();
+            showSheetTable(Integer.parseInt(versionStr));
+        } catch (Exception e) {
+            System.out.println(e.getMessage());
+        }
     }
 
     @Override

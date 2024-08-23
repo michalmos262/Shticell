@@ -1,4 +1,6 @@
-package engine.entity.sheet;
+package engine.entity.sheet.impl;
+
+import engine.entity.sheet.api.Sheet;
 
 import java.util.LinkedHashMap;
 import java.util.Map;
@@ -12,7 +14,7 @@ public class SheetManager {
     public SheetManager(String name, SheetDimension dimension) {
         currentVersion = 0;
         version2sheet = new LinkedHashMap<>();
-        version2sheet.put(1, new Sheet());
+        version2sheet.put(1, new SheetImpl());
         this.name = name;
         this.dimension = dimension;
     }
