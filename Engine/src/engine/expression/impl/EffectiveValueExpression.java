@@ -1,6 +1,7 @@
 package engine.expression.impl;
 
 import engine.entity.cell.EffectiveValue;
+import engine.exception.operation.InvokeOnInvalidValueException;
 import engine.expression.api.Expression;
 import engine.operation.Operation;
 
@@ -9,8 +10,9 @@ public class EffectiveValueExpression implements Expression {
     private final EffectiveValue value;
 
     public EffectiveValueExpression(EffectiveValue value) {
-        if (value.getValue() == EffectiveValue.NAN_VALUE || value.getValue() == EffectiveValue.UNDEFINED_VALUE) {
-            throw new IllegalArgumentException("Cannot invoke an expression on an invalid value, value is " + value.getValue());
+        if (value.getValue() == EffectiveValue.NUMBER_INVALID_VALUE
+                || value.getValue() == EffectiveValue.STRING_INVALID_VALUE) {
+            throw new InvokeOnInvalidValueException(value.getValue().toString());
         }
         this.value = value;
     }

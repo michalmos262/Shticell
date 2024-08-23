@@ -2,6 +2,7 @@ package engine.expression.impl;
 
 import engine.entity.cell.*;
 import engine.entity.dto.SheetDto;
+import engine.exception.operation.OperationIllegalNumberOfArgumentsException;
 import engine.operation.Operation;
 
 import java.util.ArrayList;
@@ -41,18 +42,18 @@ public class ExpressionEvaluator {
         return effectiveValue;
     }
 
-    public static EffectiveValue evaluateFunction(SheetDto sheetDto, String operationName, List<String> args, List<CellPositionInSheet> influencingCellPositions) throws Exception {
+    public static EffectiveValue evaluateFunction(SheetDto sheetDto, String operationName, List<String> args, List<CellPositionInSheet> influencingCellPositions) {
         try {
-            Operation operation = Operation.valueOf(operationName);
+            Operation operation = Operation.getOperation(operationName);
             ArrayList<EffectiveValue> effectiveValues = new ArrayList<>();
             ArrayList<EffectiveValueExpression> effectiveValueExpressions = new ArrayList<>();
             int expectedExpressionsAmount = operation.getExpressionsAmount();
 
             if (args.size() != expectedExpressionsAmount) {
-                throw new IllegalArgumentException("Operation " + operationName + " requires " + expectedExpressionsAmount + " arguments, but inserted " + args.size() + ".");
+                throw new OperationIllegalNumberOfArgumentsException(operationName, expectedExpressionsAmount, args.size());
             }
-            for (int i = 0; i < args.size(); i++) {
-                EffectiveValue effectiveValue = evaluateArgument(sheetDto, args.getFirst(), influencingCellPositions);
+            for (String arg : args) {
+                EffectiveValue effectiveValue = evaluateArgument(sheetDto, arg, influencingCellPositions);
                 effectiveValues.add(effectiveValue);
             }
             for (EffectiveValue ev : effectiveValues) {
@@ -62,8 +63,8 @@ public class ExpressionEvaluator {
 
             return operation.eval(sheetDto, influencingCellPositions, effectiveValueExpressions);
 
-        } catch (IllegalArgumentException e) {
-            throw new IllegalArgumentException("Unknown operation: " + operationName);
+        } catch (Exception e) {
+            throw new IllegalArgumentException(e.getMessage());
         }
     }
 

@@ -6,7 +6,6 @@ import engine.entity.dto.SheetDto;
 import engine.expression.api.Expression;
 import engine.operation.Operation;
 
-import java.lang.invoke.StringConcatException;
 import java.util.List;
 
 public abstract class SystemExpression {

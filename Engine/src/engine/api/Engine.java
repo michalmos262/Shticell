@@ -2,15 +2,15 @@ package engine.api;
 
 import engine.entity.dto.CellDto;
 import engine.entity.cell.CellPositionInSheet;
-import engine.entity.sheet.SheetDimension;
+import engine.entity.sheet.impl.SheetDimension;
 
 import java.util.List;
 import java.util.Map;
 
 public interface Engine {
-    public static final String SUPPORTED_FILE_TYPE = "xml";
+    String SUPPORTED_FILE_TYPE = "xml";
 
-    public boolean isDataLoaded();
+    boolean isDataLoaded();
     String getSheetName();
     int getCurrentSheetVersion();
     SheetDimension getSheetDimension();

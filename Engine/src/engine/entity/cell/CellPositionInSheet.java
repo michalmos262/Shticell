@@ -1,6 +1,7 @@
 package engine.entity.cell;
 
-import engine.entity.sheet.SheetDimension;
+import engine.entity.sheet.impl.SheetDimension;
+import engine.exception.cell.CellPositionOutOfSheetBoundsException;
 
 import java.util.Objects;
 
@@ -10,7 +11,7 @@ public class CellPositionInSheet implements Cloneable {
 
     public CellPositionInSheet(int row, int column) {
         if (!(row >= 1 && row <= SheetDimension.getNumOfRows() && column >= 0 && column <= SheetDimension.getNumOfColumns())) {
-            throw new IndexOutOfBoundsException("Cell position is out of sheet bounds. Row should be between 1 to " + SheetDimension.getNumOfRows() + " and column between A to " + parseColumn(SheetDimension.getNumOfColumns()));
+            throw new CellPositionOutOfSheetBoundsException(SheetDimension.getNumOfRows(), parseColumn(SheetDimension.getNumOfColumns()));
         }
         this.row = row;
         this.column = column;

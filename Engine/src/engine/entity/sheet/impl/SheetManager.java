@@ -1,10 +1,10 @@
-package engine.entity.sheet;
+package engine.entity.sheet.impl;
 
 import java.util.LinkedHashMap;
 import java.util.Map;
 
 public class SheetManager {
-    private final Map<Integer, Sheet> version2sheet;
+    private final Map<Integer, SheetImpl> version2sheet;
     private final String name;
     private int currentVersion;
     private final SheetDimension dimension;
@@ -12,7 +12,7 @@ public class SheetManager {
     public SheetManager(String name, SheetDimension dimension) {
         currentVersion = 0;
         version2sheet = new LinkedHashMap<>();
-        version2sheet.put(1, new Sheet());
+        version2sheet.put(1, new SheetImpl());
         this.name = name;
         this.dimension = dimension;
     }
@@ -21,7 +21,7 @@ public class SheetManager {
         return name;
     }
 
-    public Map<Integer, Sheet> getVersion2sheet() {
+    public Map<Integer, SheetImpl> getVersion2sheet() {
         return version2sheet;
     }
 
@@ -33,12 +33,12 @@ public class SheetManager {
         return dimension;
     }
 
-    public void addNewSheet(Sheet sheet) {
+    public void addNewSheet(SheetImpl sheet) {
         currentVersion++;
         version2sheet.put(currentVersion, sheet);
     }
 
-    public Sheet getSheetByVersion(int version) {
+    public SheetImpl getSheetByVersion(int version) {
         return version2sheet.get(version);
     }
 }

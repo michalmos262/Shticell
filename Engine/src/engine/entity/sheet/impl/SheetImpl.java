@@ -1,15 +1,15 @@
-package engine.entity.sheet;
+package engine.entity.sheet.impl;
 
 import engine.entity.cell.*;
 
 import java.util.*;
 
-public class Sheet implements Cloneable {
+public class SheetImpl implements Cloneable {
     private Map<CellPositionInSheet, Cell> position2cell;
     private int updatedCellsCount;
     private int version = 1;
 
-    public Sheet() {
+    public SheetImpl() {
         position2cell = new LinkedHashMap<>();
         updatedCellsCount = 0;
     }
@@ -89,9 +89,9 @@ public class Sheet implements Cloneable {
     }
 
     @Override
-    public Sheet clone() {
+    public SheetImpl clone() {
         try {
-            Sheet cloned = (Sheet) super.clone();
+            SheetImpl cloned = (SheetImpl) super.clone();
             cloned.version = version + 1;
             cloned.updatedCellsCount = 0;
             // Make sure to create a new map for the cloned object
@@ -111,7 +111,7 @@ public class Sheet implements Cloneable {
     public boolean equals(Object o) {
         if (this == o) return true;
         if (o == null || getClass() != o.getClass()) return false;
-        Sheet sheet = (Sheet) o;
+        SheetImpl sheet = (SheetImpl) o;
         return updatedCellsCount == sheet.updatedCellsCount && version == sheet.version && Objects.equals(position2cell, sheet.position2cell);
     }
 

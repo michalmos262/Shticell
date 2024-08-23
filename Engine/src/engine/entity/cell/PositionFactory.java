@@ -1,5 +1,7 @@
 package engine.entity.cell;
 
+import engine.exception.cell.CellPositionFormatException;
+
 import java.util.HashMap;
 import java.util.Map;
 
@@ -18,7 +20,7 @@ public class PositionFactory {
 
     private static void checkPositionFormat(String position) {
         if (!position.matches("^[A-Z]+\\d+$")) {
-            throw new IllegalArgumentException("Invalid position format: " + position);
+            throw new CellPositionFormatException(position);
         }
     }
 

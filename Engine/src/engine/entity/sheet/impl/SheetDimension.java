@@ -1,4 +1,7 @@
-package engine.entity.sheet;
+package engine.entity.sheet.impl;
+
+import engine.exception.sheet.SheetMaxNumOfColumnsException;
+import engine.exception.sheet.SheetMaxNumOfRowsException;
 
 public class SheetDimension {
     public static final int MAX_NUM_OF_ROWS = 50;
@@ -10,10 +13,10 @@ public class SheetDimension {
 
     public SheetDimension(int numOfRows, int numOfColumns, int rowHeight, int columnWidth) {
         if (!(numOfRows >= 1 && numOfRows <= MAX_NUM_OF_ROWS)) {
-            throw new IndexOutOfBoundsException("The number of sheet rows must be between 1 and " + MAX_NUM_OF_ROWS + ", but " + numOfRows + " was inserted.");
+            throw new SheetMaxNumOfRowsException(MAX_NUM_OF_ROWS, numOfRows);
         }
         if (!(numOfColumns >= 1 && numOfColumns <= MAX_NUM_OF_COLUMNS)) {
-            throw new IndexOutOfBoundsException("The number of sheet columns must be between 1 and " + MAX_NUM_OF_COLUMNS + ", but " + numOfColumns + " was inserted.");
+            throw new SheetMaxNumOfColumnsException(MAX_NUM_OF_COLUMNS, numOfColumns);
         }
         SheetDimension.numOfRows = numOfRows;
         SheetDimension.numOfColumns = numOfColumns;
