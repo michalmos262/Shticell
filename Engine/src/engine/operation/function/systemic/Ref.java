@@ -5,6 +5,7 @@ import engine.entity.cell.EffectiveValue;
 import engine.entity.cell.PositionFactory;
 import engine.entity.dto.CellDto;
 import engine.entity.dto.SheetDto;
+import engine.entity.sheet.api.ReadOnlySheet;
 import engine.exception.operation.InvokeOnInvalidArgumentsTypesException;
 import engine.expression.api.Expression;
 import engine.expression.impl.SystemExpression;
@@ -19,13 +20,12 @@ public class Ref extends SystemExpression  implements Systemic {
     }
 
     @Override
-    protected EffectiveValue invoke(EffectiveValue evaluate, SheetDto sheetDto, List<CellPositionInSheet> influencingCellPositions) {
+    protected EffectiveValue invoke(EffectiveValue evaluate, ReadOnlySheet roSheet, List<CellPositionInSheet> influencingCellPositions) {
         try {
             String evaluateValue = evaluate.getValue().toString();
             CellPositionInSheet cellPosition = PositionFactory.createPosition(evaluateValue);
             influencingCellPositions.add(cellPosition);
-            CellDto cell = sheetDto.getCellDto(cellPosition);
-            return cell.getEffectiveValue();
+            return roSheet.getCellEffectiveValue(cellPosition);
         } catch (Exception e) {
             ArrayList<EffectiveValue> arguments = new ArrayList<>() {{
                 add(evaluate);

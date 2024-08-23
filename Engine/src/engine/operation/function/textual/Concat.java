@@ -7,6 +7,8 @@ import engine.expression.api.Expression;
 import engine.expression.impl.BinaryExpression;
 import engine.operation.Operation;
 
+import java.util.Objects;
+
 public class Concat extends BinaryExpression implements Textual {
 
     public Concat(Expression expression1, Expression expression2) {
@@ -26,7 +28,13 @@ public class Concat extends BinaryExpression implements Textual {
 
         String left = evaluate1.toString();
         String right = evaluate2.toString();
-        String result = left.concat(right);
+        String result;
+
+        if (Objects.equals(left, EffectiveValue.STRING_INVALID_VALUE) || Objects.equals(right, EffectiveValue.STRING_INVALID_VALUE)) {
+            result = EffectiveValue.STRING_INVALID_VALUE;
+        } else {
+            result = left.concat(right);
+        }
 
         return new EffectiveValue(CellType.STRING, result);
     }

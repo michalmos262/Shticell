@@ -21,7 +21,7 @@ public class Divide extends BinaryExpression implements Arithmetical {
             double left = evaluate1.extractValueWithExpectation(Double.class);
             double right = evaluate2.extractValueWithExpectation(Double.class);
             if (right == 0) {
-                return new EffectiveValue(CellType.NUMERIC, EffectiveValue.NUMBER_INVALID_VALUE);
+                return new EffectiveValue(CellType.NUMERIC, Double.NaN);
             }
             double result = left / right;
             return new EffectiveValue(CellType.NUMERIC, result);

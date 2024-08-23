@@ -1,7 +1,7 @@
 package engine.expression.impl;
 
 import engine.entity.cell.*;
-import engine.entity.dto.SheetDto;
+import engine.entity.sheet.api.ReadOnlySheet;
 import engine.exception.operation.OperationIllegalNumberOfArgumentsException;
 import engine.operation.Operation;
 
@@ -10,7 +10,7 @@ import java.util.Arrays;
 import java.util.List;
 
 public class ExpressionEvaluator {
-    public static EffectiveValue evaluateArgument(SheetDto sheetDto, String argument, List<CellPositionInSheet> influencingCellPositions) throws Exception {
+    public static EffectiveValue evaluateArgument(ReadOnlySheet roSheet, String argument, List<CellPositionInSheet> influencingCellPositions) {
         EffectiveValue effectiveValue;
 
          if (argument.matches("-?\\d+(\\.\\d+)?")) {
@@ -22,6 +22,7 @@ public class ExpressionEvaluator {
         else if (argument.charAt(0) == '{' && argument.charAt(argument.length() - 1) == '}') {
             // ignore all spaces if exist
             argument = argument.replace(" ", "");
+
             // Remove the outer curly braces
             argument = argument.substring(1, argument.length() - 1);
 
@@ -33,7 +34,7 @@ public class ExpressionEvaluator {
             List<String> args = new ArrayList<>(Arrays.asList(parts).subList(1, parts.length));
 
             // Evaluate the function
-            effectiveValue = evaluateFunction(sheetDto, functionName, args, influencingCellPositions);
+            effectiveValue = evaluateFunction(roSheet, functionName, args, influencingCellPositions);
         }
         else {
             effectiveValue = new EffectiveValue(CellType.STRING, argument);
@@ -42,7 +43,7 @@ public class ExpressionEvaluator {
         return effectiveValue;
     }
 
-    public static EffectiveValue evaluateFunction(SheetDto sheetDto, String operationName, List<String> args, List<CellPositionInSheet> influencingCellPositions) {
+    public static EffectiveValue evaluateFunction(ReadOnlySheet roSheet, String operationName, List<String> args, List<CellPositionInSheet> influencingCellPositions) {
         try {
             Operation operation = Operation.getOperation(operationName);
             ArrayList<EffectiveValue> effectiveValues = new ArrayList<>();
@@ -53,7 +54,7 @@ public class ExpressionEvaluator {
                 throw new OperationIllegalNumberOfArgumentsException(operationName, expectedExpressionsAmount, args.size());
             }
             for (String arg : args) {
-                EffectiveValue effectiveValue = evaluateArgument(sheetDto, arg, influencingCellPositions);
+                EffectiveValue effectiveValue = evaluateArgument(roSheet, arg, influencingCellPositions);
                 effectiveValues.add(effectiveValue);
             }
             for (EffectiveValue ev : effectiveValues) {
@@ -61,10 +62,11 @@ public class ExpressionEvaluator {
                 effectiveValueExpressions.add(effectiveValueExpression);
             }
 
-            return operation.eval(sheetDto, influencingCellPositions, effectiveValueExpressions);
+            return operation.eval(roSheet, influencingCellPositions, effectiveValueExpressions);
 
         } catch (Exception e) {
-            throw new IllegalArgumentException(e.getMessage());
+            throw new IllegalArgumentException(e.getMessage() + " You tried to evaluate operation: " + operationName +
+                    " with arguments: " + args + ".");
         }
     }
 

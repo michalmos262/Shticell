@@ -10,10 +10,9 @@ public class EffectiveValueExpression implements Expression {
     private final EffectiveValue value;
 
     public EffectiveValueExpression(EffectiveValue value) {
-        if (value.getValue() == EffectiveValue.NUMBER_INVALID_VALUE
-                || value.getValue() == EffectiveValue.STRING_INVALID_VALUE) {
-            throw new InvokeOnInvalidValueException(value.getValue().toString());
-        }
+//        if (value.getValue() == EffectiveValue.STRING_INVALID_VALUE) {
+//            throw new InvokeOnInvalidValueException(value.getValue().toString());
+//        }
         this.value = value;
     }
 

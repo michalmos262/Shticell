@@ -1,4 +1,5 @@
 package engine.entity.sheet.api;
 
-public interface Sheet {
+public interface Sheet extends ReadOnlySheet, GetterSetterSheet {
+
 }

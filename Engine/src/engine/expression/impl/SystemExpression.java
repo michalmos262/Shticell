@@ -3,6 +3,7 @@ package engine.expression.impl;
 import engine.entity.cell.CellPositionInSheet;
 import engine.entity.cell.EffectiveValue;
 import engine.entity.dto.SheetDto;
+import engine.entity.sheet.api.ReadOnlySheet;
 import engine.expression.api.Expression;
 import engine.operation.Operation;
 
@@ -15,8 +16,8 @@ public abstract class SystemExpression {
         this.expression = expression;
     }
 
-    public EffectiveValue invoke(SheetDto sheetDto, List<CellPositionInSheet> influencingCellPositions) throws Exception {
-        return invoke(expression.invoke(), sheetDto, influencingCellPositions);
+    public EffectiveValue invoke(ReadOnlySheet roSheet, List<CellPositionInSheet> influencingCellPositions) throws Exception {
+        return invoke(expression.invoke(), roSheet, influencingCellPositions);
     }
 
     public Operation getOperationSign() {
@@ -28,5 +29,5 @@ public abstract class SystemExpression {
         return "{" + getOperationSign() + "," + expression + "}";
     }
 
-    abstract protected EffectiveValue invoke(EffectiveValue evaluate, SheetDto sheetDto, List<CellPositionInSheet> influencingCellPositions);
+    abstract protected EffectiveValue invoke(EffectiveValue evaluate, ReadOnlySheet roSheet, List<CellPositionInSheet> influencingCellPositions);
 }

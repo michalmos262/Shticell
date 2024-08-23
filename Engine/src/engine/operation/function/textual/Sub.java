@@ -8,6 +8,7 @@ import engine.expression.impl.TrinaryExpression;
 import engine.operation.Operation;
 
 import java.util.ArrayList;
+import java.util.Objects;
 
 public class Sub extends TrinaryExpression implements Textual {
 
@@ -22,11 +23,15 @@ public class Sub extends TrinaryExpression implements Textual {
             double beginIndex = evaluate2.extractValueWithExpectation(Double.class);
             double endIndex = evaluate3.extractValueWithExpectation(Double.class);
             double subLen = endIndex - beginIndex;
+            String result;
 
-            if (beginIndex < 0 || endIndex > str.length() || subLen < 0) {
-                return new EffectiveValue(CellType.STRING, EffectiveValue.STRING_INVALID_VALUE);
+            if ((beginIndex < 0 || endIndex > str.length() || subLen < 0)
+                    || Objects.equals(str, EffectiveValue.STRING_INVALID_VALUE)) {
+                result = EffectiveValue.STRING_INVALID_VALUE;
+            } else {
+                result = str.substring((int)beginIndex, (int)endIndex);
             }
-            String result = str.substring((int)beginIndex, (int)endIndex);
+
             return new EffectiveValue(CellType.STRING, result);
         } catch (Exception e) {
             ArrayList<EffectiveValue> arguments = new ArrayList<>() {{
@@ -34,6 +39,7 @@ public class Sub extends TrinaryExpression implements Textual {
                 add(evaluate2);
                 add(evaluate2);
             }};
+
             throw new InvokeOnInvalidArgumentsTypesException(getOperationSign(), arguments);
         }
     }

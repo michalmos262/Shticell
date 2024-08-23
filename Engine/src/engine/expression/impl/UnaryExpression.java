@@ -3,8 +3,6 @@ package engine.expression.impl;
 import engine.entity.cell.EffectiveValue;
 import engine.expression.api.Expression;
 
-import java.lang.invoke.StringConcatException;
-
 /**
  * Unary expression
  */

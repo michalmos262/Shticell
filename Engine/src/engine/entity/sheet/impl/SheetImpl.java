@@ -1,10 +1,11 @@
 package engine.entity.sheet.impl;
 
 import engine.entity.cell.*;
+import engine.entity.sheet.api.Sheet;
 
 import java.util.*;
 
-public class SheetImpl implements Cloneable {
+public class SheetImpl implements Cloneable, Sheet {
     private Map<CellPositionInSheet, Cell> position2cell;
     private int updatedCellsCount;
     private int version = 1;
@@ -14,18 +15,27 @@ public class SheetImpl implements Cloneable {
         updatedCellsCount = 0;
     }
 
+    @Override
     public int getUpdatedCellsCount() {
         return updatedCellsCount;
     }
 
+    @Override
+    public EffectiveValue getCellEffectiveValue(CellPositionInSheet cellPosition) {
+        return position2cell.get(cellPosition).getEffectiveValue();
+    }
+
+    @Override
     public void setUpdatedCellsCount(int updatedCellsCount) {
         this.updatedCellsCount = updatedCellsCount;
     }
 
+    @Override
     public Map<CellPositionInSheet, Cell> getPosition2cell() {
         return position2cell;
     }
 
+    @Override
     public void updateCell(CellPositionInSheet cellPosition, String originalValue, EffectiveValue effectiveValue) {
         Cell cell = position2cell.get(cellPosition);
         cell.setLastUpdatedInVersion(version);
@@ -33,6 +43,7 @@ public class SheetImpl implements Cloneable {
         cell.setEffectiveValue(effectiveValue);
     }
 
+    @Override
     public void addCellConnection(CellPositionInSheet from, CellPositionInSheet to) {
         Cell influencingCell = position2cell.get(from);
         Cell influencedCell = position2cell.get(to);
@@ -53,6 +64,7 @@ public class SheetImpl implements Cloneable {
         }
     }
 
+    @Override
     public void removeCellConnection(CellPositionInSheet from, CellPositionInSheet to) {
         Cell influencingCell = position2cell.get(from);
         Cell influencedCell = position2cell.get(to);
@@ -79,11 +91,13 @@ public class SheetImpl implements Cloneable {
         return false;
     }
 
+    @Override
     public void createNewCell(CellPositionInSheet cellPosition, String originalValue) {
         Cell newCell = new Cell(originalValue, null, version);
         position2cell.put(cellPosition, newCell);
     }
 
+    @Override
     public Cell getCell(CellPositionInSheet cellPosition) {
         return position2cell.get(cellPosition);
     }

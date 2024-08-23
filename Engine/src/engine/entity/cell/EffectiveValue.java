@@ -3,7 +3,6 @@ package engine.entity.cell;
 import java.util.Objects;
 
 public class EffectiveValue implements Cloneable {
-    public static final String NUMBER_INVALID_VALUE = "NaN";
     public static final String STRING_INVALID_VALUE = "!UNDEFINED!";
     private CellType cellType;
     private Object value;
