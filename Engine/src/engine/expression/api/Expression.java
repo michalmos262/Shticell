@@ -9,7 +9,7 @@ public interface Expression {
      *
      * @return the results of the expression
      */
-    EffectiveValue invoke() throws Exception;
+    EffectiveValue invoke();
 
     Operation getOperationSign();
 

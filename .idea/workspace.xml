@@ -4,25 +4,13 @@
     <option name="autoReloadType" value="SELECTIVE" />
   </component>
   <component name="ChangeListManager">
-    <list default="true" id="35d24eeb-d633-4243-8af7-453c9914951b" name="Changes" comment="done exceptions?">
-      <change afterPath="$PROJECT_DIR$/Engine/src/engine/file/CellConnectionsGraph.java" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/.idea/workspace.xml" beforeDir="false" afterPath="$PROJECT_DIR$/.idea/workspace.xml" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/Engine/src/engine/entity/cell/EffectiveValue.java" beforeDir="false" afterPath="$PROJECT_DIR$/Engine/src/engine/entity/cell/EffectiveValue.java" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/Engine/src/engine/entity/sheet/api/ReadOnlySheet.java" beforeDir="false" afterPath="$PROJECT_DIR$/Engine/src/engine/entity/sheet/api/ReadOnlySheet.java" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/Engine/src/engine/entity/sheet/api/Sheet.java" beforeDir="false" afterPath="$PROJECT_DIR$/Engine/src/engine/entity/sheet/api/Sheet.java" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/Engine/src/engine/entity/sheet/api/UpdateSheet.java" beforeDir="false" afterPath="$PROJECT_DIR$/Engine/src/engine/entity/sheet/api/GetterSetterSheet.java" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/Engine/src/engine/entity/sheet/impl/SheetImpl.java" beforeDir="false" afterPath="$PROJECT_DIR$/Engine/src/engine/entity/sheet/impl/SheetImpl.java" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/Engine/src/engine/entity/sheet/impl/SheetManager.java" beforeDir="false" afterPath="$PROJECT_DIR$/Engine/src/engine/entity/sheet/impl/SheetManager.java" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/Engine/src/engine/expression/impl/EffectiveValueExpression.java" beforeDir="false" afterPath="$PROJECT_DIR$/Engine/src/engine/expression/impl/EffectiveValueExpression.java" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/Engine/src/engine/expression/impl/ExpressionEvaluator.java" beforeDir="false" afterPath="$PROJECT_DIR$/Engine/src/engine/expression/impl/ExpressionEvaluator.java" afterDir="false" />
+    <list default="true" id="35d24eeb-d633-4243-8af7-453c9914951b" name="Changes" comment="done exceptions + topological sort on graph when load a file">
+      <change beforePath="$PROJECT_DIR$/Engine/src/engine/expression/api/Expression.java" beforeDir="false" afterPath="$PROJECT_DIR$/Engine/src/engine/expression/api/Expression.java" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/Engine/src/engine/expression/impl/BinaryExpression.java" beforeDir="false" afterPath="$PROJECT_DIR$/Engine/src/engine/expression/impl/BinaryExpression.java" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/Engine/src/engine/expression/impl/SystemExpression.java" beforeDir="false" afterPath="$PROJECT_DIR$/Engine/src/engine/expression/impl/SystemExpression.java" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/Engine/src/engine/expression/impl/TrinaryExpression.java" beforeDir="false" afterPath="$PROJECT_DIR$/Engine/src/engine/expression/impl/TrinaryExpression.java" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/Engine/src/engine/expression/impl/UnaryExpression.java" beforeDir="false" afterPath="$PROJECT_DIR$/Engine/src/engine/expression/impl/UnaryExpression.java" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/Engine/src/engine/impl/EngineImpl.java" beforeDir="false" afterPath="$PROJECT_DIR$/Engine/src/engine/impl/EngineImpl.java" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/Engine/src/engine/operation/Operation.java" beforeDir="false" afterPath="$PROJECT_DIR$/Engine/src/engine/operation/Operation.java" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/Engine/src/engine/operation/function/arithmetical/Divide.java" beforeDir="false" afterPath="$PROJECT_DIR$/Engine/src/engine/operation/function/arithmetical/Divide.java" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/Engine/src/engine/operation/function/systemic/Ref.java" beforeDir="false" afterPath="$PROJECT_DIR$/Engine/src/engine/operation/function/systemic/Ref.java" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/Engine/src/engine/operation/function/textual/Concat.java" beforeDir="false" afterPath="$PROJECT_DIR$/Engine/src/engine/operation/function/textual/Concat.java" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/Engine/src/engine/operation/function/textual/Sub.java" beforeDir="false" afterPath="$PROJECT_DIR$/Engine/src/engine/operation/function/textual/Sub.java" afterDir="false" />
     </list>
     <option name="SHOW_DIALOG" value="false" />
     <option name="HIGHLIGHT_CONFLICTS" value="true" />
@@ -87,7 +75,7 @@
     "Application.ExpressionEvaluator.executor": "Debug",
     "Application.Graph.executor": "Run",
     "Application.JAXBObjectsParser.executor": "Debug",
-    "Application.Program.executor": "Debug",
+    "Application.Program.executor": "Run",
     "RunOnceActivity.ShowReadmeOnStart": "true",
     "SHARE_PROJECT_CONFIGURATION_FILES": "true",
     "git-widget-placeholder": "#9 on exceptions",
@@ -366,7 +354,15 @@
       <option name="project" value="LOCAL" />
       <updated>1724416929835</updated>
     </task>
-    <option name="localTasksCounter" value="20" />
+    <task id="LOCAL-00020" summary="done exceptions + topological sort on graph when load a file">
+      <option name="closed" value="true" />
+      <created>1724426140280</created>
+      <option name="number" value="00020" />
+      <option name="presentableId" value="LOCAL-00020" />
+      <option name="project" value="LOCAL" />
+      <updated>1724426140280</updated>
+    </task>
+    <option name="localTasksCounter" value="21" />
     <servers />
   </component>
   <component name="TypeScriptGeneratedFilesManager">
@@ -404,7 +400,8 @@
     <MESSAGE value="moved evaluate expressions to enum and changed dto's" />
     <MESSAGE value="removed loop in file" />
     <MESSAGE value="done exceptions?" />
-    <option name="LAST_COMMIT_MESSAGE" value="done exceptions?" />
+    <MESSAGE value="done exceptions + topological sort on graph when load a file" />
+    <option name="LAST_COMMIT_MESSAGE" value="done exceptions + topological sort on graph when load a file" />
   </component>
   <component name="XDebuggerManager">
     <watches-manager>

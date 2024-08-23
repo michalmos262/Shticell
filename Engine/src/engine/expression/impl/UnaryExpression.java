@@ -14,7 +14,7 @@ public abstract class UnaryExpression implements Expression {
     }
 
     @Override
-    public EffectiveValue invoke() throws Exception {
+    public EffectiveValue invoke() {
         return invoke(expression.invoke());
     }
 
