@@ -4,22 +4,18 @@
     <option name="autoReloadType" value="SELECTIVE" />
   </component>
   <component name="ChangeListManager">
-    <list default="true" id="35d24eeb-d633-4243-8af7-453c9914951b" name="Changes" comment="done exceptions!!!!">
-      <change afterPath="$PROJECT_DIR$/.idea/vcs.xml" afterDir="false" />
+    <list default="true" id="35d24eeb-d633-4243-8af7-453c9914951b" name="Changes" comment="done bonus + small refactor">
+      <change afterPath="$PROJECT_DIR$/Engine/src/engine/exception/cell/EmptyCellException.java" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/Engine/src/engine/exception/file/FileAlreadyExistsException.java" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/.idea/workspace.xml" beforeDir="false" afterPath="$PROJECT_DIR$/.idea/workspace.xml" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/Engine/src/engine/api/Engine.java" beforeDir="false" afterPath="$PROJECT_DIR$/Engine/src/engine/api/Engine.java" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/Engine/src/engine/entity/cell/CellPositionInSheet.java" beforeDir="false" afterPath="$PROJECT_DIR$/Engine/src/engine/entity/cell/CellPositionInSheet.java" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/Engine/src/engine/entity/cell/CellType.java" beforeDir="false" afterPath="$PROJECT_DIR$/Engine/src/engine/entity/cell/CellType.java" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/Engine/src/engine/entity/cell/EffectiveValue.java" beforeDir="false" afterPath="$PROJECT_DIR$/Engine/src/engine/entity/cell/EffectiveValue.java" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/Engine/src/engine/entity/dto/SheetDto.java" beforeDir="false" afterPath="$PROJECT_DIR$/Engine/src/engine/entity/dto/SheetDto.java" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/Engine/src/engine/entity/sheet/api/ReadOnlySheet.java" beforeDir="false" afterPath="$PROJECT_DIR$/Engine/src/engine/entity/sheet/api/ReadOnlySheet.java" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/Engine/src/engine/entity/sheet/impl/SheetDimension.java" beforeDir="false" afterPath="$PROJECT_DIR$/Engine/src/engine/entity/sheet/impl/SheetDimension.java" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/Engine/src/engine/entity/cell/PositionFactory.java" beforeDir="false" afterPath="$PROJECT_DIR$/Engine/src/engine/entity/cell/PositionFactory.java" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/Engine/src/engine/entity/sheet/impl/SheetImpl.java" beforeDir="false" afterPath="$PROJECT_DIR$/Engine/src/engine/entity/sheet/impl/SheetImpl.java" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/Engine/src/engine/entity/sheet/impl/SheetManager.java" beforeDir="false" afterPath="$PROJECT_DIR$/Engine/src/engine/entity/sheet/impl/SheetManager.java" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/Engine/src/engine/expression/impl/EffectiveValueExpression.java" beforeDir="false" afterPath="$PROJECT_DIR$/Engine/src/engine/expression/impl/EffectiveValueExpression.java" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/Engine/src/engine/expression/impl/ExpressionEvaluator.java" beforeDir="false" afterPath="$PROJECT_DIR$/Engine/src/engine/expression/impl/ExpressionEvaluator.java" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/Engine/src/engine/impl/EngineImpl.java" beforeDir="false" afterPath="$PROJECT_DIR$/Engine/src/engine/impl/EngineImpl.java" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/Engine/src/engine/operation/function/systemic/Ref.java" beforeDir="false" afterPath="$PROJECT_DIR$/Engine/src/engine/operation/function/systemic/Ref.java" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/UI/src/ui/api/Ui.java" beforeDir="false" afterPath="$PROJECT_DIR$/UI/src/ui/api/Ui.java" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/UI/src/ui/impl/console/ConsoleInteraction.java" beforeDir="false" afterPath="$PROJECT_DIR$/UI/src/ui/impl/console/ConsoleInteraction.java" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/UI/src/ui/impl/console/Menu.java" beforeDir="false" afterPath="$PROJECT_DIR$/UI/src/ui/impl/console/Menu.java" afterDir="false" />
     </list>
     <option name="SHOW_DIALOG" value="false" />
     <option name="HIGHLIGHT_CONFLICTS" value="true" />
@@ -210,7 +206,7 @@
       <workItem from="1723370294696" duration="324000" />
       <workItem from="1723370633897" duration="1307000" />
       <workItem from="1723371977463" duration="255000" />
-      <workItem from="1724504899094" duration="6813000" />
+      <workItem from="1724504899094" duration="10047000" />
     </task>
     <task id="LOCAL-00001" summary="opened files">
       <option name="closed" value="true" />
@@ -388,7 +384,15 @@
       <option name="project" value="LOCAL" />
       <updated>1724504975855</updated>
     </task>
-    <option name="localTasksCounter" value="23" />
+    <task id="LOCAL-00023" summary="done bonus + small refactor">
+      <option name="closed" value="true" />
+      <created>1724512289469</created>
+      <option name="number" value="00023" />
+      <option name="presentableId" value="LOCAL-00023" />
+      <option name="project" value="LOCAL" />
+      <updated>1724512289469</updated>
+    </task>
+    <option name="localTasksCounter" value="24" />
     <servers />
   </component>
   <component name="TypeScriptGeneratedFilesManager">
@@ -428,6 +432,7 @@
     <MESSAGE value="done exceptions?" />
     <MESSAGE value="done exceptions + topological sort on graph when load a file" />
     <MESSAGE value="done exceptions!!!!" />
-    <option name="LAST_COMMIT_MESSAGE" value="done exceptions!!!!" />
+    <MESSAGE value="done bonus + small refactor" />
+    <option name="LAST_COMMIT_MESSAGE" value="done bonus + small refactor" />
   </component>
 </project>

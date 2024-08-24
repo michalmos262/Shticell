@@ -8,6 +8,7 @@ import engine.entity.sheet.impl.SheetDimension;
 import engine.entity.dto.SheetDto;
 import engine.entity.sheet.impl.SheetImpl;
 import engine.entity.sheet.impl.SheetManager;
+import engine.exception.file.FileAlreadyExistsException;
 import engine.exception.file.FileNotExistException;
 import engine.exception.file.InvalidFileTypeException;
 import engine.file.CellConnectionsGraph;
@@ -217,6 +218,10 @@ public class EngineImpl implements Engine {
 
     @Override
     public void writeSheetManagerToFile(String fileName) throws IOException {
+        File file = new File(fileName);
+        if (file.isFile() && file.exists()) {
+            throw new FileAlreadyExistsException(file.getAbsolutePath());
+        }
         ObjectOutputStream out =
                 new ObjectOutputStream(
                         new FileOutputStream(fileName));
@@ -225,12 +230,16 @@ public class EngineImpl implements Engine {
     }
 
     @Override
-    public void readSheetManagerFromFile(String fileName) throws IOException, ClassNotFoundException {
+    public void readSheetManagerFromFile(String fileName) throws IOException {
         ObjectInputStream in =
                 new ObjectInputStream(
                         new FileInputStream(fileName));
-        this.sheetManager = (SheetManager) in.readObject();
-        isDataLoaded = true;
+        try {
+            this.sheetManager = (SheetManager) in.readObject();
+            isDataLoaded = true;
+        } catch (Exception e) {
+            throw new InvalidFileTypeException(fileName, "system file");
+        }
     }
 
     @Override

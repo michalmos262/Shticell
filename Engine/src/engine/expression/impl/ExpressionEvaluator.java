@@ -29,7 +29,7 @@ public class ExpressionEvaluator {
             // Split the expression into function name and arguments
             String[] parts = splitExpression(argument);
 
-            String functionName = parts[0];
+            String functionName = parts[0].toUpperCase();
 
             List<String> args = new ArrayList<>(Arrays.asList(parts).subList(1, parts.length));
 

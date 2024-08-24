@@ -19,7 +19,7 @@ public class PositionFactory {
     }
 
     private static void checkPositionFormat(String position) {
-        if (!position.matches("^[A-Z]+\\d+$")) {
+        if (!position.matches("^[A-Za-z]\\d+$")) {
             throw new CellPositionFormatException(position);
         }
     }
@@ -63,9 +63,9 @@ public class PositionFactory {
         for (int i = 0; i < position.length(); i++) {
             char ch = position.charAt(i);
 
-            // If the character is an uppercase letter, append it to the result
-            if (Character.isUpperCase(ch)) {
-                capitalLetters.append(ch);
+            // If the character is an alphabetic letter, append it as uppercase to the result
+            if (Character.isAlphabetic(ch)) {
+                capitalLetters.append(Character.toUpperCase(ch));
             } else {
                 // Stop when we encounter a non-uppercase letter
                 break;

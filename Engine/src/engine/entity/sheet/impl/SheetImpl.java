@@ -3,6 +3,7 @@ package engine.entity.sheet.impl;
 import engine.entity.cell.*;
 import engine.entity.sheet.api.Sheet;
 import engine.exception.cell.CellPositionOutOfSheetBoundsException;
+import engine.exception.cell.EmptyCellException;
 import engine.exception.sheet.CycleDetectedException;
 
 import java.util.*;
@@ -29,6 +30,9 @@ public class SheetImpl implements Cloneable, Sheet {
     @Override
     public EffectiveValue getCellEffectiveValue(CellPositionInSheet cellPosition) {
         validatePositionInSheetBounds(cellPosition);
+        if (position2cell.get(cellPosition) == null) {
+            throw new EmptyCellException(cellPosition);
+        }
         return position2cell.get(cellPosition).getEffectiveValue();
     }
 

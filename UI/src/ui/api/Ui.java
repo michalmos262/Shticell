@@ -1,7 +1,5 @@
 package ui.api;
 
-import java.io.IOException;
-
 public interface Ui {
     void checkIfThereIsData();
     void showCurrentVersionSheet();
@@ -9,7 +7,7 @@ public interface Ui {
     void updateSheetCell() throws Exception;
     void showSheetVersionsForDisplay();
     void loadFile();
-    void saveCurrentSheetVersionsToFile() throws IOException;
-    void loadSheetVersionsFromFile() throws IOException, ClassNotFoundException;
+    void saveCurrentSheetVersionsToFile();
+    void loadSheetVersionsFromFile();
     void exitProgram();
 }

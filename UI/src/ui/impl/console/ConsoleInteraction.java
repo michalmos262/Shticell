@@ -9,7 +9,6 @@ import engine.operation.Operation;
 import ui.api.Ui;
 import engine.exception.sheet.InvalidSheetVersionException;
 
-import java.io.IOException;
 import java.util.List;
 import java.util.Map;
 import java.util.Scanner;
@@ -205,24 +204,29 @@ public class ConsoleInteraction implements Ui {
     }
 
     @Override
-    public void saveCurrentSheetVersionsToFile() throws IOException {
-//        try {
+    public void saveCurrentSheetVersionsToFile() {
+        try {
             System.out.println("Enter a file name for saving the sheet:");
             String fileName = scanner.nextLine();
             engine.writeSheetManagerToFile(fileName);
             System.out.println("Sheet saved to file: " + fileName);
-//        } catch (Exception e) {
-//            System.out.println(e.getMessage());
-//        }
+        } catch (Exception e) {
+            System.out.println(e.getMessage());
+        }
 
     }
 
     @Override
-    public void loadSheetVersionsFromFile() throws IOException, ClassNotFoundException {
-        System.out.println("Enter a file name for loading a sheet:");
-        String fileName = scanner.nextLine();
-        engine.readSheetManagerFromFile(fileName);
-        System.out.println("Sheet was loaded from file: " + fileName);
+    public void loadSheetVersionsFromFile() {
+        try {
+            System.out.println("Enter a file name for loading a sheet:");
+            String fileName = scanner.nextLine();
+            engine.readSheetManagerFromFile(fileName);
+            System.out.println("Sheet was loaded from file: " + fileName);
+        } catch (Exception e) {
+            System.out.println(e.getMessage());
+        }
+
     }
 
     @Override
