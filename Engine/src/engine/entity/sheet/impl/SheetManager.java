@@ -2,10 +2,11 @@ package engine.entity.sheet.impl;
 
 import engine.entity.sheet.api.Sheet;
 
+import java.io.Serializable;
 import java.util.LinkedHashMap;
 import java.util.Map;
 
-public class SheetManager {
+public class SheetManager implements Serializable {
     private final Map<Integer, Sheet> version2sheet;
     private final String name;
     private int currentVersion;

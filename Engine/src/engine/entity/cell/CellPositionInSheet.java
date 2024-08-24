@@ -3,9 +3,10 @@ package engine.entity.cell;
 import engine.entity.sheet.impl.SheetDimension;
 import engine.exception.cell.CellPositionOutOfSheetBoundsException;
 
+import java.io.Serializable;
 import java.util.Objects;
 
-public class CellPositionInSheet implements Cloneable {
+public class CellPositionInSheet implements Cloneable, Serializable {
     private int row;
     private int column;
 

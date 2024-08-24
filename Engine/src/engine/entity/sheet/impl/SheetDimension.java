@@ -3,7 +3,9 @@ package engine.entity.sheet.impl;
 import engine.exception.sheet.SheetMaxNumOfColumnsException;
 import engine.exception.sheet.SheetMaxNumOfRowsException;
 
-public class SheetDimension {
+import java.io.Serializable;
+
+public class SheetDimension implements Serializable {
     public static final int MAX_NUM_OF_ROWS = 50;
     public static final int MAX_NUM_OF_COLUMNS = 20;
     private static int numOfRows;

@@ -38,7 +38,7 @@ public class ExpressionEvaluator {
         }
         else {
             effectiveValue = new EffectiveValue(CellType.STRING, argument);
-         }
+        }
 
         return effectiveValue;
     }
@@ -65,8 +65,8 @@ public class ExpressionEvaluator {
             return operation.eval(roSheet, influencingCellPositions, effectiveValueExpressions);
 
         } catch (Exception e) {
-            throw new IllegalArgumentException(e.getMessage() + " You tried to evaluate operation: " + operationName +
-                    " with arguments: " + args + ".");
+            throw new IllegalArgumentException("You tried to evaluate operation " + operationName +
+                    " with the arguments: " + args + ", but got an inner error: " + e.getMessage());
         }
     }
 

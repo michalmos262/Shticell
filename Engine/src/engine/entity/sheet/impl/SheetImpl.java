@@ -2,6 +2,7 @@ package engine.entity.sheet.impl;
 
 import engine.entity.cell.*;
 import engine.entity.sheet.api.Sheet;
+import engine.exception.sheet.CycleDetectedException;
 
 import java.util.*;
 
@@ -59,8 +60,8 @@ public class SheetImpl implements Cloneable, Sheet {
             // Revert the temporary connection
             position2cell.get(from).getInfluences().remove(to);
             position2cell.get(to).getInfluencedBy().remove(from);
-            //TODO: add throw cycle detected
-            System.out.println("CYCLE!!!!!!!!!!!");
+
+            throw new CycleDetectedException(from, to);
         }
     }
 

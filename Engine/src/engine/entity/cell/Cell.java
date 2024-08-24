@@ -1,8 +1,9 @@
 package engine.entity.cell;
 
+import java.io.Serializable;
 import java.util.*;
 
-public class Cell implements Cloneable {
+public class Cell implements Cloneable, Serializable {
     private String originalValue;
     private EffectiveValue effectiveValue;
     private final List<CellPositionInSheet> influencedBy;

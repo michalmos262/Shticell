@@ -3,7 +3,7 @@ package engine.operation;
 import engine.entity.cell.CellPositionInSheet;
 import engine.entity.cell.EffectiveValue;
 import engine.entity.sheet.api.ReadOnlySheet;
-import engine.exception.operation.InvalidOperationName;
+import engine.exception.operation.InvalidOperationNameException;
 import engine.expression.impl.EffectiveValueExpression;
 import engine.operation.function.arithmetical.*;
 import engine.operation.function.systemic.Ref;
@@ -168,7 +168,7 @@ public enum Operation {
         try {
             return valueOf(operationName);
         } catch (IllegalArgumentException e) {
-            throw new InvalidOperationName(operationName);
+            throw new InvalidOperationNameException(operationName);
         }
     }
 

@@ -8,7 +8,9 @@ import engine.exception.sheet.NoDataLoadedException;
 import engine.impl.EngineImpl;
 import engine.operation.Operation;
 import ui.api.Ui;
+import engine.exception.sheet.InvalidSheetVersionException;
 
+import java.io.IOException;
 import java.util.List;
 import java.util.Map;
 import java.util.Scanner;
@@ -167,11 +169,27 @@ public class ConsoleInteraction implements Ui {
         }
     }
 
-    private void printVersion2updatedCellsCountAsTable(Map<Integer, Integer> map) {
+    private void printVersion2updatedCellsCountAsTable() {
+        Map<Integer, Integer> version2updatedCellsCount = engine.getSheetVersions();
+
         System.out.printf("%-10s %-10s%n", "Version", "Updated cells amount");
         System.out.println("-------------------------------");
-        for (Map.Entry<Integer, Integer> entry : map.entrySet()) {
+        for (Map.Entry<Integer, Integer> entry : version2updatedCellsCount.entrySet()) {
             System.out.printf("%-10d %-10d%n", entry.getKey(), entry.getValue());
+        }
+    }
+
+    private int getSheetVersionFromUser() {
+        String userInput = "";
+
+        try {
+            System.out.println("Enter the version you want to show its sheet from the table below:");
+            userInput = scanner.nextLine();
+            int version = Integer.parseInt(userInput);
+            engine.validateSheetVersionExists(version);
+            return version;
+        } catch (Exception e) {
+            throw new InvalidSheetVersionException(userInput);
         }
     }
 
@@ -180,13 +198,30 @@ public class ConsoleInteraction implements Ui {
         try {
             checkIfThereIsData();
             System.out.println("The sheet versions available:");
-            printVersion2updatedCellsCountAsTable(engine.getSheetVersions());
-            System.out.println("Enter the version you want to show its sheet:");
-            String versionStr = scanner.nextLine();
-            showSheetTable(Integer.parseInt(versionStr));
+            printVersion2updatedCellsCountAsTable();
+            int version = getSheetVersionFromUser();
+            showSheetTable(version);
         } catch (Exception e) {
             System.out.println(e.getMessage());
         }
+    }
+
+    @Override
+    public void saveCurrentSheetVersionsToFile() throws IOException {
+//        try {
+            System.out.println("Enter file name:");
+            String fileName = scanner.nextLine();
+            engine.writeSheetManagerToFile(fileName);
+            System.out.println("Sheet saved to file: " + fileName);
+//        } catch (Exception e) {
+//            System.out.println(e.getMessage());
+//        }
+
+    }
+
+    @Override
+    public void loadSheetVersionsFromFile() {
+
     }
 
     @Override

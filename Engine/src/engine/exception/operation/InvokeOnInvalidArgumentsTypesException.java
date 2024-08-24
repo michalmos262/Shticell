@@ -16,6 +16,6 @@ public class InvokeOnInvalidArgumentsTypesException extends IllegalArgumentExcep
 
     @Override
     public String getMessage() {
-        return "Cannot invoke operation " + operationName + " on arguments: " + arguments;
+        return "Cannot invoke operation " + operationName + " on arguments: " + arguments + ".";
     }
 }

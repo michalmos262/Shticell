@@ -15,14 +15,14 @@ import engine.jaxb.schema.generated.STLCell;
 import engine.jaxb.schema.generated.STLCells;
 import engine.jaxb.schema.generated.STLSheet;
 import jakarta.xml.bind.JAXBContext;
+import jakarta.xml.bind.JAXBException;
+import jakarta.xml.bind.Marshaller;
 import jakarta.xml.bind.Unmarshaller;
 
-import java.io.File;
+import java.io.*;
 import java.math.BigDecimal;
 import java.text.DecimalFormat;
 import java.util.*;
-import java.util.regex.Matcher;
-import java.util.regex.Pattern;
 
 import static engine.expression.impl.ExpressionEvaluator.evaluateArgument;
 
@@ -76,11 +76,6 @@ public class EngineImpl implements Engine {
     @Override
     public int getCurrentSheetVersion() {
         return sheetManager.getCurrentVersion();
-    }
-
-    @Override
-    public SheetDimension getSheetDimension() {
-        return sheetManager.getDimension();
     }
 
     @Override
@@ -169,7 +164,9 @@ public class EngineImpl implements Engine {
         }
     }
 
-    private void createCellsFromFile(Sheet sheet, STLCells jaxbCells, int cellsUpdatedCounter) {
+    private int createCellsFromFile(Sheet sheet, STLCells jaxbCells) {
+        int cellsUpdatedCounter = 0;
+
         // Create a graph of REF connections
         CellConnectionsGraph refConnectionsGraph = new CellConnectionsGraph(jaxbCells);
 
@@ -190,6 +187,7 @@ public class EngineImpl implements Engine {
             cellsUpdatedCounter++;
         }
 
+        return cellsUpdatedCounter;
     }
 
     public void loadFile(String filePath) throws Exception {
@@ -212,10 +210,7 @@ public class EngineImpl implements Engine {
         SheetDimension dimension = new SheetDimension(numOfRows, numOfColumns, rowHeight, columnWidth);
         SheetManager sheetManager = new SheetManager(jaxbSheet.getName(), dimension);
         Sheet sheet = new SheetImpl();
-        int cellsUpdatedCounter = 0;
-
-        createCellsFromFile(sheet, jaxbSheet.getSTLCells(), cellsUpdatedCounter);
-        
+        int cellsUpdatedCounter = createCellsFromFile(sheet, jaxbSheet.getSTLCells());
         sheet.setUpdatedCellsCount(cellsUpdatedCounter);
         sheetManager.addNewSheet(sheet);
         this.sheetManager = sheetManager;
@@ -223,11 +218,39 @@ public class EngineImpl implements Engine {
     }
 
     @Override
+    public void writeSheetManagerToFile(String fileName) throws IOException {
+        ObjectOutputStream out =
+                new ObjectOutputStream(
+                        new FileOutputStream(fileName));
+            out.writeObject(this.sheetManager);
+            out.flush();
+    }
+
+    @Override
+    public void readSheetManagerFromFile(String fileName) {
+        try (ObjectInputStream in =
+                new ObjectInputStream(
+                        new FileInputStream(fileName))) {
+            this.sheetManager = (SheetManager) in.readObject();
+        } catch (Exception e) {
+
+        }
+    }
+
+    @Override
     public Map<Integer, Integer> getSheetVersions() {
-        Map<Integer, Integer> version2cellsUpdatedCount = new HashMap<>();
+        Map<Integer, Integer> version2updatedCellsCount = new HashMap<>();
         sheetManager.getVersion2sheet().forEach((version, sheet) ->
-                version2cellsUpdatedCount.put(version, sheet.getUpdatedCellsCount()));
-        return version2cellsUpdatedCount;
+                version2updatedCellsCount.put(version, sheet.getUpdatedCellsCount()));
+        return version2updatedCellsCount;
+    }
+
+    @Override
+    public void validateSheetVersionExists(int version) {
+        Map<Integer, Integer> version2updatedCellsCount = getSheetVersions();
+        if (!version2updatedCellsCount.containsKey(version)) {
+            throw new IllegalArgumentException();
+        }
     }
 
     @Override
@@ -238,15 +261,5 @@ public class EngineImpl implements Engine {
     @Override
     public CellPositionInSheet getCellPositionInSheet(String position) {
         return PositionFactory.createPosition(position);
-    }
-
-    @Override
-    public int parseRowFromPosition(String position) {
-        return getCellPositionInSheet(position).getRow();
-    }
-
-    @Override
-    public int parseColumnFromPosition(String position) {
-        return getCellPositionInSheet(position).getColumn();
     }
 }
