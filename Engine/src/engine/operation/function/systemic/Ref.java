@@ -3,9 +3,8 @@ package engine.operation.function.systemic;
 import engine.entity.cell.CellPositionInSheet;
 import engine.entity.cell.EffectiveValue;
 import engine.entity.cell.PositionFactory;
-import engine.entity.dto.CellDto;
-import engine.entity.dto.SheetDto;
 import engine.entity.sheet.api.ReadOnlySheet;
+import engine.exception.cell.EmptyCellException;
 import engine.exception.operation.InvokeOnInvalidArgumentsTypesException;
 import engine.expression.api.Expression;
 import engine.expression.impl.SystemExpression;
@@ -26,6 +25,8 @@ public class Ref extends SystemExpression  implements Systemic {
             CellPositionInSheet cellPosition = PositionFactory.createPosition(evaluateValue);
             influencingCellPositions.add(cellPosition);
             return roSheet.getCellEffectiveValue(cellPosition);
+        } catch (EmptyCellException e) {
+            throw e;
         } catch (Exception e) {
             ArrayList<EffectiveValue> arguments = new ArrayList<>() {{
                 add(evaluate);

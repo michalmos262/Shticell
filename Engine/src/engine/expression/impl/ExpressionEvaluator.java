@@ -29,7 +29,7 @@ public class ExpressionEvaluator {
             // Split the expression into function name and arguments
             String[] parts = splitExpression(argument);
 
-            String functionName = parts[0];
+            String functionName = parts[0].toUpperCase();
 
             List<String> args = new ArrayList<>(Arrays.asList(parts).subList(1, parts.length));
 
@@ -38,7 +38,7 @@ public class ExpressionEvaluator {
         }
         else {
             effectiveValue = new EffectiveValue(CellType.STRING, argument);
-         }
+        }
 
         return effectiveValue;
     }
@@ -65,8 +65,8 @@ public class ExpressionEvaluator {
             return operation.eval(roSheet, influencingCellPositions, effectiveValueExpressions);
 
         } catch (Exception e) {
-            throw new IllegalArgumentException(e.getMessage() + " You tried to evaluate operation: " + operationName +
-                    " with arguments: " + args + ".");
+            throw new IllegalArgumentException("You tried to evaluate operation " + operationName +
+                    " with the arguments: " + args + ", but got an inner error: " + e.getMessage());
         }
     }
 

@@ -4,13 +4,10 @@
     <option name="autoReloadType" value="SELECTIVE" />
   </component>
   <component name="ChangeListManager">
-    <list default="true" id="35d24eeb-d633-4243-8af7-453c9914951b" name="Changes" comment="done exceptions + topological sort on graph when load a file">
-      <change beforePath="$PROJECT_DIR$/Engine/src/engine/expression/api/Expression.java" beforeDir="false" afterPath="$PROJECT_DIR$/Engine/src/engine/expression/api/Expression.java" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/Engine/src/engine/expression/impl/BinaryExpression.java" beforeDir="false" afterPath="$PROJECT_DIR$/Engine/src/engine/expression/impl/BinaryExpression.java" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/Engine/src/engine/expression/impl/SystemExpression.java" beforeDir="false" afterPath="$PROJECT_DIR$/Engine/src/engine/expression/impl/SystemExpression.java" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/Engine/src/engine/expression/impl/TrinaryExpression.java" beforeDir="false" afterPath="$PROJECT_DIR$/Engine/src/engine/expression/impl/TrinaryExpression.java" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/Engine/src/engine/expression/impl/UnaryExpression.java" beforeDir="false" afterPath="$PROJECT_DIR$/Engine/src/engine/expression/impl/UnaryExpression.java" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/Engine/src/engine/operation/Operation.java" beforeDir="false" afterPath="$PROJECT_DIR$/Engine/src/engine/operation/Operation.java" afterDir="false" />
+    <list default="true" id="35d24eeb-d633-4243-8af7-453c9914951b" name="Changes" comment="done bonus + handled more exceptions">
+      <change beforePath="$PROJECT_DIR$/.idea/workspace.xml" beforeDir="false" afterPath="$PROJECT_DIR$/.idea/workspace.xml" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/UI/src/ui/api/Ui.java" beforeDir="false" afterPath="$PROJECT_DIR$/UI/src/ui/api/Ui.java" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/UI/src/ui/impl/console/Menu.java" beforeDir="false" afterPath="$PROJECT_DIR$/UI/src/ui/impl/console/Menu.java" afterDir="false" />
     </list>
     <option name="SHOW_DIALOG" value="false" />
     <option name="HIGHLIGHT_CONFLICTS" value="true" />
@@ -78,9 +75,9 @@
     "Application.Program.executor": "Run",
     "RunOnceActivity.ShowReadmeOnStart": "true",
     "SHARE_PROJECT_CONFIGURATION_FILES": "true",
-    "git-widget-placeholder": "#9 on exceptions",
+    "git-widget-placeholder": "#10 on bonus",
     "kotlin-language-version-configured": "true",
-    "last_opened_file_path": "C:/Users/asafl/Downloads/jaxb-ri-4.0.5/jaxb-ri-4.0.5/mod/jaxb-xjc.jar",
+    "last_opened_file_path": "C:/Users/asafl/Downloads/04. Files",
     "node.js.detected.package.eslint": "true",
     "node.js.detected.package.tslint": "true",
     "node.js.selected.package.eslint": "(autodetect)",
@@ -201,6 +198,7 @@
       <workItem from="1723370294696" duration="324000" />
       <workItem from="1723370633897" duration="1307000" />
       <workItem from="1723371977463" duration="255000" />
+      <workItem from="1724504899094" duration="11062000" />
     </task>
     <task id="LOCAL-00001" summary="opened files">
       <option name="closed" value="true" />
@@ -362,7 +360,39 @@
       <option name="project" value="LOCAL" />
       <updated>1724426140280</updated>
     </task>
-    <option name="localTasksCounter" value="21" />
+    <task id="LOCAL-00021" summary="done exceptions!!!!">
+      <option name="closed" value="true" />
+      <created>1724504949646</created>
+      <option name="number" value="00021" />
+      <option name="presentableId" value="LOCAL-00021" />
+      <option name="project" value="LOCAL" />
+      <updated>1724504949646</updated>
+    </task>
+    <task id="LOCAL-00022" summary="done exceptions!!!!">
+      <option name="closed" value="true" />
+      <created>1724504975855</created>
+      <option name="number" value="00022" />
+      <option name="presentableId" value="LOCAL-00022" />
+      <option name="project" value="LOCAL" />
+      <updated>1724504975855</updated>
+    </task>
+    <task id="LOCAL-00023" summary="done bonus + small refactor">
+      <option name="closed" value="true" />
+      <created>1724512289469</created>
+      <option name="number" value="00023" />
+      <option name="presentableId" value="LOCAL-00023" />
+      <option name="project" value="LOCAL" />
+      <updated>1724512289469</updated>
+    </task>
+    <task id="LOCAL-00024" summary="done bonus + handled more exceptions">
+      <option name="closed" value="true" />
+      <created>1724515720253</created>
+      <option name="number" value="00024" />
+      <option name="presentableId" value="LOCAL-00024" />
+      <option name="project" value="LOCAL" />
+      <updated>1724515720253</updated>
+    </task>
+    <option name="localTasksCounter" value="25" />
     <servers />
   </component>
   <component name="TypeScriptGeneratedFilesManager">
@@ -401,13 +431,9 @@
     <MESSAGE value="removed loop in file" />
     <MESSAGE value="done exceptions?" />
     <MESSAGE value="done exceptions + topological sort on graph when load a file" />
-    <option name="LAST_COMMIT_MESSAGE" value="done exceptions + topological sort on graph when load a file" />
-  </component>
-  <component name="XDebuggerManager">
-    <watches-manager>
-      <configuration name="Application">
-        <watch expression="((LinkedHashMap)((Sheet)((LinkedHashMap.Entry)((LinkedHashMap)sheetManager.version2sheet).entrySet().toArray()[0]).getValue()).position2cell).entrySet().toArray()[2]" custom="java.util.LinkedHashMap,engine.entity.sheet.Sheet,java.util.LinkedHashMap.Entry" />
-      </configuration>
-    </watches-manager>
+    <MESSAGE value="done exceptions!!!!" />
+    <MESSAGE value="done bonus + small refactor" />
+    <MESSAGE value="done bonus + handled more exceptions" />
+    <option name="LAST_COMMIT_MESSAGE" value="done bonus + handled more exceptions" />
   </component>
 </project>

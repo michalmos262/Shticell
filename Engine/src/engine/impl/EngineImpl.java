@@ -8,6 +8,7 @@ import engine.entity.sheet.impl.SheetDimension;
 import engine.entity.dto.SheetDto;
 import engine.entity.sheet.impl.SheetImpl;
 import engine.entity.sheet.impl.SheetManager;
+import engine.exception.file.FileAlreadyExistsException;
 import engine.exception.file.FileNotExistException;
 import engine.exception.file.InvalidFileTypeException;
 import engine.file.CellConnectionsGraph;
@@ -17,12 +18,10 @@ import engine.jaxb.schema.generated.STLSheet;
 import jakarta.xml.bind.JAXBContext;
 import jakarta.xml.bind.Unmarshaller;
 
-import java.io.File;
+import java.io.*;
 import java.math.BigDecimal;
 import java.text.DecimalFormat;
 import java.util.*;
-import java.util.regex.Matcher;
-import java.util.regex.Pattern;
 
 import static engine.expression.impl.ExpressionEvaluator.evaluateArgument;
 
@@ -79,11 +78,6 @@ public class EngineImpl implements Engine {
     }
 
     @Override
-    public SheetDimension getSheetDimension() {
-        return sheetManager.getDimension();
-    }
-
-    @Override
     public CellDto findCellInSheet(int row, int column, int sheetVersion) {
         Sheet sheet = sheetManager.getSheetByVersion(sheetVersion);
         SheetDto sheetDto = createSheetDto(sheet);
@@ -121,7 +115,7 @@ public class EngineImpl implements Engine {
     }
 
     //RECURSIVE UPDATE
-    private void updateInfluencedByCell(Sheet sheet, CellPositionInSheet InfluencerCellPosition, Set<CellPositionInSheet> visited) throws Exception {
+    private void updateInfluencedByCell(Sheet sheet, CellPositionInSheet InfluencerCellPosition, Set<CellPositionInSheet> visited) {
         Cell cell = sheet.getCell(InfluencerCellPosition);
         List<CellPositionInSheet> influencedCellPositions = new LinkedList<>(cell.getInfluences());
         for (CellPositionInSheet influencedByCellPosition : influencedCellPositions) {
@@ -136,7 +130,7 @@ public class EngineImpl implements Engine {
 
     @Override
     //THE FIRST UPDATE
-    public void updateSheetCell(int row, int column, String newOriginalValue) throws Exception {
+    public void updateSheetCell(int row, int column, String newOriginalValue) {
         Sheet clonedSheet = sheetManager.getSheetByVersion(sheetManager.getCurrentVersion()).clone();
         Set<CellPositionInSheet> visitedCellPositions = new HashSet<>();
         CellPositionInSheet cellPosition = PositionFactory.createPosition(row, column);
@@ -169,7 +163,9 @@ public class EngineImpl implements Engine {
         }
     }
 
-    private void createCellsFromFile(Sheet sheet, STLCells jaxbCells, int cellsUpdatedCounter) {
+    private int createCellsFromFile(Sheet sheet, STLCells jaxbCells) {
+        int cellsUpdatedCounter = 0;
+
         // Create a graph of REF connections
         CellConnectionsGraph refConnectionsGraph = new CellConnectionsGraph(jaxbCells);
 
@@ -190,6 +186,7 @@ public class EngineImpl implements Engine {
             cellsUpdatedCounter++;
         }
 
+        return cellsUpdatedCounter;
     }
 
     public void loadFile(String filePath) throws Exception {
@@ -209,13 +206,10 @@ public class EngineImpl implements Engine {
         int rowHeight = jaxbSheet.getSTLLayout().getSTLSize().getRowsHeightUnits();
         int columnWidth = jaxbSheet.getSTLLayout().getSTLSize().getColumnWidthUnits();
 
-        SheetDimension dimension = new SheetDimension(numOfRows, numOfColumns, rowHeight, columnWidth);
-        SheetManager sheetManager = new SheetManager(jaxbSheet.getName(), dimension);
-        Sheet sheet = new SheetImpl();
-        int cellsUpdatedCounter = 0;
-
-        createCellsFromFile(sheet, jaxbSheet.getSTLCells(), cellsUpdatedCounter);
-        
+        SheetDimension sheetDimension = new SheetDimension(numOfRows, numOfColumns, rowHeight, columnWidth);
+        SheetManager sheetManager = new SheetManager(jaxbSheet.getName(), sheetDimension);
+        Sheet sheet = new SheetImpl(sheetManager);
+        int cellsUpdatedCounter = createCellsFromFile(sheet, jaxbSheet.getSTLCells());
         sheet.setUpdatedCellsCount(cellsUpdatedCounter);
         sheetManager.addNewSheet(sheet);
         this.sheetManager = sheetManager;
@@ -223,30 +217,78 @@ public class EngineImpl implements Engine {
     }
 
     @Override
+    public void writeSheetManagerToFile(String fileName) throws IOException {
+        File file = new File(fileName);
+        if (file.isFile() && file.exists()) {
+            throw new FileAlreadyExistsException(file.getAbsolutePath());
+        }
+        ObjectOutputStream out =
+                new ObjectOutputStream(
+                        new FileOutputStream(fileName));
+        out.writeObject(this.sheetManager);
+        out.flush();
+    }
+
+    @Override
+    public void readSheetManagerFromFile(String fileName) throws IOException {
+        ObjectInputStream in =
+                new ObjectInputStream(
+                        new FileInputStream(fileName));
+        try {
+            this.sheetManager = (SheetManager) in.readObject();
+            isDataLoaded = true;
+        } catch (Exception e) {
+            throw new InvalidFileTypeException(fileName, "system file");
+        }
+    }
+
+    @Override
     public Map<Integer, Integer> getSheetVersions() {
-        Map<Integer, Integer> version2cellsUpdatedCount = new HashMap<>();
+        Map<Integer, Integer> version2updatedCellsCount = new HashMap<>();
         sheetManager.getVersion2sheet().forEach((version, sheet) ->
-                version2cellsUpdatedCount.put(version, sheet.getUpdatedCellsCount()));
-        return version2cellsUpdatedCount;
+                version2updatedCellsCount.put(version, sheet.getUpdatedCellsCount()));
+        return version2updatedCellsCount;
+    }
+
+    @Override
+    public void validateSheetVersionExists(int version) {
+        Map<Integer, Integer> version2updatedCellsCount = getSheetVersions();
+        if (!version2updatedCellsCount.containsKey(version)) {
+            throw new IllegalArgumentException();
+        }
     }
 
     @Override
     public CellPositionInSheet getCellPositionInSheet(int row, int column) {
-        return PositionFactory.createPosition(row, column);
+        CellPositionInSheet cellPosition = PositionFactory.createPosition(row, column);
+        Sheet lastVersionSheet = sheetManager.getVersion2sheet().get(sheetManager.getCurrentVersion());
+        lastVersionSheet.validatePositionInSheetBounds(cellPosition);
+        return cellPosition;
     }
 
     @Override
     public CellPositionInSheet getCellPositionInSheet(String position) {
-        return PositionFactory.createPosition(position);
+        CellPositionInSheet cellPosition = PositionFactory.createPosition(position);
+        return getCellPositionInSheet(cellPosition.getRow(), cellPosition.getColumn());
     }
 
     @Override
-    public int parseRowFromPosition(String position) {
-        return getCellPositionInSheet(position).getRow();
+    public int getNumOfSheetRows() {
+        return sheetManager.getSheetDimension().getNumOfRows();
     }
 
     @Override
-    public int parseColumnFromPosition(String position) {
-        return getCellPositionInSheet(position).getColumn();
+    public int getNumOfSheetColumns() {
+        return sheetManager.getSheetDimension().getNumOfColumns();
+    }
+
+    @Override
+    public int getSheetRowHeight() {
+        return sheetManager.getSheetDimension().getRowHeight();
+    }
+
+    @Override
+    public int getSheetColumnWidth() {
+        return sheetManager.getSheetDimension().getColumnWidth();
     }
 }

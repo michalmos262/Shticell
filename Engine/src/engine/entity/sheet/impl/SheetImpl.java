@@ -2,17 +2,24 @@ package engine.entity.sheet.impl;
 
 import engine.entity.cell.*;
 import engine.entity.sheet.api.Sheet;
+import engine.exception.cell.CellPositionOutOfSheetBoundsException;
+import engine.exception.cell.EmptyCellException;
+import engine.exception.sheet.CycleDetectedException;
 
 import java.util.*;
 
+import static engine.entity.cell.CellPositionInSheet.parseColumn;
+
 public class SheetImpl implements Cloneable, Sheet {
+    private SheetManager sheetManager;
     private Map<CellPositionInSheet, Cell> position2cell;
     private int updatedCellsCount;
     private int version = 1;
 
-    public SheetImpl() {
+    public SheetImpl(SheetManager sheetManager) {
         position2cell = new LinkedHashMap<>();
         updatedCellsCount = 0;
+        this.sheetManager = sheetManager;
     }
 
     @Override
@@ -22,6 +29,10 @@ public class SheetImpl implements Cloneable, Sheet {
 
     @Override
     public EffectiveValue getCellEffectiveValue(CellPositionInSheet cellPosition) {
+        validatePositionInSheetBounds(cellPosition);
+        if (position2cell.get(cellPosition) == null) {
+            throw new EmptyCellException(cellPosition);
+        }
         return position2cell.get(cellPosition).getEffectiveValue();
     }
 
@@ -37,7 +48,7 @@ public class SheetImpl implements Cloneable, Sheet {
 
     @Override
     public void updateCell(CellPositionInSheet cellPosition, String originalValue, EffectiveValue effectiveValue) {
-        Cell cell = position2cell.get(cellPosition);
+        Cell cell = getCell(cellPosition);
         cell.setLastUpdatedInVersion(version);
         cell.setOriginalValue(originalValue);
         cell.setEffectiveValue(effectiveValue);
@@ -45,6 +56,9 @@ public class SheetImpl implements Cloneable, Sheet {
 
     @Override
     public void addCellConnection(CellPositionInSheet from, CellPositionInSheet to) {
+        validatePositionInSheetBounds(from);
+        validatePositionInSheetBounds(to);
+
         Cell influencingCell = position2cell.get(from);
         Cell influencedCell = position2cell.get(to);
 
@@ -59,13 +73,16 @@ public class SheetImpl implements Cloneable, Sheet {
             // Revert the temporary connection
             position2cell.get(from).getInfluences().remove(to);
             position2cell.get(to).getInfluencedBy().remove(from);
-            //TODO: add throw cycle detected
-            System.out.println("CYCLE!!!!!!!!!!!");
+
+            throw new CycleDetectedException(from, to);
         }
     }
 
     @Override
     public void removeCellConnection(CellPositionInSheet from, CellPositionInSheet to) {
+        validatePositionInSheetBounds(from);
+        validatePositionInSheetBounds(to);
+
         Cell influencingCell = position2cell.get(from);
         Cell influencedCell = position2cell.get(to);
 
@@ -92,13 +109,27 @@ public class SheetImpl implements Cloneable, Sheet {
     }
 
     @Override
+    public void validatePositionInSheetBounds(CellPositionInSheet cellPosition) {
+        int row = cellPosition.getRow();
+        int column = cellPosition.getColumn();
+        int numOfRows = sheetManager.getSheetDimension().getNumOfRows();
+        int numOfColumns = sheetManager.getSheetDimension().getNumOfColumns();
+
+        if (!(row >= 1 && row <= numOfRows && column >= 0 && column <= numOfColumns)) {
+            throw new CellPositionOutOfSheetBoundsException(numOfRows, parseColumn(numOfColumns));
+        }
+    }
+
+    @Override
     public void createNewCell(CellPositionInSheet cellPosition, String originalValue) {
+        validatePositionInSheetBounds(cellPosition);
         Cell newCell = new Cell(originalValue, null, version);
         position2cell.put(cellPosition, newCell);
     }
 
     @Override
     public Cell getCell(CellPositionInSheet cellPosition) {
+        validatePositionInSheetBounds(cellPosition);
         return position2cell.get(cellPosition);
     }
 
@@ -115,6 +146,7 @@ public class SheetImpl implements Cloneable, Sheet {
                 Cell cell = v.clone(); // Assuming deep clone
                 cloned.position2cell.put(cellPosition, cell);
             });
+            cloned.sheetManager = sheetManager;
             return cloned;
         } catch (CloneNotSupportedException e) {
             throw new AssertionError();
@@ -126,11 +158,11 @@ public class SheetImpl implements Cloneable, Sheet {
         if (this == o) return true;
         if (o == null || getClass() != o.getClass()) return false;
         SheetImpl sheet = (SheetImpl) o;
-        return updatedCellsCount == sheet.updatedCellsCount && version == sheet.version && Objects.equals(position2cell, sheet.position2cell);
+        return getUpdatedCellsCount() == sheet.getUpdatedCellsCount() && version == sheet.version && Objects.equals(sheetManager, sheet.sheetManager) && Objects.equals(getPosition2cell(), sheet.getPosition2cell());
     }
 
     @Override
     public int hashCode() {
-        return Objects.hash(position2cell, updatedCellsCount, version);
+        return Objects.hash(sheetManager, getPosition2cell(), getUpdatedCellsCount(), version);
     }
 }

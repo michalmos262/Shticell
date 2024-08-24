@@ -4,8 +4,10 @@ public interface Ui {
     void checkIfThereIsData();
     void showCurrentVersionSheet();
     void showSheetCell();
-    void updateSheetCell() throws Exception;
+    void updateSheetCell();
     void showSheetVersionsForDisplay();
-    void exitProgram();
     void loadFile();
+    void saveCurrentSheetVersionsToFile();
+    void loadSheetVersionsFromFile();
+    void exitProgram();
 }

@@ -1,9 +1,9 @@
 package engine.exception.operation;
 
-public class InvalidOperationName extends IllegalArgumentException {
+public class InvalidOperationNameException extends IllegalArgumentException {
     private final String name;
 
-    public InvalidOperationName(String name) {
+    public InvalidOperationNameException(String name) {
         this.name = name;
     }
 

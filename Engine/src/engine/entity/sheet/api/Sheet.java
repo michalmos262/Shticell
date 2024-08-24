@@ -1,5 +1,7 @@
 package engine.entity.sheet.api;
 
-public interface Sheet extends ReadOnlySheet, GetterSetterSheet {
+import java.io.Serializable;
+
+public interface Sheet extends ReadOnlySheet, GetterSetterSheet, Serializable {
 
 }

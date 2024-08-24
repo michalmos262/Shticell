@@ -14,8 +14,4 @@ public class SheetDto {
     public CellDto getCell(CellPositionInSheet position) {
         return position2cell.get(position);
     }
-
-    public CellDto getCellDto(CellPositionInSheet cellPosition) {
-        return getCell(cellPosition);
-    }
 }
