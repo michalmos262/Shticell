@@ -2,7 +2,6 @@ package engine.api;
 
 import engine.entity.dto.CellDto;
 import engine.entity.cell.CellPositionInSheet;
-import engine.entity.sheet.impl.SheetDimension;
 
 import java.io.IOException;
 import java.util.List;
@@ -24,6 +23,10 @@ public interface Engine {
     CellPositionInSheet getCellPositionInSheet(int row, int column);
     CellPositionInSheet getCellPositionInSheet(String position);
     void writeSheetManagerToFile(String fileName) throws IOException;
-    void readSheetManagerFromFile(String fileName);
+    void readSheetManagerFromFile(String fileName) throws IOException, ClassNotFoundException;
     void loadFile(String fileName) throws Exception;
+    int getNumOfSheetRows();
+    int getNumOfSheetColumns();
+    int getSheetRowHeight();
+    int getSheetColumnWidth();
 }

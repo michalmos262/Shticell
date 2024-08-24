@@ -1,8 +1,9 @@
 package engine.entity.cell;
 
+import java.io.Serializable;
 import java.util.Objects;
 
-public class EffectiveValue implements Cloneable {
+public class EffectiveValue implements Cloneable, Serializable {
     public static final String STRING_INVALID_VALUE = "!UNDEFINED!";
     private CellType cellType;
     private Object value;

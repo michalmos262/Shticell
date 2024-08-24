@@ -6,4 +6,5 @@ import engine.entity.cell.EffectiveValue;
 public interface ReadOnlySheet {
     int getUpdatedCellsCount();
     EffectiveValue getCellEffectiveValue(CellPositionInSheet cellPosition);
+    void validatePositionInSheetBounds(CellPositionInSheet cellPosition);
 }

@@ -10,14 +10,14 @@ public class SheetManager implements Serializable {
     private final Map<Integer, Sheet> version2sheet;
     private final String name;
     private int currentVersion;
-    private final SheetDimension dimension;
+    private final SheetDimension sheetDimension;
 
-    public SheetManager(String name, SheetDimension dimension) {
+    public SheetManager(String name, SheetDimension sheetDimension) {
         currentVersion = 0;
         version2sheet = new LinkedHashMap<>();
-        version2sheet.put(1, new SheetImpl());
+        version2sheet.put(1, new SheetImpl(this));
         this.name = name;
-        this.dimension = dimension;
+        this.sheetDimension = sheetDimension;
     }
 
     public String getName() {
@@ -32,8 +32,8 @@ public class SheetManager implements Serializable {
         return currentVersion;
     }
 
-    public SheetDimension getDimension() {
-        return dimension;
+    public SheetDimension getSheetDimension() {
+        return sheetDimension;
     }
 
     public void addNewSheet(Sheet sheet) {

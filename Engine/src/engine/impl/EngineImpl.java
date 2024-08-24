@@ -15,8 +15,6 @@ import engine.jaxb.schema.generated.STLCell;
 import engine.jaxb.schema.generated.STLCells;
 import engine.jaxb.schema.generated.STLSheet;
 import jakarta.xml.bind.JAXBContext;
-import jakarta.xml.bind.JAXBException;
-import jakarta.xml.bind.Marshaller;
 import jakarta.xml.bind.Unmarshaller;
 
 import java.io.*;
@@ -116,7 +114,7 @@ public class EngineImpl implements Engine {
     }
 
     //RECURSIVE UPDATE
-    private void updateInfluencedByCell(Sheet sheet, CellPositionInSheet InfluencerCellPosition, Set<CellPositionInSheet> visited) throws Exception {
+    private void updateInfluencedByCell(Sheet sheet, CellPositionInSheet InfluencerCellPosition, Set<CellPositionInSheet> visited) {
         Cell cell = sheet.getCell(InfluencerCellPosition);
         List<CellPositionInSheet> influencedCellPositions = new LinkedList<>(cell.getInfluences());
         for (CellPositionInSheet influencedByCellPosition : influencedCellPositions) {
@@ -131,7 +129,7 @@ public class EngineImpl implements Engine {
 
     @Override
     //THE FIRST UPDATE
-    public void updateSheetCell(int row, int column, String newOriginalValue) throws Exception {
+    public void updateSheetCell(int row, int column, String newOriginalValue) {
         Sheet clonedSheet = sheetManager.getSheetByVersion(sheetManager.getCurrentVersion()).clone();
         Set<CellPositionInSheet> visitedCellPositions = new HashSet<>();
         CellPositionInSheet cellPosition = PositionFactory.createPosition(row, column);
@@ -207,9 +205,9 @@ public class EngineImpl implements Engine {
         int rowHeight = jaxbSheet.getSTLLayout().getSTLSize().getRowsHeightUnits();
         int columnWidth = jaxbSheet.getSTLLayout().getSTLSize().getColumnWidthUnits();
 
-        SheetDimension dimension = new SheetDimension(numOfRows, numOfColumns, rowHeight, columnWidth);
-        SheetManager sheetManager = new SheetManager(jaxbSheet.getName(), dimension);
-        Sheet sheet = new SheetImpl();
+        SheetDimension sheetDimension = new SheetDimension(numOfRows, numOfColumns, rowHeight, columnWidth);
+        SheetManager sheetManager = new SheetManager(jaxbSheet.getName(), sheetDimension);
+        Sheet sheet = new SheetImpl(sheetManager);
         int cellsUpdatedCounter = createCellsFromFile(sheet, jaxbSheet.getSTLCells());
         sheet.setUpdatedCellsCount(cellsUpdatedCounter);
         sheetManager.addNewSheet(sheet);
@@ -222,19 +220,17 @@ public class EngineImpl implements Engine {
         ObjectOutputStream out =
                 new ObjectOutputStream(
                         new FileOutputStream(fileName));
-            out.writeObject(this.sheetManager);
-            out.flush();
+        out.writeObject(this.sheetManager);
+        out.flush();
     }
 
     @Override
-    public void readSheetManagerFromFile(String fileName) {
-        try (ObjectInputStream in =
+    public void readSheetManagerFromFile(String fileName) throws IOException, ClassNotFoundException {
+        ObjectInputStream in =
                 new ObjectInputStream(
-                        new FileInputStream(fileName))) {
-            this.sheetManager = (SheetManager) in.readObject();
-        } catch (Exception e) {
-
-        }
+                        new FileInputStream(fileName));
+        this.sheetManager = (SheetManager) in.readObject();
+        isDataLoaded = true;
     }
 
     @Override
@@ -255,11 +251,35 @@ public class EngineImpl implements Engine {
 
     @Override
     public CellPositionInSheet getCellPositionInSheet(int row, int column) {
-        return PositionFactory.createPosition(row, column);
+        CellPositionInSheet cellPosition = PositionFactory.createPosition(row, column);
+        Sheet lastVersionSheet = sheetManager.getVersion2sheet().get(sheetManager.getCurrentVersion());
+        lastVersionSheet.validatePositionInSheetBounds(cellPosition);
+        return cellPosition;
     }
 
     @Override
     public CellPositionInSheet getCellPositionInSheet(String position) {
-        return PositionFactory.createPosition(position);
+        CellPositionInSheet cellPosition = PositionFactory.createPosition(position);
+        return getCellPositionInSheet(cellPosition.getRow(), cellPosition.getColumn());
+    }
+
+    @Override
+    public int getNumOfSheetRows() {
+        return sheetManager.getSheetDimension().getNumOfRows();
+    }
+
+    @Override
+    public int getNumOfSheetColumns() {
+        return sheetManager.getSheetDimension().getNumOfColumns();
+    }
+
+    @Override
+    public int getSheetRowHeight() {
+        return sheetManager.getSheetDimension().getRowHeight();
+    }
+
+    @Override
+    public int getSheetColumnWidth() {
+        return sheetManager.getSheetDimension().getColumnWidth();
     }
 }

@@ -37,7 +37,7 @@ public enum Menu {
     },
     LOAD_SYSTEM("Load a sheet system") {
         @Override
-        void run() {
+        void run() throws IOException, ClassNotFoundException {
             console.loadSheetVersionsFromFile();
         }
     },

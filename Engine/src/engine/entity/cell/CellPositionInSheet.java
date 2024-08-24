@@ -1,8 +1,5 @@
 package engine.entity.cell;
 
-import engine.entity.sheet.impl.SheetDimension;
-import engine.exception.cell.CellPositionOutOfSheetBoundsException;
-
 import java.io.Serializable;
 import java.util.Objects;
 
@@ -11,9 +8,6 @@ public class CellPositionInSheet implements Cloneable, Serializable {
     private int column;
 
     public CellPositionInSheet(int row, int column) {
-        if (!(row >= 1 && row <= SheetDimension.getNumOfRows() && column >= 0 && column <= SheetDimension.getNumOfColumns())) {
-            throw new CellPositionOutOfSheetBoundsException(SheetDimension.getNumOfRows(), parseColumn(SheetDimension.getNumOfColumns()));
-        }
         this.row = row;
         this.column = column;
     }
@@ -26,7 +20,7 @@ public class CellPositionInSheet implements Cloneable, Serializable {
         return column;
     }
 
-    public String parseColumn(int column) {
+    public static String parseColumn(int column) {
         StringBuilder result = new StringBuilder();
 
         while (column > 0) {

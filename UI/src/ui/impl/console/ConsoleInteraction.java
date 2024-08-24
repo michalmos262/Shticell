@@ -3,7 +3,6 @@ package ui.impl.console;
 import engine.api.Engine;
 import engine.entity.dto.CellDto;
 import engine.entity.cell.CellPositionInSheet;
-import engine.entity.sheet.impl.SheetDimension;
 import engine.exception.sheet.NoDataLoadedException;
 import engine.impl.EngineImpl;
 import engine.operation.Operation;
@@ -46,10 +45,10 @@ public class ConsoleInteraction implements Ui {
 
     private void showSheetTable(int version) {
         try {
-            int numOfRows = SheetDimension.getNumOfRows();
-            int numOfColumns = SheetDimension.getNumOfColumns();
-            int rowHeight = SheetDimension.getRowHeight();
-            int columnWidth = SheetDimension.getColumnWidth();
+            int numOfRows = engine.getNumOfSheetRows();
+            int numOfColumns = engine.getNumOfSheetColumns();
+            int rowHeight = engine.getSheetRowHeight();
+            int columnWidth = engine.getSheetColumnWidth();
 
             // Print the column headers
             System.out.print("   |"); // Space for row numbers
@@ -109,7 +108,6 @@ public class ConsoleInteraction implements Ui {
         } catch (Exception e) {
             System.out.println(e.getMessage());
         }
-
     }
 
     private void printSomeCellData(int row, int column) {
@@ -209,7 +207,7 @@ public class ConsoleInteraction implements Ui {
     @Override
     public void saveCurrentSheetVersionsToFile() throws IOException {
 //        try {
-            System.out.println("Enter file name:");
+            System.out.println("Enter a file name for saving the sheet:");
             String fileName = scanner.nextLine();
             engine.writeSheetManagerToFile(fileName);
             System.out.println("Sheet saved to file: " + fileName);
@@ -220,8 +218,11 @@ public class ConsoleInteraction implements Ui {
     }
 
     @Override
-    public void loadSheetVersionsFromFile() {
-
+    public void loadSheetVersionsFromFile() throws IOException, ClassNotFoundException {
+        System.out.println("Enter a file name for loading a sheet:");
+        String fileName = scanner.nextLine();
+        engine.readSheetManagerFromFile(fileName);
+        System.out.println("Sheet was loaded from file: " + fileName);
     }
 
     @Override

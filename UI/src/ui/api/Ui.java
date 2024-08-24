@@ -10,6 +10,6 @@ public interface Ui {
     void showSheetVersionsForDisplay();
     void loadFile();
     void saveCurrentSheetVersionsToFile() throws IOException;
-    void loadSheetVersionsFromFile();
+    void loadSheetVersionsFromFile() throws IOException, ClassNotFoundException;
     void exitProgram();
 }
