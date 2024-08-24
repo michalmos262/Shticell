@@ -11,6 +11,6 @@ public class InvalidFileTypeException extends IllegalArgumentException {
 
     @Override
     public String getMessage() {
-        return "File " + filePath + " is not a valid " + expectedFileType + ".";
+        return "File " + filePath + " is not a valid " + expectedFileType + " file.";
     }
 }

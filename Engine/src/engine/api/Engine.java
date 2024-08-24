@@ -9,6 +9,7 @@ import java.util.Map;
 
 public interface Engine {
     String SUPPORTED_FILE_TYPE = "xml";
+    String SYSTEM_FILE_TYPE = "shticell";
 
     boolean isDataLoaded();
     String getSheetName();
@@ -22,8 +23,8 @@ public interface Engine {
     void validateSheetVersionExists(int version);
     CellPositionInSheet getCellPositionInSheet(int row, int column);
     CellPositionInSheet getCellPositionInSheet(String position);
-    void writeSheetManagerToFile(String fileName) throws IOException;
-    void readSheetManagerFromFile(String fileName) throws IOException, ClassNotFoundException;
+    void writeSystemToFile(String fileName) throws IOException;
+    void readSystemFromFile(String fileName);
     void loadFile(String fileName) throws Exception;
     int getNumOfSheetRows();
     int getNumOfSheetColumns();

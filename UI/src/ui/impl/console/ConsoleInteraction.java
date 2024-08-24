@@ -208,8 +208,8 @@ public class ConsoleInteraction implements Ui {
         try {
             System.out.println("Enter a file name for saving the sheet:");
             String fileName = scanner.nextLine();
-            engine.writeSheetManagerToFile(fileName);
-            System.out.println("Sheet saved to file: " + fileName);
+            engine.writeSystemToFile(fileName);
+            System.out.println("Sheet saved to file: " + fileName + "." + engine.SYSTEM_FILE_TYPE);
         } catch (Exception e) {
             System.out.println(e.getMessage());
         }
@@ -221,7 +221,7 @@ public class ConsoleInteraction implements Ui {
         try {
             System.out.println("Enter a file name for loading a sheet:");
             String fileName = scanner.nextLine();
-            engine.readSheetManagerFromFile(fileName);
+            engine.readSystemFromFile(fileName);
             System.out.println("Sheet was loaded from file: " + fileName);
         } catch (Exception e) {
             System.out.println(e.getMessage());

@@ -34,7 +34,7 @@ public enum Menu {
             console.showSheetVersionsForDisplay();
         }
     },
-    LOAD_SYSTEM("Load a sheet system") {
+    LOAD_SYSTEM("Load a system") {
         @Override
         void run() {
             console.loadSheetVersionsFromFile();

@@ -11,7 +11,7 @@ import engine.entity.sheet.impl.SheetManager;
 import engine.exception.file.FileAlreadyExistsException;
 import engine.exception.file.FileNotExistException;
 import engine.exception.file.InvalidFileTypeException;
-import engine.file.CellConnectionsGraph;
+import engine.entity.cell.CellConnectionsGraph;
 import engine.jaxb.schema.generated.STLCell;
 import engine.jaxb.schema.generated.STLCells;
 import engine.jaxb.schema.generated.STLSheet;
@@ -217,28 +217,29 @@ public class EngineImpl implements Engine {
     }
 
     @Override
-    public void writeSheetManagerToFile(String fileName) throws IOException {
-        File file = new File(fileName);
+    public void writeSystemToFile(String fileName) throws IOException {
+        String fullFileName = fileName + "." + SYSTEM_FILE_TYPE;
+        File file = new File(fullFileName);
         if (file.isFile() && file.exists()) {
             throw new FileAlreadyExistsException(file.getAbsolutePath());
         }
         ObjectOutputStream out =
                 new ObjectOutputStream(
-                        new FileOutputStream(fileName));
+                        new FileOutputStream(fullFileName));
         out.writeObject(this.sheetManager);
         out.flush();
     }
 
     @Override
-    public void readSheetManagerFromFile(String fileName) throws IOException {
-        ObjectInputStream in =
+    public void readSystemFromFile(String fileName) {
+        try {
+            ObjectInputStream in =
                 new ObjectInputStream(
                         new FileInputStream(fileName));
-        try {
             this.sheetManager = (SheetManager) in.readObject();
             isDataLoaded = true;
         } catch (Exception e) {
-            throw new InvalidFileTypeException(fileName, "system file");
+            throw new InvalidFileTypeException(fileName, SYSTEM_FILE_TYPE);
         }
     }
 
