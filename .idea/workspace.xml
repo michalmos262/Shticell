@@ -4,15 +4,11 @@
     <option name="autoReloadType" value="SELECTIVE" />
   </component>
   <component name="ChangeListManager">
-    <list default="true" id="35d24eeb-d633-4243-8af7-453c9914951b" name="Changes" comment="menu fixes">
+    <list default="true" id="35d24eeb-d633-4243-8af7-453c9914951b" name="Changes" comment="some fixes">
       <change beforePath="$PROJECT_DIR$/.idea/workspace.xml" beforeDir="false" afterPath="$PROJECT_DIR$/.idea/workspace.xml" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/Engine/src/engine/api/Engine.java" beforeDir="false" afterPath="$PROJECT_DIR$/Engine/src/engine/api/Engine.java" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/Engine/src/engine/exception/file/InvalidFileTypeException.java" beforeDir="false" afterPath="$PROJECT_DIR$/Engine/src/engine/exception/file/InvalidFileTypeException.java" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/Engine/src/engine/file/CellConnectionsGraph.java" beforeDir="false" afterPath="$PROJECT_DIR$/Engine/src/engine/entity/cell/CellConnectionsGraph.java" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/Engine/src/engine/impl/EngineImpl.java" beforeDir="false" afterPath="$PROJECT_DIR$/Engine/src/engine/impl/EngineImpl.java" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/Engine/src/engine/exception/sheet/NoDataLoadedException.java" beforeDir="false" afterPath="$PROJECT_DIR$/Engine/src/engine/exception/sheet/NoDataLoadedException.java" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/UI/src/ui/impl/console/ConsoleInteraction.java" beforeDir="false" afterPath="$PROJECT_DIR$/UI/src/ui/impl/console/ConsoleInteraction.java" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/UI/src/ui/impl/console/Menu.java" beforeDir="false" afterPath="$PROJECT_DIR$/UI/src/ui/impl/console/Menu.java" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/michal" beforeDir="false" afterPath="$PROJECT_DIR$/mm.shticell" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/UI/src/ui/impl/console/Program.java" beforeDir="false" afterPath="$PROJECT_DIR$/UI/src/ui/impl/console/Program.java" afterDir="false" />
     </list>
     <option name="SHOW_DIALOG" value="false" />
     <option name="HIGHLIGHT_CONFLICTS" value="true" />
@@ -80,7 +76,7 @@
     "Application.Program.executor": "Run",
     "RunOnceActivity.ShowReadmeOnStart": "true",
     "SHARE_PROJECT_CONFIGURATION_FILES": "true",
-    "git-widget-placeholder": "fixes",
+    "git-widget-placeholder": "#11 on fixes",
     "kotlin-language-version-configured": "true",
     "last_opened_file_path": "C:/Users/asafl/Downloads/04. Files",
     "node.js.detected.package.eslint": "true",
@@ -203,7 +199,7 @@
       <workItem from="1723370294696" duration="324000" />
       <workItem from="1723370633897" duration="1307000" />
       <workItem from="1723371977463" duration="255000" />
-      <workItem from="1724504899094" duration="13387000" />
+      <workItem from="1724504899094" duration="15634000" />
     </task>
     <task id="LOCAL-00001" summary="opened files">
       <option name="closed" value="true" />
@@ -405,7 +401,15 @@
       <option name="project" value="LOCAL" />
       <updated>1724517536051</updated>
     </task>
-    <option name="localTasksCounter" value="26" />
+    <task id="LOCAL-00026" summary="some fixes">
+      <option name="closed" value="true" />
+      <created>1724520646113</created>
+      <option name="number" value="00026" />
+      <option name="presentableId" value="LOCAL-00026" />
+      <option name="project" value="LOCAL" />
+      <updated>1724520646113</updated>
+    </task>
+    <option name="localTasksCounter" value="27" />
     <servers />
   </component>
   <component name="TypeScriptGeneratedFilesManager">
@@ -448,6 +452,7 @@
     <MESSAGE value="done bonus + small refactor" />
     <MESSAGE value="done bonus + handled more exceptions" />
     <MESSAGE value="menu fixes" />
-    <option name="LAST_COMMIT_MESSAGE" value="menu fixes" />
+    <MESSAGE value="some fixes" />
+    <option name="LAST_COMMIT_MESSAGE" value="some fixes" />
   </component>
 </project>

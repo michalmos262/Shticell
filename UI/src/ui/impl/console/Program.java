@@ -14,7 +14,7 @@ public class Program {
 
     public static Menu getMenuOption() {
         Scanner scanner = new Scanner(System.in);
-        String userOptionStr = scanner.nextLine();
+        String userOptionStr = scanner.nextLine().trim();
         try {
             int userOption = Integer.parseInt(userOptionStr);
             return Menu.values()[userOption - 1];

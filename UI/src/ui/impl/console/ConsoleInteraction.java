@@ -27,7 +27,7 @@ public class ConsoleInteraction implements Ui {
     public void loadFile() {
         try {
             System.out.println("Enter a " + Engine.SUPPORTED_FILE_TYPE.toUpperCase() + " file path:");
-            String filename = scanner.nextLine();
+            String filename = scanner.nextLine().trim();
             engine.loadFile(filename);
             System.out.println("File was loaded successfully!");
         } catch (Exception e) {
@@ -92,7 +92,7 @@ public class ConsoleInteraction implements Ui {
         CellPositionInSheet cellPositionInSheet;
 
         System.out.println("Enter sheet cell position (for example 'A1' - means row 1, column A):");
-        userInput = scanner.nextLine();
+        userInput = scanner.nextLine().trim();
         cellPositionInSheet = engine.getCellPositionInSheet(userInput);
         return cellPositionInSheet;
     }
@@ -158,7 +158,7 @@ public class ConsoleInteraction implements Ui {
             int column = cellPosition.getColumn();
             printSomeCellData(row, column);
             printWhatCellCanUpdate();
-            String newCellValue = scanner.nextLine();
+            String newCellValue = scanner.nextLine().trim();
             engine.updateSheetCell(row, column, newCellValue);
             showSheetTable(engine.getCurrentSheetVersion());
         } catch (Exception e) {
@@ -181,7 +181,7 @@ public class ConsoleInteraction implements Ui {
 
         try {
             System.out.println("Enter the version you want to show its sheet from the table below:");
-            userInput = scanner.nextLine();
+            userInput = scanner.nextLine().trim();
             int version = Integer.parseInt(userInput);
             engine.validateSheetVersionExists(version);
             return version;
@@ -207,7 +207,7 @@ public class ConsoleInteraction implements Ui {
     public void saveCurrentSheetVersionsToFile() {
         try {
             System.out.println("Enter a file name for saving the sheet:");
-            String fileName = scanner.nextLine();
+            String fileName = scanner.nextLine().trim();
             engine.writeSystemToFile(fileName);
             System.out.println("Sheet saved to file: " + fileName + "." + engine.SYSTEM_FILE_TYPE);
         } catch (Exception e) {
@@ -220,7 +220,7 @@ public class ConsoleInteraction implements Ui {
     public void loadSheetVersionsFromFile() {
         try {
             System.out.println("Enter a file name for loading a sheet:");
-            String fileName = scanner.nextLine();
+            String fileName = scanner.nextLine().trim();
             engine.readSystemFromFile(fileName);
             System.out.println("Sheet was loaded from file: " + fileName);
         } catch (Exception e) {
