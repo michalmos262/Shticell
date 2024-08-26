@@ -62,6 +62,11 @@ public class SheetImpl implements Cloneable, Sheet {
         Cell influencingCell = position2cell.get(from);
         Cell influencedCell = position2cell.get(to);
 
+        if (influencingCell == null) {
+            createNewCell(from, null);
+            influencingCell = position2cell.get(from);
+        }
+
         // Temporarily add 'to' as a dependency of 'from'
         influencingCell.addInfluence(to);
         influencedCell.addInfluencedBy(from);
@@ -71,8 +76,8 @@ public class SheetImpl implements Cloneable, Sheet {
 
         if (cycleDetected) {
             // Revert the temporary connection
-            position2cell.get(from).getInfluences().remove(to);
-            position2cell.get(to).getInfluencedBy().remove(from);
+            influencingCell.getInfluences().remove(to);
+            influencedCell.getInfluencedBy().remove(from);
 
             throw new CycleDetectedException(from, to);
         }

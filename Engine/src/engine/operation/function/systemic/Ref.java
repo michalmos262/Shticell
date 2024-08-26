@@ -1,6 +1,7 @@
 package engine.operation.function.systemic;
 
 import engine.entity.cell.CellPositionInSheet;
+import engine.entity.cell.CellType;
 import engine.entity.cell.EffectiveValue;
 import engine.entity.cell.PositionFactory;
 import engine.entity.sheet.api.ReadOnlySheet;
@@ -20,13 +21,17 @@ public class Ref extends SystemExpression  implements Systemic {
 
     @Override
     protected EffectiveValue invoke(EffectiveValue evaluate, ReadOnlySheet roSheet, List<CellPositionInSheet> influencingCellPositions) {
+        // taking the position
+        String evaluateValue = evaluate.getValue().toString();
+        CellPositionInSheet cellPosition = PositionFactory.createPosition(evaluateValue);
         try {
-            String evaluateValue = evaluate.getValue().toString();
-            CellPositionInSheet cellPosition = PositionFactory.createPosition(evaluateValue);
+            Object effectiveValueInnerValue = roSheet.getCellEffectiveValue(cellPosition);
+            EffectiveValue effectiveValue = new EffectiveValue(CellType.UNKNOWN, effectiveValueInnerValue);
             influencingCellPositions.add(cellPosition);
-            return roSheet.getCellEffectiveValue(cellPosition);
+            return effectiveValue;
         } catch (EmptyCellException e) {
-            throw e;
+            influencingCellPositions.add(cellPosition);
+            return new EffectiveValue(CellType.UNKNOWN, EffectiveValue.STRING_INVALID_VALUE);
         } catch (Exception e) {
             ArrayList<EffectiveValue> arguments = new ArrayList<>() {{
                 add(evaluate);

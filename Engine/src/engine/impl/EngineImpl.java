@@ -49,17 +49,22 @@ public class EngineImpl implements Engine {
     }
 
     public EffectiveValue getEffectiveValueForDisplay(Cell cell) {
-        if (cell.getEffectiveValue() != null) {
+        EffectiveValue effectiveValue;
+        // if cell is not created yet
+        if (cell.getEffectiveValue() == null || cell.getEffectiveValue().getValue() == null) {
+            effectiveValue = new EffectiveValue(CellType.STRING, "");
+        } else {
             String effectiveValueStr = cell.getEffectiveValue().getValue().toString();
             if (effectiveValueStr.matches("-?\\d+(\\.\\d+)?")) {
                 DecimalFormat formatter = new DecimalFormat("#,###.##");
-                return new EffectiveValue(CellType.NUMERIC, formatter.format(new BigDecimal(effectiveValueStr)));
+                effectiveValue = new EffectiveValue(CellType.NUMERIC, formatter.format(new BigDecimal(effectiveValueStr)));
             } else if (effectiveValueStr.equalsIgnoreCase("true") || effectiveValueStr.equalsIgnoreCase("false")) {
-                return new EffectiveValue(CellType.BOOLEAN, effectiveValueStr.toUpperCase());
+                effectiveValue = new EffectiveValue(CellType.BOOLEAN, effectiveValueStr.toUpperCase());
+            } else {
+                effectiveValue = new EffectiveValue(CellType.STRING, effectiveValueStr);
             }
-            return new EffectiveValue(CellType.STRING, effectiveValueStr);
         }
-        return null;
+        return effectiveValue;
     }
 
     @Override

@@ -2,12 +2,9 @@ package engine.operation.function.arithmetical;
 
 import engine.entity.cell.CellType;
 import engine.entity.cell.EffectiveValue;
-import engine.exception.operation.InvokeOnInvalidArgumentsTypesException;
 import engine.expression.api.Expression;
 import engine.expression.impl.BinaryExpression;
 import engine.operation.Operation;
-
-import java.util.ArrayList;
 
 public class Divide extends BinaryExpression implements Arithmetical {
 
@@ -18,19 +15,17 @@ public class Divide extends BinaryExpression implements Arithmetical {
     @Override
     protected EffectiveValue invoke(EffectiveValue evaluate1, EffectiveValue evaluate2) {
         try {
-            double left = evaluate1.extractValueWithExpectation(Double.class);
-            double right = evaluate2.extractValueWithExpectation(Double.class);
+            EffectiveValue evaluate1Cloned = new EffectiveValue(CellType.NUMERIC, evaluate1.getValue());
+            EffectiveValue evaluate2Cloned = new EffectiveValue(CellType.NUMERIC, evaluate2.getValue());
+            double left = evaluate1Cloned.extractValueWithExpectation(Double.class);
+            double right = evaluate2Cloned.extractValueWithExpectation(Double.class);
             if (right == 0) {
                 return new EffectiveValue(CellType.NUMERIC, Double.NaN);
             }
             double result = left / right;
             return new EffectiveValue(CellType.NUMERIC, result);
         } catch (Exception e) {
-            ArrayList<EffectiveValue> arguments = new ArrayList<>() {{
-                add(evaluate1);
-                add(evaluate2);
-            }};
-            throw new InvokeOnInvalidArgumentsTypesException(getOperationSign(), arguments);
+            return handleEvaluationsTypesError(getOperationSign(), CellType.NUMERIC, evaluate1, evaluate2);
         }
     }
 

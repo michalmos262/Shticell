@@ -4,11 +4,27 @@
     <option name="autoReloadType" value="SELECTIVE" />
   </component>
   <component name="ChangeListManager">
-    <list default="true" id="35d24eeb-d633-4243-8af7-453c9914951b" name="Changes" comment="some fixes">
+    <list default="true" id="35d24eeb-d633-4243-8af7-453c9914951b" name="Changes" comment="some fixes 2">
+      <change afterPath="$PROJECT_DIR$/Engine/src/engine/exception/operation/SubNotTextualValueException.java" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/.idea/workspace.xml" beforeDir="false" afterPath="$PROJECT_DIR$/.idea/workspace.xml" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/Engine/src/engine/exception/sheet/NoDataLoadedException.java" beforeDir="false" afterPath="$PROJECT_DIR$/Engine/src/engine/exception/sheet/NoDataLoadedException.java" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/UI/src/ui/impl/console/ConsoleInteraction.java" beforeDir="false" afterPath="$PROJECT_DIR$/UI/src/ui/impl/console/ConsoleInteraction.java" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/UI/src/ui/impl/console/Program.java" beforeDir="false" afterPath="$PROJECT_DIR$/UI/src/ui/impl/console/Program.java" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/Engine/src/engine/entity/cell/CellType.java" beforeDir="false" afterPath="$PROJECT_DIR$/Engine/src/engine/entity/cell/CellType.java" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/Engine/src/engine/entity/cell/EffectiveValue.java" beforeDir="false" afterPath="$PROJECT_DIR$/Engine/src/engine/entity/cell/EffectiveValue.java" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/Engine/src/engine/entity/sheet/impl/SheetImpl.java" beforeDir="false" afterPath="$PROJECT_DIR$/Engine/src/engine/entity/sheet/impl/SheetImpl.java" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/Engine/src/engine/exception/operation/ConcatNumericValuesException.java" beforeDir="false" afterPath="$PROJECT_DIR$/Engine/src/engine/exception/operation/ConcatNotTextualValuesException.java" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/Engine/src/engine/expression/api/Expression.java" beforeDir="false" afterPath="$PROJECT_DIR$/Engine/src/engine/expression/api/Expression.java" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/Engine/src/engine/impl/EngineImpl.java" beforeDir="false" afterPath="$PROJECT_DIR$/Engine/src/engine/impl/EngineImpl.java" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/Engine/src/engine/operation/function/arithmetical/Abs.java" beforeDir="false" afterPath="$PROJECT_DIR$/Engine/src/engine/operation/function/arithmetical/Abs.java" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/Engine/src/engine/operation/function/arithmetical/Arithmetical.java" beforeDir="false" afterPath="$PROJECT_DIR$/Engine/src/engine/operation/function/arithmetical/Arithmetical.java" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/Engine/src/engine/operation/function/arithmetical/Divide.java" beforeDir="false" afterPath="$PROJECT_DIR$/Engine/src/engine/operation/function/arithmetical/Divide.java" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/Engine/src/engine/operation/function/arithmetical/Minus.java" beforeDir="false" afterPath="$PROJECT_DIR$/Engine/src/engine/operation/function/arithmetical/Minus.java" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/Engine/src/engine/operation/function/arithmetical/Mod.java" beforeDir="false" afterPath="$PROJECT_DIR$/Engine/src/engine/operation/function/arithmetical/Mod.java" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/Engine/src/engine/operation/function/arithmetical/Plus.java" beforeDir="false" afterPath="$PROJECT_DIR$/Engine/src/engine/operation/function/arithmetical/Plus.java" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/Engine/src/engine/operation/function/arithmetical/Pow.java" beforeDir="false" afterPath="$PROJECT_DIR$/Engine/src/engine/operation/function/arithmetical/Pow.java" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/Engine/src/engine/operation/function/arithmetical/Times.java" beforeDir="false" afterPath="$PROJECT_DIR$/Engine/src/engine/operation/function/arithmetical/Times.java" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/Engine/src/engine/operation/function/systemic/Ref.java" beforeDir="false" afterPath="$PROJECT_DIR$/Engine/src/engine/operation/function/systemic/Ref.java" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/Engine/src/engine/operation/function/textual/Concat.java" beforeDir="false" afterPath="$PROJECT_DIR$/Engine/src/engine/operation/function/textual/Concat.java" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/Engine/src/engine/operation/function/textual/Sub.java" beforeDir="false" afterPath="$PROJECT_DIR$/Engine/src/engine/operation/function/textual/Sub.java" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/Engine/src/engine/operation/function/textual/Textual.java" beforeDir="false" afterPath="$PROJECT_DIR$/Engine/src/engine/operation/function/textual/Textual.java" afterDir="false" />
     </list>
     <option name="SHOW_DIALOG" value="false" />
     <option name="HIGHLIGHT_CONFLICTS" value="true" />
@@ -73,7 +89,7 @@
     "Application.ExpressionEvaluator.executor": "Debug",
     "Application.Graph.executor": "Run",
     "Application.JAXBObjectsParser.executor": "Debug",
-    "Application.Program.executor": "Run",
+    "Application.Program.executor": "Debug",
     "RunOnceActivity.ShowReadmeOnStart": "true",
     "SHARE_PROJECT_CONFIGURATION_FILES": "true",
     "git-widget-placeholder": "#11 on fixes",
@@ -199,7 +215,7 @@
       <workItem from="1723370294696" duration="324000" />
       <workItem from="1723370633897" duration="1307000" />
       <workItem from="1723371977463" duration="255000" />
-      <workItem from="1724504899094" duration="15634000" />
+      <workItem from="1724504899094" duration="30169000" />
     </task>
     <task id="LOCAL-00001" summary="opened files">
       <option name="closed" value="true" />
@@ -409,7 +425,15 @@
       <option name="project" value="LOCAL" />
       <updated>1724520646113</updated>
     </task>
-    <option name="localTasksCounter" value="27" />
+    <task id="LOCAL-00027" summary="some fixes 2">
+      <option name="closed" value="true" />
+      <created>1724580505898</created>
+      <option name="number" value="00027" />
+      <option name="presentableId" value="LOCAL-00027" />
+      <option name="project" value="LOCAL" />
+      <updated>1724580505898</updated>
+    </task>
+    <option name="localTasksCounter" value="28" />
     <servers />
   </component>
   <component name="TypeScriptGeneratedFilesManager">
@@ -428,7 +452,6 @@
   </component>
   <component name="VcsManagerConfiguration">
     <option name="ADD_EXTERNAL_FILES_SILENTLY" value="true" />
-    <MESSAGE value="opened files" />
     <MESSAGE value="built classes" />
     <MESSAGE value="done writing the function for printing the sheet, in the middle of printing a cell data" />
     <MESSAGE value="continued printing cell" />
@@ -453,6 +476,18 @@
     <MESSAGE value="done bonus + handled more exceptions" />
     <MESSAGE value="menu fixes" />
     <MESSAGE value="some fixes" />
-    <option name="LAST_COMMIT_MESSAGE" value="some fixes" />
+    <MESSAGE value="some fixes 2" />
+    <option name="LAST_COMMIT_MESSAGE" value="some fixes 2" />
+  </component>
+  <component name="XDebuggerManager">
+    <breakpoint-manager>
+      <breakpoints>
+        <line-breakpoint enabled="true" type="java-line">
+          <url>file://$PROJECT_DIR$/Engine/src/engine/entity/cell/EffectiveValue.java</url>
+          <line>57</line>
+          <option name="timeStamp" value="16" />
+        </line-breakpoint>
+      </breakpoints>
+    </breakpoint-manager>
   </component>
 </project>
