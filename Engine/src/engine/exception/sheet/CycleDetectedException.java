@@ -13,6 +13,6 @@ public class CycleDetectedException extends RuntimeException {
 
     @Override
     public String getMessage() {
-        return "Cycle detected when trying to reference positions " + from + " to " + to + ".";
+        return "Cycle detected when trying to reference position " + from + " to position " + to + ".";
     }
 }

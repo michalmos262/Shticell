@@ -160,7 +160,8 @@ public class ConsoleInteraction implements Ui {
             printWhatCellCanUpdate();
             String newCellValue = scanner.nextLine().trim();
             engine.updateSheetCell(row, column, newCellValue);
-            showSheetTable(engine.getCurrentSheetVersion());
+            System.out.println("\nCell on position " + cellPosition + " was updated successfully!\n");
+            showCurrentVersionSheet();
         } catch (Exception e) {
             System.out.println(e.getMessage());
         }
@@ -219,14 +220,13 @@ public class ConsoleInteraction implements Ui {
     @Override
     public void loadSheetVersionsFromFile() {
         try {
-            System.out.println("Enter a file name for loading a sheet:");
+            System.out.println("Enter a file name for loading a system:");
             String fileName = scanner.nextLine().trim();
             engine.readSystemFromFile(fileName);
-            System.out.println("Sheet was loaded from file: " + fileName);
+            System.out.println("System was loaded from file: " + fileName);
         } catch (Exception e) {
             System.out.println(e.getMessage());
         }
-
     }
 
     @Override
