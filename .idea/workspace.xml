@@ -4,9 +4,19 @@
     <option name="autoReloadType" value="SELECTIVE" />
   </component>
   <component name="ChangeListManager">
-    <list default="true" id="35d24eeb-d633-4243-8af7-453c9914951b" name="Changes" comment="made the program not throwing an exception when ref to wrong type of cell is gotten">
+    <list default="true" id="35d24eeb-d633-4243-8af7-453c9914951b" name="Changes" comment="fixed menu prints">
+      <change afterPath="$PROJECT_DIR$/1.shticell" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/2.shticell" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/.idea/workspace.xml" beforeDir="false" afterPath="$PROJECT_DIR$/.idea/workspace.xml" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/Engine/src/engine/exception/sheet/CycleDetectedException.java" beforeDir="false" afterPath="$PROJECT_DIR$/Engine/src/engine/exception/sheet/CycleDetectedException.java" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/Engine/src/engine/entity/sheet/api/GetterSetterSheet.java" beforeDir="false" afterPath="$PROJECT_DIR$/Engine/src/engine/entity/sheet/api/GetterSetterSheet.java" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/Engine/src/engine/entity/sheet/impl/SheetImpl.java" beforeDir="false" afterPath="$PROJECT_DIR$/Engine/src/engine/entity/sheet/impl/SheetImpl.java" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/Engine/src/engine/exception/cell/EmptyCellException.java" beforeDir="false" afterPath="$PROJECT_DIR$/Engine/src/engine/exception/cell/NotExistsCellException.java" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/Engine/src/engine/expression/impl/ExpressionEvaluator.java" beforeDir="false" afterPath="$PROJECT_DIR$/Engine/src/engine/expression/impl/ExpressionEvaluator.java" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/Engine/src/engine/impl/EngineImpl.java" beforeDir="false" afterPath="$PROJECT_DIR$/Engine/src/engine/impl/EngineImpl.java" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/Engine/src/engine/operation/function/systemic/Ref.java" beforeDir="false" afterPath="$PROJECT_DIR$/Engine/src/engine/operation/function/systemic/Ref.java" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/Engine/src/engine/operation/function/textual/Concat.java" beforeDir="false" afterPath="$PROJECT_DIR$/Engine/src/engine/operation/function/textual/Concat.java" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/Engine/src/engine/operation/function/textual/Sub.java" beforeDir="false" afterPath="$PROJECT_DIR$/Engine/src/engine/operation/function/textual/Sub.java" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/UI/src/ui/api/Ui.java" beforeDir="false" afterPath="$PROJECT_DIR$/UI/src/ui/api/Ui.java" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/UI/src/ui/impl/console/ConsoleInteraction.java" beforeDir="false" afterPath="$PROJECT_DIR$/UI/src/ui/impl/console/ConsoleInteraction.java" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/UI/src/ui/impl/console/Menu.java" beforeDir="false" afterPath="$PROJECT_DIR$/UI/src/ui/impl/console/Menu.java" afterDir="false" />
     </list>
@@ -199,7 +209,7 @@
       <workItem from="1723370294696" duration="324000" />
       <workItem from="1723370633897" duration="1307000" />
       <workItem from="1723371977463" duration="255000" />
-      <workItem from="1724504899094" duration="34272000" />
+      <workItem from="1724504899094" duration="44245000" />
     </task>
     <task id="LOCAL-00001" summary="opened files">
       <option name="closed" value="true" />
@@ -425,7 +435,15 @@
       <option name="project" value="LOCAL" />
       <updated>1724675436468</updated>
     </task>
-    <option name="localTasksCounter" value="29" />
+    <task id="LOCAL-00029" summary="fixed menu prints">
+      <option name="closed" value="true" />
+      <created>1724677580614</created>
+      <option name="number" value="00029" />
+      <option name="presentableId" value="LOCAL-00029" />
+      <option name="project" value="LOCAL" />
+      <updated>1724677580614</updated>
+    </task>
+    <option name="localTasksCounter" value="30" />
     <servers />
   </component>
   <component name="TypeScriptGeneratedFilesManager">
@@ -444,7 +462,6 @@
   </component>
   <component name="VcsManagerConfiguration">
     <option name="ADD_EXTERNAL_FILES_SILENTLY" value="true" />
-    <MESSAGE value="done writing the function for printing the sheet, in the middle of printing a cell data" />
     <MESSAGE value="continued printing cell" />
     <MESSAGE value="update cell" />
     <MESSAGE value="folders" />
@@ -469,6 +486,7 @@
     <MESSAGE value="some fixes" />
     <MESSAGE value="some fixes 2" />
     <MESSAGE value="made the program not throwing an exception when ref to wrong type of cell is gotten" />
-    <option name="LAST_COMMIT_MESSAGE" value="made the program not throwing an exception when ref to wrong type of cell is gotten" />
+    <MESSAGE value="fixed menu prints" />
+    <option name="LAST_COMMIT_MESSAGE" value="fixed menu prints" />
   </component>
 </project>

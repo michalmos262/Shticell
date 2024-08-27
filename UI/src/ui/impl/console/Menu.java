@@ -19,7 +19,7 @@ public enum Menu {
     SHOW_CELL("Show a cell from the current version") {
         @Override
         void run() {
-            console.showSheetCell();
+            console.showCellFromSheet();
         }
     },
     UPDATE_CELL("Update a cell") {
@@ -37,7 +37,7 @@ public enum Menu {
     LOAD_SYSTEM("Load a system") {
         @Override
         void run() {
-            console.loadSheetVersionsFromFile();
+            console.loadSystemFromFile();
         }
     },
     SAVE_SYSTEM("Save the current system") {

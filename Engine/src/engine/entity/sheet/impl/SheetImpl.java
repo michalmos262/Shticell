@@ -3,7 +3,7 @@ package engine.entity.sheet.impl;
 import engine.entity.cell.*;
 import engine.entity.sheet.api.Sheet;
 import engine.exception.cell.CellPositionOutOfSheetBoundsException;
-import engine.exception.cell.EmptyCellException;
+import engine.exception.cell.NotExistsCellException;
 import engine.exception.sheet.CycleDetectedException;
 
 import java.util.*;
@@ -31,7 +31,7 @@ public class SheetImpl implements Cloneable, Sheet {
     public EffectiveValue getCellEffectiveValue(CellPositionInSheet cellPosition) {
         validatePositionInSheetBounds(cellPosition);
         if (position2cell.get(cellPosition) == null) {
-            throw new EmptyCellException(cellPosition);
+            throw new NotExistsCellException(cellPosition);
         }
         return position2cell.get(cellPosition).getEffectiveValue();
     }
@@ -63,7 +63,8 @@ public class SheetImpl implements Cloneable, Sheet {
         Cell influencedCell = position2cell.get(to);
 
         if (influencingCell == null) {
-            createNewCell(from, null);
+            Cell cell = createNewCell(from, "");
+            cell.setLastUpdatedInVersion(0);
             influencingCell = position2cell.get(from);
         }
 
@@ -126,10 +127,11 @@ public class SheetImpl implements Cloneable, Sheet {
     }
 
     @Override
-    public void createNewCell(CellPositionInSheet cellPosition, String originalValue) {
+    public Cell createNewCell(CellPositionInSheet cellPosition, String originalValue) {
         validatePositionInSheetBounds(cellPosition);
         Cell newCell = new Cell(originalValue, null, version);
         position2cell.put(cellPosition, newCell);
+        return newCell;
     }
 
     @Override

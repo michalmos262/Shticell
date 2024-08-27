@@ -5,7 +5,7 @@ import engine.entity.cell.CellType;
 import engine.entity.cell.EffectiveValue;
 import engine.entity.cell.PositionFactory;
 import engine.entity.sheet.api.ReadOnlySheet;
-import engine.exception.cell.EmptyCellException;
+import engine.exception.cell.NotExistsCellException;
 import engine.exception.operation.InvokeOnInvalidArgumentsTypesException;
 import engine.expression.api.Expression;
 import engine.expression.impl.SystemExpression;
@@ -29,7 +29,7 @@ public class Ref extends SystemExpression  implements Systemic {
             EffectiveValue effectiveValue = new EffectiveValue(CellType.UNKNOWN, effectiveValueInnerValue);
             influencingCellPositions.add(cellPosition);
             return effectiveValue;
-        } catch (EmptyCellException e) {
+        } catch (NotExistsCellException e) {
             influencingCellPositions.add(cellPosition);
             return new EffectiveValue(CellType.UNKNOWN, EffectiveValue.STRING_INVALID_VALUE);
         } catch (Exception e) {

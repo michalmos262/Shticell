@@ -3,6 +3,7 @@ package ui.impl.console;
 import engine.api.Engine;
 import engine.entity.dto.CellDto;
 import engine.entity.cell.CellPositionInSheet;
+import engine.exception.cell.NotExistsCellException;
 import engine.exception.sheet.NoDataLoadedException;
 import engine.impl.EngineImpl;
 import engine.operation.Operation;
@@ -109,30 +110,39 @@ public class ConsoleInteraction implements Ui {
         }
     }
 
-    private void printSomeCellData(int row, int column) {
-        try {
-            System.out.println("Cell position in sheet: " + engine.getCellPositionInSheet(row, column));
-            CellDto cell = engine.findCellInSheet(row, column, engine.getCurrentSheetVersion());
-            System.out.println("Current original value: " + (cell == null ? " " : cell.getOriginalValue()));
-            System.out.println("Current effective value: " + (cell == null ? " " : cell.getEffectiveValueForDisplay()));
-        } catch (Exception e) {
-            System.out.println(e.getMessage());
-        }
+    private void printCellPreData(int row, int column) {
+        System.out.println("Cell position in sheet: " + engine.getCellPositionInSheet(row, column));
+        CellDto cell = engine.findCellInSheet(row, column, engine.getCurrentSheetVersion());
+        System.out.println("Current original value: " + (cell == null ? " " : cell.getOriginalValue()));
+        System.out.println("Current effective value: " + (cell == null ? " " : cell.getEffectiveValueForDisplay()));
+    }
+
+    private void printCellAdditionalData(int lastVersionUpdated, List<CellPositionInSheet> affectsCellsList, List<CellPositionInSheet> affectedByCellsList) {
+        System.out.println("Last cell version: " + lastVersionUpdated);
+        System.out.println("The cells that the required cell is affecting: " + (affectsCellsList.isEmpty() ? "None" : affectsCellsList));
+        System.out.println("The cells that the required cell is affected by: " + (affectedByCellsList.isEmpty() ? "None" : affectedByCellsList));
     }
 
     @Override
-    public void showSheetCell() {
+    public void showCellFromSheet() {
+        CellPositionInSheet cellPosition = null;
+        int row, column;
+
         try {
             checkIfThereIsData();
-            CellPositionInSheet cellPosition = getCellPositionFromUser();
-            int row = cellPosition.getRow();
-            int column = cellPosition.getColumn();
-            printSomeCellData(row, column);
-            System.out.println("Last cell version: " + engine.getLastCellVersion(row, column));
-            List<CellPositionInSheet> affectedCellsList = engine.getInfluencesList(row, column, engine.getCurrentSheetVersion());
+            cellPosition = getCellPositionFromUser();
+            row = cellPosition.getRow();
+            column = cellPosition.getColumn();
+            int cellUpdatedVersion = engine.getLastCellVersion(row, column);
+            printCellPreData(row, column);
+            List<CellPositionInSheet> affectsCellsList = engine.getInfluencesList(row, column, engine.getCurrentSheetVersion());
             List<CellPositionInSheet> affectedByCellsList = engine.getInfluencedByList(row, column, engine.getCurrentSheetVersion());
-            System.out.println("The cells that the required cell is affecting: " + (affectedCellsList.isEmpty() ? "None" : affectedCellsList));
-            System.out.println("The cells that the required cell is affected by: " + (affectedByCellsList.isEmpty() ? "None" : affectedByCellsList));
+            printCellAdditionalData(cellUpdatedVersion, affectsCellsList, affectedByCellsList);
+        } catch (NotExistsCellException e) {
+            row = cellPosition.getRow();
+            column = cellPosition.getColumn();
+            printCellPreData(row, column);
+            printCellAdditionalData(0, List.of(), List.of());
         } catch (Exception e) {
             System.out.println(e.getMessage());
         }
@@ -156,7 +166,7 @@ public class ConsoleInteraction implements Ui {
             CellPositionInSheet cellPosition = getCellPositionFromUser();
             int row = cellPosition.getRow();
             int column = cellPosition.getColumn();
-            printSomeCellData(row, column);
+            printCellPreData(row, column);
             printWhatCellCanUpdate();
             String newCellValue = scanner.nextLine().trim();
             engine.updateSheetCell(row, column, newCellValue);
@@ -214,11 +224,10 @@ public class ConsoleInteraction implements Ui {
         } catch (Exception e) {
             System.out.println(e.getMessage());
         }
-
     }
 
     @Override
-    public void loadSheetVersionsFromFile() {
+    public void loadSystemFromFile() {
         try {
             System.out.println("Enter a file name for loading a system:");
             String fileName = scanner.nextLine().trim();

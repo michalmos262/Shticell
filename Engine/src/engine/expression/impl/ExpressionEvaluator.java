@@ -13,8 +13,11 @@ public class ExpressionEvaluator {
     public static EffectiveValue evaluateArgument(ReadOnlySheet roSheet, String argument, List<CellPositionInSheet> influencingCellPositions) {
         EffectiveValue effectiveValue;
 
-         if (argument.matches("-?\\d+(\\.\\d+)?")) {
-                effectiveValue = new EffectiveValue(CellType.NUMERIC, Double.parseDouble(argument));
+        if (argument.isEmpty()) {
+            effectiveValue = new EffectiveValue(CellType.UNKNOWN, "");
+        }
+        else if (argument.matches("-?\\d+(\\.\\d+)?")) {
+            effectiveValue = new EffectiveValue(CellType.NUMERIC, Double.parseDouble(argument));
         }
         else if (argument.trim().equalsIgnoreCase("true") || argument.trim().equalsIgnoreCase("false")) {
             effectiveValue = new EffectiveValue(CellType.BOOLEAN, Boolean.parseBoolean(argument));

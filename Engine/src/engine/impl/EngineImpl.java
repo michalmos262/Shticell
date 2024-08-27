@@ -8,6 +8,7 @@ import engine.entity.sheet.impl.SheetDimension;
 import engine.entity.dto.SheetDto;
 import engine.entity.sheet.impl.SheetImpl;
 import engine.entity.sheet.impl.SheetManager;
+import engine.exception.cell.NotExistsCellException;
 import engine.exception.file.FileAlreadyExistsException;
 import engine.exception.file.FileNotExistException;
 import engine.exception.file.InvalidFileTypeException;
@@ -50,8 +51,9 @@ public class EngineImpl implements Engine {
 
     public EffectiveValue getEffectiveValueForDisplay(Cell cell) {
         EffectiveValue effectiveValue;
+
         // if cell is not created yet
-        if (cell.getEffectiveValue() == null || cell.getEffectiveValue().getValue() == null) {
+        if (cell.getEffectiveValue() == null) {
             effectiveValue = new EffectiveValue(CellType.STRING, "");
         } else {
             String effectiveValueStr = cell.getEffectiveValue().getValue().toString();
@@ -64,6 +66,7 @@ public class EngineImpl implements Engine {
                 effectiveValue = new EffectiveValue(CellType.STRING, effectiveValueStr);
             }
         }
+
         return effectiveValue;
     }
 
@@ -87,6 +90,7 @@ public class EngineImpl implements Engine {
         Sheet sheet = sheetManager.getSheetByVersion(sheetVersion);
         SheetDto sheetDto = createSheetDto(sheet);
         CellPositionInSheet cellPosition = PositionFactory.createPosition(row, column);
+
         return sheetDto.getCell(cellPosition);
     }
 
@@ -94,7 +98,13 @@ public class EngineImpl implements Engine {
     public int getLastCellVersion(int row, int column) {
         Sheet sheet = sheetManager.getSheetByVersion(sheetManager.getCurrentVersion());
         CellPositionInSheet cellPosition = PositionFactory.createPosition(row, column);
-        return sheet.getCell(cellPosition).getLastUpdatedInVersion();
+        Cell cell = sheet.getCell(cellPosition);
+
+        if (cell == null) {
+            throw new NotExistsCellException(cellPosition);
+        }
+
+        return cell.getLastUpdatedInVersion();
     }
 
     @Override
@@ -123,6 +133,7 @@ public class EngineImpl implements Engine {
     private void updateInfluencedByCell(Sheet sheet, CellPositionInSheet InfluencerCellPosition, Set<CellPositionInSheet> visited) {
         Cell cell = sheet.getCell(InfluencerCellPosition);
         List<CellPositionInSheet> influencedCellPositions = new LinkedList<>(cell.getInfluences());
+
         for (CellPositionInSheet influencedByCellPosition : influencedCellPositions) {
             Cell influencedByCell = sheet.getCell(influencedByCellPosition);
             String originalValue = influencedByCell.getOriginalValue();
@@ -196,12 +207,14 @@ public class EngineImpl implements Engine {
 
     public void loadFile(String filePath) throws Exception {
         File file = new File(filePath);
+
         if (!(file.exists() && file.isFile())) {
             throw new FileNotExistException(filePath);
         }
         else if (!file.getName().endsWith("." + SUPPORTED_FILE_TYPE)) {
             throw new InvalidFileTypeException(filePath, SUPPORTED_FILE_TYPE.toUpperCase());
         }
+
         JAXBContext jaxbContext = JAXBContext.newInstance(STLSheet.class);
         Unmarshaller jaxbUnmarshaller = jaxbContext.createUnmarshaller();
         STLSheet jaxbSheet = (STLSheet) jaxbUnmarshaller.unmarshal(file);
@@ -225,9 +238,11 @@ public class EngineImpl implements Engine {
     public void writeSystemToFile(String fileName) throws IOException {
         String fullFileName = fileName + "." + SYSTEM_FILE_TYPE;
         File file = new File(fullFileName);
+
         if (file.isFile() && file.exists()) {
             throw new FileAlreadyExistsException(file.getAbsolutePath());
         }
+
         ObjectOutputStream out =
                 new ObjectOutputStream(
                         new FileOutputStream(fullFileName));
@@ -251,14 +266,17 @@ public class EngineImpl implements Engine {
     @Override
     public Map<Integer, Integer> getSheetVersions() {
         Map<Integer, Integer> version2updatedCellsCount = new HashMap<>();
+
         sheetManager.getVersion2sheet().forEach((version, sheet) ->
                 version2updatedCellsCount.put(version, sheet.getUpdatedCellsCount()));
+
         return version2updatedCellsCount;
     }
 
     @Override
     public void validateSheetVersionExists(int version) {
         Map<Integer, Integer> version2updatedCellsCount = getSheetVersions();
+
         if (!version2updatedCellsCount.containsKey(version)) {
             throw new IllegalArgumentException();
         }
@@ -269,12 +287,14 @@ public class EngineImpl implements Engine {
         CellPositionInSheet cellPosition = PositionFactory.createPosition(row, column);
         Sheet lastVersionSheet = sheetManager.getVersion2sheet().get(sheetManager.getCurrentVersion());
         lastVersionSheet.validatePositionInSheetBounds(cellPosition);
+
         return cellPosition;
     }
 
     @Override
     public CellPositionInSheet getCellPositionInSheet(String position) {
         CellPositionInSheet cellPosition = PositionFactory.createPosition(position);
+
         return getCellPositionInSheet(cellPosition.getRow(), cellPosition.getColumn());
     }
 

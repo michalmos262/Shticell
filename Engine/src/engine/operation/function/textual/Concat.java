@@ -24,7 +24,7 @@ public class Concat extends BinaryExpression implements Textual {
     protected EffectiveValue invoke(EffectiveValue evaluate1, EffectiveValue evaluate2) {
         try {
             if (evaluate1.getCellType() == CellType.NUMERIC || evaluate2.getCellType() == CellType.NUMERIC ||
-            evaluate1.getCellType() == CellType.BOOLEAN || evaluate2.getCellType() == CellType.BOOLEAN) {
+                    evaluate1.getCellType() == CellType.BOOLEAN || evaluate2.getCellType() == CellType.BOOLEAN) {
                 throw new ConcatNotTextualValuesException();
             }
 
@@ -35,13 +35,16 @@ public class Concat extends BinaryExpression implements Textual {
             String right = evaluate2Cloned.extractValueWithExpectation(String.class);
             String result;
 
-            if (Objects.equals(left, EffectiveValue.STRING_INVALID_VALUE) || Objects.equals(right, EffectiveValue.STRING_INVALID_VALUE)) {
+            if (Objects.equals(left, EffectiveValue.STRING_INVALID_VALUE) ||
+                    Objects.equals(right, EffectiveValue.STRING_INVALID_VALUE) ||
+                    left.isEmpty() || right.isEmpty()) {
                 result = EffectiveValue.STRING_INVALID_VALUE;
             } else {
                 result = left.concat(right);
             }
 
             return new EffectiveValue(CellType.STRING, result);
+
         } catch (ConcatNotTextualValuesException e) {
             throw e;
         } catch (Exception e) {

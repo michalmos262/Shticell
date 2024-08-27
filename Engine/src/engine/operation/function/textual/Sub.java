@@ -33,8 +33,9 @@ public class Sub extends TrinaryExpression implements Textual {
             double subLen = endIndex - beginIndex;
             String result;
 
-            if ((beginIndex < 0 || endIndex > str.length() || subLen < 0)
-                    || Objects.equals(str, EffectiveValue.STRING_INVALID_VALUE)) {
+            if ((beginIndex < 0 || endIndex > str.length() || subLen < 0) ||
+                    Objects.equals(str, EffectiveValue.STRING_INVALID_VALUE) ||
+                    str.isEmpty()) {
                 result = EffectiveValue.STRING_INVALID_VALUE;
             } else {
                 result = str.substring((int)beginIndex, (int)endIndex);

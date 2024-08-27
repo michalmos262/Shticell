@@ -3,11 +3,11 @@ package ui.api;
 public interface Ui {
     void checkIfThereIsData();
     void showCurrentVersionSheet();
-    void showSheetCell();
+    void showCellFromSheet();
     void updateSheetCell();
     void showSheetVersionsForDisplay();
     void loadFile();
     void saveCurrentSheetVersionsToFile();
-    void loadSheetVersionsFromFile();
+    void loadSystemFromFile();
     void exitProgram();
 }
