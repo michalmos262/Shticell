@@ -26,8 +26,11 @@ public class Ref extends SystemExpression implements Systemic {
         CellPositionInSheet cellPosition = PositionFactory.createPosition(evaluateValue);
 
         try {
-            Object effectiveValueInnerValue = roSheet.getCellEffectiveValue(cellPosition);
+            EffectiveValue effectiveValueInnerValue = roSheet.getCellEffectiveValue(cellPosition);
             influencingCellPositions.add(cellPosition);
+            if (effectiveValueInnerValue.getValue().toString().isEmpty()) {
+                return new EffectiveValue(CellType.UNKNOWN, EffectiveValue.STRING_INVALID_VALUE);
+            }
             return new EffectiveValue(CellType.UNKNOWN, effectiveValueInnerValue);
 
         } catch (NotExistsCellException e) {
