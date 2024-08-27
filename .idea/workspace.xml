@@ -1,15 +1,24 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <project version="4">
+  <component name="ArtifactsWorkspaceSettings">
+    <artifacts-to-build>
+      <artifact name="Engine" />
+      <artifact name="UI" />
+    </artifacts-to-build>
+  </component>
   <component name="AutoImportSettings">
     <option name="autoReloadType" value="SELECTIVE" />
   </component>
   <component name="ChangeListManager">
     <list default="true" id="35d24eeb-d633-4243-8af7-453c9914951b" name="Changes" comment="fixed what happens on empty cell">
-      <change afterPath="$PROJECT_DIR$/1.shticell" afterDir="false" />
-      <change afterPath="$PROJECT_DIR$/2.shticell" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/.idea/artifacts/Engine.xml" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/.idea/artifacts/UI.xml" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/.idea/libraries/mod.xml" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/UI/src/ui/impl/console/META-INF/MANIFEST.MF" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/.idea/libraries/angus_activation.xml" beforeDir="false" />
       <change beforePath="$PROJECT_DIR$/.idea/workspace.xml" beforeDir="false" afterPath="$PROJECT_DIR$/.idea/workspace.xml" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/Engine/src/engine/operation/function/systemic/Ref.java" beforeDir="false" afterPath="$PROJECT_DIR$/Engine/src/engine/operation/function/systemic/Ref.java" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/Engine/src/engine/operation/function/textual/Sub.java" beforeDir="false" afterPath="$PROJECT_DIR$/Engine/src/engine/operation/function/textual/Sub.java" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/Engine/Engine.iml" beforeDir="false" afterPath="$PROJECT_DIR$/Engine/Engine.iml" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/UI/UI.iml" beforeDir="false" afterPath="$PROJECT_DIR$/UI/UI.iml" afterDir="false" />
     </list>
     <option name="SHOW_DIALOG" value="false" />
     <option name="HIGHLIGHT_CONFLICTS" value="true" />
@@ -74,27 +83,30 @@
     "Application.ExpressionEvaluator.executor": "Debug",
     "Application.Graph.executor": "Run",
     "Application.JAXBObjectsParser.executor": "Debug",
-    "Application.Program.executor": "Debug",
+    "Application.Program.executor": "Run",
     "RunOnceActivity.ShowReadmeOnStart": "true",
     "SHARE_PROJECT_CONFIGURATION_FILES": "true",
-    "git-widget-placeholder": "#11 on fixes",
+    "git-widget-placeholder": "jars",
     "kotlin-language-version-configured": "true",
-    "last_opened_file_path": "C:/Users/asafl/Downloads/04. Files",
+    "last_opened_file_path": "C:/Users/asafl/Downloads/jaxb-ri-4.0.5/jaxb-ri-4.0.5/mod/jaxb-xjc.jar",
     "node.js.detected.package.eslint": "true",
     "node.js.detected.package.tslint": "true",
     "node.js.selected.package.eslint": "(autodetect)",
     "node.js.selected.package.tslint": "(autodetect)",
     "nodejs_package_manager_path": "npm",
     "onboarding.tips.debug.path": "C:/Users/asafl/IdeaProjects/Shticell/ui/src/Main.java",
-    "project.structure.last.edited": "Libraries",
+    "project.structure.last.edited": "Artifacts",
     "project.structure.proportion": "0.15",
     "project.structure.side.proportion": "0.2",
+    "run.code.analysis.last.selected.profile": "pProject Default",
     "settings.editor.selected.configurable": "preferences.pluginManager",
     "vue.rearranger.settings.migration": "true"
   }
 }]]></component>
   <component name="RecentsManager">
     <key name="CopyFile.RECENT_KEYS">
+      <recent name="C:\Users\asafl\IdeaProjects\Shticell\Engine\src\resources" />
+      <recent name="C:\Users\asafl\IdeaProjects\Shticell" />
       <recent name="C:\Users\asafl\IdeaProjects\Shticell\Engine\src\engine\jaxb\schema\generated" />
     </key>
     <key name="CopyClassDialog.RECENTS_KEY">

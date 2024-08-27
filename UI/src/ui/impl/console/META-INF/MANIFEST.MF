@@ -1,0 +1,4 @@
+Manifest-Version: 1.0
+Main-Class: ui.impl.console.Program
+Class-Path: ../Engine/Engine.jar ../mod/angus-activation.jar ../mod/jakarta.activation-api.jar ../mod/jakarta.xml.bind-api.jar ../mod/jaxb-core.jar ../mod/jaxb-impl.jar ../mod/jaxb-jxc.jar ../mod/jaxb-xjc.jar
+
