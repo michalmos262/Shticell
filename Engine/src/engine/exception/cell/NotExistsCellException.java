@@ -2,10 +2,10 @@ package engine.exception.cell;
 
 import engine.entity.cell.CellPositionInSheet;
 
-public class EmptyCellException extends NullPointerException {
+public class NotExistsCellException extends NullPointerException {
     private final CellPositionInSheet cellPositionInSheet;
 
-    public EmptyCellException(CellPositionInSheet cellPositionInSheet) {
+    public NotExistsCellException(CellPositionInSheet cellPositionInSheet) {
         this.cellPositionInSheet = cellPositionInSheet;
     }
 

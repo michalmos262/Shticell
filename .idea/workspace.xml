@@ -4,10 +4,12 @@
     <option name="autoReloadType" value="SELECTIVE" />
   </component>
   <component name="ChangeListManager">
-    <list default="true" id="35d24eeb-d633-4243-8af7-453c9914951b" name="Changes" comment="done bonus + handled more exceptions">
+    <list default="true" id="35d24eeb-d633-4243-8af7-453c9914951b" name="Changes" comment="fixed what happens on empty cell">
+      <change afterPath="$PROJECT_DIR$/1.shticell" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/2.shticell" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/.idea/workspace.xml" beforeDir="false" afterPath="$PROJECT_DIR$/.idea/workspace.xml" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/UI/src/ui/api/Ui.java" beforeDir="false" afterPath="$PROJECT_DIR$/UI/src/ui/api/Ui.java" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/UI/src/ui/impl/console/Menu.java" beforeDir="false" afterPath="$PROJECT_DIR$/UI/src/ui/impl/console/Menu.java" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/Engine/src/engine/operation/function/systemic/Ref.java" beforeDir="false" afterPath="$PROJECT_DIR$/Engine/src/engine/operation/function/systemic/Ref.java" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/Engine/src/engine/operation/function/textual/Sub.java" beforeDir="false" afterPath="$PROJECT_DIR$/Engine/src/engine/operation/function/textual/Sub.java" afterDir="false" />
     </list>
     <option name="SHOW_DIALOG" value="false" />
     <option name="HIGHLIGHT_CONFLICTS" value="true" />
@@ -72,10 +74,10 @@
     "Application.ExpressionEvaluator.executor": "Debug",
     "Application.Graph.executor": "Run",
     "Application.JAXBObjectsParser.executor": "Debug",
-    "Application.Program.executor": "Run",
+    "Application.Program.executor": "Debug",
     "RunOnceActivity.ShowReadmeOnStart": "true",
     "SHARE_PROJECT_CONFIGURATION_FILES": "true",
-    "git-widget-placeholder": "#10 on bonus",
+    "git-widget-placeholder": "#11 on fixes",
     "kotlin-language-version-configured": "true",
     "last_opened_file_path": "C:/Users/asafl/Downloads/04. Files",
     "node.js.detected.package.eslint": "true",
@@ -101,11 +103,11 @@
   </component>
   <component name="RunManager" selected="Application.Program">
     <configuration name="CellConnectionsGraph" type="Application" factoryName="Application" temporary="true" nameIsGenerated="true">
-      <option name="MAIN_CLASS_NAME" value="engine.file.CellConnectionsGraph" />
+      <option name="MAIN_CLASS_NAME" value="engine.entity.cell.CellConnectionsGraph" />
       <module name="Engine" />
       <extension name="coverage">
         <pattern>
-          <option name="PATTERN" value="engine.file.*" />
+          <option name="PATTERN" value="engine.entity.cell.*" />
           <option name="ENABLED" value="true" />
         </pattern>
       </extension>
@@ -198,7 +200,7 @@
       <workItem from="1723370294696" duration="324000" />
       <workItem from="1723370633897" duration="1307000" />
       <workItem from="1723371977463" duration="255000" />
-      <workItem from="1724504899094" duration="11062000" />
+      <workItem from="1724504899094" duration="46723000" />
     </task>
     <task id="LOCAL-00001" summary="opened files">
       <option name="closed" value="true" />
@@ -392,7 +394,55 @@
       <option name="project" value="LOCAL" />
       <updated>1724515720253</updated>
     </task>
-    <option name="localTasksCounter" value="25" />
+    <task id="LOCAL-00025" summary="menu fixes">
+      <option name="closed" value="true" />
+      <created>1724517536051</created>
+      <option name="number" value="00025" />
+      <option name="presentableId" value="LOCAL-00025" />
+      <option name="project" value="LOCAL" />
+      <updated>1724517536051</updated>
+    </task>
+    <task id="LOCAL-00026" summary="some fixes">
+      <option name="closed" value="true" />
+      <created>1724520646113</created>
+      <option name="number" value="00026" />
+      <option name="presentableId" value="LOCAL-00026" />
+      <option name="project" value="LOCAL" />
+      <updated>1724520646113</updated>
+    </task>
+    <task id="LOCAL-00027" summary="some fixes 2">
+      <option name="closed" value="true" />
+      <created>1724580505898</created>
+      <option name="number" value="00027" />
+      <option name="presentableId" value="LOCAL-00027" />
+      <option name="project" value="LOCAL" />
+      <updated>1724580505898</updated>
+    </task>
+    <task id="LOCAL-00028" summary="made the program not throwing an exception when ref to wrong type of cell is gotten">
+      <option name="closed" value="true" />
+      <created>1724675436468</created>
+      <option name="number" value="00028" />
+      <option name="presentableId" value="LOCAL-00028" />
+      <option name="project" value="LOCAL" />
+      <updated>1724675436468</updated>
+    </task>
+    <task id="LOCAL-00029" summary="fixed menu prints">
+      <option name="closed" value="true" />
+      <created>1724677580614</created>
+      <option name="number" value="00029" />
+      <option name="presentableId" value="LOCAL-00029" />
+      <option name="project" value="LOCAL" />
+      <updated>1724677580614</updated>
+    </task>
+    <task id="LOCAL-00030" summary="fixed what happens on empty cell">
+      <option name="closed" value="true" />
+      <created>1724744141895</created>
+      <option name="number" value="00030" />
+      <option name="presentableId" value="LOCAL-00030" />
+      <option name="project" value="LOCAL" />
+      <updated>1724744141895</updated>
+    </task>
+    <option name="localTasksCounter" value="31" />
     <servers />
   </component>
   <component name="TypeScriptGeneratedFilesManager">
@@ -411,10 +461,6 @@
   </component>
   <component name="VcsManagerConfiguration">
     <option name="ADD_EXTERNAL_FILES_SILENTLY" value="true" />
-    <MESSAGE value="opened files" />
-    <MESSAGE value="built classes" />
-    <MESSAGE value="done writing the function for printing the sheet, in the middle of printing a cell data" />
-    <MESSAGE value="continued printing cell" />
     <MESSAGE value="update cell" />
     <MESSAGE value="folders" />
     <MESSAGE value="made all prints" />
@@ -434,6 +480,12 @@
     <MESSAGE value="done exceptions!!!!" />
     <MESSAGE value="done bonus + small refactor" />
     <MESSAGE value="done bonus + handled more exceptions" />
-    <option name="LAST_COMMIT_MESSAGE" value="done bonus + handled more exceptions" />
+    <MESSAGE value="menu fixes" />
+    <MESSAGE value="some fixes" />
+    <MESSAGE value="some fixes 2" />
+    <MESSAGE value="made the program not throwing an exception when ref to wrong type of cell is gotten" />
+    <MESSAGE value="fixed menu prints" />
+    <MESSAGE value="fixed what happens on empty cell" />
+    <option name="LAST_COMMIT_MESSAGE" value="fixed what happens on empty cell" />
   </component>
 </project>

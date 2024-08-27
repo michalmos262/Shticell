@@ -13,8 +13,8 @@ public interface GetterSetterSheet {
     void updateCell(CellPositionInSheet cellPosition, String originalValue, EffectiveValue effectiveValue);
     void addCellConnection(CellPositionInSheet from, CellPositionInSheet to);
     void removeCellConnection(CellPositionInSheet from, CellPositionInSheet to);
-    void createNewCell(CellPositionInSheet cellPosition, String originalValue);
+    Cell createNewCell(CellPositionInSheet cellPosition, String originalValue);
     Cell getCell(CellPositionInSheet cellPosition);
 
-    public SheetImpl clone();
+    SheetImpl clone();
 }

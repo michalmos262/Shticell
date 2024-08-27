@@ -2,12 +2,9 @@ package engine.operation.function.arithmetical;
 
 import engine.entity.cell.CellType;
 import engine.entity.cell.EffectiveValue;
-import engine.exception.operation.InvokeOnInvalidArgumentsTypesException;
 import engine.expression.api.Expression;
 import engine.expression.impl.UnaryExpression;
 import engine.operation.Operation;
-
-import java.util.ArrayList;
 
 public class Abs extends UnaryExpression implements Arithmetical {
 
@@ -18,13 +15,11 @@ public class Abs extends UnaryExpression implements Arithmetical {
     @Override
     protected EffectiveValue invoke(EffectiveValue evaluate) {
         try {
-            double result = Math.abs(evaluate.extractValueWithExpectation(Double.class));
+            EffectiveValue evaluateCloned = new EffectiveValue(CellType.NUMERIC, evaluate.getValue());
+            double result = Math.abs(evaluateCloned.extractValueWithExpectation(Double.class));
             return new EffectiveValue(CellType.NUMERIC, result);
         } catch (Exception e) {
-            ArrayList<EffectiveValue> arguments = new ArrayList<>() {{
-                add(evaluate);
-            }};
-            throw new InvokeOnInvalidArgumentsTypesException(getOperationSign(), arguments);
+            return handleEvaluationsTypesError(getOperationSign(), CellType.NUMERIC, evaluate);
         }
     }
 

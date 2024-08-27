@@ -10,16 +10,16 @@ public enum Menu {
             console.loadFile();
         }
     },
-    SHOW_SHEET("Show a sheet of the current version") {
+    SHOW_SHEET("Show the sheet from the current version") {
         @Override
         void run() {
             console.showCurrentVersionSheet();
         }
     },
-    SHOW_CELL("Show a cell of the current version") {
+    SHOW_CELL("Show a cell from the current version") {
         @Override
         void run() {
-            console.showSheetCell();
+            console.showCellFromSheet();
         }
     },
     UPDATE_CELL("Update a cell") {
@@ -28,16 +28,16 @@ public enum Menu {
             console.updateSheetCell();
         }
     },
-    SHOW_VERSIONS("Show a sheet of a specific version") {
+    SHOW_VERSIONS("Show the sheet from a specific version") {
         @Override
         void run() {
             console.showSheetVersionsForDisplay();
         }
     },
-    LOAD_SYSTEM("Load a sheet system") {
+    LOAD_SYSTEM("Load a system") {
         @Override
         void run() {
-            console.loadSheetVersionsFromFile();
+            console.loadSystemFromFile();
         }
     },
     SAVE_SYSTEM("Save the current system") {

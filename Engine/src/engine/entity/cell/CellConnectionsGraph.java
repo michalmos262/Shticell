@@ -1,7 +1,5 @@
-package engine.file;
+package engine.entity.cell;
 
-import engine.entity.cell.CellPositionInSheet;
-import engine.entity.cell.PositionFactory;
 import engine.jaxb.schema.generated.STLCell;
 import engine.jaxb.schema.generated.STLCells;
 
@@ -17,7 +15,7 @@ public class CellConnectionsGraph {
         // Create a graph
         adjList = new LinkedHashMap<>();
         // Regex to extract references
-        Pattern refPattern = Pattern.compile("\\{REF,(\\w)(\\d+)\\}");
+        Pattern refPattern = Pattern.compile("\\{REF,(\\w)(\\d+)}");
 
         for (STLCell jaxbCell: jaxbCells.getSTLCell()) {
             // Extract row and column
