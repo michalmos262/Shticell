@@ -10,16 +10,7 @@
     <option name="autoReloadType" value="SELECTIVE" />
   </component>
   <component name="ChangeListManager">
-    <list default="true" id="35d24eeb-d633-4243-8af7-453c9914951b" name="Changes" comment="fixed what happens on empty cell">
-      <change afterPath="$PROJECT_DIR$/.idea/artifacts/Engine.xml" afterDir="false" />
-      <change afterPath="$PROJECT_DIR$/.idea/artifacts/UI.xml" afterDir="false" />
-      <change afterPath="$PROJECT_DIR$/.idea/libraries/mod.xml" afterDir="false" />
-      <change afterPath="$PROJECT_DIR$/UI/src/ui/impl/console/META-INF/MANIFEST.MF" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/.idea/libraries/angus_activation.xml" beforeDir="false" />
-      <change beforePath="$PROJECT_DIR$/.idea/workspace.xml" beforeDir="false" afterPath="$PROJECT_DIR$/.idea/workspace.xml" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/Engine/Engine.iml" beforeDir="false" afterPath="$PROJECT_DIR$/Engine/Engine.iml" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/UI/UI.iml" beforeDir="false" afterPath="$PROJECT_DIR$/UI/UI.iml" afterDir="false" />
-    </list>
+    <list default="true" id="35d24eeb-d633-4243-8af7-453c9914951b" name="Changes" comment="made JARs" />
     <option name="SHOW_DIALOG" value="false" />
     <option name="HIGHLIGHT_CONFLICTS" value="true" />
     <option name="HIGHLIGHT_NON_ACTIVE_CHANGELIST" value="false" />
@@ -86,7 +77,7 @@
     "Application.Program.executor": "Run",
     "RunOnceActivity.ShowReadmeOnStart": "true",
     "SHARE_PROJECT_CONFIGURATION_FILES": "true",
-    "git-widget-placeholder": "jars",
+    "git-widget-placeholder": "#12 on jars",
     "kotlin-language-version-configured": "true",
     "last_opened_file_path": "C:/Users/asafl/Downloads/jaxb-ri-4.0.5/jaxb-ri-4.0.5/mod/jaxb-xjc.jar",
     "node.js.detected.package.eslint": "true",
@@ -454,7 +445,15 @@
       <option name="project" value="LOCAL" />
       <updated>1724744141895</updated>
     </task>
-    <option name="localTasksCounter" value="31" />
+    <task id="LOCAL-00031" summary="made JARs">
+      <option name="closed" value="true" />
+      <created>1724778210068</created>
+      <option name="number" value="00031" />
+      <option name="presentableId" value="LOCAL-00031" />
+      <option name="project" value="LOCAL" />
+      <updated>1724778210068</updated>
+    </task>
+    <option name="localTasksCounter" value="32" />
     <servers />
   </component>
   <component name="TypeScriptGeneratedFilesManager">
@@ -473,7 +472,6 @@
   </component>
   <component name="VcsManagerConfiguration">
     <option name="ADD_EXTERNAL_FILES_SILENTLY" value="true" />
-    <MESSAGE value="update cell" />
     <MESSAGE value="folders" />
     <MESSAGE value="made all prints" />
     <MESSAGE value="continued expressions, haven't done" />
@@ -498,6 +496,7 @@
     <MESSAGE value="made the program not throwing an exception when ref to wrong type of cell is gotten" />
     <MESSAGE value="fixed menu prints" />
     <MESSAGE value="fixed what happens on empty cell" />
-    <option name="LAST_COMMIT_MESSAGE" value="fixed what happens on empty cell" />
+    <MESSAGE value="made JARs" />
+    <option name="LAST_COMMIT_MESSAGE" value="made JARs" />
   </component>
 </project>
