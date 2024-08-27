@@ -45,19 +45,24 @@ public class Sub extends TrinaryExpression implements Textual {
         } catch (SubNotTextualValueException e) {
             throw e;
         } catch (Exception e) {
-            if ((evaluate1.getCellType() != CellType.UNKNOWN && evaluate1.getCellType() != CellType.STRING) ||
-                    (evaluate2.getCellType() != CellType.UNKNOWN && evaluate2.getCellType() != CellType.NUMERIC) ||
-                    (evaluate3.getCellType() != CellType.UNKNOWN && evaluate3.getCellType() != CellType.NUMERIC)) {
-                ArrayList<EffectiveValue> arguments = new ArrayList<>() {{
-                    add(evaluate1);
-                    add(evaluate2);
-                    add(evaluate2);
-                }};
-
-                throw new InvokeOnInvalidArgumentsTypesException(getOperationSign(), arguments);
-            }
-            return new EffectiveValue(CellType.STRING, EffectiveValue.STRING_INVALID_VALUE);
+            return handleEvaluationsTypesError(getOperationSign(), CellType.STRING, evaluate1, evaluate2, evaluate3);
         }
+    }
+
+    @Override
+    public EffectiveValue handleEvaluationsTypesError(Operation operationSign, CellType expectedCellType, EffectiveValue... effectiveValues) {
+        if ((effectiveValues[0].getCellType() != CellType.UNKNOWN && effectiveValues[0].getCellType() != expectedCellType) ||
+            (effectiveValues[1].getCellType() != CellType.UNKNOWN && effectiveValues[1].getCellType() != CellType.NUMERIC) ||
+            (effectiveValues[2].getCellType() != CellType.UNKNOWN && effectiveValues[2].getCellType() != CellType.NUMERIC)) {
+            ArrayList<EffectiveValue> arguments = new ArrayList<>() {{
+                add(effectiveValues[0]);
+                add(effectiveValues[1]);
+                add(effectiveValues[2]);
+            }};
+
+            throw new InvokeOnInvalidArgumentsTypesException(operationSign, arguments);
+        }
+        return new EffectiveValue(CellType.STRING, EffectiveValue.STRING_INVALID_VALUE);
     }
 
     @Override
