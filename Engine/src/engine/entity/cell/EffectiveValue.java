@@ -37,7 +37,7 @@ public class EffectiveValue implements Cloneable, Serializable {
     }
 
     public <T> T extractValueWithExpectation(Class<T> type) {
-        if (cellType.isAssignableFrom(type)) {
+        if (cellType.isAssignableFrom(type) || cellType == CellType.UNKNOWN) {
             if (value instanceof EffectiveValue) {
                     value = ((EffectiveValue) value).extractValueWithExpectation(type);
             }
