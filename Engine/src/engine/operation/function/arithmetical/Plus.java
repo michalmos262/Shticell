@@ -15,13 +15,11 @@ public class Plus extends BinaryExpression implements Arithmetical {
     @Override
     protected EffectiveValue invoke(EffectiveValue evaluate1, EffectiveValue evaluate2) {
         try {
-            EffectiveValue evaluate1Cloned = new EffectiveValue(CellType.NUMERIC, evaluate1.getValue());
-            EffectiveValue evaluate2Cloned = new EffectiveValue(CellType.NUMERIC, evaluate2.getValue());
-            double result = evaluate1Cloned.extractValueWithExpectation(Double.class) +
-                    evaluate2Cloned.extractValueWithExpectation(Double.class);
+            double result = evaluate1.extractValueWithExpectation(Double.class) +
+                    evaluate2.extractValueWithExpectation(Double.class);
             return new EffectiveValue(CellType.NUMERIC, result);
         } catch (Exception e) {
-            return handleEvaluationsTypesError(getOperationSign(), CellType.NUMERIC, evaluate1, evaluate2);
+            return new EffectiveValue(CellType.NUMERIC, Double.NaN);
         }
     }
 

@@ -2,6 +2,7 @@ package engine.api;
 
 import engine.entity.dto.CellDto;
 import engine.entity.cell.CellPositionInSheet;
+import engine.entity.dto.SheetDto;
 
 import java.io.IOException;
 import java.util.List;
@@ -15,10 +16,11 @@ public interface Engine {
     String getSheetName();
     int getCurrentSheetVersion();
     CellDto findCellInSheet(int row, int column, int sheetVersion);
+    SheetDto getSheet(int sheetVersion);
     int getLastCellVersion(int row, int column);
     List<CellPositionInSheet> getInfluencedByList(int row, int column, int sheetVersion);
     List<CellPositionInSheet> getInfluencesList(int row, int column, int sheetVersion);
-    void updateSheetCell(int row, int column, String newValue) throws Exception;
+    void updateSheetCell(int row, int column, String newValue);
     Map<Integer, Integer> getSheetVersions();
     void validateSheetVersionExists(int version);
     CellPositionInSheet getCellPositionInSheet(int row, int column);
