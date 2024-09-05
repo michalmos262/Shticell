@@ -23,9 +23,9 @@ public class LoadFileController {
     @FXML
     void LoadFileButtonListener(ActionEvent event) {
         FileChooser fileChooser = new FileChooser();
-        fileChooser.setTitle("Select words file");
+        fileChooser.setTitle("Select an " + Engine.SUPPORTED_FILE_TYPE.toUpperCase() + " file");
         fileChooser.getExtensionFilters().add(
-                new FileChooser.ExtensionFilter("text files", "*." + Engine.SUPPORTED_FILE_TYPE)
+                new FileChooser.ExtensionFilter(Engine.SUPPORTED_FILE_TYPE.toUpperCase() + " files", "*." + Engine.SUPPORTED_FILE_TYPE)
         );
         File selectedFile = fileChooser.showOpenDialog(mainAppController.getPrimaryStage());
         if (selectedFile == null) {

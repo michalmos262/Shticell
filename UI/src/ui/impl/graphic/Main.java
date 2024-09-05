@@ -10,7 +10,7 @@ import ui.impl.graphic.model.BusinessLogic;
 
 import java.net.URL;
 
-import static ui.impl.graphic.CommonResourcesPaths.MAIN_APP_FXML_RESOURCE;
+import static ui.impl.graphic.resources.CommonResourcesPaths.MAIN_APP_FXML_RESOURCE;
 
 public class Main extends Application {
 

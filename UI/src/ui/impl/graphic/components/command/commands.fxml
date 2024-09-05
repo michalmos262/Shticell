@@ -7,9 +7,7 @@
 <?import javafx.scene.layout.VBox?>
 <?import javafx.scene.text.Font?>
 
-
-<BorderPane maxHeight="-Infinity" maxWidth="-Infinity" minHeight="-Infinity" minWidth="-Infinity" prefHeight="280.0"
-            prefWidth="150.0" xmlns="http://javafx.com/javafx/22">
+<BorderPane maxHeight="-Infinity" maxWidth="-Infinity" minHeight="-Infinity" minWidth="-Infinity" prefHeight="280.0" prefWidth="150.0" xmlns="http://javafx.com/javafx/22" xmlns:fx="http://javafx.com/fxml/1">
    <top>
       <Label id="commands-label" alignment="TOP_LEFT" contentDisplay="TOP" prefHeight="33.0" prefWidth="192.0" style="-fx-alignment: center;" text="Commands" textFill="#050000">
          <font>
@@ -22,7 +20,9 @@
    </top>
    <center>
       <ScrollPane BorderPane.alignment="CENTER">
-         <VBox prefHeight="200.0" prefWidth="100.0"/>
+         <content>
+            <VBox prefHeight="243.0" prefWidth="145.0" />
+         </content>
       </ScrollPane>
    </center>
 </BorderPane>
