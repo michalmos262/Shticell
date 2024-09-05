@@ -30,7 +30,7 @@ public class EngineImpl implements Engine {
     private SheetManager sheetManager;
     private boolean isDataLoaded = false;
 
-    public SheetDto createSheetDto(Sheet sheet) {
+    private SheetDto createSheetDto(Sheet sheet) {
         Map<CellPositionInSheet, CellDto> position2cell;
         position2cell = new HashMap<>();
         for (Map.Entry<CellPositionInSheet, Cell> entry: sheet.getPosition2cell().entrySet()) {
@@ -87,11 +87,17 @@ public class EngineImpl implements Engine {
 
     @Override
     public CellDto findCellInSheet(int row, int column, int sheetVersion) {
-        Sheet sheet = sheetManager.getSheetByVersion(sheetVersion);
-        SheetDto sheetDto = createSheetDto(sheet);
+        SheetDto sheetDto = getSheet(sheetVersion);
         CellPositionInSheet cellPosition = PositionFactory.createPosition(row, column);
 
         return sheetDto.getCell(cellPosition);
+    }
+
+    @Override
+    public SheetDto getSheet(int sheetVersion) {
+        Sheet sheet = sheetManager.getSheetByVersion(sheetVersion);
+
+        return createSheetDto(sheet);
     }
 
     @Override

@@ -30,7 +30,7 @@ public class SheetImpl implements Cloneable, Sheet {
     @Override
     public EffectiveValue getCellEffectiveValue(CellPositionInSheet cellPosition) {
         validatePositionInSheetBounds(cellPosition);
-        if (position2cell.get(cellPosition) == null) {
+        if (position2cell.get(cellPosition) == null || position2cell.get(cellPosition).getEffectiveValue() == null) {
             throw new NotExistsCellException(cellPosition);
         }
         return position2cell.get(cellPosition).getEffectiveValue();

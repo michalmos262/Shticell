@@ -15,11 +15,10 @@ public class Abs extends UnaryExpression implements Arithmetical {
     @Override
     protected EffectiveValue invoke(EffectiveValue evaluate) {
         try {
-            EffectiveValue evaluateCloned = new EffectiveValue(CellType.NUMERIC, evaluate.getValue());
-            double result = Math.abs(evaluateCloned.extractValueWithExpectation(Double.class));
+            double result = Math.abs(evaluate.extractValueWithExpectation(Double.class));
             return new EffectiveValue(CellType.NUMERIC, result);
         } catch (Exception e) {
-            return handleEvaluationsTypesError(getOperationSign(), CellType.NUMERIC, evaluate);
+            return new EffectiveValue(CellType.NUMERIC, Double.NaN);
         }
     }
 

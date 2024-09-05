@@ -23,9 +23,6 @@ public class ExpressionEvaluator {
             effectiveValue = new EffectiveValue(CellType.BOOLEAN, Boolean.parseBoolean(argument));
         }
         else if (argument.charAt(0) == '{' && argument.charAt(argument.length() - 1) == '}') {
-            // ignore all spaces if exist
-            argument = argument.replace(" ", "");
-
             // Remove the outer curly braces
             argument = argument.substring(1, argument.length() - 1);
 

@@ -1,10 +1,13 @@
 package engine.entity.cell;
 
+import engine.exception.cell.EffectiveValueCastingException;
+
 import java.io.Serializable;
 import java.util.Objects;
 
 public class EffectiveValue implements Cloneable, Serializable {
     public static final String STRING_INVALID_VALUE = "!UNDEFINED!";
+    public static final String BOOLEAN_INVALID_VALUE = "UNKNOWN";
     private CellType cellType;
     private Object value;
 
@@ -26,7 +29,6 @@ public class EffectiveValue implements Cloneable, Serializable {
         if ("true".equalsIgnoreCase(value.toString()) || "false".equalsIgnoreCase(value.toString())) {
             throw new IllegalArgumentException("Error: The string is a boolean.");
         }
-
         // Check if the string is a number
         try {
             Double.parseDouble(value.toString());
@@ -41,21 +43,20 @@ public class EffectiveValue implements Cloneable, Serializable {
             if (value instanceof EffectiveValue) {
                     value = ((EffectiveValue) value).extractValueWithExpectation(type);
             }
-            if (type == Double.class) {
+            if (type == Double.class && value.toString().equals(value.toString().trim())) {
                 return type.cast(Double.parseDouble(value.toString()));
             }
 
-            if (type == Boolean.class) {
+            if (type == Boolean.class && value.toString().equals(value.toString().trim())) {
                 return type.cast(Boolean.parseBoolean(value.toString()));
             }
 
             if (type == String.class) {
                 validateValueIsExactString();
+                return type.cast(value);
             }
-
-            return type.cast(value);
         }
-        throw new ClassCastException("Could not cast value type " + value.getClass() + " to " + type);
+        throw new EffectiveValueCastingException(value.getClass(), type);
     }
 
     @Override

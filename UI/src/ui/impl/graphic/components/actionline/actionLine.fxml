@@ -1,0 +1,61 @@
+<?xml version="1.0" encoding="UTF-8"?>
+
+<?import javafx.geometry.Insets?>
+<?import javafx.scene.control.Button?>
+<?import javafx.scene.control.Label?>
+<?import javafx.scene.layout.ColumnConstraints?>
+<?import javafx.scene.layout.GridPane?>
+<?import javafx.scene.layout.RowConstraints?>
+
+<GridPane maxHeight="-Infinity" maxWidth="-Infinity" minHeight="-Infinity" minWidth="-Infinity" prefHeight="42.0"
+          prefWidth="923.0" xmlns="http://javafx.com/javafx/22">
+    <columnConstraints>
+        <ColumnConstraints hgrow="SOMETIMES" maxWidth="787.6000122070312" minWidth="10.0"
+                           prefWidth="787.6000122070312"/>
+        <ColumnConstraints hgrow="SOMETIMES" maxWidth="447.5999755859375" minWidth="10.0"
+                           prefWidth="134.59998779296882"/>
+    </columnConstraints>
+    <rowConstraints>
+        <RowConstraints minHeight="10.0" prefHeight="30.0" vgrow="SOMETIMES"/>
+    </rowConstraints>
+    <GridPane prefHeight="42.0" prefWidth="622.0">
+        <columnConstraints>
+            <ColumnConstraints hgrow="SOMETIMES" maxWidth="211.4000244140625" minWidth="10.0"
+                               prefWidth="146.60000610351562"/>
+            <ColumnConstraints hgrow="SOMETIMES" maxWidth="319.40003662109376" minWidth="10.0" prefWidth="289.8"/>
+            <ColumnConstraints hgrow="SOMETIMES" maxWidth="214.0000122070312" minWidth="10.0"
+                               prefWidth="146.19999999999993"/>
+            <ColumnConstraints hgrow="SOMETIMES" maxWidth="129.5999755859375" minWidth="10.0"
+                               prefWidth="118.20003662109377"/>
+        </columnConstraints>
+        <rowConstraints>
+            <RowConstraints minHeight="10.0" prefHeight="30.0" vgrow="SOMETIMES"/>
+        </rowConstraints>
+        <Label text="Last cell version" GridPane.columnIndex="3">
+            <GridPane.margin>
+                <Insets left="20.0"/>
+            </GridPane.margin>
+        </Label>
+        <Button mnemonicParsing="false" text="Update Value" GridPane.columnIndex="2">
+            <GridPane.margin>
+                <Insets left="40.0"/>
+            </GridPane.margin>
+        </Button>
+        <Label text="Selected Cell ID">
+            <GridPane.margin>
+                <Insets left="10.0"/>
+            </GridPane.margin>
+        </Label>
+        <Label text="Original Cell Value" GridPane.columnIndex="1">
+            <GridPane.margin>
+                <Insets left="10.0"/>
+            </GridPane.margin>
+        </Label>
+    </GridPane>
+    <Button mnemonicParsing="false" prefHeight="25.0" prefWidth="120.0" text="Version Selector"
+            GridPane.columnIndex="1">
+        <GridPane.margin>
+          <Insets left="7.0"/>
+        </GridPane.margin>
+    </Button>
+</GridPane>

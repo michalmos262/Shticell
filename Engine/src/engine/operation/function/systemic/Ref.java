@@ -6,11 +6,9 @@ import engine.entity.cell.EffectiveValue;
 import engine.entity.cell.PositionFactory;
 import engine.entity.sheet.api.ReadOnlySheet;
 import engine.exception.cell.NotExistsCellException;
-import engine.exception.operation.InvokeOnInvalidArgumentsTypesException;
 import engine.expression.api.Expression;
 import engine.expression.impl.SystemExpression;
 
-import java.util.ArrayList;
 import java.util.List;
 
 public class Ref extends SystemExpression implements Systemic {
@@ -26,23 +24,15 @@ public class Ref extends SystemExpression implements Systemic {
         CellPositionInSheet cellPosition = PositionFactory.createPosition(evaluateValue);
 
         try {
-            EffectiveValue effectiveValueInnerValue = roSheet.getCellEffectiveValue(cellPosition);
+            EffectiveValue referencedEffectiveValue = roSheet.getCellEffectiveValue(cellPosition);
             influencingCellPositions.add(cellPosition);
-            if (effectiveValueInnerValue.getValue().toString().isEmpty()) {
-                return new EffectiveValue(CellType.UNKNOWN, EffectiveValue.STRING_INVALID_VALUE);
-            }
-            return new EffectiveValue(CellType.UNKNOWN, effectiveValueInnerValue);
+            return new EffectiveValue(referencedEffectiveValue.getCellType(), referencedEffectiveValue.getValue());
 
         } catch (NotExistsCellException e) {
             influencingCellPositions.add(cellPosition);
-            return new EffectiveValue(CellType.UNKNOWN, EffectiveValue.STRING_INVALID_VALUE);
+            return new EffectiveValue(CellType.UNKNOWN, "");
+
         } catch (Exception e) {
-            if (!(evaluate.getCellType() == CellType.UNKNOWN || evaluate.getCellType() == CellType.STRING)) {
-                ArrayList<EffectiveValue> arguments = new ArrayList<>() {{
-                    add(evaluate);
-                }};
-                throw new InvokeOnInvalidArgumentsTypesException(getOperationSign(), arguments);
-            }
             if (influencingCellPositions.getLast() != cellPosition) {
                 influencingCellPositions.add(cellPosition);
             }
