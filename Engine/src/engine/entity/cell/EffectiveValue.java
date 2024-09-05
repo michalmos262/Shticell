@@ -40,6 +40,9 @@ public class EffectiveValue implements Cloneable, Serializable {
 
     public <T> T extractValueWithExpectation(Class<T> type) {
         if (cellType.isAssignableFrom(type) || cellType == CellType.UNKNOWN) {
+            String valueStr = value.toString();
+            String valueStrTrimmed = valueStr.trim();
+
             if (value instanceof EffectiveValue) {
                     value = ((EffectiveValue) value).extractValueWithExpectation(type);
             }
@@ -47,7 +50,10 @@ public class EffectiveValue implements Cloneable, Serializable {
                 return type.cast(Double.parseDouble(value.toString()));
             }
 
-            if (type == Boolean.class && value.toString().equals(value.toString().trim())) {
+            if (type == Boolean.class &&
+                    valueStr.equals(valueStrTrimmed) &&
+                    (valueStrTrimmed.equalsIgnoreCase("true") ||
+                            valueStrTrimmed.equalsIgnoreCase("false"))) {
                 return type.cast(Boolean.parseBoolean(value.toString()));
             }
 

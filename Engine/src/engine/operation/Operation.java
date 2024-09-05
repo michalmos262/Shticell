@@ -6,9 +6,9 @@ import engine.entity.sheet.api.ReadOnlySheet;
 import engine.exception.operation.InvalidOperationNameException;
 import engine.expression.impl.EffectiveValueExpression;
 import engine.operation.function.arithmetical.*;
-import engine.operation.function.systemic.Ref;
-import engine.operation.function.textual.Concat;
-import engine.operation.function.textual.Sub;
+import engine.operation.function.booleanic.*;
+import engine.operation.function.systemic.*;
+import engine.operation.function.textual.*;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -131,6 +131,18 @@ public enum Operation {
             return new Sub(expressions.getFirst(), expressions.get(1), expressions.getLast()).invoke();
         }
     },
+    PERCENT(2) {
+        @Override
+        public String getDocumentation() {
+            return this + " -> Retrieves the percent part from the whole number, which means part*whole/100. Syntax: {" +
+                    this + ",[" + numberArg + "],[" + numberArg + "]}. For example: {" + this + ",10,50} will retrieve 5.";
+        }
+
+        @Override
+        public EffectiveValue eval(ReadOnlySheet roSheet, List<CellPositionInSheet> influencingCellPositions, ArrayList<EffectiveValueExpression> expressions) {
+            return new Percent(expressions.getFirst(), expressions.getLast()).invoke();
+        }
+    },
     REF(1) {
         @Override
         public String getDocumentation() {
@@ -138,10 +150,102 @@ public enum Operation {
                     + positionArg + "]}. For example: {" + this
                     + ",A3} will retrieve the effective value of position A3.";
         }
+
         @Override
         public EffectiveValue eval(ReadOnlySheet roSheet, List<CellPositionInSheet> influencingCellPositions,
                             ArrayList<EffectiveValueExpression> expressions) {
             return new Ref(expressions.getFirst()).invoke(roSheet, influencingCellPositions);
+        }
+    },
+    EQUAL(2) {
+        @Override
+        public String getDocumentation() {
+            return this + " -> Making a comparison on 2 values and returns TRUE if equal. Syntax: {" +
+                    this + ",[" + valueArg + "],[" + valueArg + "]}. For example: {" + this + ",hi,hi} will retrieve TRUE.";
+        }
+
+        @Override
+        public EffectiveValue eval(ReadOnlySheet roSheet, List<CellPositionInSheet> influencingCellPositions,
+                            ArrayList<EffectiveValueExpression> expressions) {
+            return new Equal(expressions.getFirst(), expressions.getLast()).invoke();
+        }
+    },
+    NOT(1) {
+        @Override
+        public String getDocumentation() {
+            return this + " -> Retrieves the opposite of a given boolean value. Syntax: {" + this + ",["
+                    + booleanArg + "]}. For example: {" + this
+                    + ",TRUE} will retrieve FALSE.";
+        }
+
+        @Override
+        public EffectiveValue eval(ReadOnlySheet roSheet, List<CellPositionInSheet> influencingCellPositions,
+                            ArrayList<EffectiveValueExpression> expressions) {
+            return new Not(expressions.getFirst()).invoke();
+        }
+    },
+    OR(2) {
+        @Override
+        public String getDocumentation() {
+            return this + " -> Making a '||' on 2 boolean values. Syntax: {" +
+                    this + ",[" + booleanArg + "],[" + booleanArg + "]}. For example: {" + this + ",TRUE,FALSE} will retrieve TRUE.";
+        }
+
+        @Override
+        public EffectiveValue eval(ReadOnlySheet roSheet, List<CellPositionInSheet> influencingCellPositions,
+                            ArrayList<EffectiveValueExpression> expressions) {
+            return new Or(expressions.getFirst(), expressions.getLast()).invoke();
+        }
+    },
+    AND(2) {
+        @Override
+        public String getDocumentation() {
+            return this + " -> Making a '&&' on 2 boolean values. Syntax: {" +
+                    this + ",[" + booleanArg + "],[" + booleanArg + "]}. For example: {" + this + ",TRUE,FALSE} will retrieve FALSE.";
+        }
+
+        @Override
+        public EffectiveValue eval(ReadOnlySheet roSheet, List<CellPositionInSheet> influencingCellPositions,
+                            ArrayList<EffectiveValueExpression> expressions) {
+            return new And(expressions.getFirst(), expressions.getLast()).invoke();
+        }
+    },
+    BIGGER(2) {
+        @Override
+        public String getDocumentation() {
+            return this + " -> Retrieves TRUE if first value is bigger or equal to second value. Syntax: {" +
+                    this + ",[" + numberArg + "],[" + numberArg + "]}. For example: {" + this + ",5,2} will retrieve TRUE.";
+        }
+
+        @Override
+        public EffectiveValue eval(ReadOnlySheet roSheet, List<CellPositionInSheet> influencingCellPositions, ArrayList<EffectiveValueExpression> expressions) {
+            return new Bigger(expressions.getFirst(), expressions.getLast()).invoke();
+        }
+    },
+    LESS(2) {
+        @Override
+        public String getDocumentation() {
+            return this + " -> Retrieves TRUE if first value is smaller or equal to second value. Syntax: {" +
+                    this + ",[" + numberArg + "],[" + numberArg + "]}. For example: {" + this + ",5,2} will retrieve FALSE.";
+        }
+
+        @Override
+        public EffectiveValue eval(ReadOnlySheet roSheet, List<CellPositionInSheet> influencingCellPositions, ArrayList<EffectiveValueExpression> expressions) {
+            return new Less(expressions.getFirst(), expressions.getLast()).invoke();
+        }
+    },
+    IF(3) {
+        @Override
+        public String getDocumentation() {
+            return this + " -> Evaluates a boolean condition and retrieves the second value if TRUE, else the third value. Notice that both values should be the same type. Syntax: {" +
+                    this + ",[" + booleanArg + "],[" + valueArg + "],[" + valueArg
+                    + "]}. For example: {" + this + ",{BIGGER,5,2},TRUE,FALSE} will retrieve TRUE.";
+        }
+
+        @Override
+        public EffectiveValue eval(ReadOnlySheet roSheet, List<CellPositionInSheet> influencingCellPositions,
+                            ArrayList<EffectiveValueExpression> expressions) {
+            return new If(expressions.getFirst(), expressions.get(1), expressions.getLast()).invoke();
         }
     };
     
@@ -149,6 +253,7 @@ public enum Operation {
     private static final String numberArg = "NUMBER";
     private static final String stringArg = "TEXT";
     private static final String booleanArg = "BOOLEAN";
+    private static final String valueArg = "VALUE";
     private static final String positionArg = "CELL-POSITION";
 
     Operation(int expressionsAmount) {
@@ -172,8 +277,8 @@ public enum Operation {
         }
     }
 
+    abstract public String getDocumentation();
+
     abstract public EffectiveValue eval(ReadOnlySheet roSheet, List<CellPositionInSheet> influencingCellPositions,
                                         ArrayList<EffectiveValueExpression> expressions);
-
-    abstract public String getDocumentation();
 }
