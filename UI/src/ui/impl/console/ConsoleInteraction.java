@@ -36,7 +36,6 @@ public class ConsoleInteraction implements Ui {
         }
     }
 
-    @Override
     public void checkIfThereIsData() {
         if (!engine.isDataLoaded()) {
             throw new NoDataLoadedException();

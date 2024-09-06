@@ -3,6 +3,7 @@ package ui.impl.graphic.components.file;
 import engine.api.Engine;
 import javafx.event.ActionEvent;
 import javafx.fxml.FXML;
+import javafx.scene.control.Alert;
 import javafx.scene.control.Button;
 import javafx.scene.control.Label;
 import javafx.stage.FileChooser;
@@ -15,9 +16,14 @@ public class LoadFileController {
     @FXML private Button LoadFileButton;
 
     private MainAppController mainAppController;
+    private String absoluteFilePath;
 
     public void setMainController(MainAppController mainAppController) {
         this.mainAppController = mainAppController;
+    }
+
+    public String getAbsolutePath() {
+        return absoluteFilePath;
     }
 
     @FXML
@@ -32,8 +38,19 @@ public class LoadFileController {
             return;
         }
 
-        String absolutePath = selectedFile.getAbsolutePath();
-        FilePathLabel.setText(absolutePath);
+        this.absoluteFilePath = selectedFile.getAbsolutePath();
+        // ask from main controller for permission to approve file
         mainAppController.loadFile();
+        if (mainAppController.getIsFileSelected()) {
+            FilePathLabel.setText(absoluteFilePath);
+        }
+    }
+
+    public void fileIsNotValid(String errorMessage) {
+        Alert dialog = new Alert(Alert.AlertType.ERROR);
+        dialog.setTitle("Error with loading file");
+        dialog.setHeaderText(errorMessage);
+        dialog.setContentText("Please try again!");
+        dialog.showAndWait();
     }
 }

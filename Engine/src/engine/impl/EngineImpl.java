@@ -37,8 +37,8 @@ public class EngineImpl implements Engine {
             Cell cell = entry.getValue();
             CellDto cellDto;
             if (cell == null) {
-                EffectiveValue effectiveValue = new EffectiveValue(CellType.STRING, " ");
-                cellDto = new CellDto(" ", effectiveValue, effectiveValue, new LinkedList<>(), new LinkedList<>());
+                EffectiveValue effectiveValue = new EffectiveValue(CellType.UNKNOWN, "");
+                cellDto = new CellDto("", effectiveValue, effectiveValue, new LinkedList<>(), new LinkedList<>());
             }
             else {
                 cellDto = new CellDto(cell.getOriginalValue(), cell.getEffectiveValue(), getEffectiveValueForDisplay(cell), cell.getInfluencedBy(), cell.getInfluences());
@@ -107,7 +107,7 @@ public class EngineImpl implements Engine {
         Cell cell = sheet.getCell(cellPosition);
 
         if (cell == null) {
-            throw new NotExistsCellException(cellPosition);
+            return 0;
         }
 
         return cell.getLastUpdatedInVersion();
@@ -322,5 +322,10 @@ public class EngineImpl implements Engine {
     @Override
     public int getSheetColumnWidth() {
         return sheetManager.getSheetDimension().getColumnWidth();
+    }
+
+    @Override
+    public SheetDimension getSheetDimension() {
+        return sheetManager.getSheetDimension();
     }
 }

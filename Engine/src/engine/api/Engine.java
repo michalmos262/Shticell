@@ -3,6 +3,7 @@ package engine.api;
 import engine.entity.dto.CellDto;
 import engine.entity.cell.CellPositionInSheet;
 import engine.entity.dto.SheetDto;
+import engine.entity.sheet.impl.SheetDimension;
 
 import java.io.IOException;
 import java.util.List;
@@ -32,4 +33,5 @@ public interface Engine {
     int getNumOfSheetColumns();
     int getSheetRowHeight();
     int getSheetColumnWidth();
+    SheetDimension getSheetDimension();
 }
