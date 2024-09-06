@@ -1,0 +1,11 @@
+.label {
+    -fx-background-color: white;
+    -fx-border-color: black;
+    -fx-padding: 10;
+    -fx-text-fill: black;
+}
+
+.label:hover {
+    -fx-background-color: lightblue;
+    -fx-text-fill: blue;
+}

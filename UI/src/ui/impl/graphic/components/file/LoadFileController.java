@@ -3,10 +3,10 @@ package ui.impl.graphic.components.file;
 import engine.api.Engine;
 import javafx.event.ActionEvent;
 import javafx.fxml.FXML;
-import javafx.scene.control.Alert;
 import javafx.scene.control.Button;
 import javafx.scene.control.Label;
 import javafx.stage.FileChooser;
+import ui.impl.graphic.components.alert.AlertsHandler;
 import ui.impl.graphic.components.app.MainAppController;
 
 import java.io.File;
@@ -46,11 +46,7 @@ public class LoadFileController {
         }
     }
 
-    public void fileIsNotValid(String errorMessage) {
-        Alert dialog = new Alert(Alert.AlertType.ERROR);
-        dialog.setTitle("Error with loading file");
-        dialog.setHeaderText(errorMessage);
-        dialog.setContentText("Please try again!");
-        dialog.showAndWait();
+    public void loadFileFailed(String errorMessage) {
+        AlertsHandler.HandleErrorAlert("Error on loading file", errorMessage);
     }
 }
