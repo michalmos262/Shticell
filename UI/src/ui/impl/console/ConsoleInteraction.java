@@ -177,7 +177,7 @@ public class ConsoleInteraction implements Ui {
     }
 
     private void printVersion2updatedCellsCountAsTable() {
-        Map<Integer, Integer> version2updatedCellsCount = engine.getSheetVersions();
+        Map<Integer, Integer> version2updatedCellsCount = engine.getVersion2updatedCellsCount();
 
         System.out.printf("%-10s %-10s%n", "Version", "Updated cells amount");
         System.out.println("-------------------------------");

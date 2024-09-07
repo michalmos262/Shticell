@@ -22,7 +22,8 @@ public interface Engine {
     List<CellPositionInSheet> getInfluencedByList(int row, int column, int sheetVersion);
     List<CellPositionInSheet> getInfluencesList(int row, int column, int sheetVersion);
     void updateSheetCell(int row, int column, String newValue);
-    Map<Integer, Integer> getSheetVersions();
+    Map<Integer, Integer> getVersion2updatedCellsCount();
+    Map<Integer, SheetDto> getVersion2sheet();
     void validateSheetVersionExists(int version);
     CellPositionInSheet getCellPositionInSheet(int row, int column);
     CellPositionInSheet getCellPositionInSheet(String position);

@@ -1,11 +1,13 @@
 .label {
     -fx-border-color: black;
     -fx-text-fill: black;
+    -fx-max-width: Infinity;
+    -fx-max-height: Infinity;
+    -fx-alignment: top-left;
 }
 
 .cell {
     -fx-background-color: white;
-    -fx-alignment: top-left;
 }
 
 .cell:hover {

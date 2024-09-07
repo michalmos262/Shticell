@@ -8,7 +8,6 @@ import engine.entity.sheet.impl.SheetDimension;
 import engine.entity.dto.SheetDto;
 import engine.entity.sheet.impl.SheetImpl;
 import engine.entity.sheet.impl.SheetManager;
-import engine.exception.cell.NotExistsCellException;
 import engine.exception.file.FileAlreadyExistsException;
 import engine.exception.file.FileNotExistException;
 import engine.exception.file.InvalidFileTypeException;
@@ -270,7 +269,7 @@ public class EngineImpl implements Engine {
     }
 
     @Override
-    public Map<Integer, Integer> getSheetVersions() {
+    public Map<Integer, Integer> getVersion2updatedCellsCount() {
         Map<Integer, Integer> version2updatedCellsCount = new HashMap<>();
 
         sheetManager.getVersion2sheet().forEach((version, sheet) ->
@@ -280,8 +279,18 @@ public class EngineImpl implements Engine {
     }
 
     @Override
+    public Map<Integer, SheetDto> getVersion2sheet() {
+        Map<Integer, SheetDto> version2sheet = new HashMap<>();
+
+        sheetManager.getVersion2sheet().forEach((version, sheet) ->
+                version2sheet.put(version, createSheetDto(sheet)));
+
+        return version2sheet;
+    }
+
+    @Override
     public void validateSheetVersionExists(int version) {
-        Map<Integer, Integer> version2updatedCellsCount = getSheetVersions();
+        Map<Integer, Integer> version2updatedCellsCount = getVersion2updatedCellsCount();
 
         if (!version2updatedCellsCount.containsKey(version)) {
             throw new IllegalArgumentException();

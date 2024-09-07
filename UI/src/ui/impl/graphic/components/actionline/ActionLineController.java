@@ -15,15 +15,21 @@ public class ActionLineController {
     @FXML private Label originalCellValueLabel;
     @FXML private Label selectedCellIdLabel;
     @FXML private Button updateValueButton;
+    @FXML private ComboBox<Integer> selectSheetVersionSelector;
 
     private MainAppController mainAppController;
 
     public void setMainController(MainAppController mainAppController) {
         this.mainAppController = mainAppController;
-        this.updateValueButton.disableProperty().bind(mainAppController.isAnyCellClickedProperty().not());
+        updateValueButton.disableProperty().bind(mainAppController.isAnyCellClickedProperty().not());
+        selectSheetVersionSelector.disableProperty().bind(mainAppController.isDataLoadedProperty().not());
         selectedCellIdLabel.textProperty().bind(Bindings.concat("Cell ID: ", mainAppController.selectedCellIdProperty()));
         originalCellValueLabel.textProperty().bind(Bindings.concat("Original Value: ", mainAppController.selectedCellOriginalValueProperty()));
         lastCellVersionLabel.textProperty().bind(Bindings.concat("Last Cell Version: ", mainAppController.selectedCellLastVersionProperty()));
+
+        mainAppController.currentSheetVersionProperty().addListener((obs, oldValue, newValue) ->
+                selectSheetVersionSelector.getItems().add(newValue.intValue())
+        );
     }
 
     @FXML
@@ -88,11 +94,20 @@ public class ActionLineController {
         dialog.showAndWait().ifPresent(result -> mainAppController.updateCell(result));
     }
 
+    @FXML
+    void SelectSheetVersionSelectorListener(ActionEvent event) {
+        mainAppController.selectSheetVersion(selectSheetVersionSelector.getSelectionModel().getSelectedItem());
+    }
+
     public void updateCellFailed(String errorMessage) {
         AlertsHandler.HandleErrorAlert("Error on updating cell", errorMessage);
     }
 
     public void updateCellSucceeded() {
         AlertsHandler.HandleOkAlert("Update succeeded!");
+    }
+
+    public void newFileIsLoaded() {
+        selectSheetVersionSelector.getItems().clear();
     }
 }

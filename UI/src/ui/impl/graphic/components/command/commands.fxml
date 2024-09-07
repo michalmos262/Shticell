@@ -1,13 +1,13 @@
 <?xml version="1.0" encoding="UTF-8"?>
 
 <?import javafx.geometry.Insets?>
+<?import javafx.scene.control.Button?>
 <?import javafx.scene.control.Label?>
-<?import javafx.scene.control.ScrollPane?>
 <?import javafx.scene.layout.BorderPane?>
 <?import javafx.scene.layout.VBox?>
 <?import javafx.scene.text.Font?>
 
-<BorderPane maxHeight="-Infinity" maxWidth="-Infinity" minHeight="-Infinity" minWidth="-Infinity" prefHeight="280.0" prefWidth="150.0" xmlns="http://javafx.com/javafx/22" xmlns:fx="http://javafx.com/fxml/1">
+<BorderPane maxHeight="-Infinity" maxWidth="-Infinity" minHeight="-Infinity" minWidth="-Infinity" prefHeight="280.0" prefWidth="150.0" xmlns="http://javafx.com/javafx/22" xmlns:fx="http://javafx.com/fxml/1" fx:controller="ui.impl.graphic.components.command.CommandsController">
    <top>
       <Label id="commands-label" alignment="TOP_LEFT" contentDisplay="TOP" prefHeight="33.0" prefWidth="192.0" style="-fx-alignment: center;" text="Commands" textFill="#050000">
          <font>
@@ -19,10 +19,28 @@
       </Label>
    </top>
    <center>
-      <ScrollPane BorderPane.alignment="CENTER">
-         <content>
-            <VBox prefHeight="243.0" prefWidth="145.0" />
-         </content>
-      </ScrollPane>
+      <VBox prefHeight="243.0" prefWidth="145.0" spacing="20.0">
+         <opaqueInsets>
+            <Insets/>
+         </opaqueInsets>
+         <Button fx:id="setSheetPropertiesButton" alignment="CENTER" contentDisplay="CENTER" mnemonicParsing="false"
+                 onAction="#setSheetPropertiesButtonListener" text="Set sheet properties" textAlignment="CENTER">
+            <VBox.margin>
+               <Insets left="5.0"/>
+            </VBox.margin>
+         </Button>
+         <Button fx:id="sortSheetByColumnButton" alignment="CENTER" contentDisplay="CENTER" mnemonicParsing="false"
+                 onAction="#sortSheetByColumnButtonListener" text="Sort sheet by column" textAlignment="CENTER">
+            <VBox.margin>
+               <Insets left="5.0"/>
+            </VBox.margin>
+         </Button>
+         <Button fx:id="filterSheetByColumnButton" alignment="CENTER" contentDisplay="CENTER" mnemonicParsing="false"
+                 onAction="#filterSheetByColumnButtonListener" text="Filter sheet by column" textAlignment="CENTER">
+            <VBox.margin>
+               <Insets left="5.0"/>
+            </VBox.margin>
+         </Button>
+      </VBox>
    </center>
 </BorderPane>

@@ -37,17 +37,19 @@ public class MainAppController {
     private SimpleStringProperty selectedCellId;
     private SimpleStringProperty selectedCellOriginalValue;
     private SimpleIntegerProperty selectedCellLastVersion;
+    private SimpleIntegerProperty currentSheetVersion;
     private Map<CellPositionInSheet, SimpleStringProperty> cellPosition2displayedValue;
 
     @FXML
     public void initialize() {
-        cellPosition2displayedValue = new HashMap<>();
         isDataLoaded = new SimpleBooleanProperty(false);
         isAnyCellClicked = new SimpleBooleanProperty(false);
         selectedFileAbsolutePath = new SimpleStringProperty("");
         selectedCellId = new SimpleStringProperty("");
         selectedCellOriginalValue = new SimpleStringProperty("");
         selectedCellLastVersion = new SimpleIntegerProperty();
+        currentSheetVersion = new SimpleIntegerProperty();
+        cellPosition2displayedValue = new HashMap<>();
 
         if (loadFileComponentController != null && sheetComponentController != null && actionLineComponent != null) {
             loadFileComponentController.setMainController(this);
@@ -88,8 +90,16 @@ public class MainAppController {
         return primaryStage;
     }
 
+    public SimpleIntegerProperty currentSheetVersionProperty() {
+        return currentSheetVersion;
+    }
+
     public Map<CellPositionInSheet, SimpleStringProperty> getCellPosition2displayedValue() {
         return cellPosition2displayedValue;
+    }
+
+    public SimpleBooleanProperty isDataLoadedProperty() {
+        return isDataLoaded;
     }
 
     public void loadFile() {
@@ -105,8 +115,9 @@ public class MainAppController {
             SheetDimension sheetDimension = businessLogic.getSheetDimension();
             SheetDto sheetDto = businessLogic.getSheet(businessLogic.getCurrentSheetVersion());
 
-            sheetComponentController.initGrid(sheetDimension, sheetDto);
-            //TODO: set ranges
+            actionLineComponentController.newFileIsLoaded();
+            sheetComponentController.initMainGrid(sheetDimension, sheetDto);
+            currentSheetVersion.set(1);
 
         } catch (Exception e) {
             loadFileComponentController.loadFileFailed(e.getMessage());
@@ -144,9 +155,19 @@ public class MainAppController {
                 CellDto influencedCell = businessLogic.getCell(influencedPosition.getRow(), influencedPosition.getColumn(), businessLogic.getCurrentSheetVersion());
                 visibleValue.setValue(influencedCell.getEffectiveValueForDisplay().toString());
             });
+            sheetComponentController.updateCell(cellDto);
+            int currentVersion = businessLogic.getCurrentSheetVersion();
+            currentSheetVersion.set(currentVersion);
             actionLineComponentController.updateCellSucceeded();
         } catch (Exception e) {
             actionLineComponentController.updateCellFailed(e.getMessage());
         }
+    }
+
+    public void selectSheetVersion(int version) {
+        SheetDto sheetDto = businessLogic.getSheet(version);
+        SheetDimension sheetDimension = businessLogic.getSheetDimension();
+
+        sheetComponentController.showSheetInVersion(sheetDimension, sheetDto, version);
     }
 }

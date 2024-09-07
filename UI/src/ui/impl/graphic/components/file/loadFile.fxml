@@ -9,8 +9,8 @@
 
 <GridPane maxHeight="-Infinity" maxWidth="-Infinity" minHeight="-Infinity" minWidth="-Infinity" prefHeight="38.0" prefWidth="613.0" xmlns="http://javafx.com/javafx/22" xmlns:fx="http://javafx.com/fxml/1" fx:controller="ui.impl.graphic.components.file.LoadFileController">
     <columnConstraints>
-        <ColumnConstraints hgrow="SOMETIMES" maxWidth="295.20001220703125" minWidth="10.0" prefWidth="66.80004119873047" />
-        <ColumnConstraints hgrow="SOMETIMES" maxWidth="533.1999588012695" minWidth="10.0" prefWidth="533.1999588012695" />
+        <ColumnConstraints hgrow="SOMETIMES" maxWidth="295.20001220703125" minWidth="10.0" prefWidth="133.2" />
+        <ColumnConstraints hgrow="SOMETIMES" maxWidth="533.1999588012695" minWidth="10.0" prefWidth="479.2000000000001" />
     </columnConstraints>
     <rowConstraints>
         <RowConstraints minHeight="10.0" prefHeight="30.0" vgrow="SOMETIMES" />
@@ -22,7 +22,7 @@
     </Label>
     <Button fx:id="loadFileButton" mnemonicParsing="false" onAction="#LoadFileButtonListener" text="Load File">
         <GridPane.margin>
-          <Insets left="5.0" />
+          <Insets left="30.0" />
         </GridPane.margin>
     </Button>
 </GridPane>

@@ -21,7 +21,7 @@
                 <fx:include fx:id="commandsComponent" source="../command/commands.fxml" />
                 <fx:include fx:id="rangesComponent" source="../range/ranges.fxml" GridPane.rowIndex="1" />
             <padding>
-               <Insets left="5.0" />
+               <Insets left="15.0" />
             </padding>
             </GridPane>
         </left>
