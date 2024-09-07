@@ -2,60 +2,59 @@
 
 <?import javafx.geometry.Insets?>
 <?import javafx.scene.control.Button?>
+<?import javafx.scene.control.ComboBox?>
 <?import javafx.scene.control.Label?>
 <?import javafx.scene.layout.ColumnConstraints?>
 <?import javafx.scene.layout.GridPane?>
 <?import javafx.scene.layout.RowConstraints?>
 
-<GridPane maxHeight="-Infinity" maxWidth="-Infinity" minHeight="-Infinity" minWidth="-Infinity" prefHeight="42.0"
-          prefWidth="923.0" xmlns="http://javafx.com/javafx/22">
+<GridPane maxHeight="-Infinity" maxWidth="-Infinity" minHeight="-Infinity" minWidth="-Infinity" prefHeight="42.0" prefWidth="1009.0" xmlns="http://javafx.com/javafx/22" xmlns:fx="http://javafx.com/fxml/1" fx:controller="ui.impl.graphic.components.actionline.ActionLineController">
     <columnConstraints>
-        <ColumnConstraints hgrow="SOMETIMES" maxWidth="787.6000122070312" minWidth="10.0"
-                           prefWidth="787.6000122070312"/>
-        <ColumnConstraints hgrow="SOMETIMES" maxWidth="447.5999755859375" minWidth="10.0"
-                           prefWidth="134.59998779296882"/>
+        <ColumnConstraints hgrow="SOMETIMES" maxWidth="818.800048828125" minWidth="10.0" prefWidth="802.4000244140625" />
+        <ColumnConstraints hgrow="SOMETIMES" maxWidth="447.5999755859375" minWidth="10.0" prefWidth="207.19997558593752" />
     </columnConstraints>
     <rowConstraints>
-        <RowConstraints minHeight="10.0" prefHeight="30.0" vgrow="SOMETIMES"/>
+        <RowConstraints minHeight="10.0" prefHeight="30.0" vgrow="SOMETIMES" />
     </rowConstraints>
-    <GridPane prefHeight="42.0" prefWidth="622.0">
+    <GridPane prefHeight="42.0" prefWidth="641.0" style="-fx-border-color: black;">
         <columnConstraints>
-            <ColumnConstraints hgrow="SOMETIMES" maxWidth="211.4000244140625" minWidth="10.0"
-                               prefWidth="146.60000610351562"/>
-            <ColumnConstraints hgrow="SOMETIMES" maxWidth="319.40003662109376" minWidth="10.0" prefWidth="289.8"/>
-            <ColumnConstraints hgrow="SOMETIMES" maxWidth="214.0000122070312" minWidth="10.0"
-                               prefWidth="146.19999999999993"/>
-            <ColumnConstraints hgrow="SOMETIMES" maxWidth="129.5999755859375" minWidth="10.0"
-                               prefWidth="118.20003662109377"/>
+            <ColumnConstraints hgrow="SOMETIMES" maxWidth="211.4000244140625" minWidth="10.0" prefWidth="109.6" />
+            <ColumnConstraints hgrow="SOMETIMES" maxWidth="319.40003662109376" minWidth="10.0" prefWidth="278.0" />
+            <ColumnConstraints hgrow="SOMETIMES" maxWidth="214.0000122070312" minWidth="10.0" prefWidth="140.000048828125" />
+            <ColumnConstraints hgrow="SOMETIMES" maxWidth="212.40003662109382" minWidth="10.0" prefWidth="142.8000305175782" />
         </columnConstraints>
         <rowConstraints>
-            <RowConstraints minHeight="10.0" prefHeight="30.0" vgrow="SOMETIMES"/>
+            <RowConstraints minHeight="10.0" prefHeight="30.0" vgrow="SOMETIMES" />
         </rowConstraints>
-        <Label text="Last cell version" GridPane.columnIndex="3">
+        <Label fx:id="lastCellVersionLabel" prefWidth="100.0" text="Last Cell Version" GridPane.columnIndex="3">
             <GridPane.margin>
-                <Insets left="20.0"/>
+                <Insets />
             </GridPane.margin>
         </Label>
-        <Button mnemonicParsing="false" text="Update Value" GridPane.columnIndex="2">
+        <Button fx:id="updateValueButton" mnemonicParsing="false" onAction="#UpdateValueButtonListener" text="Update value" GridPane.columnIndex="2">
             <GridPane.margin>
-                <Insets left="40.0"/>
+                <Insets left="40.0" />
             </GridPane.margin>
         </Button>
-        <Label text="Selected Cell ID">
+        <Label fx:id="selectedCellIdLabel" text="Cell ID">
             <GridPane.margin>
-                <Insets left="10.0"/>
+                <Insets left="30.0" />
             </GridPane.margin>
         </Label>
-        <Label text="Original Cell Value" GridPane.columnIndex="1">
+        <Label fx:id="originalCellValueLabel" text="Original Value" GridPane.columnIndex="1">
             <GridPane.margin>
-                <Insets left="10.0"/>
+                <Insets left="10.0" />
             </GridPane.margin>
         </Label>
     </GridPane>
-    <Button mnemonicParsing="false" prefHeight="25.0" prefWidth="120.0" text="Version Selector"
-            GridPane.columnIndex="1">
-        <GridPane.margin>
-          <Insets left="7.0"/>
-        </GridPane.margin>
-    </Button>
+   <ComboBox fx:id="selectSheetVersionSelector" onAction="#SelectSheetVersionSelectorListener" prefHeight="25.0" prefWidth="78.0" GridPane.columnIndex="1">
+      <GridPane.margin>
+         <Insets left="120.0" />
+      </GridPane.margin>
+   </ComboBox>
+   <Label text="Select sheet version:" GridPane.columnIndex="1">
+      <GridPane.margin>
+         <Insets left="10.0" />
+      </GridPane.margin>
+   </Label>
 </GridPane>

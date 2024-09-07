@@ -9,7 +9,9 @@ import ui.impl.graphic.components.app.MainAppController;
 import ui.impl.graphic.model.BusinessLogic;
 
 import java.net.URL;
+import java.util.Objects;
 
+import static ui.impl.graphic.resources.CommonResourcesPaths.GRID_CSS_RESOURCE;
 import static ui.impl.graphic.resources.CommonResourcesPaths.MAIN_APP_FXML_RESOURCE;
 
 public class Main extends Application {
@@ -36,7 +38,8 @@ public class Main extends Application {
 
         // set stage
         primaryStage.setTitle("Shticell");
-        Scene scene = new Scene(root, 500, 550);
+        Scene scene = new Scene(root, 1100, 770);
+//        scene.getStylesheets().add(Objects.requireNonNull(getClass().getResource(GRID_CSS_RESOURCE)).toExternalForm());
         primaryStage.setScene(scene);
         primaryStage.show();
     }

@@ -8,7 +8,6 @@ import engine.entity.sheet.impl.SheetDimension;
 import engine.entity.dto.SheetDto;
 import engine.entity.sheet.impl.SheetImpl;
 import engine.entity.sheet.impl.SheetManager;
-import engine.exception.cell.NotExistsCellException;
 import engine.exception.file.FileAlreadyExistsException;
 import engine.exception.file.FileNotExistException;
 import engine.exception.file.InvalidFileTypeException;
@@ -37,8 +36,8 @@ public class EngineImpl implements Engine {
             Cell cell = entry.getValue();
             CellDto cellDto;
             if (cell == null) {
-                EffectiveValue effectiveValue = new EffectiveValue(CellType.STRING, " ");
-                cellDto = new CellDto(" ", effectiveValue, effectiveValue, new LinkedList<>(), new LinkedList<>());
+                EffectiveValue effectiveValue = new EffectiveValue(CellType.UNKNOWN, "");
+                cellDto = new CellDto("", effectiveValue, effectiveValue, new LinkedList<>(), new LinkedList<>());
             }
             else {
                 cellDto = new CellDto(cell.getOriginalValue(), cell.getEffectiveValue(), getEffectiveValueForDisplay(cell), cell.getInfluencedBy(), cell.getInfluences());
@@ -107,7 +106,7 @@ public class EngineImpl implements Engine {
         Cell cell = sheet.getCell(cellPosition);
 
         if (cell == null) {
-            throw new NotExistsCellException(cellPosition);
+            return 0;
         }
 
         return cell.getLastUpdatedInVersion();
@@ -270,7 +269,7 @@ public class EngineImpl implements Engine {
     }
 
     @Override
-    public Map<Integer, Integer> getSheetVersions() {
+    public Map<Integer, Integer> getVersion2updatedCellsCount() {
         Map<Integer, Integer> version2updatedCellsCount = new HashMap<>();
 
         sheetManager.getVersion2sheet().forEach((version, sheet) ->
@@ -280,8 +279,18 @@ public class EngineImpl implements Engine {
     }
 
     @Override
+    public Map<Integer, SheetDto> getVersion2sheet() {
+        Map<Integer, SheetDto> version2sheet = new HashMap<>();
+
+        sheetManager.getVersion2sheet().forEach((version, sheet) ->
+                version2sheet.put(version, createSheetDto(sheet)));
+
+        return version2sheet;
+    }
+
+    @Override
     public void validateSheetVersionExists(int version) {
-        Map<Integer, Integer> version2updatedCellsCount = getSheetVersions();
+        Map<Integer, Integer> version2updatedCellsCount = getVersion2updatedCellsCount();
 
         if (!version2updatedCellsCount.containsKey(version)) {
             throw new IllegalArgumentException();
@@ -322,5 +331,10 @@ public class EngineImpl implements Engine {
     @Override
     public int getSheetColumnWidth() {
         return sheetManager.getSheetDimension().getColumnWidth();
+    }
+
+    @Override
+    public SheetDimension getSheetDimension() {
+        return sheetManager.getSheetDimension();
     }
 }

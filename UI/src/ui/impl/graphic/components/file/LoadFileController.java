@@ -6,18 +6,25 @@ import javafx.fxml.FXML;
 import javafx.scene.control.Button;
 import javafx.scene.control.Label;
 import javafx.stage.FileChooser;
+import ui.impl.graphic.components.alert.AlertsHandler;
 import ui.impl.graphic.components.app.MainAppController;
 
 import java.io.File;
 
 public class LoadFileController {
-    @FXML private Label FilePathLabel;
-    @FXML private Button LoadFileButton;
+    @FXML private Label filePathLabel;
+    @FXML private Button loadFileButton;
 
     private MainAppController mainAppController;
+    private String absoluteFilePath;
 
     public void setMainController(MainAppController mainAppController) {
         this.mainAppController = mainAppController;
+        filePathLabel.textProperty().bind(mainAppController.selectedFileAbsolutePathProperty());
+    }
+
+    public String getAbsolutePath() {
+        return absoluteFilePath;
     }
 
     @FXML
@@ -32,8 +39,11 @@ public class LoadFileController {
             return;
         }
 
-        String absolutePath = selectedFile.getAbsolutePath();
-        FilePathLabel.setText(absolutePath);
+        this.absoluteFilePath = selectedFile.getAbsolutePath();
         mainAppController.loadFile();
+    }
+
+    public void loadFileFailed(String errorMessage) {
+        AlertsHandler.HandleErrorAlert("Error on loading file", errorMessage);
     }
 }

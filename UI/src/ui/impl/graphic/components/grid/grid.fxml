@@ -1,87 +1,11 @@
 <?xml version="1.0" encoding="UTF-8"?>
 
-<?import javafx.geometry.Insets?>
-<?import javafx.scene.control.Label?>
 <?import javafx.scene.control.ScrollPane?>
-<?import javafx.scene.layout.ColumnConstraints?>
 <?import javafx.scene.layout.GridPane?>
-<?import javafx.scene.layout.RowConstraints?>
 
 
-<ScrollPane prefHeight="584.0" prefWidth="756.0" xmlns="http://javafx.com/javafx/22">
-    <GridPane id="sheet-grid" maxHeight="-Infinity" maxWidth="-Infinity" minHeight="-Infinity" minWidth="-Infinity"
-              prefHeight="292.0" prefWidth="292.0">
-        <columnConstraints>
-            <ColumnConstraints hgrow="SOMETIMES" maxWidth="50.0" minWidth="50.0" prefWidth="50.0"/>
-            <ColumnConstraints hgrow="SOMETIMES" maxWidth="80.0" minWidth="80.0" prefWidth="80.0"/>
-            <ColumnConstraints hgrow="SOMETIMES" maxWidth="80.0" minWidth="80.0" prefWidth="80.0"/>
-            <ColumnConstraints hgrow="SOMETIMES" maxWidth="80.0" minWidth="80.0" prefWidth="80.0"/>
-        </columnConstraints>
-        <rowConstraints>
-            <RowConstraints maxHeight="50.0" minHeight="50.0" prefHeight="50.0" vgrow="SOMETIMES"/>
-            <RowConstraints maxHeight="80.0" minHeight="80.0" prefHeight="80.0" vgrow="SOMETIMES"/>
-            <RowConstraints maxHeight="80.0" minHeight="80.0" prefHeight="80.0" vgrow="SOMETIMES"/>
-            <RowConstraints maxHeight="80.0" minHeight="80.0" prefHeight="80.0" vgrow="SOMETIMES"/>
-        </rowConstraints>
-        <Label contentDisplay="CENTER" prefHeight="118.0" prefWidth="182.0" text="cellC1" GridPane.columnIndex="3"
-               GridPane.rowIndex="1">
-            <padding>
-                <Insets bottom="2.0" left="2.0" right="2.0"/>
-            </padding>
-        </Label>
-        <Label contentDisplay="CENTER" layoutX="210.0" layoutY="13.0" prefHeight="127.0" prefWidth="192.0"
-               text="cellB1" GridPane.columnIndex="2" GridPane.rowIndex="1">
-            <padding>
-                <Insets bottom="2.0" left="2.0" right="2.0"/>
-            </padding>
-        </Label>
-        <Label contentDisplay="CENTER" prefHeight="127.0" prefWidth="192.0" text="cellA2" GridPane.columnIndex="1"
-               GridPane.rowIndex="2">
-            <padding>
-                <Insets bottom="2.0" left="2.0" right="2.0"/>
-            </padding>
-        </Label>
-        <Label contentDisplay="CENTER" prefHeight="127.0" prefWidth="192.0" text="cellB2" GridPane.columnIndex="2"
-               GridPane.rowIndex="2">
-            <padding>
-                <Insets bottom="2.0" left="2.0" right="2.0"/>
-            </padding>
-        </Label>
-        <Label contentDisplay="CENTER" prefHeight="127.0" prefWidth="192.0" text="cellC2" GridPane.columnIndex="3"
-               GridPane.rowIndex="2">
-            <padding>
-                <Insets bottom="2.0" left="2.0" right="2.0"/>
-            </padding>
-        </Label>
-        <Label contentDisplay="CENTER" prefHeight="127.0" prefWidth="192.0" text="cellA3" GridPane.columnIndex="1"
-               GridPane.rowIndex="3">
-            <padding>
-                <Insets bottom="2.0" left="2.0" right="2.0"/>
-            </padding>
-        </Label>
-        <Label contentDisplay="CENTER" prefHeight="127.0" prefWidth="192.0" text="cellB3" GridPane.columnIndex="2"
-               GridPane.rowIndex="3">
-            <padding>
-                <Insets bottom="2.0" left="2.0" right="2.0"/>
-            </padding>
-        </Label>
-        <Label prefHeight="17.0" prefWidth="89.0" text="A" GridPane.columnIndex="1"/>
-        <Label prefHeight="17.0" prefWidth="46.0" style="-fx-alignment: center;" text="1" GridPane.rowIndex="1"/>
-        <Label prefHeight="17.0" prefWidth="89.0" text="C" GridPane.columnIndex="3"/>
-        <Label prefHeight="17.0" prefWidth="89.0" text="B" GridPane.columnIndex="2"/>
-        <Label prefHeight="17.0" prefWidth="46.0" style="-fx-alignment: center;" text="2" GridPane.rowIndex="2"/>
-        <Label prefHeight="17.0" prefWidth="46.0" style="-fx-alignment: center;" text="3" GridPane.rowIndex="3"/>
-        <Label id="cell-id" contentDisplay="CENTER" prefHeight="127.0" prefWidth="192.0" text="cellA1"
-               GridPane.columnIndex="1" GridPane.rowIndex="1">
-            <padding>
-                <Insets bottom="2.0" left="2.0" right="2.0"/>
-            </padding>
-        </Label>
-        <Label contentDisplay="CENTER" prefHeight="127.0" prefWidth="192.0" text="cellC3" GridPane.columnIndex="3"
-               GridPane.rowIndex="3">
-            <padding>
-                <Insets bottom="2.0" left="2.0" right="2.0"/>
-            </padding>
-        </Label>
+<ScrollPane fx:id="scrollPane" xmlns="http://javafx.com/javafx/22" xmlns:fx="http://javafx.com/fxml/1" stylesheets="@grid.css" fx:controller="ui.impl.graphic.components.grid.GridController">
+    <GridPane fx:id="gridPane">
+        
     </GridPane>
 </ScrollPane>
