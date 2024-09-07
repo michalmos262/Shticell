@@ -33,6 +33,10 @@ public class BusinessLogic {
         return engine.getSheet(sheetVersion);
     }
 
+    public CellDto getCell(int row, int column, int version) {
+        return engine.findCellInSheet(row, column, version);
+    }
+
     public int getLastCellVersion(CellPositionInSheet cellPositionInSheet) {
         return engine.getLastCellVersion(cellPositionInSheet.getRow(), cellPositionInSheet.getColumn());
     }
@@ -43,6 +47,6 @@ public class BusinessLogic {
 
         engine.updateSheetCell(row, column, newCellValue);
 
-        return engine.findCellInSheet(row, column, getCurrentSheetVersion());
+        return getCell(row, column, getCurrentSheetVersion());
     }
 }

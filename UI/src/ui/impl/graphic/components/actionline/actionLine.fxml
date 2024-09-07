@@ -25,7 +25,7 @@
         <rowConstraints>
             <RowConstraints minHeight="10.0" prefHeight="30.0" vgrow="SOMETIMES" />
         </rowConstraints>
-        <Label fx:id="lastCellVersionLabel" GridPane.columnIndex="3">
+        <Label fx:id="lastCellVersionLabel" text="Last Cell Version" GridPane.columnIndex="3">
             <GridPane.margin>
                 <Insets left="20.0" />
             </GridPane.margin>
@@ -35,12 +35,12 @@
                 <Insets left="40.0" />
             </GridPane.margin>
         </Button>
-        <Label fx:id="selectedCellIdLabel">
+        <Label fx:id="selectedCellIdLabel" text="Cell ID">
             <GridPane.margin>
                 <Insets left="10.0" />
             </GridPane.margin>
         </Label>
-        <Label fx:id="originalCellValueLabel" GridPane.columnIndex="1">
+        <Label fx:id="originalCellValueLabel" text="Original Value" GridPane.columnIndex="1">
             <GridPane.margin>
                 <Insets left="10.0" />
             </GridPane.margin>

@@ -1,5 +1,6 @@
 <?xml version="1.0" encoding="UTF-8"?>
 
+<?import javafx.geometry.Insets?>
 <?import javafx.scene.control.ScrollPane?>
 <?import javafx.scene.layout.BorderPane?>
 <?import javafx.scene.layout.ColumnConstraints?>
@@ -19,6 +20,9 @@
                 </rowConstraints>
                 <fx:include fx:id="commandsComponent" source="../command/commands.fxml" />
                 <fx:include fx:id="rangesComponent" source="../range/ranges.fxml" GridPane.rowIndex="1" />
+            <padding>
+               <Insets left="5.0" />
+            </padding>
             </GridPane>
         </left>
         <top>

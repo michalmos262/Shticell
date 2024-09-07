@@ -2,8 +2,6 @@ package ui.impl.graphic.components.actionline;
 
 import engine.operation.Operation;
 import javafx.beans.binding.Bindings;
-import javafx.beans.property.SimpleIntegerProperty;
-import javafx.beans.property.SimpleStringProperty;
 import javafx.event.ActionEvent;
 import javafx.fxml.FXML;
 import javafx.scene.control.*;
@@ -22,19 +20,10 @@ public class ActionLineController {
 
     public void setMainController(MainAppController mainAppController) {
         this.mainAppController = mainAppController;
-        this.updateValueButton.disableProperty().bind(mainAppController.getIsAnyCellClicked().not());
-    }
-
-    public void setLabels(SimpleStringProperty selectedCellIdProperty, SimpleStringProperty originalCellValueProperty, SimpleIntegerProperty lastCellVersionProperty) {
-        if (selectedCellIdProperty.getValue() == null) {
-            selectedCellIdProperty.set("");
-        }
-        if (originalCellValueProperty.getValue() == null) {
-            originalCellValueProperty.set("");
-        }
-        selectedCellIdLabel.textProperty().bind(Bindings.concat("Cell ID: ", selectedCellIdProperty));
-        originalCellValueLabel.textProperty().bind(Bindings.concat("Original Value: ", originalCellValueProperty));
-        lastCellVersionLabel.textProperty().bind(Bindings.concat("Last Cell Version: ", lastCellVersionProperty));
+        this.updateValueButton.disableProperty().bind(mainAppController.isAnyCellClickedProperty().not());
+        selectedCellIdLabel.textProperty().bind(Bindings.concat("Cell ID: ", mainAppController.selectedCellIdProperty()));
+        originalCellValueLabel.textProperty().bind(Bindings.concat("Original Value: ", mainAppController.selectedCellOriginalValueProperty()));
+        lastCellVersionLabel.textProperty().bind(Bindings.concat("Last Cell Version: ", mainAppController.selectedCellLastVersionProperty()));
     }
 
     @FXML
@@ -101,5 +90,9 @@ public class ActionLineController {
 
     public void updateCellFailed(String errorMessage) {
         AlertsHandler.HandleErrorAlert("Error on updating cell", errorMessage);
+    }
+
+    public void updateCellSucceeded() {
+        AlertsHandler.HandleOkAlert("Update succeeded!");
     }
 }

@@ -15,12 +15,12 @@
     <rowConstraints>
         <RowConstraints minHeight="10.0" prefHeight="30.0" vgrow="SOMETIMES" />
     </rowConstraints>
-    <Label fx:id="FilePathLabel" text="File path" GridPane.columnIndex="1">
+    <Label fx:id="filePathLabel" text="File path" GridPane.columnIndex="1">
         <GridPane.margin>
           <Insets left="5.0" />
         </GridPane.margin>
     </Label>
-    <Button fx:id="LoadFileButton" mnemonicParsing="false" onAction="#LoadFileButtonListener" text="Load File">
+    <Button fx:id="loadFileButton" mnemonicParsing="false" onAction="#LoadFileButtonListener" text="Load File">
         <GridPane.margin>
           <Insets left="5.0" />
         </GridPane.margin>

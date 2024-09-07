@@ -31,12 +31,12 @@ public class MainAppController {
 
     private Stage primaryStage;
     private BusinessLogic businessLogic;
-    private boolean isFileSelected;
     private SimpleBooleanProperty isDataLoaded;
     private SimpleBooleanProperty isAnyCellClicked;
-    private SimpleStringProperty currentClickedCellId;
-    private SimpleStringProperty currentClickedCellOriginalValue;
-    private SimpleIntegerProperty currentClickedCellLastVersion;
+    private SimpleStringProperty selectedFileAbsolutePath;
+    private SimpleStringProperty selectedCellId;
+    private SimpleStringProperty selectedCellOriginalValue;
+    private SimpleIntegerProperty selectedCellLastVersion;
     private Map<CellPositionInSheet, SimpleStringProperty> cellPosition2displayedValue;
 
     @FXML
@@ -44,30 +44,16 @@ public class MainAppController {
         cellPosition2displayedValue = new HashMap<>();
         isDataLoaded = new SimpleBooleanProperty(false);
         isAnyCellClicked = new SimpleBooleanProperty(false);
-        isFileSelected = false;
+        selectedFileAbsolutePath = new SimpleStringProperty("");
+        selectedCellId = new SimpleStringProperty("");
+        selectedCellOriginalValue = new SimpleStringProperty("");
+        selectedCellLastVersion = new SimpleIntegerProperty();
 
         if (loadFileComponentController != null && sheetComponentController != null && actionLineComponent != null) {
             loadFileComponentController.setMainController(this);
             sheetComponentController.setMainController(this);
             actionLineComponentController.setMainController(this);
         }
-
-        initActionLineLabels();
-    }
-
-    private void initActionLineLabels() {
-        currentClickedCellId = new SimpleStringProperty();
-        currentClickedCellOriginalValue = new SimpleStringProperty();
-        currentClickedCellLastVersion = new SimpleIntegerProperty();
-        actionLineComponentController.setLabels(currentClickedCellId, currentClickedCellOriginalValue, currentClickedCellLastVersion);
-    }
-
-    public boolean getIsFileSelected() {
-        return isFileSelected;
-    }
-
-    public BooleanProperty getIsAnyCellClicked() {
-        return isAnyCellClicked;
     }
 
     public void setPrimaryStage(Stage primaryStage) {
@@ -76,6 +62,26 @@ public class MainAppController {
 
     public void setBusinessLogic(BusinessLogic businessLogic) {
         this.businessLogic = businessLogic;
+    }
+
+    public BooleanProperty isAnyCellClickedProperty() {
+        return isAnyCellClicked;
+    }
+
+    public SimpleStringProperty selectedFileAbsolutePathProperty() {
+        return selectedFileAbsolutePath;
+    }
+
+    public SimpleStringProperty selectedCellIdProperty() {
+        return selectedCellId;
+    }
+
+    public SimpleStringProperty selectedCellOriginalValueProperty() {
+        return selectedCellOriginalValue;
+    }
+
+    public SimpleIntegerProperty selectedCellLastVersionProperty() {
+        return selectedCellLastVersion;
     }
 
     public Stage getPrimaryStage() {
@@ -87,13 +93,14 @@ public class MainAppController {
     }
 
     public void loadFile() {
-        isFileSelected = false;
         try {
             businessLogic.loadFile(loadFileComponentController.getAbsolutePath());
-            isFileSelected = true;
+            selectedFileAbsolutePath.set(loadFileComponentController.getAbsolutePath());
             isDataLoaded.set(true);
             isAnyCellClicked.set(false);
-            initActionLineLabels();
+            selectedCellId.set("");
+            selectedCellOriginalValue.set("");
+            selectedCellLastVersion.set(0);
 
             SheetDimension sheetDimension = businessLogic.getSheetDimension();
             SheetDto sheetDto = businessLogic.getSheet(businessLogic.getCurrentSheetVersion());
@@ -106,29 +113,38 @@ public class MainAppController {
         }
     }
 
-    public void cellClicked(String cellPositionId) {
+    public CellDto cellClicked(String cellPositionId) {
         CellPositionInSheet cellPositionInSheet = PositionFactory.createPosition(cellPositionId);
         CellDto cellDto = businessLogic.getSheet(businessLogic.getCurrentSheetVersion()).getCell(cellPositionInSheet);
         int lastCellValue = businessLogic.getLastCellVersion(cellPositionInSheet);
         String originalValue = cellDto == null ? "" : cellDto.getOriginalValue();
 
-        currentClickedCellId.set(cellPositionId);
-        currentClickedCellLastVersion.set(lastCellValue);
-        currentClickedCellOriginalValue.set(originalValue);
+        selectedCellId.set(cellPositionId);
+        selectedCellLastVersion.set(lastCellValue);
+        selectedCellOriginalValue.set(originalValue);
 
         if (!isAnyCellClicked.getValue()) {
             isAnyCellClicked.set(true);
         }
+
+        return cellDto;
     }
 
     public void updateCell(String cellNewOriginalValue) {
         try {
-            CellPositionInSheet cellPositionInSheet = PositionFactory.createPosition(currentClickedCellId.getValue());
+            CellPositionInSheet cellPositionInSheet = PositionFactory.createPosition(selectedCellId.getValue());
             CellDto cellDto = businessLogic.updateCell(cellPositionInSheet, cellNewOriginalValue);
             SimpleStringProperty strProperty = cellPosition2displayedValue.get(cellPositionInSheet);
             strProperty.setValue(cellDto.getEffectiveValueForDisplay().toString());
-            currentClickedCellOriginalValue.set(cellNewOriginalValue);
-            currentClickedCellLastVersion.set(businessLogic.getLastCellVersion(cellPositionInSheet));
+            selectedCellOriginalValue.set(cellNewOriginalValue);
+            selectedCellLastVersion.set(businessLogic.getLastCellVersion(cellPositionInSheet));
+            // Update the visible affected cells
+            cellDto.getInfluences().forEach(influencedPosition -> {
+                SimpleStringProperty visibleValue = cellPosition2displayedValue.get(influencedPosition);
+                CellDto influencedCell = businessLogic.getCell(influencedPosition.getRow(), influencedPosition.getColumn(), businessLogic.getCurrentSheetVersion());
+                visibleValue.setValue(influencedCell.getEffectiveValueForDisplay().toString());
+            });
+            actionLineComponentController.updateCellSucceeded();
         } catch (Exception e) {
             actionLineComponentController.updateCellFailed(e.getMessage());
         }
