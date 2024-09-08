@@ -8,6 +8,7 @@ import javafx.scene.control.*;
 import javafx.scene.layout.VBox;
 import ui.impl.graphic.components.alert.AlertsHandler;
 import ui.impl.graphic.components.app.MainAppController;
+import ui.impl.graphic.model.BusinessLogic;
 
 public class ActionLineController {
 
@@ -21,15 +22,21 @@ public class ActionLineController {
 
     public void setMainController(MainAppController mainAppController) {
         this.mainAppController = mainAppController;
-        updateValueButton.disableProperty().bind(mainAppController.isAnyCellClickedProperty().not());
-        selectSheetVersionSelector.disableProperty().bind(mainAppController.isDataLoadedProperty().not());
-        selectedCellIdLabel.textProperty().bind(Bindings.concat("Cell ID: ", mainAppController.selectedCellIdProperty()));
-        originalCellValueLabel.textProperty().bind(Bindings.concat("Original Value: ", mainAppController.selectedCellOriginalValueProperty()));
-        lastCellVersionLabel.textProperty().bind(Bindings.concat("Last Cell Version: ", mainAppController.selectedCellLastVersionProperty()));
+    }
 
-        mainAppController.currentSheetVersionProperty().addListener((obs, oldValue, newValue) ->
-                selectSheetVersionSelector.getItems().add(newValue.intValue())
-        );
+    public void bindToModel(BusinessLogic modelUi) {
+        updateValueButton.disableProperty().bind(modelUi.isAnyCellClickedProperty().not());
+        selectSheetVersionSelector.disableProperty().bind(modelUi.isDataLoadedProperty().not());
+        selectedCellIdLabel.textProperty().bind(Bindings.concat("Cell ID: ", modelUi.selectedCellIdProperty()));
+        originalCellValueLabel.textProperty().bind(Bindings.concat("Original Value: ", modelUi.selectedCellOriginalValueProperty()));
+        lastCellVersionLabel.textProperty().bind(Bindings.concat("Last Cell Version: ", modelUi.selectedCellLastVersionProperty()));
+
+        modelUi.currentSheetVersionProperty().addListener((obs, oldValue, newValue) -> {
+            if (newValue.equals(1)) {
+                selectSheetVersionSelector.getItems().clear();
+            }
+            selectSheetVersionSelector.getItems().add(newValue.intValue());
+        });
     }
 
     @FXML
@@ -105,9 +112,5 @@ public class ActionLineController {
 
     public void updateCellSucceeded() {
         AlertsHandler.HandleOkAlert("Update succeeded!");
-    }
-
-    public void newFileIsLoaded() {
-        selectSheetVersionSelector.getItems().clear();
     }
 }

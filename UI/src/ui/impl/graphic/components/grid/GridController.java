@@ -16,6 +16,7 @@ import javafx.scene.control.ScrollPane;
 import javafx.scene.input.MouseEvent;
 import javafx.scene.layout.GridPane;
 import ui.impl.graphic.components.app.MainAppController;
+import ui.impl.graphic.model.BusinessLogic;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -34,7 +35,7 @@ public class GridController {
         this.mainAppController = mainAppController;
     }
 
-    public void initMainGrid(SheetDimension sheetDimension, SheetDto sheetDto) {
+    public void initMainGrid(BusinessLogic modelUi, SheetDimension sheetDimension, SheetDto sheetDto) {
         int numOfRows = sheetDimension.getNumOfRows();
         int numOfColumns = sheetDimension.getNumOfColumns();
         //TODO: delete the "* 10" after creating ranges
@@ -46,7 +47,7 @@ public class GridController {
 
         setMainGridColumnsHeaders(gridPane, numOfColumns, columnWidth);
         setMainGridRowsHeaders(gridPane, numOfRows, rowHeight);
-        setMainGridCells(sheetDto, sheetDimension);
+        setMainGridCells(modelUi, sheetDto, sheetDimension);
 
         // Force a layout pass after adding new nodes
         gridPane.requestLayout();
@@ -73,8 +74,8 @@ public class GridController {
         }
     }
 
-    private void setCellLabelBinding(Label label, SheetDto sheetDto, CellPositionInSheet cellPositionInSheet) {
-        Map<CellPositionInSheet, SimpleStringProperty> cellPosition2displayedValue = mainAppController.getCellPosition2displayedValue();
+    private void setCellLabelBinding(BusinessLogic modelUi, Label label, SheetDto sheetDto, CellPositionInSheet cellPositionInSheet) {
+        Map<CellPositionInSheet, SimpleStringProperty> cellPosition2displayedValue = modelUi.getCellPosition2displayedValue();
         SimpleStringProperty strProperty = sheetDto.getCell(cellPositionInSheet) == null
                 ? new SimpleStringProperty("")
                 : new SimpleStringProperty(sheetDto.getCell(cellPositionInSheet)
@@ -83,7 +84,7 @@ public class GridController {
         label.textProperty().bind(cellPosition2displayedValue.get(cellPositionInSheet));
     }
 
-    private void setMainGridCells(SheetDto sheetDto, SheetDimension sheetDimension) {
+    private void setMainGridCells(BusinessLogic modelUi, SheetDto sheetDto, SheetDimension sheetDimension) {
         int numOfRows = sheetDimension.getNumOfRows();
         int numOfColumns = sheetDimension.getNumOfColumns();
         //TODO: delete the "* 10" after creating ranges
@@ -97,7 +98,7 @@ public class GridController {
                 Label label = new Label();
                 label.getStyleClass().add("cell");
                 label.setId((char) ('A' + col) + String.valueOf(row + 1));
-                setCellLabelBinding(label, sheetDto, cellPositionInSheet);
+                setCellLabelBinding(modelUi, label, sheetDto, cellPositionInSheet);
                 label.setPrefHeight(rowHeight);
                 label.setPrefWidth(columnWidth);
 

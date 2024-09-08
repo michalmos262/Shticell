@@ -151,7 +151,7 @@ public class EngineImpl implements Engine {
 
     @Override
     //THE FIRST UPDATE
-    public void updateSheetCell(int row, int column, String newOriginalValue) {
+    public CellDto updateSheetCell(int row, int column, String newOriginalValue) {
         Sheet clonedSheet = sheetManager.getSheetByVersion(sheetManager.getCurrentVersion()).clone();
         Set<CellPositionInSheet> visitedCellPositions = new HashSet<>();
         CellPositionInSheet cellPosition = PositionFactory.createPosition(row, column);
@@ -162,6 +162,8 @@ public class EngineImpl implements Engine {
         cellsUpdatedCounter += visitedCellPositions.size();
         clonedSheet.setUpdatedCellsCount(cellsUpdatedCounter);
         sheetManager.addNewSheet(clonedSheet);
+
+        return findCellInSheet(row, column, getCurrentSheetVersion());
     }
 
     private void setCellInfo(Sheet sheet, CellPositionInSheet cellPosition, String originalValue) {

@@ -39,7 +39,6 @@ public class Main extends Application {
         // set stage
         primaryStage.setTitle("Shticell");
         Scene scene = new Scene(root, 1100, 770);
-//        scene.getStylesheets().add(Objects.requireNonNull(getClass().getResource(GRID_CSS_RESOURCE)).toExternalForm());
         primaryStage.setScene(scene);
         primaryStage.show();
     }

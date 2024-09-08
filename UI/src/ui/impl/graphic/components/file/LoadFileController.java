@@ -8,6 +8,7 @@ import javafx.scene.control.Label;
 import javafx.stage.FileChooser;
 import ui.impl.graphic.components.alert.AlertsHandler;
 import ui.impl.graphic.components.app.MainAppController;
+import ui.impl.graphic.model.BusinessLogic;
 
 import java.io.File;
 
@@ -20,7 +21,10 @@ public class LoadFileController {
 
     public void setMainController(MainAppController mainAppController) {
         this.mainAppController = mainAppController;
-        filePathLabel.textProperty().bind(mainAppController.selectedFileAbsolutePathProperty());
+    }
+
+    public void bindToModel(BusinessLogic modelUi) {
+        filePathLabel.textProperty().bind(modelUi.selectedFileAbsolutePathProperty());
     }
 
     public String getAbsolutePath() {
