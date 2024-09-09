@@ -1,6 +1,7 @@
 package engine.testing;
 
 import engine.api.Engine;
+import engine.entity.range.Range;
 import engine.impl.EngineImpl;
 
 import java.util.Objects;
@@ -22,12 +23,16 @@ public class Testing {
         verifyOriginalValueAssertion(originalValue, actualValue, expectedValue);
     }
 
+    private static void checkRange(Engine engine) {
+        String originalValue = "{SUM,effective-grades}";
+        engine.updateSheetCell(1, 1, originalValue);
+    }
+
     public static void main(String[] args) throws Exception {
         Engine engine = new EngineImpl();
-        String filename = "C:\\Users\\asafl\\Downloads\\insurance.xml";
+        String filename = "C:\\Users\\asafl\\Downloads\\grades.xml";
         engine.loadFile(filename);
+        checkRange(engine);
 
-        checkPlus(engine);
-        System.out.println("yay");
     }
 }

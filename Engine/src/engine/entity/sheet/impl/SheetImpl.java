@@ -1,6 +1,8 @@
 package engine.entity.sheet.impl;
 
 import engine.entity.cell.*;
+import engine.entity.range.Range;
+import engine.entity.sheet.SheetManager;
 import engine.entity.sheet.api.Sheet;
 import engine.exception.cell.CellPositionOutOfSheetBoundsException;
 import engine.exception.cell.NotExistsCellException;
@@ -29,7 +31,7 @@ public class SheetImpl implements Cloneable, Sheet {
 
     @Override
     public EffectiveValue getCellEffectiveValue(CellPositionInSheet cellPosition) {
-        validatePositionInSheetBounds(cellPosition);
+        sheetManager.validatePositionInSheetBounds(cellPosition);
         if (position2cell.get(cellPosition) == null || position2cell.get(cellPosition).getEffectiveValue() == null) {
             throw new NotExistsCellException(cellPosition);
         }
@@ -56,8 +58,8 @@ public class SheetImpl implements Cloneable, Sheet {
 
     @Override
     public void addCellConnection(CellPositionInSheet from, CellPositionInSheet to) {
-        validatePositionInSheetBounds(from);
-        validatePositionInSheetBounds(to);
+        sheetManager.validatePositionInSheetBounds(from);
+        sheetManager.validatePositionInSheetBounds(to);
 
         Cell influencingCell = position2cell.get(from);
         Cell influencedCell = position2cell.get(to);
@@ -86,8 +88,8 @@ public class SheetImpl implements Cloneable, Sheet {
 
     @Override
     public void removeCellConnection(CellPositionInSheet from, CellPositionInSheet to) {
-        validatePositionInSheetBounds(from);
-        validatePositionInSheetBounds(to);
+        sheetManager.validatePositionInSheetBounds(from);
+        sheetManager.validatePositionInSheetBounds(to);
 
         Cell influencingCell = position2cell.get(from);
         Cell influencedCell = position2cell.get(to);
@@ -115,20 +117,8 @@ public class SheetImpl implements Cloneable, Sheet {
     }
 
     @Override
-    public void validatePositionInSheetBounds(CellPositionInSheet cellPosition) {
-        int row = cellPosition.getRow();
-        int column = cellPosition.getColumn();
-        int numOfRows = sheetManager.getSheetDimension().getNumOfRows();
-        int numOfColumns = sheetManager.getSheetDimension().getNumOfColumns();
-
-        if (!(row >= 1 && row <= numOfRows && column >= 0 && column <= numOfColumns)) {
-            throw new CellPositionOutOfSheetBoundsException(numOfRows, parseColumn(numOfColumns));
-        }
-    }
-
-    @Override
     public Cell createNewCell(CellPositionInSheet cellPosition, String originalValue) {
-        validatePositionInSheetBounds(cellPosition);
+        sheetManager.validatePositionInSheetBounds(cellPosition);
         Cell newCell = new Cell(originalValue, null, version);
         position2cell.put(cellPosition, newCell);
         return newCell;
@@ -136,8 +126,13 @@ public class SheetImpl implements Cloneable, Sheet {
 
     @Override
     public Cell getCell(CellPositionInSheet cellPosition) {
-        validatePositionInSheetBounds(cellPosition);
+        sheetManager.validatePositionInSheetBounds(cellPosition);
         return position2cell.get(cellPosition);
+    }
+
+    @Override
+    public Range getRangeByName(String name) {
+        return sheetManager.getRangeByName(name);
     }
 
     @Override

@@ -1,4 +1,4 @@
-package engine.entity.sheet.impl;
+package engine.entity.sheet;
 
 import engine.exception.sheet.SheetMaxNumOfColumnsException;
 import engine.exception.sheet.SheetMaxNumOfRowsException;

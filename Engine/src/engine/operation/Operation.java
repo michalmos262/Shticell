@@ -247,6 +247,30 @@ public enum Operation {
                             ArrayList<EffectiveValueExpression> expressions) {
             return new If(expressions.getFirst(), expressions.get(1), expressions.getLast()).invoke();
         }
+    },
+    SUM(1) {
+        @Override
+        public String getDocumentation() {
+            return this + " -> Retrieves the sum of numeric values in a specified range name. Syntax: {" + this + ",["
+                    + rangeArg + "]}. For example: {" + this
+                    + ",Pretty Range} will retrieve the sum of the numeric values in the range name: Pretty Range.";
+        }
+
+        @Override
+        public EffectiveValue eval(ReadOnlySheet roSheet, List<CellPositionInSheet> influencingCellPositions, ArrayList<EffectiveValueExpression> expressions) {
+            return new Sum(expressions.getFirst()).invoke(roSheet, influencingCellPositions);
+        }
+    },
+    AVERAGE(1) {
+        @Override
+        public String getDocumentation() {
+            return "";
+        }
+
+        @Override
+        public EffectiveValue eval(ReadOnlySheet roSheet, List<CellPositionInSheet> influencingCellPositions, ArrayList<EffectiveValueExpression> expressions) {
+            return null;
+        }
     };
     
     private final int expressionsAmount;
@@ -255,6 +279,7 @@ public enum Operation {
     private static final String booleanArg = "BOOLEAN";
     private static final String valueArg = "VALUE";
     private static final String positionArg = "CELL-POSITION";
+    private static final String rangeArg = "RANGE-NAME";
 
     Operation(int expressionsAmount) {
         this.expressionsAmount = expressionsAmount;

@@ -4,7 +4,7 @@ import engine.entity.cell.CellPositionInSheet;
 import engine.entity.cell.PositionFactory;
 import engine.entity.dto.CellDto;
 import engine.entity.dto.SheetDto;
-import engine.entity.sheet.impl.SheetDimension;
+import engine.entity.sheet.SheetDimension;
 import javafx.beans.property.SimpleStringProperty;
 import javafx.fxml.FXML;
 import javafx.geometry.Insets;
@@ -38,9 +38,8 @@ public class GridController {
     public void initMainGrid(BusinessLogic modelUi, SheetDimension sheetDimension, SheetDto sheetDto) {
         int numOfRows = sheetDimension.getNumOfRows();
         int numOfColumns = sheetDimension.getNumOfColumns();
-        //TODO: delete the "* 10" after creating ranges
-        int rowHeight = sheetDimension.getRowHeight() * 10;
-        int columnWidth = sheetDimension.getColumnWidth() * 10;
+        int rowHeight = sheetDimension.getRowHeight();
+        int columnWidth = sheetDimension.getColumnWidth();
 
          // Clear the existing content in the gridContainer
         gridPane.getChildren().clear();
@@ -87,9 +86,8 @@ public class GridController {
     private void setMainGridCells(BusinessLogic modelUi, SheetDto sheetDto, SheetDimension sheetDimension) {
         int numOfRows = sheetDimension.getNumOfRows();
         int numOfColumns = sheetDimension.getNumOfColumns();
-        //TODO: delete the "* 10" after creating ranges
-        int rowHeight = sheetDimension.getRowHeight() * 10;
-        int columnWidth = sheetDimension.getColumnWidth() * 10;
+        int rowHeight = sheetDimension.getRowHeight();
+        int columnWidth = sheetDimension.getColumnWidth();
 
         // Populate the GridPane with Labels in the main grid area
         for (int row = 0; row < numOfRows; row++) {
@@ -209,9 +207,8 @@ public class GridController {
 
         int numOfRows = sheetDimension.getNumOfRows();
         int numOfColumns = sheetDimension.getNumOfColumns();
-        //TODO: delete the "* 10" after creating ranges
-        int rowHeight = sheetDimension.getRowHeight() * 10;
-        int columnWidth = sheetDimension.getColumnWidth() * 10;
+        int rowHeight = sheetDimension.getRowHeight();
+        int columnWidth = sheetDimension.getColumnWidth();
 
         GridPane gridPane = new GridPane();
 

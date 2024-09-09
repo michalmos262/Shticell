@@ -3,8 +3,10 @@ package engine.entity.sheet.api;
 import engine.entity.cell.Cell;
 import engine.entity.cell.CellPositionInSheet;
 import engine.entity.cell.EffectiveValue;
+import engine.entity.range.Range;
 import engine.entity.sheet.impl.SheetImpl;
 
+import java.util.List;
 import java.util.Map;
 
 public interface GetterSetterSheet {

@@ -5,7 +5,7 @@ import engine.entity.cell.CellPositionInSheet;
 import engine.entity.cell.PositionFactory;
 import engine.entity.dto.CellDto;
 import engine.entity.dto.SheetDto;
-import engine.entity.sheet.impl.SheetDimension;
+import engine.entity.sheet.SheetDimension;
 import engine.impl.EngineImpl;
 import javafx.beans.property.BooleanProperty;
 import javafx.beans.property.SimpleBooleanProperty;

@@ -2,7 +2,7 @@ package ui.impl.graphic.components.app;
 
 import engine.entity.dto.CellDto;
 import engine.entity.dto.SheetDto;
-import engine.entity.sheet.impl.SheetDimension;
+import engine.entity.sheet.SheetDimension;
 import javafx.fxml.FXML;
 import javafx.scene.control.ScrollPane;
 import javafx.scene.layout.BorderPane;

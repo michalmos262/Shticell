@@ -3,17 +3,20 @@ package engine.impl;
 import engine.api.Engine;
 import engine.entity.cell.*;
 import engine.entity.dto.CellDto;
+import engine.entity.range.Range;
+import engine.entity.range.RangesManager;
 import engine.entity.sheet.api.Sheet;
-import engine.entity.sheet.impl.SheetDimension;
+import engine.entity.sheet.SheetDimension;
 import engine.entity.dto.SheetDto;
 import engine.entity.sheet.impl.SheetImpl;
-import engine.entity.sheet.impl.SheetManager;
+import engine.entity.sheet.SheetManager;
 import engine.exception.file.FileAlreadyExistsException;
 import engine.exception.file.FileNotExistException;
 import engine.exception.file.InvalidFileTypeException;
 import engine.entity.cell.CellConnectionsGraph;
 import engine.jaxb.schema.generated.STLCell;
 import engine.jaxb.schema.generated.STLCells;
+import engine.jaxb.schema.generated.STLRange;
 import engine.jaxb.schema.generated.STLSheet;
 import jakarta.xml.bind.JAXBContext;
 import jakarta.xml.bind.Unmarshaller;
@@ -186,11 +189,11 @@ public class EngineImpl implements Engine {
         }
     }
 
-    private int createCellsFromFile(Sheet sheet, STLCells jaxbCells) {
+    private int createCellsFromFile(Sheet sheet, STLCells jaxbCells, RangesManager rangesManager) {
         int cellsUpdatedCounter = 0;
 
         // Create a graph of REF connections
-        CellConnectionsGraph refConnectionsGraph = new CellConnectionsGraph(jaxbCells);
+        CellConnectionsGraph refConnectionsGraph = new CellConnectionsGraph(jaxbCells, rangesManager);
 
         // Sort the graph topologically
         List<CellPositionInSheet> topologicalSortedGraph = refConnectionsGraph.sortTopologically();
@@ -212,6 +215,7 @@ public class EngineImpl implements Engine {
         return cellsUpdatedCounter;
     }
 
+    @Override
     public void loadFile(String filePath) throws Exception {
         File file = new File(filePath);
 
@@ -225,20 +229,35 @@ public class EngineImpl implements Engine {
         JAXBContext jaxbContext = JAXBContext.newInstance(STLSheet.class);
         Unmarshaller jaxbUnmarshaller = jaxbContext.createUnmarshaller();
         STLSheet jaxbSheet = (STLSheet) jaxbUnmarshaller.unmarshal(file);
+        List<STLRange> ranges = jaxbSheet.getSTLRanges().getSTLRange();
 
+        // Creating sheet manager
+        SheetManager sheetManager = getSheetManager(jaxbSheet);
+        // Creating ranges
+        for (STLRange range: ranges) {
+            CellPositionInSheet fromPosition = PositionFactory.createPosition(range.getSTLBoundaries().getFrom());
+            CellPositionInSheet toPosition = PositionFactory.createPosition(range.getSTLBoundaries().getTo());
+            sheetManager.createRange(range.getName(), fromPosition, toPosition);
+        }
+        // Creating a sheet entity
+        Sheet sheet = new SheetImpl(sheetManager);
+        int cellsUpdatedCounter = createCellsFromFile(sheet, jaxbSheet.getSTLCells(), sheetManager.getRangesManager());
+        sheet.setUpdatedCellsCount(cellsUpdatedCounter);
+        sheetManager.addNewSheet(sheet);
+
+        this.sheetManager = sheetManager;
+        isDataLoaded = true;
+    }
+
+    private static SheetManager getSheetManager(STLSheet jaxbSheet) {
         int numOfRows = jaxbSheet.getSTLLayout().getRows();
         int numOfColumns = jaxbSheet.getSTLLayout().getColumns();
         int rowHeight = jaxbSheet.getSTLLayout().getSTLSize().getRowsHeightUnits();
         int columnWidth = jaxbSheet.getSTLLayout().getSTLSize().getColumnWidthUnits();
 
         SheetDimension sheetDimension = new SheetDimension(numOfRows, numOfColumns, rowHeight, columnWidth);
-        SheetManager sheetManager = new SheetManager(jaxbSheet.getName(), sheetDimension);
-        Sheet sheet = new SheetImpl(sheetManager);
-        int cellsUpdatedCounter = createCellsFromFile(sheet, jaxbSheet.getSTLCells());
-        sheet.setUpdatedCellsCount(cellsUpdatedCounter);
-        sheetManager.addNewSheet(sheet);
-        this.sheetManager = sheetManager;
-        isDataLoaded = true;
+
+        return new SheetManager(jaxbSheet.getName(), sheetDimension);
     }
 
     @Override
@@ -302,8 +321,7 @@ public class EngineImpl implements Engine {
     @Override
     public CellPositionInSheet getCellPositionInSheet(int row, int column) {
         CellPositionInSheet cellPosition = PositionFactory.createPosition(row, column);
-        Sheet lastVersionSheet = sheetManager.getVersion2sheet().get(sheetManager.getCurrentVersion());
-        lastVersionSheet.validatePositionInSheetBounds(cellPosition);
+        sheetManager.validatePositionInSheetBounds(cellPosition);
 
         return cellPosition;
     }
@@ -338,5 +356,10 @@ public class EngineImpl implements Engine {
     @Override
     public SheetDimension getSheetDimension() {
         return sheetManager.getSheetDimension();
+    }
+
+    @Override
+    public Range getRangeByName(String rangeName) {
+        return sheetManager.getRangeByName(rangeName);
     }
 }
