@@ -32,9 +32,7 @@ public class Main extends Application {
 
         // wire up controller
         MainAppController mainAppController = fxmlLoader.getController();
-        BusinessLogic businessLogic = new BusinessLogic(mainAppController);
         mainAppController.setPrimaryStage(primaryStage);
-        mainAppController.setBusinessLogic(businessLogic);
 
         // set stage
         primaryStage.setTitle("Shticell");

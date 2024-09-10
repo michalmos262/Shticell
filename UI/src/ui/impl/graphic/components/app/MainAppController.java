@@ -1,8 +1,12 @@
 package ui.impl.graphic.components.app;
 
+import engine.api.Engine;
+import engine.entity.cell.CellPositionInSheet;
+import engine.entity.cell.PositionFactory;
 import engine.entity.dto.CellDto;
 import engine.entity.dto.SheetDto;
 import engine.entity.sheet.SheetDimension;
+import engine.impl.EngineImpl;
 import javafx.fxml.FXML;
 import javafx.scene.control.ScrollPane;
 import javafx.scene.layout.BorderPane;
@@ -25,13 +29,17 @@ public class MainAppController {
 
     private Stage primaryStage;
     private BusinessLogic businessLogic;
+    private Engine engine;
+    private
 
     @FXML
-    public void initialize() {
+    void initialize() {
+        this.engine = new EngineImpl();
+
         if (loadFileComponentController != null && sheetComponentController != null && actionLineComponent != null) {
-            loadFileComponentController.setMainController(this);
-            sheetComponentController.setMainController(this);
-            actionLineComponentController.setMainController(this);
+            loadFileComponentController.setMainController(this, engine);
+            sheetComponentController.setMainController(this, engine);
+            actionLineComponentController.setMainController(this, engine);
         }
     }
 
@@ -39,47 +47,38 @@ public class MainAppController {
         this.primaryStage = primaryStage;
     }
 
-    public void setBusinessLogic(BusinessLogic businessLogic) {
-        this.businessLogic = businessLogic;
-        actionLineComponentController.bindToModel(this.businessLogic);
-        loadFileComponentController.bindToModel(this.businessLogic);
-    }
-
     public Stage getPrimaryStage() {
         return primaryStage;
     }
 
-    public void loadFile() {
-        try {
-            businessLogic.loadFile(loadFileComponentController.getAbsolutePath());
+    public void fileIsLoaded() {
+        actionLineComponentController.fileLoaded();
 
-            SheetDimension sheetDimension = businessLogic.getSheetDimension();
-            SheetDto sheetDto = businessLogic.getSheet(businessLogic.getCurrentSheetVersion());
+        SheetDimension sheetDimension = engine.getSheetDimension();
+        SheetDto sheetDto = engine.getSheet(engine.getCurrentSheetVersion());
 
-            sheetComponentController.initMainGrid(businessLogic, sheetDimension, sheetDto);
-
-        } catch (Exception e) {
-            loadFileComponentController.loadFileFailed(e.getMessage());
-        }
+        sheetComponentController.initMainGrid(sheetDimension, sheetDto);
     }
 
     public CellDto cellClicked(String cellPositionId) {
-        return businessLogic.cellClicked(cellPositionId);
+        CellPositionInSheet cellPositionInSheet = PositionFactory.createPosition(cellPositionId);
+        CellDto cellDto = engine.getSheet(engine.getCurrentSheetVersion()).getCell(cellPositionInSheet);
+        int lastCellVersion = engine.getLastCellVersion(cellPositionInSheet.getRow(), cellPositionInSheet.getColumn());
+        String originalValue = cellDto == null ? "" : cellDto.getOriginalValue();
+
+        actionLineComponentController.cellClicked(cellPositionId, originalValue, lastCellVersion);
+
+        return cellDto;
     }
 
-    public void updateCell(String cellNewOriginalValue) {
-        try {
-            CellDto cellDto = businessLogic.updateCell(cellNewOriginalValue);
-            sheetComponentController.updateCell(cellDto);
-            actionLineComponentController.updateCellSucceeded();
-        } catch (Exception e) {
-            actionLineComponentController.updateCellFailed(e.getMessage());
-        }
+    public void cellIsUpdated(CellPositionInSheet cellPositionInSheet, CellDto cellDto) {
+        sheetComponentController.cellUpdated(cellPositionInSheet, cellDto);
+        actionLineComponentController.updateCellSucceeded();
     }
 
     public void selectSheetVersion(int version) {
-        SheetDto sheetDto = businessLogic.getSheet(version);
-        SheetDimension sheetDimension = businessLogic.getSheetDimension();
+        SheetDto sheetDto = engine.getSheet(version);
+        SheetDimension sheetDimension = engine.getSheetDimension();
 
         sheetComponentController.showSheetInVersion(sheetDimension, sheetDto, version);
     }

@@ -1,5 +1,6 @@
 package ui.impl.graphic.components.grid;
 
+import engine.api.Engine;
 import engine.entity.cell.CellPositionInSheet;
 import engine.entity.cell.PositionFactory;
 import engine.entity.dto.CellDto;
@@ -16,11 +17,9 @@ import javafx.scene.control.ScrollPane;
 import javafx.scene.input.MouseEvent;
 import javafx.scene.layout.GridPane;
 import ui.impl.graphic.components.app.MainAppController;
-import ui.impl.graphic.model.BusinessLogic;
 
 import java.util.ArrayList;
 import java.util.List;
-import java.util.Map;
 
 public class GridController {
 
@@ -28,14 +27,22 @@ public class GridController {
     @FXML private GridPane gridPane;
 
     private MainAppController mainAppController;
+    private Engine engine;
+    private GridModelUI modelUi;
     private final List<Label> currentlyPaintedCells = new ArrayList<>(); // List to store painted cells
     private Label clickedLabel;
 
-    public void setMainController(MainAppController mainAppController) {
-        this.mainAppController = mainAppController;
+    @FXML
+    private void initialize() {
+        modelUi = new GridModelUI();
     }
 
-    public void initMainGrid(BusinessLogic modelUi, SheetDimension sheetDimension, SheetDto sheetDto) {
+    public void setMainController(MainAppController mainAppController, Engine engine) {
+        this.mainAppController = mainAppController;
+        this.engine = engine;
+    }
+
+    public void initMainGrid(SheetDimension sheetDimension, SheetDto sheetDto) {
         int numOfRows = sheetDimension.getNumOfRows();
         int numOfColumns = sheetDimension.getNumOfColumns();
         int rowHeight = sheetDimension.getRowHeight();
@@ -46,7 +53,7 @@ public class GridController {
 
         setMainGridColumnsHeaders(gridPane, numOfColumns, columnWidth);
         setMainGridRowsHeaders(gridPane, numOfRows, rowHeight);
-        setMainGridCells(modelUi, sheetDto, sheetDimension);
+        setMainGridCells(sheetDto, sheetDimension);
 
         // Force a layout pass after adding new nodes
         gridPane.requestLayout();
@@ -73,17 +80,7 @@ public class GridController {
         }
     }
 
-    private void setCellLabelBinding(BusinessLogic modelUi, Label label, SheetDto sheetDto, CellPositionInSheet cellPositionInSheet) {
-        Map<CellPositionInSheet, SimpleStringProperty> cellPosition2displayedValue = modelUi.getCellPosition2displayedValue();
-        SimpleStringProperty strProperty = sheetDto.getCell(cellPositionInSheet) == null
-                ? new SimpleStringProperty("")
-                : new SimpleStringProperty(sheetDto.getCell(cellPositionInSheet)
-                    .getEffectiveValueForDisplay().toString());
-        cellPosition2displayedValue.put(cellPositionInSheet, strProperty);
-        label.textProperty().bind(cellPosition2displayedValue.get(cellPositionInSheet));
-    }
-
-    private void setMainGridCells(BusinessLogic modelUi, SheetDto sheetDto, SheetDimension sheetDimension) {
+    private void setMainGridCells(SheetDto sheetDto, SheetDimension sheetDimension) {
         int numOfRows = sheetDimension.getNumOfRows();
         int numOfColumns = sheetDimension.getNumOfColumns();
         int rowHeight = sheetDimension.getRowHeight();
@@ -96,7 +93,7 @@ public class GridController {
                 Label label = new Label();
                 label.getStyleClass().add("cell");
                 label.setId((char) ('A' + col) + String.valueOf(row + 1));
-                setCellLabelBinding(modelUi, label, sheetDto, cellPositionInSheet);
+                modelUi.setCellLabelBinding(label, sheetDto, cellPositionInSheet);
                 label.setPrefHeight(rowHeight);
                 label.setPrefWidth(columnWidth);
 
@@ -171,8 +168,16 @@ public class GridController {
         currentlyPaintedCells.clear(); // Clear the list after un-painting
     }
 
-    public void updateCell(CellDto cell) {
-        setClickedCellColors(cell);
+    public void cellUpdated(CellPositionInSheet cellPositionInSheet, CellDto cellDto) {
+        SimpleStringProperty strProperty = modelUi.getCellPosition2displayedValue().get(cellPositionInSheet);
+        strProperty.setValue(cellDto.getEffectiveValueForDisplay().toString());
+        // Update the visible affected cells
+        cellDto.getInfluences().forEach(influencedPosition -> {
+            SimpleStringProperty visibleValue = modelUi.getCellPosition2displayedValue().get(influencedPosition);
+            CellDto influencedCell = engine.findCellInSheet(influencedPosition.getRow(), influencedPosition.getColumn(), engine.getCurrentSheetVersion());
+            visibleValue.setValue(influencedCell.getEffectiveValueForDisplay().toString());
+        });
+        setClickedCellColors(cellDto);
     }
 
     public void setGridOnVersionCells(GridPane gridPane, SheetDto sheetDto, SheetDimension sheetDimension) {

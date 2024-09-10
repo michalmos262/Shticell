@@ -31,7 +31,7 @@
                 <Insets />
             </GridPane.margin>
         </Label>
-        <Button fx:id="updateValueButton" mnemonicParsing="false" onAction="#UpdateValueButtonListener" text="Update value" GridPane.columnIndex="2">
+        <Button fx:id="updateValueButton" disable="true" mnemonicParsing="false" onAction="#UpdateValueButtonListener" text="Update value" GridPane.columnIndex="2">
             <GridPane.margin>
                 <Insets left="40.0" />
             </GridPane.margin>
@@ -47,7 +47,7 @@
             </GridPane.margin>
         </Label>
     </GridPane>
-   <ComboBox fx:id="selectSheetVersionSelector" onAction="#SelectSheetVersionSelectorListener" prefHeight="25.0" prefWidth="78.0" GridPane.columnIndex="1">
+   <ComboBox fx:id="selectSheetVersionSelector" disable="true" onAction="#SelectSheetVersionSelectorListener" prefHeight="25.0" prefWidth="78.0" GridPane.columnIndex="1">
       <GridPane.margin>
          <Insets left="120.0" />
       </GridPane.margin>

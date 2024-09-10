@@ -1,14 +1,16 @@
 package ui.impl.graphic.components.actionline;
 
+import engine.api.Engine;
+import engine.entity.cell.CellPositionInSheet;
+import engine.entity.cell.PositionFactory;
+import engine.entity.dto.CellDto;
 import engine.operation.Operation;
-import javafx.beans.binding.Bindings;
 import javafx.event.ActionEvent;
 import javafx.fxml.FXML;
 import javafx.scene.control.*;
 import javafx.scene.layout.VBox;
 import ui.impl.graphic.components.alert.AlertsHandler;
 import ui.impl.graphic.components.app.MainAppController;
-import ui.impl.graphic.model.BusinessLogic;
 
 public class ActionLineController {
 
@@ -19,24 +21,27 @@ public class ActionLineController {
     @FXML private ComboBox<Integer> selectSheetVersionSelector;
 
     private MainAppController mainAppController;
+    private ActionLineModelUI modelUi;
+    private Engine engine;
 
-    public void setMainController(MainAppController mainAppController) {
-        this.mainAppController = mainAppController;
+    @FXML
+    private void initialize() {
+        modelUi = new ActionLineModelUI(updateValueButton, selectedCellIdLabel, originalCellValueLabel,
+                lastCellVersionLabel, selectSheetVersionSelector);
     }
 
-    public void bindToModel(BusinessLogic modelUi) {
-        updateValueButton.disableProperty().bind(modelUi.isAnyCellClickedProperty().not());
-        selectSheetVersionSelector.disableProperty().bind(modelUi.isDataLoadedProperty().not());
-        selectedCellIdLabel.textProperty().bind(Bindings.concat("Cell ID: ", modelUi.selectedCellIdProperty()));
-        originalCellValueLabel.textProperty().bind(Bindings.concat("Original Value: ", modelUi.selectedCellOriginalValueProperty()));
-        lastCellVersionLabel.textProperty().bind(Bindings.concat("Last Cell Version: ", modelUi.selectedCellLastVersionProperty()));
+    public void setMainController(MainAppController mainAppController, Engine engine) {
+        this.mainAppController = mainAppController;
+        this.engine = engine;
+    }
 
-        modelUi.currentSheetVersionProperty().addListener((obs, oldValue, newValue) -> {
-            if (newValue.equals(1)) {
-                selectSheetVersionSelector.getItems().clear();
-            }
-            selectSheetVersionSelector.getItems().add(newValue.intValue());
-        });
+    public void fileLoaded() {
+        modelUi.isAnyCellClickedProperty().set(false);
+        modelUi.selectedCellIdProperty().set("");
+        modelUi.selectedCellOriginalValueProperty().set("");
+        modelUi.selectedCellLastVersionProperty().set(0);
+        modelUi.currentSheetVersionProperty().set(1);
+        modelUi.isDataLoadedProperty().set(true);
     }
 
     @FXML
@@ -98,7 +103,7 @@ public class ActionLineController {
         });
 
         // Show the dialog and handle the result
-        dialog.showAndWait().ifPresent(result -> mainAppController.updateCell(result));
+        dialog.showAndWait().ifPresent(this::updateCell);
     }
 
     @FXML
@@ -112,5 +117,27 @@ public class ActionLineController {
 
     public void updateCellSucceeded() {
         AlertsHandler.HandleOkAlert("Update succeeded!");
+    }
+
+    public void updateCell(String cellNewOriginalValue) {
+        try {
+            CellPositionInSheet cellPositionInSheet = PositionFactory.createPosition(modelUi.selectedCellIdProperty().getValue());
+            CellDto cellDto = engine.updateSheetCell(cellPositionInSheet.getRow(), cellPositionInSheet.getColumn(), cellNewOriginalValue);
+            modelUi.selectedCellOriginalValueProperty().set(cellNewOriginalValue);
+            modelUi.selectedCellLastVersionProperty().set(engine.getLastCellVersion(cellPositionInSheet.getRow(), cellPositionInSheet.getColumn()));
+            modelUi.currentSheetVersionProperty().set(engine.getCurrentSheetVersion());
+            mainAppController.cellIsUpdated(cellPositionInSheet, cellDto);
+        } catch (Exception e) {
+            updateCellFailed(e.getMessage());
+        }
+    }
+
+    public void cellClicked(String cellPositionId, String originalValue, int lastCellVersion) {
+        modelUi.selectedCellIdProperty().set(cellPositionId);
+        modelUi.selectedCellLastVersionProperty().set(lastCellVersion);
+        modelUi.selectedCellOriginalValueProperty().set(originalValue);
+        if (!modelUi.isAnyCellClickedProperty().getValue()) {
+            modelUi.isAnyCellClickedProperty().set(true);
+        }
     }
 }
