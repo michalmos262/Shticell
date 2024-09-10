@@ -48,7 +48,7 @@ public class RangesController {
 
         List<String> rangeNames = engine.getRangeNames();
         for (String rangeName : rangeNames) {
-            Range range = engine.getRangeByName(rangeName);
+            Range range = engine.getRangesByName(rangeName);
             modelUi.addRange(rangeName, range);
         }
     }
@@ -62,7 +62,7 @@ public class RangesController {
                 CellPositionInSheet fromPosition = PositionFactory.createPosition(addFromRangeTextInput.getText());
                 CellPositionInSheet toPosition = PositionFactory.createPosition(addToRangeTextInput.getText());
                 engine.createRange(rangeName, fromPosition, toPosition);
-                modelUi.addRange(rangeName, engine.getRangeByName(rangeName));
+                modelUi.addRange(rangeName, engine.getRangesByName(rangeName));
                 AlertsHandler.HandleOkAlert("Range " + addRangeNameTextInput.getText() + " added successfully!");
             } else {
                 AlertsHandler.HandleErrorAlert(alertTitle, "Range name cannot be empty");

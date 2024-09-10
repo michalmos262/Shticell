@@ -8,7 +8,7 @@ import engine.entity.sheet.api.ReadOnlySheet;
 import engine.expression.api.Expression;
 import engine.expression.impl.SystemExpression;
 
-import java.util.List;
+import java.util.Set;
 
 public class Sum extends SystemExpression implements Systemic {
 
@@ -17,14 +17,14 @@ public class Sum extends SystemExpression implements Systemic {
     }
 
     @Override
-    protected EffectiveValue invoke(EffectiveValue evaluate, ReadOnlySheet roSheet, List<CellPositionInSheet> influencingCellPositions) {
+    protected EffectiveValue invoke(EffectiveValue evaluate, ReadOnlySheet roSheet, Set<CellPositionInSheet> influencingCellPositions) {
         // taking the range
         String evaluateValue = evaluate.getValue().toString();
         Range range = roSheet.getRangeByNameForUsing(evaluateValue);
 
         if (range != null) {
             double sum = 0;
-            List<CellPositionInSheet> cellPositions = range.getIncludedPositions();
+            Set<CellPositionInSheet> cellPositions = range.getIncludedPositions();
 
             for (CellPositionInSheet cellPosition : cellPositions) {
                 EffectiveValue currentCellEffectiveValue = roSheet.getCellEffectiveValue(cellPosition);

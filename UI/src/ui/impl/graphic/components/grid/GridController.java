@@ -20,6 +20,7 @@ import ui.impl.graphic.components.app.MainAppController;
 
 import java.util.ArrayList;
 import java.util.List;
+import java.util.Set;
 
 public class GridController {
 
@@ -54,9 +55,6 @@ public class GridController {
         setMainGridColumnsHeaders(gridPane, numOfColumns, columnWidth);
         setMainGridRowsHeaders(gridPane, numOfRows, rowHeight);
         setMainGridCells(sheetDto, sheetDimension);
-
-        // Force a layout pass after adding new nodes
-        gridPane.requestLayout();
     }
 
     private void setMainGridColumnsHeaders(GridPane gridPane, int numOfColumns, int columnWidth) {
@@ -139,7 +137,7 @@ public class GridController {
 
     private List<Label> getInfluencesCellsToPaint(CellDto cellDto) {
         List<Label> influencesCellsLabels = new ArrayList<>();
-        List<CellPositionInSheet> influencesCells = cellDto.getInfluences();
+        Set<CellPositionInSheet> influencesCells = cellDto.getInfluences();
 
         influencesCells.forEach(influencesCell ->
                 influencesCellsLabels.add((Label) gridPane.lookup("#" + influencesCell))
@@ -150,7 +148,7 @@ public class GridController {
 
     private List<Label> getInfluencedByCellsToPaint(CellDto cellDto) {
         List<Label> influencedByCellsLabels = new ArrayList<>();
-        List<CellPositionInSheet> influencedByCells = cellDto.getInfluencedBy();
+        Set<CellPositionInSheet> influencedByCells = cellDto.getInfluencedBy();
 
         influencedByCells.forEach(influencedByCell ->
                 influencedByCellsLabels.add((Label) gridPane.lookup("#" + influencedByCell))
@@ -191,6 +189,7 @@ public class GridController {
             for (int col = 0; col < numOfColumns; col++) {
                 CellPositionInSheet cellPositionInSheet = PositionFactory.createPosition(row+1, col+1);
                 Label label = new Label();
+                label.getStyleClass().add("cell");
                 String cellDisplayedValue = sheetDto.getCell(cellPositionInSheet) == null
                         ? ""
                         : sheetDto.getCell(cellPositionInSheet).getEffectiveValueForDisplay().toString();
@@ -216,6 +215,7 @@ public class GridController {
         int columnWidth = sheetDimension.getColumnWidth();
 
         GridPane gridPane = new GridPane();
+        gridPane.setPrefWidth(700);
 
         setMainGridColumnsHeaders(gridPane, numOfColumns, columnWidth);
         setMainGridRowsHeaders(gridPane, numOfRows, rowHeight);
@@ -223,7 +223,7 @@ public class GridController {
 
         for (Node node : gridPane.getChildren()) {
             if (node instanceof Label label) {
-                label.setStyle("-fx-border-color: black; -fx-border-width: 1px; -fx-padding: 10;");
+                label.setStyle("-fx-border-color: black; -fx-alignment: top-center;");
             }
         }
 

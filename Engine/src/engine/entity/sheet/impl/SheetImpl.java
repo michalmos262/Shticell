@@ -129,7 +129,7 @@ public class SheetImpl implements Cloneable, Sheet {
 
     @Override
     public Range getRangeByNameForUsing(String name) {
-        RangesManager rangesManager = sheetManager.getRangeManager();
+        RangesManager rangesManager = sheetManager.getRangesManager();
         Range range = rangesManager.getRangeByName(name);
         if (range != null) {
             rangesManager.useRange(name);

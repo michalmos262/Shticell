@@ -8,7 +8,7 @@ import engine.entity.sheet.api.ReadOnlySheet;
 import engine.expression.api.Expression;
 import engine.expression.impl.SystemExpression;
 
-import java.util.List;
+import java.util.Set;
 
 public class Ref extends SystemExpression implements Systemic {
 
@@ -17,7 +17,7 @@ public class Ref extends SystemExpression implements Systemic {
     }
 
     @Override
-    protected EffectiveValue invoke(EffectiveValue evaluate, ReadOnlySheet roSheet, List<CellPositionInSheet> influencingCellPositions) {
+    protected EffectiveValue invoke(EffectiveValue evaluate, ReadOnlySheet roSheet, Set<CellPositionInSheet> influencingCellPositions) {
         // taking the position
         String evaluateValue = evaluate.getValue().toString();
         CellPositionInSheet cellPosition = PositionFactory.createPosition(evaluateValue);
@@ -31,9 +31,6 @@ public class Ref extends SystemExpression implements Systemic {
                 return new EffectiveValue(CellType.UNKNOWN, "");
             }
         } catch (Exception e) {
-            if (influencingCellPositions.getLast() != cellPosition) {
-                influencingCellPositions.add(cellPosition);
-            }
             return new EffectiveValue(CellType.UNKNOWN, EffectiveValue.STRING_INVALID_VALUE);
         }
     }

@@ -8,9 +8,10 @@ import engine.operation.Operation;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.List;
+import java.util.Set;
 
 public class ExpressionEvaluator {
-    public static EffectiveValue evaluateArgument(ReadOnlySheet roSheet, String argument, List<CellPositionInSheet> influencingCellPositions) {
+    public static EffectiveValue evaluateArgument(ReadOnlySheet roSheet, String argument, Set<CellPositionInSheet> influencingCellPositions) {
         EffectiveValue effectiveValue;
 
         if (argument.isEmpty()) {
@@ -43,7 +44,7 @@ public class ExpressionEvaluator {
         return effectiveValue;
     }
 
-    public static EffectiveValue evaluateFunction(ReadOnlySheet roSheet, String operationName, List<String> args, List<CellPositionInSheet> influencingCellPositions) {
+    public static EffectiveValue evaluateFunction(ReadOnlySheet roSheet, String operationName, List<String> args, Set<CellPositionInSheet> influencingCellPositions) {
         try {
             Operation operation = Operation.getOperation(operationName);
             ArrayList<EffectiveValue> effectiveValues = new ArrayList<>();

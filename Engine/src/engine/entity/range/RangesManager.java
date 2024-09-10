@@ -8,11 +8,11 @@ import java.util.*;
 
 public class RangesManager {
     Map<String, Range> name2Range;
-    Map<String, List<CellPositionInSheet>> rangeName2influencedPositions;
+    Map<String, Integer> name2usageCount;
 
     public RangesManager() {
         name2Range = new HashMap<>();
-        rangeName2influencedPositions = new HashMap<>();
+        name2usageCount = new HashMap<>();
     }
 
     public Map<String, Range> getName2Range() {
@@ -33,15 +33,21 @@ public class RangesManager {
 
     public void deleteRange(String name) {
         // if the range name is used
-        if (rangeName2influencedPositions.get(name) != null && !rangeName2influencedPositions.get(name).isEmpty()) {
+        if (name2usageCount.get(name) != null && name2usageCount.get(name) != 0) {
             throw new CannotDeleteUsedRangeException(name);
         }
         name2Range.remove(name);
-        rangeName2influencedPositions.remove(name);
+        name2usageCount.remove(name);
     }
 
     public void useRange(String name) {
-        //TODO: delete range
-//        rangeName2influencedPositions.computeIfAbsent(name, k -> new LinkedList<>()).add(cellPositionInSheet);
+        name2usageCount.putIfAbsent(name, 0);
+        name2usageCount.put(name, name2usageCount.get(name) + 1);
+    }
+
+    public void unUseRange(String name) {
+        if (name2usageCount.get(name) > 0) {
+            name2usageCount.put(name, name2usageCount.get(name) + 1);
+        }
     }
 }

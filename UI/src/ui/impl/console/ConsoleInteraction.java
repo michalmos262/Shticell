@@ -10,9 +10,9 @@ import engine.operation.Operation;
 import ui.api.Ui;
 import engine.exception.sheet.InvalidSheetVersionException;
 
-import java.util.List;
 import java.util.Map;
 import java.util.Scanner;
+import java.util.Set;
 
 import static java.lang.System.exit;
 
@@ -116,7 +116,7 @@ public class ConsoleInteraction implements Ui {
         System.out.println("Current effective value: " + (cell == null ? " " : cell.getEffectiveValueForDisplay()));
     }
 
-    private void printCellAdditionalData(int lastVersionUpdated, List<CellPositionInSheet> affectsCellsList, List<CellPositionInSheet> affectedByCellsList) {
+    private void printCellAdditionalData(int lastVersionUpdated, Set<CellPositionInSheet> affectsCellsList, Set<CellPositionInSheet> affectedByCellsList) {
         System.out.println("Last cell version: " + lastVersionUpdated);
         System.out.println("The cells that the required cell is affecting: " + (affectsCellsList.isEmpty() ? "None" : affectsCellsList));
         System.out.println("The cells that the required cell is affected by: " + (affectedByCellsList.isEmpty() ? "None" : affectedByCellsList));
@@ -134,14 +134,14 @@ public class ConsoleInteraction implements Ui {
             column = cellPosition.getColumn();
             int cellUpdatedVersion = engine.getLastCellVersion(row, column);
             printCellPreData(row, column);
-            List<CellPositionInSheet> affectsCellsList = engine.getInfluencesList(row, column, engine.getCurrentSheetVersion());
-            List<CellPositionInSheet> affectedByCellsList = engine.getInfluencedByList(row, column, engine.getCurrentSheetVersion());
+            Set<CellPositionInSheet> affectsCellsList = engine.getInfluencesSet(row, column, engine.getCurrentSheetVersion());
+            Set<CellPositionInSheet> affectedByCellsList = engine.getInfluencedBySet(row, column, engine.getCurrentSheetVersion());
             printCellAdditionalData(cellUpdatedVersion, affectsCellsList, affectedByCellsList);
         } catch (NotExistsCellException e) {
             row = cellPosition.getRow();
             column = cellPosition.getColumn();
             printCellPreData(row, column);
-            printCellAdditionalData(0, List.of(), List.of());
+            printCellAdditionalData(0, Set.of(), Set.of());
         } catch (Exception e) {
             System.out.println(e.getMessage());
         }

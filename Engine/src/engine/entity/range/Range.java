@@ -4,14 +4,12 @@ import engine.entity.cell.CellPositionInSheet;
 import engine.entity.cell.PositionFactory;
 import engine.exception.range.RangeNotInRightFormatException;
 
-import java.util.LinkedList;
-import java.util.List;
-import java.util.Objects;
+import java.util.*;
 
 public class Range {
     private final CellPositionInSheet fromPosition;
     private final CellPositionInSheet toPosition;
-    private List<CellPositionInSheet> includedPositions;
+    private Set<CellPositionInSheet> includedPositions;
 
     public Range(CellPositionInSheet fromPosition, CellPositionInSheet toPosition) {
         validateRange(fromPosition, toPosition);
@@ -39,7 +37,7 @@ public class Range {
         int fromColumn = fromPosition.getColumn();
         int toRow = toPosition.getRow();
         int toColumn = toPosition.getColumn();
-        includedPositions = new LinkedList<>();
+        includedPositions = new LinkedHashSet<>();
         for (int row = fromRow; row <= toRow; row++) {
             for (int column = fromColumn; column <= toColumn; column++) {
                 includedPositions.add(PositionFactory.createPosition(row, column));
@@ -47,7 +45,7 @@ public class Range {
         }
     }
 
-    public List<CellPositionInSheet> getIncludedPositions() {
+    public Set<CellPositionInSheet> getIncludedPositions() {
         return includedPositions;
     }
 

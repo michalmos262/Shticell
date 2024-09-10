@@ -1,12 +1,10 @@
 package engine.entity.sheet;
 
 import engine.entity.cell.CellPositionInSheet;
-import engine.entity.range.Range;
 import engine.entity.range.RangesManager;
 import engine.entity.sheet.api.Sheet;
 import engine.entity.sheet.impl.SheetImpl;
 import engine.exception.cell.CellPositionOutOfSheetBoundsException;
-import engine.exception.range.CannotDeleteUsedRangeException;
 
 import java.io.Serializable;
 import java.util.LinkedHashMap;
@@ -68,10 +66,6 @@ public class SheetManager implements Serializable {
         if (!(row >= 1 && row <= numOfRows && column >= 0 && column <= numOfColumns)) {
             throw new CellPositionOutOfSheetBoundsException(numOfRows, parseColumn(numOfColumns));
         }
-    }
-
-    public RangesManager getRangeManager() {
-        return rangesManager;
     }
 
     public void createRange(String name, CellPositionInSheet fromPosition, CellPositionInSheet toPosition) {

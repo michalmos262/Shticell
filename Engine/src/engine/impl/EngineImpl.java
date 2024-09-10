@@ -40,7 +40,7 @@ public class EngineImpl implements Engine {
             CellDto cellDto;
             if (cell == null) {
                 EffectiveValue effectiveValue = new EffectiveValue(CellType.UNKNOWN, "");
-                cellDto = new CellDto("", effectiveValue, effectiveValue, new LinkedList<>(), new LinkedList<>());
+                cellDto = new CellDto("", effectiveValue, effectiveValue, new LinkedHashSet<>(), new LinkedHashSet<>());
             }
             else {
                 cellDto = new CellDto(cell.getOriginalValue(), cell.getEffectiveValue(), getEffectiveValueForDisplay(cell), cell.getInfluencedBy(), cell.getInfluences());
@@ -116,18 +116,19 @@ public class EngineImpl implements Engine {
     }
 
     @Override
-    public List<CellPositionInSheet> getInfluencedByList(int row, int column, int sheetVersion) {
+    public Set<CellPositionInSheet> getInfluencedBySet(int row, int column, int sheetVersion) {
         return findCellInSheet(row, column, sheetVersion).getInfluencedBy();
     }
 
     @Override
-    public List<CellPositionInSheet> getInfluencesList(int row, int column, int sheetVersion) {
+    public Set<CellPositionInSheet> getInfluencesSet(int row, int column, int sheetVersion) {
         return findCellInSheet(row, column, sheetVersion).getInfluences();
     }
 
     public EffectiveValue handleEffectiveValue(Sheet sheet, CellPositionInSheet cellPosition, String originalValue) {
         EffectiveValue effectiveValue;
-        List<CellPositionInSheet> influencingCellPositions = new LinkedList<>();
+        Set<CellPositionInSheet> influencingCellPositions = new LinkedHashSet<>();
+        //TODO: create SET of influencingRanges
         effectiveValue = evaluateArgument(sheet, originalValue, influencingCellPositions);
 
         for (CellPositionInSheet influencingPosition : influencingCellPositions) {
@@ -181,6 +182,7 @@ public class EngineImpl implements Engine {
                 for (CellPositionInSheet influencingCellPosition: influencedByCellPositions) {
                     sheet.removeCellConnection(influencingCellPosition, cellPosition);
                 }
+                //TODO: for loop for ranges connections
             }
             effectiveValue = handleEffectiveValue(sheet, cellPosition, originalValue);
             sheet.updateCell(cellPosition, originalValue, effectiveValue);
@@ -359,14 +361,14 @@ public class EngineImpl implements Engine {
     }
 
     @Override
-    public Range getRangeByName(String rangeName) {
-        return sheetManager.getRangeManager().getRangeByName(rangeName);
+    public Range getRangesByName(String rangeName) {
+        return sheetManager.getRangesManager().getRangeByName(rangeName);
     }
 
     @Override
     public List<String> getRangeNames() {
         List<String> rangeNames = new ArrayList<>();
-        sheetManager.getRangeManager().getName2Range().forEach((name, range) -> rangeNames.add(name));
+        sheetManager.getRangesManager().getName2Range().forEach((name, range) -> rangeNames.add(name));
         return rangeNames;
     }
 
