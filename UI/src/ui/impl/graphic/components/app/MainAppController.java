@@ -17,7 +17,6 @@ import ui.impl.graphic.components.command.CommandsController;
 import ui.impl.graphic.components.file.LoadFileController;
 import ui.impl.graphic.components.grid.GridController;
 import ui.impl.graphic.components.range.RangesController;
-import ui.impl.graphic.model.BusinessLogic;
 
 public class MainAppController {
     @FXML private GridPane loadFileComponent;
@@ -32,7 +31,6 @@ public class MainAppController {
     @FXML private GridController sheetComponentController;
 
     private Stage primaryStage;
-    private BusinessLogic businessLogic;
     private Engine engine;
     private
 

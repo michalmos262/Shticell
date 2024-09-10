@@ -5,7 +5,6 @@ import engine.entity.range.Range;
 import engine.entity.range.RangesManager;
 import engine.entity.sheet.SheetManager;
 import engine.entity.sheet.api.Sheet;
-import engine.exception.cell.NotExistsCellException;
 import engine.exception.sheet.CycleDetectedException;
 
 import java.util.*;
@@ -31,7 +30,7 @@ public class SheetImpl implements Cloneable, Sheet {
     public EffectiveValue getCellEffectiveValue(CellPositionInSheet cellPosition) {
         sheetManager.validatePositionInSheetBounds(cellPosition);
         if (position2cell.get(cellPosition) == null || position2cell.get(cellPosition).getEffectiveValue() == null) {
-            throw new NotExistsCellException(cellPosition);
+            return null;
         }
         return position2cell.get(cellPosition).getEffectiveValue();
     }

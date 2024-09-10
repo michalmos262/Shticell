@@ -28,11 +28,13 @@ public class Sum extends SystemExpression implements Systemic {
 
             for (CellPositionInSheet cellPosition : cellPositions) {
                 EffectiveValue currentCellEffectiveValue = roSheet.getCellEffectiveValue(cellPosition);
-                CellType currentCellType = currentCellEffectiveValue.getCellType();
-                Object currentValue = currentCellEffectiveValue.getValue();
+                if (currentCellEffectiveValue != null) {
+                    CellType currentCellType = currentCellEffectiveValue.getCellType();
+                    Object currentValue = currentCellEffectiveValue.getValue();
 
-                if (currentCellType == CellType.NUMERIC && !currentValue.equals(Double.NaN)) {
-                    sum += Double.parseDouble(currentValue.toString());
+                    if (currentCellType == CellType.NUMERIC && !currentValue.equals(Double.NaN)) {
+                        sum += Double.parseDouble(currentValue.toString());
+                    }
                 }
                 influencingCellPositions.add(cellPosition);
             }

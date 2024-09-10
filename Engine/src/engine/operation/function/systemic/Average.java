@@ -25,19 +25,23 @@ public class Average extends SystemExpression implements Systemic {
         if (range != null) {
             double sum = 0;
             int numbersCount = 0;
-
             List<CellPositionInSheet> cellPositions = range.getIncludedPositions();
+
             for (CellPositionInSheet cellPosition : cellPositions) {
                 EffectiveValue currentCellEffectiveValue = roSheet.getCellEffectiveValue(cellPosition);
-                CellType currentCellType = currentCellEffectiveValue.getCellType();
-                Object currentValue = currentCellEffectiveValue.getValue();
-                if (currentCellType == CellType.NUMERIC) {
-                    numbersCount++;
-                    if (!currentValue.equals(Double.NaN)) {
-                        sum += Double.parseDouble(currentValue.toString());
+
+                if (currentCellEffectiveValue != null) { // cell with value
+                    CellType currentCellType = currentCellEffectiveValue.getCellType();
+                    Object currentValue = currentCellEffectiveValue.getValue();
+
+                    if (currentCellType == CellType.NUMERIC) {
+                        numbersCount++;
+                        if (!currentValue.equals(Double.NaN)) {
+                            sum += Double.parseDouble(currentValue.toString());
+                        }
                     }
-                    influencingCellPositions.add(cellPosition);
                 }
+                influencingCellPositions.add(cellPosition);
             }
             if (numbersCount == 0) {
                 return new EffectiveValue(CellType.NUMERIC, Double.NaN);

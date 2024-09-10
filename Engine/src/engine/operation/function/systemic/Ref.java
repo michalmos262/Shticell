@@ -5,7 +5,6 @@ import engine.entity.cell.CellType;
 import engine.entity.cell.EffectiveValue;
 import engine.entity.cell.PositionFactory;
 import engine.entity.sheet.api.ReadOnlySheet;
-import engine.exception.cell.NotExistsCellException;
 import engine.expression.api.Expression;
 import engine.expression.impl.SystemExpression;
 
@@ -26,12 +25,11 @@ public class Ref extends SystemExpression implements Systemic {
         try {
             EffectiveValue referencedEffectiveValue = roSheet.getCellEffectiveValue(cellPosition);
             influencingCellPositions.add(cellPosition);
-            return new EffectiveValue(referencedEffectiveValue.getCellType(), referencedEffectiveValue.getValue());
-
-        } catch (NotExistsCellException e) {
-            influencingCellPositions.add(cellPosition);
-            return new EffectiveValue(CellType.UNKNOWN, "");
-
+            if (referencedEffectiveValue != null) { // cell with value
+                return new EffectiveValue(referencedEffectiveValue.getCellType(), referencedEffectiveValue.getValue());
+            } else { // empty cell
+                return new EffectiveValue(CellType.UNKNOWN, "");
+            }
         } catch (Exception e) {
             if (influencingCellPositions.getLast() != cellPosition) {
                 influencingCellPositions.add(cellPosition);

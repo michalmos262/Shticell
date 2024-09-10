@@ -6,12 +6,9 @@ import javafx.scene.Parent;
 import javafx.scene.Scene;
 import javafx.stage.Stage;
 import ui.impl.graphic.components.app.MainAppController;
-import ui.impl.graphic.model.BusinessLogic;
 
 import java.net.URL;
-import java.util.Objects;
 
-import static ui.impl.graphic.resources.CommonResourcesPaths.GRID_CSS_RESOURCE;
 import static ui.impl.graphic.resources.CommonResourcesPaths.MAIN_APP_FXML_RESOURCE;
 
 public class Main extends Application {
