@@ -264,12 +264,14 @@ public enum Operation {
     AVERAGE(1) {
         @Override
         public String getDocumentation() {
-            return "";
+            return this + " -> Retrieves the average of numeric values in a specified range name. Syntax: {" + this + ",["
+                    + rangeArg + "]}. For example: {" + this
+                    + ",Pretty Range} will retrieve the average of the numeric values in the range name: Pretty Range.";
         }
 
         @Override
         public EffectiveValue eval(ReadOnlySheet roSheet, List<CellPositionInSheet> influencingCellPositions, ArrayList<EffectiveValueExpression> expressions) {
-            return null;
+            return new Average(expressions.getFirst()).invoke(roSheet, influencingCellPositions);
         }
     };
     

@@ -2,16 +2,12 @@ package engine.entity.cell;
 
 import engine.entity.range.Range;
 import engine.entity.range.RangesManager;
-import engine.exception.range.RangeNotExistException;
 import engine.jaxb.schema.generated.STLCell;
 import engine.jaxb.schema.generated.STLCells;
-import engine.jaxb.schema.generated.STLRange;
-import engine.jaxb.schema.generated.STLRanges;
 
 import java.util.*;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
-import java.util.stream.Collectors;
 
 public class CellConnectionsGraph {
     // Graph structure using adjacency list
@@ -64,11 +60,10 @@ public class CellConnectionsGraph {
             while (matcher.find()) {
                 String extractedString = matcher.group(1);
                 Range range = rangesManager.getRangeByName(extractedString);
-                if (range == null) {
-                    throw new RangeNotExistException(extractedString);
-                }
-                for (CellPositionInSheet cellPositionInSheet: range.getIncludedPositions()) {
-                    addEdge(cellPositionInSheet, currentPosition);
+                if (range != null) {
+                    for (CellPositionInSheet cellPositionInSheet: range.getIncludedPositions()) {
+                        addEdge(cellPositionInSheet, currentPosition);
+                    }
                 }
             }
         }

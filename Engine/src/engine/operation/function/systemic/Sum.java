@@ -5,7 +5,6 @@ import engine.entity.cell.CellType;
 import engine.entity.cell.EffectiveValue;
 import engine.entity.range.Range;
 import engine.entity.sheet.api.ReadOnlySheet;
-import engine.exception.range.RangeNotExistException;
 import engine.expression.api.Expression;
 import engine.expression.impl.SystemExpression;
 
@@ -21,26 +20,26 @@ public class Sum extends SystemExpression implements Systemic {
     protected EffectiveValue invoke(EffectiveValue evaluate, ReadOnlySheet roSheet, List<CellPositionInSheet> influencingCellPositions) {
         // taking the range
         String evaluateValue = evaluate.getValue().toString();
-        Range range = roSheet.getRangeByName(evaluateValue);
+        Range range = roSheet.getRangeByNameForUsing(evaluateValue);
 
-        if (range == null) {
-            throw new RangeNotExistException(evaluateValue);
-        }
+        if (range != null) {
+            double sum = 0;
+            List<CellPositionInSheet> cellPositions = range.getIncludedPositions();
 
-        double sum = 0;
-        List<CellPositionInSheet> cellPositions = range.getIncludedPositions();
+            for (CellPositionInSheet cellPosition : cellPositions) {
+                EffectiveValue currentCellEffectiveValue = roSheet.getCellEffectiveValue(cellPosition);
+                CellType currentCellType = currentCellEffectiveValue.getCellType();
+                Object currentValue = currentCellEffectiveValue.getValue();
 
-        for (CellPositionInSheet cellPosition : cellPositions) {
-            EffectiveValue currentCellEffectiveValue = roSheet.getCellEffectiveValue(cellPosition);
-            CellType currentCellType = currentCellEffectiveValue.getCellType();
-            Object currentValue = currentCellEffectiveValue.getValue();
-
-            if (currentCellType == CellType.NUMERIC && !currentValue.equals(Double.NaN)) {
-                sum += Double.parseDouble(currentValue.toString());
+                if (currentCellType == CellType.NUMERIC && !currentValue.equals(Double.NaN)) {
+                    sum += Double.parseDouble(currentValue.toString());
+                }
+                influencingCellPositions.add(cellPosition);
             }
-            influencingCellPositions.add(cellPosition);
-        }
+            return new EffectiveValue(CellType.NUMERIC, sum);
 
-        return new EffectiveValue(CellType.NUMERIC, sum);
+        } else {
+            return new EffectiveValue(CellType.NUMERIC, Double.NaN);
+        }
     }
 }

@@ -6,7 +6,7 @@ import engine.entity.range.RangesManager;
 import engine.entity.sheet.api.Sheet;
 import engine.entity.sheet.impl.SheetImpl;
 import engine.exception.cell.CellPositionOutOfSheetBoundsException;
-import engine.exception.range.RangeAlreadyExistsException;
+import engine.exception.range.CannotDeleteUsedRangeException;
 
 import java.io.Serializable;
 import java.util.LinkedHashMap;
@@ -70,6 +70,10 @@ public class SheetManager implements Serializable {
         }
     }
 
+    public Range getRangeByName(String name) {
+        return rangesManager.getRangeByName(name);
+    }
+
     public void createRange(String name, CellPositionInSheet fromPosition, CellPositionInSheet toPosition) {
         validatePositionInSheetBounds(fromPosition);
         validatePositionInSheetBounds(toPosition);
@@ -77,7 +81,11 @@ public class SheetManager implements Serializable {
         rangesManager.createRange(name, fromPosition, toPosition);
     }
 
-    public Range getRangeByName(String name) {
-        return rangesManager.getRangeByName(name);
+    public void useRange(String name) {
+        rangesManager.useRange(name);
+    }
+
+    public void deleteRange(String name) {
+        rangesManager.deleteRange(name);
     }
 }
