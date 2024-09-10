@@ -7,6 +7,7 @@ import engine.entity.range.Range;
 import engine.entity.sheet.SheetDimension;
 
 import java.io.IOException;
+import java.util.ArrayList;
 import java.util.List;
 import java.util.Map;
 
@@ -37,4 +38,6 @@ public interface Engine {
     int getSheetColumnWidth();
     SheetDimension getSheetDimension();
     Range getRangeByName(String rangeName);
+    List<String> getRangeNames();
+    void createRange(String name, CellPositionInSheet fromPosition, CellPositionInSheet toPosition);
 }

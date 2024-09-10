@@ -50,7 +50,7 @@ public class LoadFileController {
             absoluteFilePath = selectedFile.getAbsolutePath();
             modelUi.selectedFileAbsolutePathProperty().set(absoluteFilePath);
             engine.loadFile(absoluteFilePath);
-            mainAppController.fileIsLoaded();
+            mainAppController.fileLoaded();
         } catch (Exception e) {
             loadFileFailed(e.getMessage());
         }

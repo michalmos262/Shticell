@@ -2,6 +2,7 @@ package engine.entity.range;
 
 import engine.entity.cell.CellPositionInSheet;
 import engine.entity.cell.PositionFactory;
+import engine.exception.range.RangeNotInRightFormatException;
 
 import java.util.LinkedList;
 import java.util.List;
@@ -13,9 +14,16 @@ public class Range {
     private List<CellPositionInSheet> includedPositions;
 
     public Range(CellPositionInSheet fromPosition, CellPositionInSheet toPosition) {
+        validateRange(fromPosition, toPosition);
         this.fromPosition = fromPosition;
         this.toPosition = toPosition;
         setIncludedPositions();
+    }
+
+    private void validateRange(CellPositionInSheet fromPosition, CellPositionInSheet toPosition) {
+        if (!(fromPosition.getRow() <= toPosition.getRow() && fromPosition.getColumn() <= toPosition.getColumn())) {
+            throw new RangeNotInRightFormatException(fromPosition, toPosition);
+        }
     }
 
     public CellPositionInSheet getFromPosition() {

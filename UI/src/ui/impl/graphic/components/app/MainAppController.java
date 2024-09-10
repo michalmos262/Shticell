@@ -13,8 +13,10 @@ import javafx.scene.layout.BorderPane;
 import javafx.scene.layout.GridPane;
 import javafx.stage.Stage;
 import ui.impl.graphic.components.actionline.ActionLineController;
+import ui.impl.graphic.components.command.CommandsController;
 import ui.impl.graphic.components.file.LoadFileController;
 import ui.impl.graphic.components.grid.GridController;
+import ui.impl.graphic.components.range.RangesController;
 import ui.impl.graphic.model.BusinessLogic;
 
 public class MainAppController {
@@ -23,7 +25,9 @@ public class MainAppController {
     @FXML private GridPane actionLineComponent;
     @FXML private ActionLineController actionLineComponentController;
     @FXML private BorderPane commandsComponent;
+    @FXML private CommandsController commandsComponentController;
     @FXML private BorderPane rangesComponent;
+    @FXML private RangesController rangesComponentController;
     @FXML private ScrollPane sheetComponent;
     @FXML private GridController sheetComponentController;
 
@@ -36,10 +40,13 @@ public class MainAppController {
     void initialize() {
         this.engine = new EngineImpl();
 
-        if (loadFileComponentController != null && sheetComponentController != null && actionLineComponent != null) {
+        if (loadFileComponentController != null && sheetComponentController != null && actionLineComponent != null &&
+                rangesComponentController != null && commandsComponentController != null) {
             loadFileComponentController.setMainController(this, engine);
             sheetComponentController.setMainController(this, engine);
             actionLineComponentController.setMainController(this, engine);
+            rangesComponentController.setMainController(this, engine);
+            commandsComponentController.setMainController(this, engine);
         }
     }
 
@@ -51,8 +58,10 @@ public class MainAppController {
         return primaryStage;
     }
 
-    public void fileIsLoaded() {
+    public void fileLoaded() {
         actionLineComponentController.fileLoaded();
+        rangesComponentController.fileLoaded();
+        commandsComponentController.fileLoaded();
 
         SheetDimension sheetDimension = engine.getSheetDimension();
         SheetDto sheetDto = engine.getSheet(engine.getCurrentSheetVersion());

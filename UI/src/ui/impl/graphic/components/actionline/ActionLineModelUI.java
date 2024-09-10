@@ -10,7 +10,6 @@ import javafx.scene.control.ComboBox;
 import javafx.scene.control.Label;
 
 public class ActionLineModelUI {
-    private final SimpleBooleanProperty isDataLoaded;
     private final SimpleBooleanProperty isAnyCellClicked;
     private final SimpleStringProperty selectedCellId;
     private final SimpleStringProperty selectedCellOriginalValue;
@@ -19,7 +18,6 @@ public class ActionLineModelUI {
 
     public ActionLineModelUI(Button updateValueButton, Label selectedCellIdLabel, Label originalCellValueLabel,
                              Label lastCellVersionLabel, ComboBox<Integer> selectSheetVersionSelector) {
-        isDataLoaded = new SimpleBooleanProperty(false);
         isAnyCellClicked = new SimpleBooleanProperty(false);
         selectedCellId = new SimpleStringProperty("");
         selectedCellOriginalValue = new SimpleStringProperty("");
@@ -27,7 +25,6 @@ public class ActionLineModelUI {
         currentSheetVersion = new SimpleIntegerProperty();
 
         updateValueButton.disableProperty().bind(isAnyCellClicked.not());
-        selectSheetVersionSelector.disableProperty().bind(isDataLoaded.not());
         selectedCellIdLabel.textProperty().bind(Bindings.concat("Cell ID: ", selectedCellId));
         originalCellValueLabel.textProperty().bind(Bindings.concat("Original Value: ", selectedCellOriginalValue));
         lastCellVersionLabel.textProperty().bind(Bindings.concat("Last Cell Version: ", selectedCellLastVersion));
@@ -42,10 +39,6 @@ public class ActionLineModelUI {
 
     public BooleanProperty isAnyCellClickedProperty() {
         return isAnyCellClicked;
-    }
-
-    public SimpleBooleanProperty isDataLoadedProperty() {
-        return isDataLoaded;
     }
 
     public SimpleStringProperty selectedCellIdProperty() {

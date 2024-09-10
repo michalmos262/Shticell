@@ -41,7 +41,7 @@ public class ActionLineController {
         modelUi.selectedCellOriginalValueProperty().set("");
         modelUi.selectedCellLastVersionProperty().set(0);
         modelUi.currentSheetVersionProperty().set(1);
-        modelUi.isDataLoadedProperty().set(true);
+        selectSheetVersionSelector.disableProperty().set(false);
     }
 
     @FXML

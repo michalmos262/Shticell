@@ -70,8 +70,8 @@ public class SheetManager implements Serializable {
         }
     }
 
-    public Range getRangeByName(String name) {
-        return rangesManager.getRangeByName(name);
+    public RangesManager getRangeManager() {
+        return rangesManager;
     }
 
     public void createRange(String name, CellPositionInSheet fromPosition, CellPositionInSheet toPosition) {
@@ -79,13 +79,5 @@ public class SheetManager implements Serializable {
         validatePositionInSheetBounds(toPosition);
 
         rangesManager.createRange(name, fromPosition, toPosition);
-    }
-
-    public void useRange(String name) {
-        rangesManager.useRange(name);
-    }
-
-    public void deleteRange(String name) {
-        rangesManager.deleteRange(name);
     }
 }

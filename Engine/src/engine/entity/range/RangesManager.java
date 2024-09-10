@@ -15,6 +15,10 @@ public class RangesManager {
         rangeName2influencedPositions = new HashMap<>();
     }
 
+    public Map<String, Range> getName2Range() {
+        return name2Range;
+    }
+
     public Range getRangeByName(String name) {
         return name2Range.get(name);
     }

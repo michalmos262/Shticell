@@ -360,6 +360,17 @@ public class EngineImpl implements Engine {
 
     @Override
     public Range getRangeByName(String rangeName) {
-        return sheetManager.getRangeByName(rangeName);
+        return sheetManager.getRangeManager().getRangeByName(rangeName);
+    }
+
+    @Override
+    public List<String> getRangeNames() {
+        List<String> rangeNames = new ArrayList<>();
+        sheetManager.getRangeManager().getName2Range().forEach((name, range) -> rangeNames.add(name));
+        return rangeNames;
+    }
+
+    public void createRange(String name, CellPositionInSheet fromPosition, CellPositionInSheet toPosition) {
+        sheetManager.createRange(name, fromPosition, toPosition);
     }
 }

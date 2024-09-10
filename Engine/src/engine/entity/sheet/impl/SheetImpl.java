@@ -2,6 +2,7 @@ package engine.entity.sheet.impl;
 
 import engine.entity.cell.*;
 import engine.entity.range.Range;
+import engine.entity.range.RangesManager;
 import engine.entity.sheet.SheetManager;
 import engine.entity.sheet.api.Sheet;
 import engine.exception.cell.NotExistsCellException;
@@ -129,9 +130,10 @@ public class SheetImpl implements Cloneable, Sheet {
 
     @Override
     public Range getRangeByNameForUsing(String name) {
-        Range range = sheetManager.getRangeByName(name);
+        RangesManager rangesManager = sheetManager.getRangeManager();
+        Range range = rangesManager.getRangeByName(name);
         if (range != null) {
-            sheetManager.useRange(name);
+            rangesManager.useRange(name);
         }
         return range;
     }
