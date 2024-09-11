@@ -46,7 +46,7 @@ public class Range {
     }
 
     public Set<CellPositionInSheet> getIncludedPositions() {
-        return includedPositions;
+        return new LinkedHashSet<>(includedPositions);
     }
 
     @Override

@@ -37,7 +37,7 @@ public interface Engine {
     int getSheetRowHeight();
     int getSheetColumnWidth();
     SheetDimension getSheetDimension();
-    Range getRangesByName(String rangeName);
+    Range getRangeByName(String rangeName);
     List<String> getRangeNames();
     void createRange(String name, CellPositionInSheet fromPosition, CellPositionInSheet toPosition);
     void deleteRange(String name);

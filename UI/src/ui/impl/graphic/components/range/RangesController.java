@@ -50,7 +50,7 @@ public class RangesController {
 
         List<String> rangeNames = engine.getRangeNames();
         for (String rangeName : rangeNames) {
-            Range range = engine.getRangesByName(rangeName);
+            Range range = engine.getRangeByName(rangeName);
             modelUi.addRange(rangeName, range);
         }
     }
@@ -71,7 +71,7 @@ public class RangesController {
                 CellPositionInSheet fromPosition = PositionFactory.createPosition(addFromRangeTextInput.getText());
                 CellPositionInSheet toPosition = PositionFactory.createPosition(addToRangeTextInput.getText());
                 engine.createRange(rangeName, fromPosition, toPosition);
-                modelUi.addRange(rangeName, engine.getRangesByName(rangeName));
+                modelUi.addRange(rangeName, engine.getRangeByName(rangeName));
                 resetAddRangeTextInputs();
                 AlertsHandler.HandleOkAlert("Range " + rangeName + " added successfully!");
             } else {
@@ -99,9 +99,7 @@ public class RangesController {
     void tableViewOnMouseClickedListener(MouseEvent event) {
         RangeModelUI.TableEntry selectedRow = showRangesTable.getSelectionModel().getSelectedItem();
         if (selectedRow != null) {
-            // Logic when a row is clicked
-            System.out.println("Selected Row: " + selectedRow.nameProperty());
-            // Add your logic here
+            mainAppController.showCellsInRange(selectedRow.nameProperty().getValue());
         }
     }
 }

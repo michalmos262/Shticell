@@ -114,8 +114,7 @@ public class GridController {
         // Clear the previously painted cells
         clearPaintedCells();
 
-        clickedLabel.getStyleClass().remove("cell");
-        clickedLabel.getStyleClass().add("cell-clicked");
+        clickedLabel.getStyleClass().add("clicked");
         currentlyPaintedCells.add(clickedLabel); // Keep track of the painted cells
 
         if (cellDto != null) {
@@ -123,15 +122,25 @@ public class GridController {
             List<Label> influencesCellsLabels = getInfluencesCellsToPaint(cellDto);
             List<Label> influencedByCellsLabels = getInfluencedByCellsToPaint(cellDto);
             for (Label cellLabel : influencesCellsLabels) {
-                cellLabel.getStyleClass().remove("cell");
                 cellLabel.getStyleClass().add("influenced-cell");
                 currentlyPaintedCells.add(cellLabel); // Keep track of the painted cells
             }
             for (Label cellLabel : influencedByCellsLabels) {
-                cellLabel.getStyleClass().remove("cell");
                 cellLabel.getStyleClass().add("influencing-cell");
                 currentlyPaintedCells.add(cellLabel); // Keep track of the painted cells
             }
+        }
+    }
+
+    private void setRangeCellsColors(String rangeName) {
+        // Clear the previously painted cells
+        clearPaintedCells();
+
+        // get cell positions
+        List<Label> cellsToPainter = getRangeCellsToPaint(rangeName);
+        for (Label cellLabel : cellsToPainter) {
+            cellLabel.getStyleClass().add("of-range");
+            currentlyPaintedCells.add(cellLabel);
         }
     }
 
@@ -139,8 +148,8 @@ public class GridController {
         List<Label> influencesCellsLabels = new ArrayList<>();
         Set<CellPositionInSheet> influencesCells = cellDto.getInfluences();
 
-        influencesCells.forEach(influencesCell ->
-                influencesCellsLabels.add((Label) gridPane.lookup("#" + influencesCell))
+        influencesCells.forEach(influencesCellPosition ->
+                influencesCellsLabels.add((Label) gridPane.lookup("#" + influencesCellPosition))
         );
 
         return influencesCellsLabels;
@@ -150,18 +159,28 @@ public class GridController {
         List<Label> influencedByCellsLabels = new ArrayList<>();
         Set<CellPositionInSheet> influencedByCells = cellDto.getInfluencedBy();
 
-        influencedByCells.forEach(influencedByCell ->
-                influencedByCellsLabels.add((Label) gridPane.lookup("#" + influencedByCell))
+        influencedByCells.forEach(influencedByCellPosition ->
+                influencedByCellsLabels.add((Label) gridPane.lookup("#" + influencedByCellPosition))
         );
 
         return influencedByCellsLabels;
     }
 
+    private List<Label> getRangeCellsToPaint(String rangeName) {
+        List<Label> rangeCellsLabels = new ArrayList<>();
+        Set<CellPositionInSheet> rangeCellPositions = engine.getRangeByName(rangeName).getIncludedPositions();
+
+        rangeCellPositions.forEach(position ->
+                rangeCellsLabels.add((Label) gridPane.lookup("#" + position))
+        );
+
+        return rangeCellsLabels;
+    }
+
     // Method to clear the previously painted cells
     private void clearPaintedCells() {
         for (Label cell : currentlyPaintedCells) {
-            cell.getStyleClass().removeAll("influenced-cell", "cell-clicked", "influencing-cell");
-            cell.getStyleClass().add("cell");
+            cell.getStyleClass().removeAll("influenced-cell", "clicked", "influencing-cell", "of-range");
         }
         currentlyPaintedCells.clear(); // Clear the list after un-painting
     }
@@ -230,5 +249,9 @@ public class GridController {
         dialog.getDialogPane().setContent(gridPane);
         dialog.getDialogPane().getButtonTypes().setAll(ButtonType.OK);
         dialog.showAndWait();
+    }
+
+    public void showCellsInRange(String name) {
+        setRangeCellsColors(name);
     }
 }
