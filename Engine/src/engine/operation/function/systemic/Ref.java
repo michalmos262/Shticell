@@ -5,11 +5,11 @@ import engine.entity.cell.CellType;
 import engine.entity.cell.EffectiveValue;
 import engine.entity.cell.PositionFactory;
 import engine.entity.sheet.api.ReadOnlySheet;
-import engine.exception.cell.NotExistsCellException;
+import engine.exception.cell.CellPositionOutOfSheetBoundsException;
 import engine.expression.api.Expression;
 import engine.expression.impl.SystemExpression;
 
-import java.util.List;
+import java.util.Set;
 
 public class Ref extends SystemExpression implements Systemic {
 
@@ -18,7 +18,8 @@ public class Ref extends SystemExpression implements Systemic {
     }
 
     @Override
-    protected EffectiveValue invoke(EffectiveValue evaluate, ReadOnlySheet roSheet, List<CellPositionInSheet> influencingCellPositions) {
+    protected EffectiveValue invoke(EffectiveValue evaluate, ReadOnlySheet roSheet,
+                                    Set<CellPositionInSheet> influencingCellPositions, Set<String> usingRangesNames) {
         // taking the position
         String evaluateValue = evaluate.getValue().toString();
         CellPositionInSheet cellPosition = PositionFactory.createPosition(evaluateValue);
@@ -26,16 +27,16 @@ public class Ref extends SystemExpression implements Systemic {
         try {
             EffectiveValue referencedEffectiveValue = roSheet.getCellEffectiveValue(cellPosition);
             influencingCellPositions.add(cellPosition);
-            return new EffectiveValue(referencedEffectiveValue.getCellType(), referencedEffectiveValue.getValue());
-
-        } catch (NotExistsCellException e) {
-            influencingCellPositions.add(cellPosition);
-            return new EffectiveValue(CellType.UNKNOWN, "");
-
-        } catch (Exception e) {
-            if (influencingCellPositions.getLast() != cellPosition) {
-                influencingCellPositions.add(cellPosition);
+            if (referencedEffectiveValue != null) { // cell with value
+                return new EffectiveValue(referencedEffectiveValue.getCellType(), referencedEffectiveValue.getValue());
+            } else { // empty cell
+                return new EffectiveValue(CellType.UNKNOWN, "");
             }
+        } catch (CellPositionOutOfSheetBoundsException e) {
+            throw e;
+        }
+        catch (Exception e) {
+            influencingCellPositions.add(cellPosition);
             return new EffectiveValue(CellType.UNKNOWN, EffectiveValue.STRING_INVALID_VALUE);
         }
     }

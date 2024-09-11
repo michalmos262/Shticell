@@ -6,16 +6,18 @@ import java.util.*;
 public class Cell implements Cloneable, Serializable {
     private String originalValue;
     private EffectiveValue effectiveValue;
-    private final List<CellPositionInSheet> influencedBy;
-    private final List<CellPositionInSheet> influences;
+    private final Set<CellPositionInSheet> influencedBy;
+    private final Set<CellPositionInSheet> influences;
+    private final Set<String> rangeNamesUsed;
     private int lastUpdatedInVersion;
 
     public Cell(String originalValue, EffectiveValue effectiveValue, int lastUpdatedInVersion) {
         this.originalValue = originalValue;
         this.effectiveValue = effectiveValue;
-        influencedBy = new ArrayList<>();
-        influences = new ArrayList<>();
+        influencedBy = new LinkedHashSet<>();
+        influences = new LinkedHashSet<>();
         this.lastUpdatedInVersion = lastUpdatedInVersion;
+        rangeNamesUsed = new HashSet<>();
     }
 
     public String getOriginalValue() {
@@ -26,12 +28,16 @@ public class Cell implements Cloneable, Serializable {
         return effectiveValue;
     }
 
-    public List<CellPositionInSheet> getInfluencedBy() {
+    public Set<CellPositionInSheet> getInfluencedBy() {
         return influencedBy;
     }
 
-    public List<CellPositionInSheet> getInfluences() {
+    public Set<CellPositionInSheet> getInfluences() {
         return influences;
+    }
+
+    public Set<String> getRangeNamesUsed() {
+        return rangeNamesUsed;
     }
 
     public int getLastUpdatedInVersion() {
@@ -51,9 +57,7 @@ public class Cell implements Cloneable, Serializable {
     }
 
     public void addInfluence(CellPositionInSheet influencedCellPosition) {
-        if (!influences.contains(influencedCellPosition)) {
-            influences.add(influencedCellPosition);
-        }
+        influences.add(influencedCellPosition);
     }
 
     public void removeInfluence(CellPositionInSheet influencedCellPosition) {
@@ -61,13 +65,19 @@ public class Cell implements Cloneable, Serializable {
     }
 
     public void addInfluencedBy(CellPositionInSheet influencingCellPosition) {
-        if (!influencedBy.contains(influencingCellPosition)) {
-            influencedBy.add(influencingCellPosition);
-        }
+        influencedBy.add(influencingCellPosition);
     }
 
     public void removeInfluencedBy(CellPositionInSheet influencingCellPosition) {
         influencedBy.remove(influencingCellPosition);
+    }
+
+    public void addRangeNameUsed(String rangeName) {
+        rangeNamesUsed.add(rangeName);
+    }
+
+    public void removeRangeNameUsed(String rangeName) {
+        rangeNamesUsed.remove(rangeName);
     }
 
     @Override

@@ -3,17 +3,17 @@ package engine.entity.dto;
 import engine.entity.cell.CellPositionInSheet;
 import engine.entity.cell.EffectiveValue;
 
-import java.util.List;
+import java.util.Set;
 
 public class CellDto {
     private final String originalValue;
     private final EffectiveValue effectiveValue;
     private final EffectiveValue effectiveValueForDisplay;
-    private final List<CellPositionInSheet> influencedBy;
-    private final List<CellPositionInSheet> influences;
+    private final Set<CellPositionInSheet> influencedBy;
+    private final Set<CellPositionInSheet> influences;
 
     public CellDto(String originalValue, EffectiveValue effectiveValue, EffectiveValue effectiveValueForDisplay,
-                   List<CellPositionInSheet> influencedBy, List<CellPositionInSheet> influences) {
+                   Set<CellPositionInSheet> influencedBy, Set<CellPositionInSheet> influences) {
         this.originalValue = originalValue;
         this.effectiveValue = effectiveValue;
         this.effectiveValueForDisplay = effectiveValueForDisplay;
@@ -33,11 +33,11 @@ public class CellDto {
         return effectiveValueForDisplay;
     }
 
-    public List<CellPositionInSheet> getInfluencedBy() {
+    public Set<CellPositionInSheet> getInfluencedBy() {
         return influencedBy;
     }
 
-    public List<CellPositionInSheet> getInfluences() {
+    public Set<CellPositionInSheet> getInfluences() {
         return influences;
     }
 }

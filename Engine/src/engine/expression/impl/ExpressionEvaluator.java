@@ -8,9 +8,10 @@ import engine.operation.Operation;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.List;
+import java.util.Set;
 
 public class ExpressionEvaluator {
-    public static EffectiveValue evaluateArgument(ReadOnlySheet roSheet, String argument, List<CellPositionInSheet> influencingCellPositions) {
+    public static EffectiveValue evaluateArgument(ReadOnlySheet roSheet, String argument, Set<CellPositionInSheet> influencingCellPositions, Set<String> usingRangeNames) {
         EffectiveValue effectiveValue;
 
         if (argument.isEmpty()) {
@@ -34,7 +35,7 @@ public class ExpressionEvaluator {
             List<String> args = new ArrayList<>(Arrays.asList(parts).subList(1, parts.length));
 
             // Evaluate the function
-            effectiveValue = evaluateFunction(roSheet, functionName, args, influencingCellPositions);
+            effectiveValue = evaluateFunction(roSheet, functionName, args, influencingCellPositions, usingRangeNames);
         }
         else {
             effectiveValue = new EffectiveValue(CellType.STRING, argument);
@@ -43,7 +44,7 @@ public class ExpressionEvaluator {
         return effectiveValue;
     }
 
-    public static EffectiveValue evaluateFunction(ReadOnlySheet roSheet, String operationName, List<String> args, List<CellPositionInSheet> influencingCellPositions) {
+    public static EffectiveValue evaluateFunction(ReadOnlySheet roSheet, String operationName, List<String> args, Set<CellPositionInSheet> influencingCellPositions, Set<String> usingRangeNames) {
         try {
             Operation operation = Operation.getOperation(operationName);
             ArrayList<EffectiveValue> effectiveValues = new ArrayList<>();
@@ -54,7 +55,7 @@ public class ExpressionEvaluator {
                 throw new OperationIllegalNumberOfArgumentsException(operationName, expectedExpressionsAmount, args.size());
             }
             for (String arg : args) {
-                EffectiveValue effectiveValue = evaluateArgument(roSheet, arg, influencingCellPositions);
+                EffectiveValue effectiveValue = evaluateArgument(roSheet, arg, influencingCellPositions, usingRangeNames);
                 effectiveValues.add(effectiveValue);
             }
             for (EffectiveValue ev : effectiveValues) {
@@ -62,7 +63,7 @@ public class ExpressionEvaluator {
                 effectiveValueExpressions.add(effectiveValueExpression);
             }
 
-            return operation.eval(roSheet, influencingCellPositions, effectiveValueExpressions);
+            return operation.eval(roSheet, influencingCellPositions, effectiveValueExpressions, usingRangeNames);
 
         } catch (Exception e) {
             throw new IllegalArgumentException("You tried to evaluate operation " + operationName +

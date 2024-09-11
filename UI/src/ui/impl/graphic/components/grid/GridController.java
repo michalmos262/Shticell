@@ -1,10 +1,11 @@
 package ui.impl.graphic.components.grid;
 
+import engine.api.Engine;
 import engine.entity.cell.CellPositionInSheet;
 import engine.entity.cell.PositionFactory;
 import engine.entity.dto.CellDto;
 import engine.entity.dto.SheetDto;
-import engine.entity.sheet.impl.SheetDimension;
+import engine.entity.sheet.SheetDimension;
 import javafx.beans.property.SimpleStringProperty;
 import javafx.fxml.FXML;
 import javafx.geometry.Insets;
@@ -19,7 +20,7 @@ import ui.impl.graphic.components.app.MainAppController;
 
 import java.util.ArrayList;
 import java.util.List;
-import java.util.Map;
+import java.util.Set;
 
 public class GridController {
 
@@ -27,19 +28,26 @@ public class GridController {
     @FXML private GridPane gridPane;
 
     private MainAppController mainAppController;
+    private Engine engine;
+    private GridModelUI modelUi;
     private final List<Label> currentlyPaintedCells = new ArrayList<>(); // List to store painted cells
     private Label clickedLabel;
 
-    public void setMainController(MainAppController mainAppController) {
+    @FXML
+    private void initialize() {
+        modelUi = new GridModelUI();
+    }
+
+    public void setMainController(MainAppController mainAppController, Engine engine) {
         this.mainAppController = mainAppController;
+        this.engine = engine;
     }
 
     public void initMainGrid(SheetDimension sheetDimension, SheetDto sheetDto) {
         int numOfRows = sheetDimension.getNumOfRows();
         int numOfColumns = sheetDimension.getNumOfColumns();
-        //TODO: delete the "* 10" after creating ranges
-        int rowHeight = sheetDimension.getRowHeight() * 10;
-        int columnWidth = sheetDimension.getColumnWidth() * 10;
+        int rowHeight = sheetDimension.getRowHeight();
+        int columnWidth = sheetDimension.getColumnWidth();
 
          // Clear the existing content in the gridContainer
         gridPane.getChildren().clear();
@@ -47,9 +55,6 @@ public class GridController {
         setMainGridColumnsHeaders(gridPane, numOfColumns, columnWidth);
         setMainGridRowsHeaders(gridPane, numOfRows, rowHeight);
         setMainGridCells(sheetDto, sheetDimension);
-
-        // Force a layout pass after adding new nodes
-        gridPane.requestLayout();
     }
 
     private void setMainGridColumnsHeaders(GridPane gridPane, int numOfColumns, int columnWidth) {
@@ -73,22 +78,11 @@ public class GridController {
         }
     }
 
-    private void setCellLabelBinding(Label label, SheetDto sheetDto, CellPositionInSheet cellPositionInSheet) {
-        Map<CellPositionInSheet, SimpleStringProperty> cellPosition2displayedValue = mainAppController.getCellPosition2displayedValue();
-        SimpleStringProperty strProperty = sheetDto.getCell(cellPositionInSheet) == null
-                ? new SimpleStringProperty("")
-                : new SimpleStringProperty(sheetDto.getCell(cellPositionInSheet)
-                    .getEffectiveValueForDisplay().toString());
-        cellPosition2displayedValue.put(cellPositionInSheet, strProperty);
-        label.textProperty().bind(cellPosition2displayedValue.get(cellPositionInSheet));
-    }
-
     private void setMainGridCells(SheetDto sheetDto, SheetDimension sheetDimension) {
         int numOfRows = sheetDimension.getNumOfRows();
         int numOfColumns = sheetDimension.getNumOfColumns();
-        //TODO: delete the "* 10" after creating ranges
-        int rowHeight = sheetDimension.getRowHeight() * 10;
-        int columnWidth = sheetDimension.getColumnWidth() * 10;
+        int rowHeight = sheetDimension.getRowHeight();
+        int columnWidth = sheetDimension.getColumnWidth();
 
         // Populate the GridPane with Labels in the main grid area
         for (int row = 0; row < numOfRows; row++) {
@@ -97,7 +91,7 @@ public class GridController {
                 Label label = new Label();
                 label.getStyleClass().add("cell");
                 label.setId((char) ('A' + col) + String.valueOf(row + 1));
-                setCellLabelBinding(label, sheetDto, cellPositionInSheet);
+                modelUi.setCellLabelBinding(label, sheetDto, cellPositionInSheet);
                 label.setPrefHeight(rowHeight);
                 label.setPrefWidth(columnWidth);
 
@@ -143,7 +137,7 @@ public class GridController {
 
     private List<Label> getInfluencesCellsToPaint(CellDto cellDto) {
         List<Label> influencesCellsLabels = new ArrayList<>();
-        List<CellPositionInSheet> influencesCells = cellDto.getInfluences();
+        Set<CellPositionInSheet> influencesCells = cellDto.getInfluences();
 
         influencesCells.forEach(influencesCell ->
                 influencesCellsLabels.add((Label) gridPane.lookup("#" + influencesCell))
@@ -154,7 +148,7 @@ public class GridController {
 
     private List<Label> getInfluencedByCellsToPaint(CellDto cellDto) {
         List<Label> influencedByCellsLabels = new ArrayList<>();
-        List<CellPositionInSheet> influencedByCells = cellDto.getInfluencedBy();
+        Set<CellPositionInSheet> influencedByCells = cellDto.getInfluencedBy();
 
         influencedByCells.forEach(influencedByCell ->
                 influencedByCellsLabels.add((Label) gridPane.lookup("#" + influencedByCell))
@@ -172,8 +166,16 @@ public class GridController {
         currentlyPaintedCells.clear(); // Clear the list after un-painting
     }
 
-    public void updateCell(CellDto cell) {
-        setClickedCellColors(cell);
+    public void cellUpdated(CellPositionInSheet cellPositionInSheet, CellDto cellDto) {
+        SimpleStringProperty strProperty = modelUi.getCellPosition2displayedValue().get(cellPositionInSheet);
+        strProperty.setValue(cellDto.getEffectiveValueForDisplay().toString());
+        // Update the visible affected cells
+        cellDto.getInfluences().forEach(influencedPosition -> {
+            SimpleStringProperty visibleValue = modelUi.getCellPosition2displayedValue().get(influencedPosition);
+            CellDto influencedCell = engine.findCellInSheet(influencedPosition.getRow(), influencedPosition.getColumn(), engine.getCurrentSheetVersion());
+            visibleValue.setValue(influencedCell.getEffectiveValueForDisplay().toString());
+        });
+        setClickedCellColors(cellDto);
     }
 
     public void setGridOnVersionCells(GridPane gridPane, SheetDto sheetDto, SheetDimension sheetDimension) {
@@ -187,6 +189,7 @@ public class GridController {
             for (int col = 0; col < numOfColumns; col++) {
                 CellPositionInSheet cellPositionInSheet = PositionFactory.createPosition(row+1, col+1);
                 Label label = new Label();
+                label.getStyleClass().add("cell");
                 String cellDisplayedValue = sheetDto.getCell(cellPositionInSheet) == null
                         ? ""
                         : sheetDto.getCell(cellPositionInSheet).getEffectiveValueForDisplay().toString();
@@ -208,11 +211,11 @@ public class GridController {
 
         int numOfRows = sheetDimension.getNumOfRows();
         int numOfColumns = sheetDimension.getNumOfColumns();
-        //TODO: delete the "* 10" after creating ranges
-        int rowHeight = sheetDimension.getRowHeight() * 10;
-        int columnWidth = sheetDimension.getColumnWidth() * 10;
+        int rowHeight = sheetDimension.getRowHeight();
+        int columnWidth = sheetDimension.getColumnWidth();
 
         GridPane gridPane = new GridPane();
+        gridPane.setPrefWidth(700);
 
         setMainGridColumnsHeaders(gridPane, numOfColumns, columnWidth);
         setMainGridRowsHeaders(gridPane, numOfRows, rowHeight);
@@ -220,13 +223,12 @@ public class GridController {
 
         for (Node node : gridPane.getChildren()) {
             if (node instanceof Label label) {
-                label.setStyle("-fx-border-color: black; -fx-border-width: 1px; -fx-padding: 10;");
+                label.setStyle("-fx-border-color: black; -fx-alignment: top-center;");
             }
         }
 
         dialog.getDialogPane().setContent(gridPane);
         dialog.getDialogPane().getButtonTypes().setAll(ButtonType.OK);
-
         dialog.showAndWait();
     }
 }

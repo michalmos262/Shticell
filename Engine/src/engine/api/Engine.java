@@ -3,11 +3,13 @@ package engine.api;
 import engine.entity.dto.CellDto;
 import engine.entity.cell.CellPositionInSheet;
 import engine.entity.dto.SheetDto;
-import engine.entity.sheet.impl.SheetDimension;
+import engine.entity.range.Range;
+import engine.entity.sheet.SheetDimension;
 
 import java.io.IOException;
 import java.util.List;
 import java.util.Map;
+import java.util.Set;
 
 public interface Engine {
     String SUPPORTED_FILE_TYPE = "xml";
@@ -19,9 +21,9 @@ public interface Engine {
     CellDto findCellInSheet(int row, int column, int sheetVersion);
     SheetDto getSheet(int sheetVersion);
     int getLastCellVersion(int row, int column);
-    List<CellPositionInSheet> getInfluencedByList(int row, int column, int sheetVersion);
-    List<CellPositionInSheet> getInfluencesList(int row, int column, int sheetVersion);
-    void updateSheetCell(int row, int column, String newValue);
+    Set<CellPositionInSheet> getInfluencedBySet(int row, int column, int sheetVersion);
+    Set<CellPositionInSheet> getInfluencesSet(int row, int column, int sheetVersion);
+    CellDto updateSheetCell(int row, int column, String newValue);
     Map<Integer, Integer> getVersion2updatedCellsCount();
     Map<Integer, SheetDto> getVersion2sheet();
     void validateSheetVersionExists(int version);
@@ -35,4 +37,8 @@ public interface Engine {
     int getSheetRowHeight();
     int getSheetColumnWidth();
     SheetDimension getSheetDimension();
+    Range getRangesByName(String rangeName);
+    List<String> getRangeNames();
+    void createRange(String name, CellPositionInSheet fromPosition, CellPositionInSheet toPosition);
+    void deleteRange(String name);
 }

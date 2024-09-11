@@ -6,7 +6,7 @@ import engine.entity.sheet.api.ReadOnlySheet;
 import engine.expression.api.Expression;
 import engine.operation.Operation;
 
-import java.util.List;
+import java.util.Set;
 
 public abstract class SystemExpression {
     private final Expression expression;
@@ -15,8 +15,9 @@ public abstract class SystemExpression {
         this.expression = expression;
     }
 
-    public EffectiveValue invoke(ReadOnlySheet roSheet, List<CellPositionInSheet> influencingCellPositions) {
-        return invoke(expression.invoke(), roSheet, influencingCellPositions);
+    public EffectiveValue invoke(ReadOnlySheet roSheet, Set<CellPositionInSheet> influencingCellPositions,
+                                 Set<String> usingRangesNames) {
+        return invoke(expression.invoke(), roSheet, influencingCellPositions, usingRangesNames);
     }
 
     public Operation getOperationSign() {
@@ -28,5 +29,7 @@ public abstract class SystemExpression {
         return "{" + getOperationSign() + "," + expression + "}";
     }
 
-    abstract protected EffectiveValue invoke(EffectiveValue evaluate, ReadOnlySheet roSheet, List<CellPositionInSheet> influencingCellPositions);
+    abstract protected EffectiveValue invoke(EffectiveValue evaluate, ReadOnlySheet roSheet,
+                                             Set<CellPositionInSheet> influencingCellPositions,
+                                             Set<String> usingRangesNames);
 }

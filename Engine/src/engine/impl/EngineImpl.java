@@ -3,17 +3,19 @@ package engine.impl;
 import engine.api.Engine;
 import engine.entity.cell.*;
 import engine.entity.dto.CellDto;
+import engine.entity.range.Range;
 import engine.entity.sheet.api.Sheet;
-import engine.entity.sheet.impl.SheetDimension;
+import engine.entity.sheet.SheetDimension;
 import engine.entity.dto.SheetDto;
 import engine.entity.sheet.impl.SheetImpl;
-import engine.entity.sheet.impl.SheetManager;
+import engine.entity.sheet.SheetManager;
 import engine.exception.file.FileAlreadyExistsException;
 import engine.exception.file.FileNotExistException;
 import engine.exception.file.InvalidFileTypeException;
 import engine.entity.cell.CellConnectionsGraph;
 import engine.jaxb.schema.generated.STLCell;
 import engine.jaxb.schema.generated.STLCells;
+import engine.jaxb.schema.generated.STLRange;
 import engine.jaxb.schema.generated.STLSheet;
 import jakarta.xml.bind.JAXBContext;
 import jakarta.xml.bind.Unmarshaller;
@@ -37,7 +39,7 @@ public class EngineImpl implements Engine {
             CellDto cellDto;
             if (cell == null) {
                 EffectiveValue effectiveValue = new EffectiveValue(CellType.UNKNOWN, "");
-                cellDto = new CellDto("", effectiveValue, effectiveValue, new LinkedList<>(), new LinkedList<>());
+                cellDto = new CellDto("", effectiveValue, effectiveValue, new LinkedHashSet<>(), new LinkedHashSet<>());
             }
             else {
                 cellDto = new CellDto(cell.getOriginalValue(), cell.getEffectiveValue(), getEffectiveValueForDisplay(cell), cell.getInfluencedBy(), cell.getInfluences());
@@ -113,22 +115,27 @@ public class EngineImpl implements Engine {
     }
 
     @Override
-    public List<CellPositionInSheet> getInfluencedByList(int row, int column, int sheetVersion) {
+    public Set<CellPositionInSheet> getInfluencedBySet(int row, int column, int sheetVersion) {
         return findCellInSheet(row, column, sheetVersion).getInfluencedBy();
     }
 
     @Override
-    public List<CellPositionInSheet> getInfluencesList(int row, int column, int sheetVersion) {
+    public Set<CellPositionInSheet> getInfluencesSet(int row, int column, int sheetVersion) {
         return findCellInSheet(row, column, sheetVersion).getInfluences();
     }
 
     public EffectiveValue handleEffectiveValue(Sheet sheet, CellPositionInSheet cellPosition, String originalValue) {
         EffectiveValue effectiveValue;
-        List<CellPositionInSheet> influencingCellPositions = new LinkedList<>();
-        effectiveValue = evaluateArgument(sheet, originalValue, influencingCellPositions);
+        Set<CellPositionInSheet> influencingCellPositions = new LinkedHashSet<>();
+        Set<String> usingRangeNames = new LinkedHashSet<>();
+        effectiveValue = evaluateArgument(sheet, originalValue, influencingCellPositions, usingRangeNames);
 
         for (CellPositionInSheet influencingPosition : influencingCellPositions) {
             sheet.addCellConnection(influencingPosition, cellPosition);
+        }
+        for (String rangeName: usingRangeNames) {
+            sheet.useRange(rangeName);
+            sheet.getPosition2cell().get(cellPosition).addRangeNameUsed(rangeName);
         }
 
         return effectiveValue;
@@ -151,7 +158,7 @@ public class EngineImpl implements Engine {
 
     @Override
     //THE FIRST UPDATE
-    public void updateSheetCell(int row, int column, String newOriginalValue) {
+    public CellDto updateSheetCell(int row, int column, String newOriginalValue) {
         Sheet clonedSheet = sheetManager.getSheetByVersion(sheetManager.getCurrentVersion()).clone();
         Set<CellPositionInSheet> visitedCellPositions = new HashSet<>();
         CellPositionInSheet cellPosition = PositionFactory.createPosition(row, column);
@@ -162,6 +169,8 @@ public class EngineImpl implements Engine {
         cellsUpdatedCounter += visitedCellPositions.size();
         clonedSheet.setUpdatedCellsCount(cellsUpdatedCounter);
         sheetManager.addNewSheet(clonedSheet);
+
+        return findCellInSheet(row, column, getCurrentSheetVersion());
     }
 
     private void setCellInfo(Sheet sheet, CellPositionInSheet cellPosition, String originalValue) {
@@ -172,9 +181,14 @@ public class EngineImpl implements Engine {
             if (cellInUpdate == null) { // need to create new cell
                 sheet.createNewCell(cellPosition, originalValue);
             } else {
-                List<CellPositionInSheet> influencedByCellPositions = new LinkedList<>(cellInUpdate.getInfluencedBy());
+                // had to move the set to linked list for keeping on order
+                Set<CellPositionInSheet> influencedByCellPositions = new LinkedHashSet<>(cellInUpdate.getInfluencedBy());
                 for (CellPositionInSheet influencingCellPosition: influencedByCellPositions) {
                     sheet.removeCellConnection(influencingCellPosition, cellPosition);
+                }
+                for (String rangeName: cellInUpdate.getRangeNamesUsed()) {
+                    cellInUpdate.removeRangeNameUsed(rangeName);
+                    sheet.unUseRange(rangeName);
                 }
             }
             effectiveValue = handleEffectiveValue(sheet, cellPosition, originalValue);
@@ -184,11 +198,11 @@ public class EngineImpl implements Engine {
         }
     }
 
-    private int createCellsFromFile(Sheet sheet, STLCells jaxbCells) {
+    private int createCellsFromFile(Sheet sheet, STLCells jaxbCells, SheetManager sheetManager) {
         int cellsUpdatedCounter = 0;
 
         // Create a graph of REF connections
-        CellConnectionsGraph refConnectionsGraph = new CellConnectionsGraph(jaxbCells);
+        CellConnectionsGraph refConnectionsGraph = new CellConnectionsGraph(jaxbCells, sheetManager.getRangesManager());
 
         // Sort the graph topologically
         List<CellPositionInSheet> topologicalSortedGraph = refConnectionsGraph.sortTopologically();
@@ -210,6 +224,7 @@ public class EngineImpl implements Engine {
         return cellsUpdatedCounter;
     }
 
+    @Override
     public void loadFile(String filePath) throws Exception {
         File file = new File(filePath);
 
@@ -223,20 +238,34 @@ public class EngineImpl implements Engine {
         JAXBContext jaxbContext = JAXBContext.newInstance(STLSheet.class);
         Unmarshaller jaxbUnmarshaller = jaxbContext.createUnmarshaller();
         STLSheet jaxbSheet = (STLSheet) jaxbUnmarshaller.unmarshal(file);
+        List<STLRange> ranges = jaxbSheet.getSTLRanges().getSTLRange();
 
+        // Creating sheet manager
+        SheetManager sheetManager = getSheetManager(jaxbSheet);
+        // Creating ranges
+        for (STLRange range: ranges) {
+            CellPositionInSheet fromPosition = PositionFactory.createPosition(range.getSTLBoundaries().getFrom());
+            CellPositionInSheet toPosition = PositionFactory.createPosition(range.getSTLBoundaries().getTo());
+            sheetManager.createRange(range.getName(), fromPosition, toPosition);
+        }
+        // Creating a sheet entity
+        Sheet sheet = new SheetImpl(sheetManager);
+        int cellsUpdatedCounter = createCellsFromFile(sheet, jaxbSheet.getSTLCells(), sheetManager);
+        sheet.setUpdatedCellsCount(cellsUpdatedCounter);
+        sheetManager.addNewSheet(sheet);
+        this.sheetManager = sheetManager;
+        isDataLoaded = true;
+    }
+
+    private static SheetManager getSheetManager(STLSheet jaxbSheet) {
         int numOfRows = jaxbSheet.getSTLLayout().getRows();
         int numOfColumns = jaxbSheet.getSTLLayout().getColumns();
         int rowHeight = jaxbSheet.getSTLLayout().getSTLSize().getRowsHeightUnits();
         int columnWidth = jaxbSheet.getSTLLayout().getSTLSize().getColumnWidthUnits();
 
         SheetDimension sheetDimension = new SheetDimension(numOfRows, numOfColumns, rowHeight, columnWidth);
-        SheetManager sheetManager = new SheetManager(jaxbSheet.getName(), sheetDimension);
-        Sheet sheet = new SheetImpl(sheetManager);
-        int cellsUpdatedCounter = createCellsFromFile(sheet, jaxbSheet.getSTLCells());
-        sheet.setUpdatedCellsCount(cellsUpdatedCounter);
-        sheetManager.addNewSheet(sheet);
-        this.sheetManager = sheetManager;
-        isDataLoaded = true;
+
+        return new SheetManager(jaxbSheet.getName(), sheetDimension);
     }
 
     @Override
@@ -300,8 +329,7 @@ public class EngineImpl implements Engine {
     @Override
     public CellPositionInSheet getCellPositionInSheet(int row, int column) {
         CellPositionInSheet cellPosition = PositionFactory.createPosition(row, column);
-        Sheet lastVersionSheet = sheetManager.getVersion2sheet().get(sheetManager.getCurrentVersion());
-        lastVersionSheet.validatePositionInSheetBounds(cellPosition);
+        sheetManager.validatePositionInSheetBounds(cellPosition);
 
         return cellPosition;
     }
@@ -336,5 +364,25 @@ public class EngineImpl implements Engine {
     @Override
     public SheetDimension getSheetDimension() {
         return sheetManager.getSheetDimension();
+    }
+
+    @Override
+    public Range getRangesByName(String rangeName) {
+        return sheetManager.getRangesManager().getRangeByName(rangeName);
+    }
+
+    @Override
+    public List<String> getRangeNames() {
+        List<String> rangeNames = new ArrayList<>();
+        sheetManager.getRangesManager().getName2Range().forEach((name, range) -> rangeNames.add(name));
+        return rangeNames;
+    }
+
+    public void createRange(String name, CellPositionInSheet fromPosition, CellPositionInSheet toPosition) {
+        sheetManager.createRange(name, fromPosition, toPosition);
+    }
+
+    public void deleteRange(String name) {
+        sheetManager.getRangesManager().deleteRange(name);
     }
 }

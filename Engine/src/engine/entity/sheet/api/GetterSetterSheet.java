@@ -15,6 +15,7 @@ public interface GetterSetterSheet {
     void removeCellConnection(CellPositionInSheet from, CellPositionInSheet to);
     Cell createNewCell(CellPositionInSheet cellPosition, String originalValue);
     Cell getCell(CellPositionInSheet cellPosition);
-
+    void useRange(String name);
+    void unUseRange(String name);
     SheetImpl clone();
 }

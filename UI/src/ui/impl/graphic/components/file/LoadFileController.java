@@ -16,11 +16,18 @@ public class LoadFileController {
     @FXML private Button loadFileButton;
 
     private MainAppController mainAppController;
+    private LoadFileModelUI modelUi;
     private String absoluteFilePath;
+    private Engine engine;
 
-    public void setMainController(MainAppController mainAppController) {
+    @FXML
+    private void initialize() {
+        modelUi = new LoadFileModelUI(filePathLabel);
+    }
+
+    public void setMainController(MainAppController mainAppController, Engine engine) {
         this.mainAppController = mainAppController;
-        filePathLabel.textProperty().bind(mainAppController.selectedFileAbsolutePathProperty());
+        this.engine = engine;
     }
 
     public String getAbsolutePath() {
@@ -28,19 +35,26 @@ public class LoadFileController {
     }
 
     @FXML
-    void LoadFileButtonListener(ActionEvent event) {
-        FileChooser fileChooser = new FileChooser();
-        fileChooser.setTitle("Select an " + Engine.SUPPORTED_FILE_TYPE.toUpperCase() + " file");
-        fileChooser.getExtensionFilters().add(
-                new FileChooser.ExtensionFilter(Engine.SUPPORTED_FILE_TYPE.toUpperCase() + " files", "*." + Engine.SUPPORTED_FILE_TYPE)
-        );
-        File selectedFile = fileChooser.showOpenDialog(mainAppController.getPrimaryStage());
-        if (selectedFile == null) {
-            return;
+    void loadFileButtonListener(ActionEvent event) {
+        try {
+            FileChooser fileChooser = new FileChooser();
+            fileChooser.setTitle("Select an " + Engine.SUPPORTED_FILE_TYPE.toUpperCase() + " file");
+            fileChooser.getExtensionFilters().add(
+                    new FileChooser.ExtensionFilter(Engine.SUPPORTED_FILE_TYPE.toUpperCase() + " files", "*." + Engine.SUPPORTED_FILE_TYPE)
+            );
+            File selectedFile = fileChooser.showOpenDialog(mainAppController.getPrimaryStage());
+            if (selectedFile == null) {
+                return;
+            }
+
+            absoluteFilePath = selectedFile.getAbsolutePath();
+            modelUi.selectedFileAbsolutePathProperty().set(absoluteFilePath);
+            engine.loadFile(absoluteFilePath);
+            mainAppController.fileLoaded();
+        } catch (Exception e) {
+            loadFileFailed(e.getMessage());
         }
 
-        this.absoluteFilePath = selectedFile.getAbsolutePath();
-        mainAppController.loadFile();
     }
 
     public void loadFileFailed(String errorMessage) {

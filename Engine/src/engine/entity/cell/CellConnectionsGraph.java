@@ -1,5 +1,7 @@
 package engine.entity.cell;
 
+import engine.entity.range.Range;
+import engine.entity.range.RangesManager;
 import engine.jaxb.schema.generated.STLCell;
 import engine.jaxb.schema.generated.STLCells;
 
@@ -11,7 +13,7 @@ public class CellConnectionsGraph {
     // Graph structure using adjacency list
     private final Map<CellPositionInSheet, List<CellPositionInSheet>> adjList;
 
-    public CellConnectionsGraph(STLCells jaxbCells) {
+    public CellConnectionsGraph(STLCells jaxbCells, RangesManager rangesManager) {
         // Create a graph
         adjList = new LinkedHashMap<>();
         // Regex to extract references
@@ -25,13 +27,13 @@ public class CellConnectionsGraph {
 
         // Iterate through the cells
         for (STLCell jaxbCell: jaxbCells.getSTLCell()) {
-            // Extract row and column
+            // Extract the position of current cell
             CellPositionInSheet currentPosition = PositionFactory.createPosition(jaxbCell.getRow(), jaxbCell.getColumn());
             // Extract the original value
-            String value = jaxbCell.getSTLOriginalValue();
+            String originalValue = jaxbCell.getSTLOriginalValue();
 
             // Check for references and create edges
-            Matcher matcher = refPattern.matcher(value);
+            Matcher matcher = refPattern.matcher(originalValue);
             while (matcher.find()) {
                 String refColumn = matcher.group(1);
                 String refRow = matcher.group(2);
@@ -40,9 +42,34 @@ public class CellConnectionsGraph {
                 addEdge(refPosition, currentPosition);
             }
         }
+
+        addEdgesDependsOnRangeOperation("\\{SUM,\\s*(.*?)\\s*\\}", jaxbCells, rangesManager);
+        addEdgesDependsOnRangeOperation("\\{AVERAGE,\\s*(.*?)\\s*\\}", jaxbCells, rangesManager);
     }
 
-    public void addEdge(CellPositionInSheet from, CellPositionInSheet to) {
+    private void addEdgesDependsOnRangeOperation(String operationPattern, STLCells jaxbCells, RangesManager rangesManager) {
+        Pattern pattern = Pattern.compile(operationPattern);
+        // Iterate through the cells
+        for (STLCell jaxbCell: jaxbCells.getSTLCell()) {
+            // Extract the position of current cell
+            CellPositionInSheet currentPosition = PositionFactory.createPosition(jaxbCell.getRow(), jaxbCell.getColumn());
+            // Extract the original value
+            String originalValue = jaxbCell.getSTLOriginalValue();
+            // check if the original value includes SUM
+            Matcher matcher = pattern.matcher(originalValue);
+            while (matcher.find()) {
+                String extractedString = matcher.group(1);
+                Range range = rangesManager.getRangeByName(extractedString);
+                if (range != null) {
+                    for (CellPositionInSheet cellPositionInSheet: range.getIncludedPositions()) {
+                        addEdge(cellPositionInSheet, currentPosition);
+                    }
+                }
+            }
+        }
+    }
+
+    private void addEdge(CellPositionInSheet from, CellPositionInSheet to) {
         adjList.computeIfAbsent(from, k -> new ArrayList<>()).add(to);
     }
 

@@ -11,7 +11,7 @@ import engine.operation.function.systemic.*;
 import engine.operation.function.textual.*;
 
 import java.util.ArrayList;
-import java.util.List;
+import java.util.Set;
 
 public enum Operation {
     PLUS(2) {
@@ -22,8 +22,8 @@ public enum Operation {
         }
 
         @Override
-        public EffectiveValue eval(ReadOnlySheet roSheet, List<CellPositionInSheet> influencingCellPositions,
-                            ArrayList<EffectiveValueExpression> expressions) {
+        public EffectiveValue eval(ReadOnlySheet roSheet, Set<CellPositionInSheet> influencingCellPositions,
+                            ArrayList<EffectiveValueExpression> expressions, Set<String> usingRangeNames) {
             return new Plus(expressions.getFirst(), expressions.getLast()).invoke();
         }
     },
@@ -35,8 +35,8 @@ public enum Operation {
         }
 
         @Override
-        public EffectiveValue eval(ReadOnlySheet roSheet, List<CellPositionInSheet> influencingCellPositions,
-                            ArrayList<EffectiveValueExpression> expressions) {
+        public EffectiveValue eval(ReadOnlySheet roSheet, Set<CellPositionInSheet> influencingCellPositions,
+                            ArrayList<EffectiveValueExpression> expressions, Set<String> usingRangeNames) {
             return new Minus(expressions.getFirst(), expressions.getLast()).invoke();
         }
     },
@@ -47,8 +47,8 @@ public enum Operation {
                     this + ",[" + numberArg + "],[" + numberArg + "]}. For example: {" + this + ",3,2} will retrieve 6.";
         }
         @Override
-        public EffectiveValue eval(ReadOnlySheet roSheet, List<CellPositionInSheet> influencingCellPositions,
-                            ArrayList<EffectiveValueExpression> expressions) {
+        public EffectiveValue eval(ReadOnlySheet roSheet, Set<CellPositionInSheet> influencingCellPositions,
+                            ArrayList<EffectiveValueExpression> expressions, Set<String> usingRangeNames) {
             return new Times(expressions.getFirst(), expressions.getLast()).invoke();
         }
     },
@@ -60,8 +60,8 @@ public enum Operation {
         }
 
         @Override
-        public EffectiveValue eval(ReadOnlySheet roSheet, List<CellPositionInSheet> influencingCellPositions,
-                            ArrayList<EffectiveValueExpression> expressions) {
+        public EffectiveValue eval(ReadOnlySheet roSheet, Set<CellPositionInSheet> influencingCellPositions,
+                            ArrayList<EffectiveValueExpression> expressions, Set<String> usingRangeNames) {
             return new Divide(expressions.getFirst(), expressions.getLast()).invoke();
         }
     },
@@ -73,8 +73,8 @@ public enum Operation {
         }
 
         @Override
-        public EffectiveValue eval(ReadOnlySheet roSheet, List<CellPositionInSheet> influencingCellPositions,
-                            ArrayList<EffectiveValueExpression> expressions) {
+        public EffectiveValue eval(ReadOnlySheet roSheet, Set<CellPositionInSheet> influencingCellPositions,
+                            ArrayList<EffectiveValueExpression> expressions, Set<String> usingRangeNames) {
             return new Mod(expressions.getFirst(), expressions.getLast()).invoke();
         }
     },
@@ -86,8 +86,8 @@ public enum Operation {
         }
 
        @Override
-        public EffectiveValue eval(ReadOnlySheet roSheet, List<CellPositionInSheet> influencingCellPositions,
-                            ArrayList<EffectiveValueExpression> expressions) {
+        public EffectiveValue eval(ReadOnlySheet roSheet, Set<CellPositionInSheet> influencingCellPositions,
+                            ArrayList<EffectiveValueExpression> expressions, Set<String> usingRangeNames) {
             return new Pow(expressions.getFirst(), expressions.getLast()).invoke();
         }
     },
@@ -99,8 +99,8 @@ public enum Operation {
         }
 
         @Override
-        public EffectiveValue eval(ReadOnlySheet roSheet, List<CellPositionInSheet> influencingCellPositions,
-                            ArrayList<EffectiveValueExpression> expressions) {
+        public EffectiveValue eval(ReadOnlySheet roSheet, Set<CellPositionInSheet> influencingCellPositions,
+                            ArrayList<EffectiveValueExpression> expressions, Set<String> usingRangeNames) {
             return new Abs(expressions.getFirst()).invoke();
         }
     },
@@ -112,8 +112,8 @@ public enum Operation {
         }
         
         @Override
-        public EffectiveValue eval(ReadOnlySheet roSheet, List<CellPositionInSheet> influencingCellPositions,
-                            ArrayList<EffectiveValueExpression> expressions) {
+        public EffectiveValue eval(ReadOnlySheet roSheet, Set<CellPositionInSheet> influencingCellPositions,
+                            ArrayList<EffectiveValueExpression> expressions, Set<String> usingRangeNames) {
             return new Concat(expressions.getFirst(), expressions.getLast()).invoke();
         }
     },
@@ -126,8 +126,8 @@ public enum Operation {
         }
 
         @Override
-        public EffectiveValue eval(ReadOnlySheet roSheet, List<CellPositionInSheet> influencingCellPositions,
-                            ArrayList<EffectiveValueExpression> expressions) {
+        public EffectiveValue eval(ReadOnlySheet roSheet, Set<CellPositionInSheet> influencingCellPositions,
+                            ArrayList<EffectiveValueExpression> expressions, Set<String> usingRangeNames) {
             return new Sub(expressions.getFirst(), expressions.get(1), expressions.getLast()).invoke();
         }
     },
@@ -139,7 +139,8 @@ public enum Operation {
         }
 
         @Override
-        public EffectiveValue eval(ReadOnlySheet roSheet, List<CellPositionInSheet> influencingCellPositions, ArrayList<EffectiveValueExpression> expressions) {
+        public EffectiveValue eval(ReadOnlySheet roSheet, Set<CellPositionInSheet> influencingCellPositions,
+                                   ArrayList<EffectiveValueExpression> expressions, Set<String> usingRangeNames) {
             return new Percent(expressions.getFirst(), expressions.getLast()).invoke();
         }
     },
@@ -152,9 +153,9 @@ public enum Operation {
         }
 
         @Override
-        public EffectiveValue eval(ReadOnlySheet roSheet, List<CellPositionInSheet> influencingCellPositions,
-                            ArrayList<EffectiveValueExpression> expressions) {
-            return new Ref(expressions.getFirst()).invoke(roSheet, influencingCellPositions);
+        public EffectiveValue eval(ReadOnlySheet roSheet, Set<CellPositionInSheet> influencingCellPositions,
+                            ArrayList<EffectiveValueExpression> expressions, Set<String> usingRangeNames) {
+            return new Ref(expressions.getFirst()).invoke(roSheet, influencingCellPositions, usingRangeNames);
         }
     },
     EQUAL(2) {
@@ -165,8 +166,8 @@ public enum Operation {
         }
 
         @Override
-        public EffectiveValue eval(ReadOnlySheet roSheet, List<CellPositionInSheet> influencingCellPositions,
-                            ArrayList<EffectiveValueExpression> expressions) {
+        public EffectiveValue eval(ReadOnlySheet roSheet, Set<CellPositionInSheet> influencingCellPositions,
+                            ArrayList<EffectiveValueExpression> expressions, Set<String> usingRangeNames) {
             return new Equal(expressions.getFirst(), expressions.getLast()).invoke();
         }
     },
@@ -179,8 +180,8 @@ public enum Operation {
         }
 
         @Override
-        public EffectiveValue eval(ReadOnlySheet roSheet, List<CellPositionInSheet> influencingCellPositions,
-                            ArrayList<EffectiveValueExpression> expressions) {
+        public EffectiveValue eval(ReadOnlySheet roSheet, Set<CellPositionInSheet> influencingCellPositions,
+                            ArrayList<EffectiveValueExpression> expressions, Set<String> usingRangeNames) {
             return new Not(expressions.getFirst()).invoke();
         }
     },
@@ -192,8 +193,8 @@ public enum Operation {
         }
 
         @Override
-        public EffectiveValue eval(ReadOnlySheet roSheet, List<CellPositionInSheet> influencingCellPositions,
-                            ArrayList<EffectiveValueExpression> expressions) {
+        public EffectiveValue eval(ReadOnlySheet roSheet, Set<CellPositionInSheet> influencingCellPositions,
+                            ArrayList<EffectiveValueExpression> expressions, Set<String> usingRangeNames) {
             return new Or(expressions.getFirst(), expressions.getLast()).invoke();
         }
     },
@@ -205,8 +206,8 @@ public enum Operation {
         }
 
         @Override
-        public EffectiveValue eval(ReadOnlySheet roSheet, List<CellPositionInSheet> influencingCellPositions,
-                            ArrayList<EffectiveValueExpression> expressions) {
+        public EffectiveValue eval(ReadOnlySheet roSheet, Set<CellPositionInSheet> influencingCellPositions,
+                            ArrayList<EffectiveValueExpression> expressions, Set<String> usingRangeNames) {
             return new And(expressions.getFirst(), expressions.getLast()).invoke();
         }
     },
@@ -218,7 +219,8 @@ public enum Operation {
         }
 
         @Override
-        public EffectiveValue eval(ReadOnlySheet roSheet, List<CellPositionInSheet> influencingCellPositions, ArrayList<EffectiveValueExpression> expressions) {
+        public EffectiveValue eval(ReadOnlySheet roSheet, Set<CellPositionInSheet> influencingCellPositions,
+                                   ArrayList<EffectiveValueExpression> expressions, Set<String> usingRangeNames) {
             return new Bigger(expressions.getFirst(), expressions.getLast()).invoke();
         }
     },
@@ -230,7 +232,8 @@ public enum Operation {
         }
 
         @Override
-        public EffectiveValue eval(ReadOnlySheet roSheet, List<CellPositionInSheet> influencingCellPositions, ArrayList<EffectiveValueExpression> expressions) {
+        public EffectiveValue eval(ReadOnlySheet roSheet, Set<CellPositionInSheet> influencingCellPositions,
+                                   ArrayList<EffectiveValueExpression> expressions, Set<String> usingRangeNames) {
             return new Less(expressions.getFirst(), expressions.getLast()).invoke();
         }
     },
@@ -243,9 +246,37 @@ public enum Operation {
         }
 
         @Override
-        public EffectiveValue eval(ReadOnlySheet roSheet, List<CellPositionInSheet> influencingCellPositions,
-                            ArrayList<EffectiveValueExpression> expressions) {
+        public EffectiveValue eval(ReadOnlySheet roSheet, Set<CellPositionInSheet> influencingCellPositions,
+                            ArrayList<EffectiveValueExpression> expressions, Set<String> usingRangeNames) {
             return new If(expressions.getFirst(), expressions.get(1), expressions.getLast()).invoke();
+        }
+    },
+    SUM(1) {
+        @Override
+        public String getDocumentation() {
+            return this + " -> Retrieves the sum of numeric values in a specified range name. Syntax: {" + this + ",["
+                    + rangeArg + "]}. For example: {" + this
+                    + ",Pretty Range} will retrieve the sum of the numeric values in the range name: Pretty Range.";
+        }
+
+        @Override
+        public EffectiveValue eval(ReadOnlySheet roSheet, Set<CellPositionInSheet> influencingCellPositions,
+                                   ArrayList<EffectiveValueExpression> expressions, Set<String> usingRangeNames) {
+            return new Sum(expressions.getFirst()).invoke(roSheet, influencingCellPositions, usingRangeNames);
+        }
+    },
+    AVERAGE(1) {
+        @Override
+        public String getDocumentation() {
+            return this + " -> Retrieves the average of numeric values in a specified range name. Syntax: {" + this + ",["
+                    + rangeArg + "]}. For example: {" + this
+                    + ",Pretty Range} will retrieve the average of the numeric values in the range name: Pretty Range.";
+        }
+
+        @Override
+        public EffectiveValue eval(ReadOnlySheet roSheet, Set<CellPositionInSheet> influencingCellPositions,
+                                   ArrayList<EffectiveValueExpression> expressions, Set<String> usingRangeNames) {
+            return new Average(expressions.getFirst()).invoke(roSheet, influencingCellPositions, usingRangeNames);
         }
     };
     
@@ -255,6 +286,7 @@ public enum Operation {
     private static final String booleanArg = "BOOLEAN";
     private static final String valueArg = "VALUE";
     private static final String positionArg = "CELL-POSITION";
+    private static final String rangeArg = "RANGE-NAME";
 
     Operation(int expressionsAmount) {
         this.expressionsAmount = expressionsAmount;
@@ -279,6 +311,6 @@ public enum Operation {
 
     abstract public String getDocumentation();
 
-    abstract public EffectiveValue eval(ReadOnlySheet roSheet, List<CellPositionInSheet> influencingCellPositions,
-                                        ArrayList<EffectiveValueExpression> expressions);
+    abstract public EffectiveValue eval(ReadOnlySheet roSheet, Set<CellPositionInSheet> influencingCellPositions,
+                                        ArrayList<EffectiveValueExpression> expressions, Set<String> usingRangeNames);
 }
