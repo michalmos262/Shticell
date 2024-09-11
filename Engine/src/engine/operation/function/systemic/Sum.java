@@ -17,10 +17,11 @@ public class Sum extends SystemExpression implements Systemic {
     }
 
     @Override
-    protected EffectiveValue invoke(EffectiveValue evaluate, ReadOnlySheet roSheet, Set<CellPositionInSheet> influencingCellPositions) {
+    protected EffectiveValue invoke(EffectiveValue evaluate, ReadOnlySheet roSheet,
+                                    Set<CellPositionInSheet> influencingCellPositions, Set<String> usingRangesNames) {
         // taking the range
         String evaluateValue = evaluate.getValue().toString();
-        Range range = roSheet.getRangeByNameForUsing(evaluateValue);
+        Range range = roSheet.getRangeByName(evaluateValue);
 
         if (range != null) {
             double sum = 0;
@@ -38,9 +39,11 @@ public class Sum extends SystemExpression implements Systemic {
                 }
                 influencingCellPositions.add(cellPosition);
             }
+            usingRangesNames.add(evaluateValue);
             return new EffectiveValue(CellType.NUMERIC, sum);
 
         } else {
+            usingRangesNames.add(evaluateValue);
             return new EffectiveValue(CellType.NUMERIC, Double.NaN);
         }
     }

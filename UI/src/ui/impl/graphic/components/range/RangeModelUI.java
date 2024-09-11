@@ -5,18 +5,16 @@ import javafx.beans.property.SimpleStringProperty;
 import javafx.collections.FXCollections;
 import javafx.collections.MapChangeListener;
 import javafx.collections.ObservableList;
+import javafx.scene.control.ChoiceBox;
 import javafx.scene.control.TableColumn;
 import javafx.scene.control.TableView;
 import javafx.collections.ObservableMap;
-
-import java.util.HashMap;
-import java.util.Map;
 
 public class RangeModelUI {
     private final ObservableMap<SimpleStringProperty, Range> nameProperty2range;
 
     public RangeModelUI(TableView<TableEntry> showRangesTable, TableColumn<TableEntry, String> nameColumn,
-                        TableColumn<RangeModelUI.TableEntry, String> rangeColumn) {
+                        TableColumn<RangeModelUI.TableEntry, String> rangeColumn, ChoiceBox<String> deleteRangeNameChoiceBox) {
 
          // Create an ObservableMap for SimpleStringProperty and Range
         nameProperty2range = FXCollections.observableHashMap();
@@ -31,19 +29,47 @@ public class RangeModelUI {
         // Set the items for the TableView
         showRangesTable.setItems(tableData);
 
+        // Update the ChoiceBox
+        ObservableList<String> choiceBoxData = deleteRangeNameChoiceBox.getItems();
+
         // Add a MapChangeListener to the map to listen for new entries
         nameProperty2range.addListener((MapChangeListener<SimpleStringProperty, Range>) change -> {
+            SimpleStringProperty nameProperty = change.getKey();
+
             if (change.wasAdded()) {
-                // Add the new entry to the TableView
-                SimpleStringProperty nameProperty = change.getKey();
-                Range range = change.getValueAdded();
-                tableData.add(new TableEntry(nameProperty.get(), range));
+                Range addedRange = change.getValueAdded();
+                tableData.add(new TableEntry(nameProperty.get(), addedRange));
+                choiceBoxData.add(nameProperty.get());
+            }
+            if (change.wasRemoved()) {
+                // Find the corresponding TableEntry by name and remove it
+                tableData.removeIf(entry -> entry.nameProperty().get().equals(nameProperty.get()));
+                // Remove the entry from the ChoiceBox
+                choiceBoxData.remove(nameProperty.get());
             }
         });
     }
 
     public void addRange(String name, Range range) {
         nameProperty2range.put(new SimpleStringProperty(name), range);
+    }
+
+    public void removeRange(String name) {
+        // Find the key with the matching name
+        SimpleStringProperty keyToRemove = null;
+        for (SimpleStringProperty key : nameProperty2range.keySet()) {
+            if (key.get().equals(name)) {
+                keyToRemove = key;
+                break;
+            }
+        }
+        if (keyToRemove != null) {
+            nameProperty2range.remove(keyToRemove);
+        }
+    }
+
+    public void resetRanges() {
+        nameProperty2range.clear();
     }
 
     public static class TableEntry {

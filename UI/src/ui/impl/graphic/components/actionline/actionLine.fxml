@@ -2,7 +2,7 @@
 
 <?import javafx.geometry.Insets?>
 <?import javafx.scene.control.Button?>
-<?import javafx.scene.control.ComboBox?>
+<?import javafx.scene.control.ChoiceBox?>
 <?import javafx.scene.control.Label?>
 <?import javafx.scene.layout.ColumnConstraints?>
 <?import javafx.scene.layout.GridPane?>
@@ -10,18 +10,18 @@
 
 <GridPane maxHeight="-Infinity" maxWidth="-Infinity" minHeight="-Infinity" minWidth="-Infinity" prefHeight="42.0" prefWidth="1009.0" xmlns="http://javafx.com/javafx/22" xmlns:fx="http://javafx.com/fxml/1" fx:controller="ui.impl.graphic.components.actionline.ActionLineController">
     <columnConstraints>
-        <ColumnConstraints hgrow="SOMETIMES" maxWidth="818.800048828125" minWidth="10.0" prefWidth="802.4000244140625" />
-        <ColumnConstraints hgrow="SOMETIMES" maxWidth="447.5999755859375" minWidth="10.0" prefWidth="207.19997558593752" />
+        <ColumnConstraints hgrow="SOMETIMES" maxWidth="818.800048828125" minWidth="10.0" prefWidth="748.3999755859375" />
+        <ColumnConstraints hgrow="SOMETIMES" maxWidth="447.5999755859375" minWidth="10.0" prefWidth="261.20002441406245" />
     </columnConstraints>
     <rowConstraints>
         <RowConstraints minHeight="10.0" prefHeight="30.0" vgrow="SOMETIMES" />
     </rowConstraints>
-    <GridPane prefHeight="42.0" prefWidth="641.0" style="-fx-border-color: black;">
+    <GridPane prefHeight="42.0" prefWidth="739.0" style="-fx-border-color: black;">
         <columnConstraints>
             <ColumnConstraints hgrow="SOMETIMES" maxWidth="211.4000244140625" minWidth="10.0" prefWidth="109.6" />
-            <ColumnConstraints hgrow="SOMETIMES" maxWidth="319.40003662109376" minWidth="10.0" prefWidth="278.0" />
-            <ColumnConstraints hgrow="SOMETIMES" maxWidth="214.0000122070312" minWidth="10.0" prefWidth="140.000048828125" />
-            <ColumnConstraints hgrow="SOMETIMES" maxWidth="212.40003662109382" minWidth="10.0" prefWidth="142.8000305175782" />
+            <ColumnConstraints hgrow="SOMETIMES" maxWidth="349.60003662109375" minWidth="10.0" prefWidth="333.5999755859375" />
+            <ColumnConstraints hgrow="SOMETIMES" maxWidth="214.0000122070312" minWidth="10.0" prefWidth="147.6000244140625" />
+            <ColumnConstraints hgrow="SOMETIMES" maxWidth="212.40003662109382" minWidth="10.0" prefWidth="123.00004882812505" />
         </columnConstraints>
         <rowConstraints>
             <RowConstraints minHeight="10.0" prefHeight="30.0" vgrow="SOMETIMES" />
@@ -47,14 +47,19 @@
             </GridPane.margin>
         </Label>
     </GridPane>
-   <ComboBox fx:id="selectSheetVersionSelector" disable="true" onAction="#SelectSheetVersionSelectorListener" prefHeight="25.0" prefWidth="78.0" GridPane.columnIndex="1">
-      <GridPane.margin>
-         <Insets left="120.0" />
-      </GridPane.margin>
-   </ComboBox>
-   <Label text="Select sheet version:" GridPane.columnIndex="1">
+   <Label prefHeight="17.0" prefWidth="120.0" text="Choose sheet version:" GridPane.columnIndex="1">
       <GridPane.margin>
          <Insets left="10.0" />
       </GridPane.margin>
    </Label>
+   <ChoiceBox fx:id="showSheetVersionSelector" disable="true" prefHeight="25.0" prefWidth="73.0" GridPane.columnIndex="1">
+      <GridPane.margin>
+         <Insets left="133.0" />
+      </GridPane.margin>
+   </ChoiceBox>
+   <Button fx:id="showSheetVersionButton" disable="true" mnemonicParsing="false" onAction="#showSheetVersionButtonListener" prefHeight="25.0" prefWidth="46.0" text="Show" GridPane.columnIndex="1">
+      <GridPane.margin>
+         <Insets left="210.0" />
+      </GridPane.margin>
+   </Button>
 </GridPane>

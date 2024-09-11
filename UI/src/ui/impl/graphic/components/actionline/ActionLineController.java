@@ -18,7 +18,8 @@ public class ActionLineController {
     @FXML private Label originalCellValueLabel;
     @FXML private Label selectedCellIdLabel;
     @FXML private Button updateValueButton;
-    @FXML private ComboBox<Integer> selectSheetVersionSelector;
+    @FXML private ChoiceBox<Integer> showSheetVersionSelector;
+    @FXML private Button showSheetVersionButton;
 
     private MainAppController mainAppController;
     private ActionLineModelUI modelUi;
@@ -27,7 +28,7 @@ public class ActionLineController {
     @FXML
     private void initialize() {
         modelUi = new ActionLineModelUI(updateValueButton, selectedCellIdLabel, originalCellValueLabel,
-                lastCellVersionLabel, selectSheetVersionSelector);
+                lastCellVersionLabel, showSheetVersionSelector);
     }
 
     public void setMainController(MainAppController mainAppController, Engine engine) {
@@ -41,7 +42,8 @@ public class ActionLineController {
         modelUi.selectedCellOriginalValueProperty().set("");
         modelUi.selectedCellLastVersionProperty().set(0);
         modelUi.currentSheetVersionProperty().set(1);
-        selectSheetVersionSelector.disableProperty().set(false);
+        showSheetVersionSelector.disableProperty().set(false);
+        showSheetVersionButton.disableProperty().set(false);
     }
 
     @FXML
@@ -107,8 +109,13 @@ public class ActionLineController {
     }
 
     @FXML
-    void SelectSheetVersionSelectorListener(ActionEvent event) {
-        mainAppController.selectSheetVersion(selectSheetVersionSelector.getSelectionModel().getSelectedItem());
+    void showSheetVersionButtonListener(ActionEvent event) {
+        Integer selectedValue = showSheetVersionSelector.getSelectionModel().getSelectedItem();
+        if (selectedValue != null) {
+            mainAppController.selectSheetVersion(selectedValue);
+        } else {
+            AlertsHandler.HandleErrorAlert("Show sheet version", "You need to choose a sheet version.");
+        }
     }
 
     public void updateCellFailed(String errorMessage) {

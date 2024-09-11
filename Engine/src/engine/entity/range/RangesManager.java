@@ -3,6 +3,7 @@ package engine.entity.range;
 import engine.entity.cell.CellPositionInSheet;
 import engine.exception.range.CannotDeleteUsedRangeException;
 import engine.exception.range.RangeAlreadyExistsException;
+import engine.exception.range.RangeNotExistException;
 
 import java.util.*;
 
@@ -32,7 +33,10 @@ public class RangesManager {
     }
 
     public void deleteRange(String name) {
-        // if the range name is used
+        if (name2Range.get(name) == null) {
+            throw new RangeNotExistException(name);
+        }
+        // if the range name is already used
         if (name2usageCount.get(name) != null && name2usageCount.get(name) != 0) {
             throw new CannotDeleteUsedRangeException(name);
         }
@@ -47,7 +51,7 @@ public class RangesManager {
 
     public void unUseRange(String name) {
         if (name2usageCount.get(name) > 0) {
-            name2usageCount.put(name, name2usageCount.get(name) + 1);
+            name2usageCount.put(name, name2usageCount.get(name) - 1);
         }
     }
 }

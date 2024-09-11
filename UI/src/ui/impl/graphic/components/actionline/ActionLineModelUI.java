@@ -6,7 +6,7 @@ import javafx.beans.property.SimpleBooleanProperty;
 import javafx.beans.property.SimpleIntegerProperty;
 import javafx.beans.property.SimpleStringProperty;
 import javafx.scene.control.Button;
-import javafx.scene.control.ComboBox;
+import javafx.scene.control.ChoiceBox;
 import javafx.scene.control.Label;
 
 public class ActionLineModelUI {
@@ -17,7 +17,7 @@ public class ActionLineModelUI {
     private final SimpleIntegerProperty currentSheetVersion;
 
     public ActionLineModelUI(Button updateValueButton, Label selectedCellIdLabel, Label originalCellValueLabel,
-                             Label lastCellVersionLabel, ComboBox<Integer> selectSheetVersionSelector) {
+                             Label lastCellVersionLabel, ChoiceBox<Integer> showSheetVersionSelector) {
         isAnyCellClicked = new SimpleBooleanProperty(false);
         selectedCellId = new SimpleStringProperty("");
         selectedCellOriginalValue = new SimpleStringProperty("");
@@ -31,9 +31,9 @@ public class ActionLineModelUI {
 
         currentSheetVersion.addListener((obs, oldValue, newValue) -> {
             if (newValue.equals(1)) {
-                selectSheetVersionSelector.getItems().clear();
+                showSheetVersionSelector.getItems().clear();
             }
-            selectSheetVersionSelector.getItems().add(newValue.intValue());
+            showSheetVersionSelector.getItems().add(newValue.intValue());
         });
     }
 

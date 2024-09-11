@@ -36,6 +36,10 @@ public class Cell implements Cloneable, Serializable {
         return influences;
     }
 
+    public Set<String> getRangeNamesUsed() {
+        return rangeNamesUsed;
+    }
+
     public int getLastUpdatedInVersion() {
         return lastUpdatedInVersion;
     }
@@ -66,6 +70,14 @@ public class Cell implements Cloneable, Serializable {
 
     public void removeInfluencedBy(CellPositionInSheet influencingCellPosition) {
         influencedBy.remove(influencingCellPosition);
+    }
+
+    public void addRangeNameUsed(String rangeName) {
+        rangeNamesUsed.add(rangeName);
+    }
+
+    public void removeRangeNameUsed(String rangeName) {
+        rangeNamesUsed.remove(rangeName);
     }
 
     @Override

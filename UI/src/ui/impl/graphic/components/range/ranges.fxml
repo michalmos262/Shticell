@@ -29,7 +29,7 @@
          <panes>
             <TitledPane fx:id="showRangesTitledPane" animated="false" disable="true" expanded="false" text="Show ranges">
                <AnchorPane minHeight="0.0" minWidth="0.0" prefHeight="180.0" prefWidth="200.0">
-                  <TableView fx:id="showRangesTable" layoutY="-1.0" prefHeight="171.0" prefWidth="209.0">
+                  <TableView fx:id="showRangesTable" layoutY="-1.0" onMouseClicked="#tableViewOnMouseClickedListener" prefHeight="171.0" prefWidth="209.0">
                      <columns>
                         <TableColumn fx:id="nameColumn" prefWidth="139.99999690055847" resizable="false" text="Name" />
                         <TableColumn fx:id="rangeColumn" editable="false" prefWidth="68.0" resizable="false" text="Range" />
@@ -45,7 +45,7 @@
                   <TextField fx:id="addFromRangeTextInput" layoutX="51.0" layoutY="58.0" prefHeight="25.0" prefWidth="36.0" />
                   <TextField fx:id="addToRangeTextInput" layoutX="111.0" layoutY="58.0" prefHeight="25.0" prefWidth="36.0" />
                   <TextField fx:id="addRangeNameTextInput" layoutX="51.0" layoutY="18.0" prefHeight="25.0" prefWidth="116.0" />
-                  <Button fx:id="addRangeButton" layoutX="128.0" layoutY="137.0" mnemonicParsing="false" onAction="#AddRangeButtonListener" text="Add" />
+                  <Button fx:id="addRangeButton" layoutX="128.0" layoutY="137.0" mnemonicParsing="false" onAction="#addRangeButtonListener" text="Add" />
                </AnchorPane>
             </TitledPane>
             <TitledPane fx:id="deleteRangeTitledPane" animated="false" disable="true" expanded="false" text="Delete range">

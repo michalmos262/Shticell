@@ -4,7 +4,6 @@ import engine.api.Engine;
 import engine.entity.cell.*;
 import engine.entity.dto.CellDto;
 import engine.entity.range.Range;
-import engine.entity.range.RangesManager;
 import engine.entity.sheet.api.Sheet;
 import engine.entity.sheet.SheetDimension;
 import engine.entity.dto.SheetDto;
@@ -128,11 +127,15 @@ public class EngineImpl implements Engine {
     public EffectiveValue handleEffectiveValue(Sheet sheet, CellPositionInSheet cellPosition, String originalValue) {
         EffectiveValue effectiveValue;
         Set<CellPositionInSheet> influencingCellPositions = new LinkedHashSet<>();
-        //TODO: create SET of influencingRanges
-        effectiveValue = evaluateArgument(sheet, originalValue, influencingCellPositions);
+        Set<String> usingRangeNames = new LinkedHashSet<>();
+        effectiveValue = evaluateArgument(sheet, originalValue, influencingCellPositions, usingRangeNames);
 
         for (CellPositionInSheet influencingPosition : influencingCellPositions) {
             sheet.addCellConnection(influencingPosition, cellPosition);
+        }
+        for (String rangeName: usingRangeNames) {
+            sheet.useRange(rangeName);
+            sheet.getPosition2cell().get(cellPosition).addRangeNameUsed(rangeName);
         }
 
         return effectiveValue;
@@ -178,11 +181,15 @@ public class EngineImpl implements Engine {
             if (cellInUpdate == null) { // need to create new cell
                 sheet.createNewCell(cellPosition, originalValue);
             } else {
-                List<CellPositionInSheet> influencedByCellPositions = new LinkedList<>(cellInUpdate.getInfluencedBy());
+                // had to move the set to linked list for keeping on order
+                Set<CellPositionInSheet> influencedByCellPositions = new LinkedHashSet<>(cellInUpdate.getInfluencedBy());
                 for (CellPositionInSheet influencingCellPosition: influencedByCellPositions) {
                     sheet.removeCellConnection(influencingCellPosition, cellPosition);
                 }
-                //TODO: for loop for ranges connections
+                for (String rangeName: cellInUpdate.getRangeNamesUsed()) {
+                    cellInUpdate.removeRangeNameUsed(rangeName);
+                    sheet.unUseRange(rangeName);
+                }
             }
             effectiveValue = handleEffectiveValue(sheet, cellPosition, originalValue);
             sheet.updateCell(cellPosition, originalValue, effectiveValue);
@@ -191,11 +198,11 @@ public class EngineImpl implements Engine {
         }
     }
 
-    private int createCellsFromFile(Sheet sheet, STLCells jaxbCells, RangesManager rangesManager) {
+    private int createCellsFromFile(Sheet sheet, STLCells jaxbCells, SheetManager sheetManager) {
         int cellsUpdatedCounter = 0;
 
         // Create a graph of REF connections
-        CellConnectionsGraph refConnectionsGraph = new CellConnectionsGraph(jaxbCells, rangesManager);
+        CellConnectionsGraph refConnectionsGraph = new CellConnectionsGraph(jaxbCells, sheetManager.getRangesManager());
 
         // Sort the graph topologically
         List<CellPositionInSheet> topologicalSortedGraph = refConnectionsGraph.sortTopologically();
@@ -243,10 +250,9 @@ public class EngineImpl implements Engine {
         }
         // Creating a sheet entity
         Sheet sheet = new SheetImpl(sheetManager);
-        int cellsUpdatedCounter = createCellsFromFile(sheet, jaxbSheet.getSTLCells(), sheetManager.getRangesManager());
+        int cellsUpdatedCounter = createCellsFromFile(sheet, jaxbSheet.getSTLCells(), sheetManager);
         sheet.setUpdatedCellsCount(cellsUpdatedCounter);
         sheetManager.addNewSheet(sheet);
-
         this.sheetManager = sheetManager;
         isDataLoaded = true;
     }
@@ -374,5 +380,9 @@ public class EngineImpl implements Engine {
 
     public void createRange(String name, CellPositionInSheet fromPosition, CellPositionInSheet toPosition) {
         sheetManager.createRange(name, fromPosition, toPosition);
+    }
+
+    public void deleteRange(String name) {
+        sheetManager.getRangesManager().deleteRange(name);
     }
 }

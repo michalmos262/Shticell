@@ -7,6 +7,7 @@ import engine.entity.range.Range;
 import javafx.event.ActionEvent;
 import javafx.fxml.FXML;
 import javafx.scene.control.*;
+import javafx.scene.input.MouseEvent;
 import ui.impl.graphic.components.alert.AlertsHandler;
 import ui.impl.graphic.components.app.MainAppController;
 
@@ -33,7 +34,7 @@ public class RangesController {
 
     @FXML
     private void initialize() {
-        modelUi = new RangeModelUI(showRangesTable, nameColumn, rangeColumn);
+        modelUi = new RangeModelUI(showRangesTable, nameColumn, rangeColumn, deleteRangeNameChoiceBox);
     }
 
     public void setMainController(MainAppController mainAppController, Engine engine) {
@@ -45,6 +46,7 @@ public class RangesController {
         showRangesTitledPane.disableProperty().set(false);
         addNewRangeTitledPane.disableProperty().set(false);
         deleteRangeTitledPane.disableProperty().set(false);
+        modelUi.resetRanges();
 
         List<String> rangeNames = engine.getRangeNames();
         for (String rangeName : rangeNames) {
@@ -53,17 +55,25 @@ public class RangesController {
         }
     }
 
+    private void resetAddRangeTextInputs() {
+        addRangeNameTextInput.setText("");
+        addToRangeTextInput.setText("");
+        addFromRangeTextInput.setText("");
+    }
+
     @FXML
-    void AddRangeButtonListener(ActionEvent event) {
+    void addRangeButtonListener(ActionEvent event) {
         String alertTitle = "Add range";
         try {
-            if (!addRangeNameTextInput.getText().isEmpty()) {
-                String rangeName = addRangeNameTextInput.getText();
+            String rangeName = addRangeNameTextInput.getText();
+
+            if (!rangeName.isEmpty()) {
                 CellPositionInSheet fromPosition = PositionFactory.createPosition(addFromRangeTextInput.getText());
                 CellPositionInSheet toPosition = PositionFactory.createPosition(addToRangeTextInput.getText());
                 engine.createRange(rangeName, fromPosition, toPosition);
                 modelUi.addRange(rangeName, engine.getRangesByName(rangeName));
-                AlertsHandler.HandleOkAlert("Range " + addRangeNameTextInput.getText() + " added successfully!");
+                resetAddRangeTextInputs();
+                AlertsHandler.HandleOkAlert("Range " + rangeName + " added successfully!");
             } else {
                 AlertsHandler.HandleErrorAlert(alertTitle, "Range name cannot be empty");
             }
@@ -74,6 +84,24 @@ public class RangesController {
 
     @FXML
     void deleteRangeButtonListener(ActionEvent event) {
+        try {
+            String rangeName = deleteRangeNameChoiceBox.getValue();
+            engine.deleteRange(rangeName);
+            modelUi.removeRange(rangeName);
+            deleteRangeNameChoiceBox.setValue(null); // clean current choice
+            AlertsHandler.HandleOkAlert("Range " + rangeName + " deleted successfully!");
+        } catch (Exception e) {
+            AlertsHandler.HandleErrorAlert("Delete range", e.getMessage());
+        }
+    }
 
+    @FXML
+    void tableViewOnMouseClickedListener(MouseEvent event) {
+        RangeModelUI.TableEntry selectedRow = showRangesTable.getSelectionModel().getSelectedItem();
+        if (selectedRow != null) {
+            // Logic when a row is clicked
+            System.out.println("Selected Row: " + selectedRow.nameProperty());
+            // Add your logic here
+        }
     }
 }

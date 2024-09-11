@@ -229,7 +229,6 @@ public class GridController {
 
         dialog.getDialogPane().setContent(gridPane);
         dialog.getDialogPane().getButtonTypes().setAll(ButtonType.OK);
-
         dialog.showAndWait();
     }
 }

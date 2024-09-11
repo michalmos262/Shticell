@@ -2,7 +2,6 @@ package engine.entity.sheet.impl;
 
 import engine.entity.cell.*;
 import engine.entity.range.Range;
-import engine.entity.range.RangesManager;
 import engine.entity.sheet.SheetManager;
 import engine.entity.sheet.api.Sheet;
 import engine.exception.sheet.CycleDetectedException;
@@ -128,13 +127,18 @@ public class SheetImpl implements Cloneable, Sheet {
     }
 
     @Override
-    public Range getRangeByNameForUsing(String name) {
-        RangesManager rangesManager = sheetManager.getRangesManager();
-        Range range = rangesManager.getRangeByName(name);
-        if (range != null) {
-            rangesManager.useRange(name);
-        }
-        return range;
+    public Range getRangeByName(String name) {
+        return sheetManager.getRangesManager().getRangeByName(name);
+    }
+
+    @Override
+    public void useRange(String name) {
+        sheetManager.getRangesManager().useRange(name);
+    }
+
+    @Override
+    public void unUseRange(String name) {
+        sheetManager.getRangesManager().unUseRange(name);
     }
 
     @Override

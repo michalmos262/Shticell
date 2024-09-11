@@ -40,4 +40,5 @@ public interface Engine {
     Range getRangesByName(String rangeName);
     List<String> getRangeNames();
     void createRange(String name, CellPositionInSheet fromPosition, CellPositionInSheet toPosition);
+    void deleteRange(String name);
 }

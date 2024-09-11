@@ -7,5 +7,5 @@ import engine.entity.range.Range;
 public interface ReadOnlySheet {
     int getUpdatedCellsCount();
     EffectiveValue getCellEffectiveValue(CellPositionInSheet cellPosition);
-    Range getRangeByNameForUsing(String name);
+    Range getRangeByName(String name);
 }

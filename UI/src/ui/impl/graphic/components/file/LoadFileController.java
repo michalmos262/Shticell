@@ -35,7 +35,7 @@ public class LoadFileController {
     }
 
     @FXML
-    void LoadFileButtonListener(ActionEvent event) {
+    void loadFileButtonListener(ActionEvent event) {
         try {
             FileChooser fileChooser = new FileChooser();
             fileChooser.setTitle("Select an " + Engine.SUPPORTED_FILE_TYPE.toUpperCase() + " file");

@@ -17,10 +17,11 @@ public class Average extends SystemExpression implements Systemic {
     }
 
     @Override
-    protected EffectiveValue invoke(EffectiveValue evaluate, ReadOnlySheet roSheet, Set<CellPositionInSheet> influencingCellPositions) {
+    protected EffectiveValue invoke(EffectiveValue evaluate, ReadOnlySheet roSheet,
+                                    Set<CellPositionInSheet> influencingCellPositions, Set<String> usingRangesNames) {
         // taking the range
         String evaluateValue = evaluate.getValue().toString();
-        Range range = roSheet.getRangeByNameForUsing(evaluateValue);
+        Range range = roSheet.getRangeByName(evaluateValue);
 
         if (range != null) {
             double sum = 0;
@@ -46,9 +47,11 @@ public class Average extends SystemExpression implements Systemic {
             if (numbersCount == 0) {
                 return new EffectiveValue(CellType.NUMERIC, Double.NaN);
             }
+            usingRangesNames.add(evaluateValue);
             return new EffectiveValue(CellType.NUMERIC, sum / numbersCount);
 
         } else {
+            usingRangesNames.add(evaluateValue);
             return new EffectiveValue(CellType.NUMERIC, Double.NaN);
         }
     }

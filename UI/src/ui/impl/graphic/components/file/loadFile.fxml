@@ -20,7 +20,7 @@
           <Insets left="5.0" />
         </GridPane.margin>
     </Label>
-    <Button fx:id="loadFileButton" mnemonicParsing="false" onAction="#LoadFileButtonListener" text="Load File">
+    <Button fx:id="loadFileButton" mnemonicParsing="false" onAction="#loadFileButtonListener" text="Load File">
         <GridPane.margin>
           <Insets left="30.0" />
         </GridPane.margin>

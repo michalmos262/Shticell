@@ -15,8 +15,9 @@ public abstract class SystemExpression {
         this.expression = expression;
     }
 
-    public EffectiveValue invoke(ReadOnlySheet roSheet, Set<CellPositionInSheet> influencingCellPositions) {
-        return invoke(expression.invoke(), roSheet, influencingCellPositions);
+    public EffectiveValue invoke(ReadOnlySheet roSheet, Set<CellPositionInSheet> influencingCellPositions,
+                                 Set<String> usingRangesNames) {
+        return invoke(expression.invoke(), roSheet, influencingCellPositions, usingRangesNames);
     }
 
     public Operation getOperationSign() {
@@ -28,5 +29,7 @@ public abstract class SystemExpression {
         return "{" + getOperationSign() + "," + expression + "}";
     }
 
-    abstract protected EffectiveValue invoke(EffectiveValue evaluate, ReadOnlySheet roSheet, Set<CellPositionInSheet> influencingCellPositions);
+    abstract protected EffectiveValue invoke(EffectiveValue evaluate, ReadOnlySheet roSheet,
+                                             Set<CellPositionInSheet> influencingCellPositions,
+                                             Set<String> usingRangesNames);
 }
