@@ -367,7 +367,7 @@ public class EngineImpl implements Engine {
     }
 
     @Override
-    public Range getRangesByName(String rangeName) {
+    public Range getRangeByName(String rangeName) {
         return sheetManager.getRangesManager().getRangeByName(rangeName);
     }
 

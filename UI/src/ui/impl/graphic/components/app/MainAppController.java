@@ -89,4 +89,9 @@ public class MainAppController {
 
         sheetComponentController.showSheetInVersion(sheetDimension, sheetDto, version);
     }
+
+    public void showCellsInRange(String name) {
+        sheetComponentController.showCellsInRange(name);
+        actionLineComponentController.removeCellClickFocus();
+    }
 }

@@ -36,7 +36,14 @@ public class ActionLineController {
         this.engine = engine;
     }
 
-    public void fileLoaded() {
+    public void removeCellClickFocus() {
+        modelUi.isAnyCellClickedProperty().set(false);
+        modelUi.selectedCellIdProperty().set("");
+        modelUi.selectedCellOriginalValueProperty().set("");
+        modelUi.selectedCellLastVersionProperty().set(0);
+    }
+
+    public void enableFields() {
         modelUi.isAnyCellClickedProperty().set(false);
         modelUi.selectedCellIdProperty().set("");
         modelUi.selectedCellOriginalValueProperty().set("");
@@ -44,6 +51,10 @@ public class ActionLineController {
         modelUi.currentSheetVersionProperty().set(1);
         showSheetVersionSelector.disableProperty().set(false);
         showSheetVersionButton.disableProperty().set(false);
+    }
+
+    public void fileLoaded() {
+        enableFields();
     }
 
     @FXML
