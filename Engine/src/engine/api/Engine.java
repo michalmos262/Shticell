@@ -7,6 +7,7 @@ import engine.entity.range.Range;
 import engine.entity.sheet.SheetDimension;
 
 import java.io.IOException;
+import java.util.LinkedHashSet;
 import java.util.List;
 import java.util.Map;
 import java.util.Set;
@@ -41,4 +42,5 @@ public interface Engine {
     List<String> getRangeNames();
     void createRange(String name, CellPositionInSheet fromPosition, CellPositionInSheet toPosition);
     void deleteRange(String name);
+    SheetDto getSortedRowsSheet(Range rangeToSort, LinkedHashSet<String> columnsSortedBy);
 }

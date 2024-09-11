@@ -4,6 +4,7 @@ import engine.api.Engine;
 import engine.entity.cell.*;
 import engine.entity.dto.CellDto;
 import engine.entity.range.Range;
+import engine.entity.sheet.Row;
 import engine.entity.sheet.api.Sheet;
 import engine.entity.sheet.SheetDimension;
 import engine.entity.dto.SheetDto;
@@ -24,6 +25,7 @@ import java.io.*;
 import java.math.BigDecimal;
 import java.text.DecimalFormat;
 import java.util.*;
+import java.util.stream.Collectors;
 
 import static engine.expression.impl.ExpressionEvaluator.evaluateArgument;
 
@@ -384,5 +386,55 @@ public class EngineImpl implements Engine {
 
     public void deleteRange(String name) {
         sheetManager.getRangesManager().deleteRange(name);
+    }
+
+    @Override
+    public SheetDto getSortedRowsSheet(Range rangeToSort, LinkedHashSet<String> columnsSortedBy) {
+        Sheet inWorkSheet = sheetManager.getSheetByVersion(getCurrentSheetVersion()).clone();
+
+        // Extract rows from the map based on the given range
+        List<Row> rows = extractRowsInRange(inWorkSheet, rangeToSort);
+
+        // Filter out rows that have non-numeric values
+        List<Row> numericRows = rows.stream()
+                .filter(Row::hasNumericValues)
+                .sorted((row1, row2) -> {
+                    // Sort numeric rows by the given columns
+                    for (String column : columnsSortedBy) {
+                        double comparison = row1.compareTo(row2, column);
+                        if (comparison != 0) {
+                            return (int) comparison;
+                        }
+                    }
+                    return 0;
+                }).collect(Collectors.toList());
+
+        // Update the map with sorted rows
+        updateMapWithSortedRows(inWorkSheet.getPosition2cell(), rangeToSort, numericRows);
+    }
+
+    private List<Row> extractRowsInRange(Sheet sheet, Range range) {
+        List<Row> rows = new ArrayList<>();
+        for (int rowNum = range.getFromPosition().getRow(); rowNum <= range.getToPosition().getRow(); rowNum++) {
+            Row row = new Row(rowNum);
+            for (int col = range.getFromPosition().getColumn(); col <= range.getToPosition().getColumn(); col++) {
+                CellPositionInSheet position = new CellPositionInSheet(rowNum, col);
+                Cell cell = sheet.getCell(position);
+                if (cell != null) {
+                    row.addCell(col, cell);
+                }
+            }
+            rows.add(row);
+        }
+        return rows;
+    }
+
+    private void updateMapWithSortedRows(Map<CellPositionInSheet, Cell> position2cell, Range range, List<Row> sortedRows) {
+        for (Row row : sortedRows) {
+            for (Cell cell : row.getCells()) {
+                CellPositionInSheet position = PositionFactory.createPosition(row.getRowNumber()));
+                position2cell.put(position, cell);
+            }
+        }
     }
 }

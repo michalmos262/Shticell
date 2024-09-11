@@ -45,7 +45,7 @@ public class Range {
         }
     }
 
-    public Set<CellPositionInSheet> getIncludedPositions() {
+    public LinkedHashSet<CellPositionInSheet> getIncludedPositions() {
         return new LinkedHashSet<>(includedPositions);
     }
 
