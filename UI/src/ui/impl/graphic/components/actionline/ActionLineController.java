@@ -28,7 +28,7 @@ public class ActionLineController {
     @FXML
     private void initialize() {
         modelUi = new ActionLineModelUI(updateValueButton, selectedCellIdLabel, originalCellValueLabel,
-                lastCellVersionLabel, showSheetVersionSelector);
+                lastCellVersionLabel, showSheetVersionSelector, showSheetVersionButton);
     }
 
     public void setMainController(MainAppController mainAppController, Engine engine) {
@@ -49,8 +49,6 @@ public class ActionLineController {
         modelUi.selectedCellOriginalValueProperty().set("");
         modelUi.selectedCellLastVersionProperty().set(0);
         modelUi.currentSheetVersionProperty().set(1);
-        showSheetVersionSelector.disableProperty().set(false);
-        showSheetVersionButton.disableProperty().set(false);
     }
 
     public void fileLoaded() {

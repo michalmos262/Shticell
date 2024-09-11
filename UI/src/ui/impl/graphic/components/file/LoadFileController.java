@@ -17,7 +17,6 @@ public class LoadFileController {
 
     private MainAppController mainAppController;
     private LoadFileModelUI modelUi;
-    private String absoluteFilePath;
     private Engine engine;
 
     @FXML
@@ -28,10 +27,6 @@ public class LoadFileController {
     public void setMainController(MainAppController mainAppController, Engine engine) {
         this.mainAppController = mainAppController;
         this.engine = engine;
-    }
-
-    public String getAbsolutePath() {
-        return absoluteFilePath;
     }
 
     @FXML
@@ -47,7 +42,7 @@ public class LoadFileController {
                 return;
             }
 
-            absoluteFilePath = selectedFile.getAbsolutePath();
+            String absoluteFilePath = selectedFile.getAbsolutePath();
             modelUi.selectedFileAbsolutePathProperty().set(absoluteFilePath);
             engine.loadFile(absoluteFilePath);
             mainAppController.fileLoaded();

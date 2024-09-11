@@ -11,6 +11,7 @@ import javafx.scene.input.MouseEvent;
 import ui.impl.graphic.components.alert.AlertsHandler;
 import ui.impl.graphic.components.app.MainAppController;
 
+import java.util.Arrays;
 import java.util.List;
 
 public class RangesController {
@@ -34,7 +35,10 @@ public class RangesController {
 
     @FXML
     private void initialize() {
-        modelUi = new RangeModelUI(showRangesTable, nameColumn, rangeColumn, deleteRangeNameChoiceBox);
+        List<TitledPane> titledPanes = Arrays.asList(addNewRangeTitledPane, deleteRangeTitledPane, showRangesTitledPane);
+        List<TextField> textFields = Arrays.asList(addFromRangeTextInput, addRangeNameTextInput, addToRangeTextInput);
+        modelUi = new RangeModelUI(showRangesTable, nameColumn, rangeColumn, deleteRangeNameChoiceBox,
+                titledPanes, textFields);
     }
 
     public void setMainController(MainAppController mainAppController, Engine engine) {
@@ -43,9 +47,6 @@ public class RangesController {
     }
 
     public void fileLoaded() {
-        showRangesTitledPane.disableProperty().set(false);
-        addNewRangeTitledPane.disableProperty().set(false);
-        deleteRangeTitledPane.disableProperty().set(false);
         modelUi.resetRanges();
 
         List<String> rangeNames = engine.getRangeNames();
@@ -53,12 +54,6 @@ public class RangesController {
             Range range = engine.getRangeByName(rangeName);
             modelUi.addRange(rangeName, range);
         }
-    }
-
-    private void resetAddRangeTextInputs() {
-        addRangeNameTextInput.setText("");
-        addToRangeTextInput.setText("");
-        addFromRangeTextInput.setText("");
     }
 
     @FXML
@@ -72,7 +67,8 @@ public class RangesController {
                 CellPositionInSheet toPosition = PositionFactory.createPosition(addToRangeTextInput.getText());
                 engine.createRange(rangeName, fromPosition, toPosition);
                 modelUi.addRange(rangeName, engine.getRangeByName(rangeName));
-                resetAddRangeTextInputs();
+                modelUi.isRangeAddedProperty().set(true);
+                modelUi.isRangeAddedProperty().set(false);
                 AlertsHandler.HandleOkAlert("Range " + rangeName + " added successfully!");
             } else {
                 AlertsHandler.HandleErrorAlert(alertTitle, "Range name cannot be empty");

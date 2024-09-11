@@ -32,7 +32,6 @@ public class MainAppController {
 
     private Stage primaryStage;
     private Engine engine;
-    private
 
     @FXML
     void initialize() {

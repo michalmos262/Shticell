@@ -17,17 +17,20 @@ public class ActionLineModelUI {
     private final SimpleIntegerProperty currentSheetVersion;
 
     public ActionLineModelUI(Button updateValueButton, Label selectedCellIdLabel, Label originalCellValueLabel,
-                             Label lastCellVersionLabel, ChoiceBox<Integer> showSheetVersionSelector) {
+                             Label lastCellVersionLabel, ChoiceBox<Integer> showSheetVersionSelector,
+                             Button showSheetVersionButton) {
         isAnyCellClicked = new SimpleBooleanProperty(false);
         selectedCellId = new SimpleStringProperty("");
         selectedCellOriginalValue = new SimpleStringProperty("");
         selectedCellLastVersion = new SimpleIntegerProperty();
-        currentSheetVersion = new SimpleIntegerProperty();
+        currentSheetVersion = new SimpleIntegerProperty(0);
 
         updateValueButton.disableProperty().bind(isAnyCellClicked.not());
         selectedCellIdLabel.textProperty().bind(Bindings.concat("Cell ID: ", selectedCellId));
         originalCellValueLabel.textProperty().bind(Bindings.concat("Original Value: ", selectedCellOriginalValue));
         lastCellVersionLabel.textProperty().bind(Bindings.concat("Last Cell Version: ", selectedCellLastVersion));
+        showSheetVersionButton.disableProperty().bind(currentSheetVersion.isEqualTo(0));
+        showSheetVersionSelector.disableProperty().bind(currentSheetVersion.isEqualTo(0));
 
         currentSheetVersion.addListener((obs, oldValue, newValue) -> {
             if (newValue.equals(1)) {
