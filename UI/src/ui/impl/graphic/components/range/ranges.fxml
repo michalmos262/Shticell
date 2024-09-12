@@ -13,9 +13,9 @@
 <?import javafx.scene.layout.BorderPane?>
 <?import javafx.scene.text.Font?>
 
-<BorderPane maxHeight="-Infinity" maxWidth="-Infinity" minHeight="-Infinity" minWidth="-Infinity" prefHeight="280.0" prefWidth="209.0" xmlns="http://javafx.com/javafx/22" xmlns:fx="http://javafx.com/fxml/1" fx:controller="ui.impl.graphic.components.range.RangesController">
+<BorderPane maxHeight="-Infinity" maxWidth="-Infinity" minHeight="-Infinity" minWidth="-Infinity" prefHeight="273.0" prefWidth="209.0" xmlns="http://javafx.com/javafx/22" xmlns:fx="http://javafx.com/fxml/1" fx:controller="ui.impl.graphic.components.range.RangesController">
    <top>
-      <Label id="renges-label" alignment="TOP_LEFT" contentDisplay="TOP" prefHeight="33.0" prefWidth="192.0" style="-fx-alignment: center;" text="Ranges" textFill="#050000">
+      <Label id="renges-label" alignment="TOP_LEFT" contentDisplay="TOP" prefHeight="33.0" prefWidth="210.0" style="-fx-alignment: center;" text="Ranges" textFill="#050000">
          <font>
             <Font name="Leelawadee UI Bold" size="12.0" />
          </font>
@@ -45,13 +45,13 @@
                   <TextField fx:id="addFromRangeTextInput" layoutX="51.0" layoutY="58.0" prefHeight="25.0" prefWidth="36.0" />
                   <TextField fx:id="addToRangeTextInput" layoutX="111.0" layoutY="58.0" prefHeight="25.0" prefWidth="36.0" />
                   <TextField fx:id="addRangeNameTextInput" layoutX="51.0" layoutY="18.0" prefHeight="25.0" prefWidth="116.0" />
-                  <Button fx:id="addRangeButton" layoutX="128.0" layoutY="137.0" mnemonicParsing="false" onAction="#addRangeButtonListener" text="Add" />
+                  <Button fx:id="addRangeButton" layoutX="155.0" layoutY="130.0" mnemonicParsing="false" onAction="#addRangeButtonListener" text="Add" />
                </AnchorPane>
             </TitledPane>
             <TitledPane fx:id="deleteRangeTitledPane" animated="false" disable="true" expanded="false" text="Delete range">
                <AnchorPane minHeight="0.0" minWidth="0.0" prefHeight="180.0" prefWidth="200.0">
                   <Label layoutX="14.0" layoutY="22.0" text="Choose a range name:" />
-                  <Button fx:id="deleteRangeButton" layoutX="113.0" layoutY="137.0" mnemonicParsing="false" onAction="#deleteRangeButtonListener" text="Delete" />
+                  <Button fx:id="deleteRangeButton" layoutX="142.0" layoutY="130.0" mnemonicParsing="false" onAction="#deleteRangeButtonListener" text="Delete" />
                   <ChoiceBox fx:id="deleteRangeNameChoiceBox" layoutX="12.0" layoutY="46.0" prefHeight="25.0" prefWidth="126.0" />
                </AnchorPane>
             </TitledPane>
