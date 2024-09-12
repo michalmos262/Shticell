@@ -13,6 +13,7 @@ import javafx.collections.ObservableMap;
 import java.util.List;
 
 public class RangeModelUI {
+    private final SimpleBooleanProperty isFileLoading;
     private final ObservableMap<SimpleStringProperty, Range> nameProperty2range;
     private final ObservableList<TableEntry> rangesTableData;
     private final SimpleBooleanProperty isRangeAdded;
@@ -21,6 +22,7 @@ public class RangeModelUI {
                         TableColumn<RangeModelUI.TableEntry, String> rangeColumn, ChoiceBox<String> deleteRangeNameChoiceBox,
                         List<TitledPane> titledPanes, List<TextField> textFields) {
 
+        isFileLoading = new SimpleBooleanProperty(false);
         isRangeAdded = new SimpleBooleanProperty(false);
         nameProperty2range = FXCollections.observableHashMap();
         rangesTableData = FXCollections.observableArrayList();
@@ -70,10 +72,14 @@ public class RangeModelUI {
         }
     }
 
+    public SimpleBooleanProperty isFileLoadingProperty() {
+        return isFileLoading;
+    }
+
     private void bindTitledPanes(List<TitledPane> titledPanes) {
         // bind disable property of the titled panes
         for (TitledPane titledPane : titledPanes) {
-            titledPane.disableProperty().bind(Bindings.isEmpty(nameProperty2range));
+            titledPane.disableProperty().bind(Bindings.or(Bindings.isEmpty(nameProperty2range), isFileLoading));
         }
     }
 

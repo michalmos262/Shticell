@@ -43,16 +43,14 @@ public class ActionLineController {
         modelUi.selectedCellLastVersionProperty().set(0);
     }
 
-    public void enableFields() {
-        modelUi.isAnyCellClickedProperty().set(false);
-        modelUi.selectedCellIdProperty().set("");
-        modelUi.selectedCellOriginalValueProperty().set("");
-        modelUi.selectedCellLastVersionProperty().set(0);
+    public void fileLoadedSuccessfully() {
+        fileIsLoading(false);
+        removeCellClickFocus();
         modelUi.currentSheetVersionProperty().set(1);
     }
 
-    public void fileLoaded() {
-        enableFields();
+    public void fileIsLoading(boolean isStarted) {
+        modelUi.isFileLoadingProperty().set(isStarted);
     }
 
     @FXML

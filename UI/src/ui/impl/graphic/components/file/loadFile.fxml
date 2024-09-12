@@ -10,10 +10,10 @@
 
 <GridPane maxHeight="-Infinity" maxWidth="-Infinity" minHeight="-Infinity" minWidth="-Infinity" prefHeight="38.0" prefWidth="1091.0" xmlns="http://javafx.com/javafx/22" xmlns:fx="http://javafx.com/fxml/1" fx:controller="ui.impl.graphic.components.file.LoadFileController">
     <columnConstraints>
-        <ColumnConstraints hgrow="SOMETIMES" maxWidth="295.20001220703125" minWidth="10.0" prefWidth="134.80001220703124" />
-        <ColumnConstraints hgrow="SOMETIMES" maxWidth="909.6000030517578" minWidth="9.400014495849632" prefWidth="436.59997558593756" />
-      <ColumnConstraints hgrow="SOMETIMES" maxWidth="909.6000030517578" minWidth="10.0" prefWidth="185.8000366210938" />
-      <ColumnConstraints hgrow="SOMETIMES" maxWidth="909.6000030517578" minWidth="10.0" prefWidth="336.1999633789062" />
+        <ColumnConstraints hgrow="SOMETIMES" maxWidth="295.20001220703125" minWidth="10.0" prefWidth="127.40000457763671" />
+        <ColumnConstraints hgrow="SOMETIMES" maxWidth="909.6000030517578" minWidth="9.400014495849632" prefWidth="530.4000122070313" />
+      <ColumnConstraints hgrow="SOMETIMES" maxWidth="909.6000030517578" minWidth="10.0" prefWidth="145.19998779296873" />
+      <ColumnConstraints hgrow="SOMETIMES" maxWidth="909.6000030517578" minWidth="10.0" prefWidth="289.5999755859375" />
     </columnConstraints>
     <rowConstraints>
         <RowConstraints minHeight="10.0" prefHeight="30.0" vgrow="SOMETIMES" />
@@ -25,17 +25,17 @@
     </Label>
     <Button fx:id="loadFileButton" mnemonicParsing="false" onAction="#loadFileButtonListener" prefHeight="25.0" prefWidth="88.0" text="Load File">
         <GridPane.margin>
-          <Insets left="30.0" />
+          <Insets left="16.0" />
         </GridPane.margin>
     </Button>
    <ProgressBar fx:id="progressBar" prefHeight="32.0" prefWidth="200.0" progress="0.0" GridPane.columnIndex="3">
       <GridPane.margin>
-         <Insets left="50.0" />
+         <Insets />
       </GridPane.margin>
    </ProgressBar>
-   <Label fx:id="loadingProcessLabel" text="File loading process" GridPane.columnIndex="2">
+   <Label fx:id="loadingProcessLabel" prefHeight="17.0" prefWidth="425.0" GridPane.columnIndex="2">
       <GridPane.margin>
-         <Insets left="10.0" />
+         <Insets />
       </GridPane.margin>
    </Label>
 </GridPane>

@@ -46,7 +46,11 @@ public class RangesController {
         this.engine = engine;
     }
 
-    public void fileLoaded() {
+    public void fileIsLoading(boolean isStarted) {
+        modelUi.isFileLoadingProperty().set(isStarted);
+    }
+
+    public void fileLoadedSuccessfully() {
         modelUi.resetRanges();
 
         List<String> rangeNames = engine.getRangeNames();
@@ -54,6 +58,8 @@ public class RangesController {
             Range range = engine.getRangeByName(rangeName);
             modelUi.addRange(rangeName, range);
         }
+
+        modelUi.isFileLoadingProperty().set(false);
     }
 
     @FXML

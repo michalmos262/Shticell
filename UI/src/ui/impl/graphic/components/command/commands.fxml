@@ -29,7 +29,7 @@
    <center>
       <Accordion BorderPane.alignment="CENTER">
         <panes>
-          <TitledPane animated="false" disable="true" prefHeight="207.0" prefWidth="170.0" text="Set column properties">
+          <TitledPane fx:id="columnPropsTitledPane" animated="false" prefHeight="207.0" prefWidth="170.0" text="Set column properties">
                <content>
                   <AnchorPane prefHeight="181.0" prefWidth="0.0">
                      <children>
@@ -44,7 +44,7 @@
                      </children>
                   </AnchorPane>
                </content></TitledPane>
-            <TitledPane animated="false" disable="true" layoutX="10.0" layoutY="10.0" prefHeight="207.0" prefWidth="170.0" text="Set row properties">
+            <TitledPane fx:id="rowPropsTitledPane" animated="false" layoutX="10.0" layoutY="10.0" prefHeight="207.0" prefWidth="170.0" text="Set row properties">
                <content>
                   <AnchorPane prefHeight="181.0" prefWidth="0.0">
                      <children>
@@ -58,7 +58,7 @@
                   </AnchorPane>
                </content>
             </TitledPane>
-            <TitledPane animated="false" disable="true" layoutX="10.0" layoutY="35.0" prefHeight="207.0" prefWidth="170.0" text="Set cell properties">
+            <TitledPane fx:id="cellPropsTitledPane" animated="false" layoutX="10.0" layoutY="35.0" prefHeight="207.0" prefWidth="170.0" text="Set cell properties">
                <content>
                   <AnchorPane prefHeight="181.0" prefWidth="0.0">
                      <children>
@@ -78,7 +78,7 @@
                   </AnchorPane>
                </content>
             </TitledPane>
-          <TitledPane animated="false" disable="true" prefHeight="179.0" prefWidth="214.0" text="Show sorted sheet">
+          <TitledPane fx:id="sortSheetTitledPane" animated="false" prefHeight="179.0" prefWidth="214.0" text="Show sorted sheet">
                <content>
                   <AnchorPane prefHeight="200.0" prefWidth="200.0">
                      <children>
@@ -92,7 +92,7 @@
                      </children>
                   </AnchorPane>
                </content></TitledPane>
-            <TitledPane animated="false" disable="true" layoutX="10.0" layoutY="86.0" text="Show filtered sheet">
+            <TitledPane fx:id="filterSheetTitledPane" animated="false" layoutX="10.0" layoutY="86.0" text="Show filtered sheet">
                <content>
                   <AnchorPane prefHeight="200.0" prefWidth="200.0">
                      <children>

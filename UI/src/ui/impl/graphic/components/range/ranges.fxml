@@ -27,9 +27,9 @@
    <center>
       <Accordion prefHeight="247.0" prefWidth="242.0">
          <panes>
-            <TitledPane fx:id="showRangesTitledPane" animated="false" disable="true" expanded="false" text="Show ranges">
+            <TitledPane fx:id="showRangesTitledPane" animated="false" expanded="false" text="Show ranges">
                <AnchorPane minHeight="0.0" minWidth="0.0" prefHeight="180.0" prefWidth="200.0">
-                  <TableView fx:id="showRangesTable" layoutY="-1.0" onMouseClicked="#tableViewOnMouseClickedListener" prefHeight="171.0" prefWidth="209.0">
+                  <TableView fx:id="showRangesTable" layoutY="-1.0" onMouseClicked="#tableViewOnMouseClickedListener" prefHeight="166.0" prefWidth="209.0">
                      <columns>
                         <TableColumn fx:id="nameColumn" prefWidth="139.99999690055847" resizable="false" text="Name" />
                         <TableColumn fx:id="rangeColumn" editable="false" prefWidth="68.0" resizable="false" text="Range" />
@@ -37,7 +37,7 @@
                   </TableView>
                </AnchorPane>
             </TitledPane>
-            <TitledPane fx:id="addNewRangeTitledPane" animated="false" disable="true" expanded="false" text="Add new range">
+            <TitledPane fx:id="addNewRangeTitledPane" animated="false" expanded="false" text="Add new range">
                <AnchorPane minHeight="0.0" minWidth="0.0" prefHeight="180.0" prefWidth="200.0">
                   <Label layoutX="8.0" layoutY="27.0" text="Name:" />
                   <Label layoutX="96.0" layoutY="71.0" text=".." />
@@ -48,7 +48,7 @@
                   <Button fx:id="addRangeButton" layoutX="155.0" layoutY="130.0" mnemonicParsing="false" onAction="#addRangeButtonListener" text="Add" />
                </AnchorPane>
             </TitledPane>
-            <TitledPane fx:id="deleteRangeTitledPane" animated="false" disable="true" expanded="false" text="Delete range">
+            <TitledPane fx:id="deleteRangeTitledPane" animated="false" expanded="false" text="Delete range">
                <AnchorPane minHeight="0.0" minWidth="0.0" prefHeight="180.0" prefWidth="200.0">
                   <Label layoutX="14.0" layoutY="22.0" text="Choose a range name:" />
                   <Button fx:id="deleteRangeButton" layoutX="142.0" layoutY="130.0" mnemonicParsing="false" onAction="#deleteRangeButtonListener" text="Delete" />
