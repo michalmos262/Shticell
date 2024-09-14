@@ -14,6 +14,7 @@ import engine.exception.file.FileAlreadyExistsException;
 import engine.exception.file.FileNotExistException;
 import engine.exception.file.InvalidFileTypeException;
 import engine.entity.cell.CellConnectionsGraph;
+import engine.exception.range.ColumnIsNotPartOfRangeException;
 import engine.jaxb.schema.generated.STLCell;
 import engine.jaxb.schema.generated.STLCells;
 import engine.jaxb.schema.generated.STLRange;
@@ -390,9 +391,16 @@ public class EngineImpl implements Engine {
 
     @Override
     public SheetDto getSortedRowsSheet(Range rangeToSort, LinkedHashSet<String> columnsSortedBy) {
-        Sheet inWorkSheet = sheetManager.getSheetByVersion(getCurrentSheetVersion()).clone();
+        columnsSortedBy.forEach((colSortedBy) -> {
+            List<String> cellsInColumn = rangeToSort.getIncludedColumns().stream()
+                    .filter((includedCol) -> includedCol.equals(colSortedBy))
+                    .toList();
+            if (cellsInColumn.isEmpty()) {
+                throw new ColumnIsNotPartOfRangeException(colSortedBy, rangeToSort);
+            }
+        });
 
-        //TODO: check the columnsSortedBy are in the range
+        Sheet inWorkSheet = sheetManager.getSheetByVersion(getCurrentSheetVersion()).clone();
 
         // Extract rows from the map based on the given range
         List<Row> rows = extractRowsInRange(inWorkSheet, rangeToSort);
