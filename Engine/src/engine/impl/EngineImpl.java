@@ -4,6 +4,7 @@ import engine.api.Engine;
 import engine.entity.cell.*;
 import engine.entity.dto.CellDto;
 import engine.entity.range.Range;
+import engine.entity.sheet.Row;
 import engine.entity.sheet.api.Sheet;
 import engine.entity.sheet.SheetDimension;
 import engine.entity.dto.SheetDto;
@@ -13,6 +14,7 @@ import engine.exception.file.FileAlreadyExistsException;
 import engine.exception.file.FileNotExistException;
 import engine.exception.file.InvalidFileTypeException;
 import engine.entity.cell.CellConnectionsGraph;
+import engine.exception.range.ColumnIsNotPartOfRangeException;
 import engine.jaxb.schema.generated.STLCell;
 import engine.jaxb.schema.generated.STLCells;
 import engine.jaxb.schema.generated.STLRange;
@@ -24,6 +26,7 @@ import java.io.*;
 import java.math.BigDecimal;
 import java.text.DecimalFormat;
 import java.util.*;
+import java.util.stream.Collectors;
 
 import static engine.expression.impl.ExpressionEvaluator.evaluateArgument;
 
@@ -384,5 +387,68 @@ public class EngineImpl implements Engine {
 
     public void deleteRange(String name) {
         sheetManager.getRangesManager().deleteRange(name);
+    }
+
+    @Override
+    public SheetDto getSortedRowsSheet(Range rangeToSort, LinkedHashSet<String> columnsSortedBy) {
+        columnsSortedBy.forEach((colSortedBy) -> {
+            List<String> cellsInColumn = rangeToSort.getIncludedColumns().stream()
+                    .filter((includedCol) -> includedCol.equals(colSortedBy))
+                    .toList();
+            if (cellsInColumn.isEmpty()) {
+                throw new ColumnIsNotPartOfRangeException(colSortedBy, rangeToSort);
+            }
+        });
+
+        Sheet inWorkSheet = sheetManager.getSheetByVersion(getCurrentSheetVersion()).clone();
+
+        // Extract rows from the map based on the given range
+        List<Row> rows = extractRowsInRange(inWorkSheet, rangeToSort);
+
+        // Filter out rows that have non-numeric values
+        List<Row> sortedNumericRows = rows.stream()
+                .filter(Row::hasNumericValues)
+                .sorted((row1, row2) -> {
+                    // Sort numeric rows by the given columns
+                    for (String column : columnsSortedBy) {
+                        int comparison = row1.compareTo(row2, column);
+                        if (comparison != 0) {
+                            return comparison;
+                        }
+                    }
+                    return 0;
+                }).collect(Collectors.toList());
+
+        // Update the map with sorted rows
+        updateSheetWithSortedRows(inWorkSheet, rangeToSort, sortedNumericRows);
+
+        return createSheetDto(inWorkSheet);
+    }
+
+    private List<Row> extractRowsInRange(Sheet sheet, Range range) {
+        List<Row> rows = new ArrayList<>();
+        for (int rowNum = range.getFromPosition().getRow(); rowNum <= range.getToPosition().getRow(); rowNum++) {
+            Row row = new Row(rowNum);
+            for (int colNumber = range.getFromPosition().getColumn(); colNumber <= range.getToPosition().getColumn(); colNumber++) {
+                CellPositionInSheet position = PositionFactory.createPosition(rowNum, colNumber);
+                Cell cell = sheet.getCell(position);
+                row.addCell(CellPositionInSheet.parseColumn(colNumber), cell);
+            }
+            rows.add(row);
+        }
+        return rows;
+    }
+
+    private void updateSheetWithSortedRows(Sheet sheet, Range rangeToSort, List<Row> sortedRows) {
+        List<Row> rows = extractRowsInRange(sheet, rangeToSort);
+        List<Row> numericRowsToUpdate = rows.stream().filter(Row::hasNumericValues).toList();
+        for (int i = 0; i < numericRowsToUpdate.size(); i++) {
+            Row sortedRow = sortedRows.get(i);
+            Row rowToUpdateInSheet = numericRowsToUpdate.get(i);
+            for (Map.Entry<String, Cell> sortedCellEntry : sortedRow.getCells().entrySet()) {
+                CellPositionInSheet cellPosition = PositionFactory.createPosition(rowToUpdateInSheet.getRowNumber(), sortedCellEntry.getKey());
+                sheet.getPosition2cell().put(cellPosition, sortedCellEntry.getValue());
+            }
+        }
     }
 }

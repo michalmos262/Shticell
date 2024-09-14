@@ -5,7 +5,6 @@ import engine.entity.cell.CellPositionInSheet;
 import engine.entity.cell.PositionFactory;
 import engine.entity.dto.CellDto;
 import engine.entity.dto.SheetDto;
-import engine.entity.sheet.SheetDimension;
 import javafx.beans.property.SimpleStringProperty;
 import javafx.fxml.FXML;
 import javafx.geometry.Insets;
@@ -32,6 +31,7 @@ public class GridController {
     private GridModelUI modelUi;
     private final List<Label> currentlyPaintedCells = new ArrayList<>(); // List to store painted cells
     private Label clickedLabel;
+    private int numOfRows, numOfColumns, defaultRowHeight, defaultColumnWidth;
 
     @FXML
     private void initialize() {
@@ -47,18 +47,18 @@ public class GridController {
         modelUi.isFileLoadingProperty().set(isStarted);
     }
 
-    public void initMainGrid(SheetDimension sheetDimension, SheetDto sheetDto) {
-        int numOfRows = sheetDimension.getNumOfRows();
-        int numOfColumns = sheetDimension.getNumOfColumns();
-        int rowHeight = sheetDimension.getRowHeight();
-        int columnWidth = sheetDimension.getColumnWidth();
+    public void initMainGrid(SheetDto sheetDto) {
+        numOfRows = engine.getNumOfSheetRows();
+        numOfColumns = engine.getNumOfSheetColumns();
+        defaultRowHeight = engine.getSheetRowHeight();
+        defaultColumnWidth = engine.getSheetColumnWidth();
 
          // Clear the existing content in the gridContainer
         gridPane.getChildren().clear();
 
-        setMainGridColumnsHeaders(gridPane, numOfColumns, columnWidth);
-        setMainGridRowsHeaders(gridPane, numOfRows, rowHeight);
-        setMainGridCells(sheetDto, sheetDimension);
+        setMainGridColumnsHeaders(gridPane, numOfColumns, defaultColumnWidth);
+        setMainGridRowsHeaders(gridPane, numOfRows, defaultRowHeight);
+        setMainGridCells(sheetDto);
 
         fileIsLoading(false);
     }
@@ -84,12 +84,7 @@ public class GridController {
         }
     }
 
-    private void setMainGridCells(SheetDto sheetDto, SheetDimension sheetDimension) {
-        int numOfRows = sheetDimension.getNumOfRows();
-        int numOfColumns = sheetDimension.getNumOfColumns();
-        int rowHeight = sheetDimension.getRowHeight();
-        int columnWidth = sheetDimension.getColumnWidth();
-
+    private void setMainGridCells(SheetDto sheetDto) {
         // Populate the GridPane with Labels in the main grid area
         for (int row = 0; row < numOfRows; row++) {
             for (int col = 0; col < numOfColumns; col++) {
@@ -98,8 +93,8 @@ public class GridController {
                 label.getStyleClass().add("cell");
                 label.setId((char) ('A' + col) + String.valueOf(row + 1));
                 modelUi.setCellLabelBinding(label, sheetDto, cellPositionInSheet);
-                label.setPrefHeight(rowHeight);
-                label.setPrefWidth(columnWidth);
+                label.setPrefHeight(defaultRowHeight);
+                label.setPrefWidth(defaultColumnWidth);
 
                 // Attach the click event handler
                 label.setOnMouseClicked(this::handleCellClick);
@@ -203,12 +198,7 @@ public class GridController {
         setClickedCellColors(cellDto);
     }
 
-    public void setGridOnVersionCells(GridPane gridPane, SheetDto sheetDto, SheetDimension sheetDimension) {
-        int numOfRows = sheetDimension.getNumOfRows();
-        int numOfColumns = sheetDimension.getNumOfColumns();
-        int rowHeight = sheetDimension.getRowHeight();
-        int columnWidth = sheetDimension.getColumnWidth();
-
+    public void setGridOnVersionCells(GridPane gridPane, SheetDto sheetDto) {
         // Populate the GridPane with Labels in the main grid area
         for (int row = 0; row < numOfRows; row++) {
             for (int col = 0; col < numOfColumns; col++) {
@@ -219,8 +209,8 @@ public class GridController {
                         ? ""
                         : sheetDto.getCell(cellPositionInSheet).getEffectiveValueForDisplay().toString();
                 label.setText(cellDisplayedValue);
-                label.setPrefWidth(columnWidth);
-                label.setPrefHeight(rowHeight);
+                label.setPrefWidth(defaultColumnWidth);
+                label.setPrefHeight(defaultRowHeight);
                 label.setMaxWidth(Double.MAX_VALUE);
                 label.setMaxHeight(Double.MAX_VALUE);
 
@@ -229,22 +219,36 @@ public class GridController {
         }
     }
 
-    public void showSheetInVersion(SheetDimension sheetDimension, SheetDto sheetDto, int version) {
+    public void showSheetInVersion(SheetDto sheetDto, int version) {
         Dialog<String> dialog = new Dialog<>();
         dialog.setTitle("Show sheet on specific version");
         dialog.setHeaderText("Sheet version " + version);
 
-        int numOfRows = sheetDimension.getNumOfRows();
-        int numOfColumns = sheetDimension.getNumOfColumns();
-        int rowHeight = sheetDimension.getRowHeight();
-        int columnWidth = sheetDimension.getColumnWidth();
+        GridPane gridPane = getGrid(sheetDto);
 
+        dialog.getDialogPane().setContent(gridPane);
+        dialog.getDialogPane().getButtonTypes().setAll(ButtonType.OK);
+        dialog.showAndWait();
+    }
+
+    public void showSortedSheet(SheetDto sheetDto) {
+        Dialog<String> dialog = new Dialog<>();
+        dialog.setTitle("Show sorted sheet");
+
+        GridPane gridPane = getGrid(sheetDto);
+
+        dialog.getDialogPane().setContent(gridPane);
+        dialog.getDialogPane().getButtonTypes().setAll(ButtonType.OK);
+        dialog.showAndWait();
+    }
+
+    private GridPane getGrid(SheetDto sheetDto) {
         GridPane gridPane = new GridPane();
         gridPane.setPrefWidth(700);
 
-        setMainGridColumnsHeaders(gridPane, numOfColumns, columnWidth);
-        setMainGridRowsHeaders(gridPane, numOfRows, rowHeight);
-        setGridOnVersionCells(gridPane, sheetDto, sheetDimension);
+        setMainGridColumnsHeaders(gridPane, numOfColumns, defaultColumnWidth);
+        setMainGridRowsHeaders(gridPane, numOfRows, defaultRowHeight);
+        setGridOnVersionCells(gridPane, sheetDto);
 
         for (Node node : gridPane.getChildren()) {
             if (node instanceof Label label) {
@@ -252,9 +256,7 @@ public class GridController {
             }
         }
 
-        dialog.getDialogPane().setContent(gridPane);
-        dialog.getDialogPane().getButtonTypes().setAll(ButtonType.OK);
-        dialog.showAndWait();
+        return gridPane;
     }
 
     public void showCellsInRange(String name) {

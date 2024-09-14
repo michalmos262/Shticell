@@ -5,7 +5,6 @@ import engine.entity.cell.CellPositionInSheet;
 import engine.entity.cell.PositionFactory;
 import engine.entity.dto.CellDto;
 import engine.entity.dto.SheetDto;
-import engine.entity.sheet.SheetDimension;
 import engine.impl.EngineImpl;
 import javafx.fxml.FXML;
 import javafx.scene.control.ScrollPane;
@@ -74,10 +73,8 @@ public class MainAppController {
         rangesComponentController.fileLoadedSuccessfully();
         commandsComponentController.fileLoadedSuccessfully();
 
-        SheetDimension sheetDimension = engine.getSheetDimension();
         SheetDto sheetDto = engine.getSheet(engine.getCurrentSheetVersion());
-
-        sheetComponentController.initMainGrid(sheetDimension, sheetDto);
+        sheetComponentController.initMainGrid(sheetDto);
     }
 
     public CellDto cellClicked(String cellPositionId) {
@@ -98,13 +95,16 @@ public class MainAppController {
 
     public void selectSheetVersion(int version) {
         SheetDto sheetDto = engine.getSheet(version);
-        SheetDimension sheetDimension = engine.getSheetDimension();
 
-        sheetComponentController.showSheetInVersion(sheetDimension, sheetDto, version);
+        sheetComponentController.showSheetInVersion(sheetDto, version);
     }
 
     public void showCellsInRange(String name) {
         sheetComponentController.showCellsInRange(name);
         actionLineComponentController.removeCellClickFocus();
+    }
+
+    public void sortedSheet(SheetDto sheetDto) {
+        sheetComponentController.showSortedSheet(sheetDto);
     }
 }
