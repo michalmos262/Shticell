@@ -16,43 +16,49 @@
     <rowConstraints>
         <RowConstraints minHeight="10.0" prefHeight="30.0" vgrow="SOMETIMES" />
     </rowConstraints>
-    <GridPane prefHeight="42.0" prefWidth="739.0" style="-fx-border-color: black;">
+    <GridPane prefHeight="42.0" prefWidth="708.0" style="-fx-border-color: black;">
         <columnConstraints>
-            <ColumnConstraints hgrow="SOMETIMES" maxWidth="211.4000244140625" minWidth="10.0" prefWidth="109.6" />
-            <ColumnConstraints hgrow="SOMETIMES" maxWidth="349.60003662109375" minWidth="10.0" prefWidth="333.5999755859375" />
-            <ColumnConstraints hgrow="SOMETIMES" maxWidth="214.0000122070312" minWidth="10.0" prefWidth="147.6000244140625" />
-            <ColumnConstraints hgrow="SOMETIMES" maxWidth="212.40003662109382" minWidth="10.0" prefWidth="123.00004882812505" />
+            <ColumnConstraints hgrow="SOMETIMES" maxWidth="211.4000244140625" minWidth="10.0" prefWidth="86.59998168945313" />
+            <ColumnConstraints hgrow="SOMETIMES" maxWidth="435.9999755859375" minWidth="10.0" prefWidth="420.00004882812505" />
+            <ColumnConstraints hgrow="SOMETIMES" maxWidth="214.0000122070312" minWidth="10.0" prefWidth="98.79995117187502" />
+            <ColumnConstraints hgrow="SOMETIMES" maxWidth="212.40003662109382" minWidth="10.0" prefWidth="126.20004882812498" />
         </columnConstraints>
         <rowConstraints>
             <RowConstraints minHeight="10.0" prefHeight="30.0" vgrow="SOMETIMES" />
         </rowConstraints>
-        <Label fx:id="lastCellVersionLabel" prefWidth="100.0" text="Last Cell Version" GridPane.columnIndex="3">
+        <Label fx:id="lastCellVersionLabel" prefHeight="17.0" prefWidth="149.0" text="Last Cell Version" GridPane.columnIndex="3">
             <GridPane.margin>
                 <Insets />
             </GridPane.margin>
         </Label>
-        <Button fx:id="updateValueButton" disable="true" mnemonicParsing="false" onAction="#UpdateValueButtonListener" text="Update value" GridPane.columnIndex="2">
+        <Button fx:id="updateValueButton" mnemonicParsing="false" onAction="#UpdateValueButtonListener" prefHeight="25.0" prefWidth="86.0" text="Update value" GridPane.columnIndex="2">
             <GridPane.margin>
-                <Insets left="40.0" />
+                <Insets />
             </GridPane.margin>
         </Button>
         <Label fx:id="selectedCellIdLabel" text="Cell ID">
             <GridPane.margin>
-                <Insets left="30.0" />
+                <Insets left="5.0" />
             </GridPane.margin>
         </Label>
         <Label fx:id="originalCellValueLabel" text="Original Value" GridPane.columnIndex="1">
             <GridPane.margin>
-                <Insets left="10.0" />
+                <Insets />
             </GridPane.margin>
         </Label>
+      <opaqueInsets>
+         <Insets />
+      </opaqueInsets>
+      <GridPane.margin>
+         <Insets left="15.0" />
+      </GridPane.margin>
     </GridPane>
    <Label prefHeight="17.0" prefWidth="120.0" text="Choose sheet version:" GridPane.columnIndex="1">
       <GridPane.margin>
          <Insets left="10.0" />
       </GridPane.margin>
    </Label>
-   <ChoiceBox fx:id="showSheetVersionSelector" disable="true" prefHeight="25.0" prefWidth="73.0" GridPane.columnIndex="1">
+   <ChoiceBox fx:id="showSheetVersionSelector" prefHeight="25.0" prefWidth="73.0" GridPane.columnIndex="1">
       <GridPane.margin>
          <Insets left="133.0" />
       </GridPane.margin>

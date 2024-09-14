@@ -43,6 +43,10 @@ public class GridController {
         this.engine = engine;
     }
 
+    public void fileIsLoading(boolean isStarted) {
+        modelUi.isFileLoadingProperty().set(isStarted);
+    }
+
     public void initMainGrid(SheetDimension sheetDimension, SheetDto sheetDto) {
         int numOfRows = sheetDimension.getNumOfRows();
         int numOfColumns = sheetDimension.getNumOfColumns();
@@ -55,6 +59,8 @@ public class GridController {
         setMainGridColumnsHeaders(gridPane, numOfColumns, columnWidth);
         setMainGridRowsHeaders(gridPane, numOfRows, rowHeight);
         setMainGridCells(sheetDto, sheetDimension);
+
+        fileIsLoading(false);
     }
 
     private void setMainGridColumnsHeaders(GridPane gridPane, int numOfColumns, int columnWidth) {

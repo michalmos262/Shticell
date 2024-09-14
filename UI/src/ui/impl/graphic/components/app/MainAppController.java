@@ -32,7 +32,6 @@ public class MainAppController {
 
     private Stage primaryStage;
     private Engine engine;
-    private
 
     @FXML
     void initialize() {
@@ -56,10 +55,24 @@ public class MainAppController {
         return primaryStage;
     }
 
-    public void fileLoaded() {
-        actionLineComponentController.fileLoaded();
-        rangesComponentController.fileLoaded();
-        commandsComponentController.fileLoaded();
+    public void fileIsLoading() {
+        actionLineComponentController.fileIsLoading(true);
+        rangesComponentController.fileIsLoading(true);
+        commandsComponentController.fileIsLoading(true);
+        sheetComponentController.fileIsLoading(true);
+    }
+
+    public void fileFailedLoading() {
+        actionLineComponentController.fileIsLoading(false);
+        rangesComponentController.fileIsLoading(false);
+        commandsComponentController.fileIsLoading(false);
+        sheetComponentController.fileIsLoading(false);
+    }
+
+    public void fileLoadedSuccessfully() {
+        actionLineComponentController.fileLoadedSuccessfully();
+        rangesComponentController.fileLoadedSuccessfully();
+        commandsComponentController.fileLoadedSuccessfully();
 
         SheetDimension sheetDimension = engine.getSheetDimension();
         SheetDto sheetDto = engine.getSheet(engine.getCurrentSheetVersion());
