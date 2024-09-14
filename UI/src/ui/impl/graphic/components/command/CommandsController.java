@@ -34,6 +34,7 @@ public class CommandsController {
     @FXML private Button setColumnPropsButton;
     @FXML private Button setRowPropsButton;
     @FXML private Button showSortedSheetButton;
+    @FXML private Button showFilteredSheetButton;
     @FXML private ListView<CommandsModelUI.ListViewEntry> columnsListView;
     @FXML private TextField fromPositionFilterTextField;
     @FXML private TextField fromPositionSortTextField;
