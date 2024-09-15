@@ -11,10 +11,7 @@ import javafx.scene.control.*;
 import ui.impl.graphic.components.alert.AlertsHandler;
 import ui.impl.graphic.components.app.MainAppController;
 
-import java.util.Arrays;
-import java.util.LinkedHashSet;
-import java.util.List;
-import java.util.Set;
+import java.util.*;
 import java.util.stream.Collectors;
 
 public class CommandsController {
@@ -53,62 +50,15 @@ public class CommandsController {
         for (int i = 0; i < engine.getNumOfSheetColumns(); i++) {
             sheetColumns.add(CellPositionInSheet.parseColumn(i + 1));
         }
-        setColumnsSelectBoxes();
+        List<ListView<CommandsModelUI.ListViewEntry>> listViews = new LinkedList<>();
+        listViews.add(filterByColumnsListView);
+        listViews.add(sortByColumnsListView);
+        modelUi.setColumnsSelectBoxes(sheetColumns, listViews);
         fileIsLoading(false);
     }
 
     public void fileIsLoading(boolean isStarted) {
         modelUi.isFileLoadingProperty().set(isStarted);
-    }
-
-    private void setColumnsSelectBoxes() {
-        for (String column : sheetColumns) {
-            sortByColumnsListView.getItems().add(new CommandsModelUI.ListViewEntry(column));
-            filterByColumnsListView.getItems().add(new CommandsModelUI.ListViewEntry(column));
-        }
-
-        // Set the cell factory to include a CheckBox in each row
-        sortByColumnsListView.setCellFactory(lv -> new ListCell<>() {
-            private final CheckBox checkBox = new CheckBox();
-
-            @Override
-            protected void updateItem(CommandsModelUI.ListViewEntry item, boolean empty) {
-                super.updateItem(item, empty);
-
-                if (empty || item == null) {
-                    setGraphic(null);
-                } else {
-                    checkBox.setText(item.getName()); // Set the CheckBox label
-                    checkBox.setSelected(item.isSelected()); // Bind the CheckBox selection to the item state
-
-                    // Update the item's selected state when the CheckBox is toggled
-                    checkBox.setOnAction(event -> item.setSelected(checkBox.isSelected()));
-
-                    setGraphic(checkBox); // Set the CheckBox as the graphic for the row
-                }
-            }
-        });
-
-        filterByColumnsListView.setCellFactory(lv -> new ListCell<>() {
-            private final CheckBox checkBox = new CheckBox();
-
-            @Override
-            protected void updateItem(CommandsModelUI.ListViewEntry item, boolean empty) {
-                super.updateItem(item, empty);
-
-                if (empty || item == null) {
-                    setGraphic(null);
-                } else {
-                    checkBox.setText(item.getName()); // Set the CheckBox label
-                    checkBox.setSelected(item.isSelected()); // Bind the CheckBox selection to the item state
-
-                    // Update the item's selected state when the CheckBox is toggled
-                    checkBox.setOnAction(event -> item.setSelected(checkBox.isSelected()));
-
-                    setGraphic(checkBox); // Set the CheckBox as the graphic for the row
-                }
-            }
-        });
     }
 
     @FXML
