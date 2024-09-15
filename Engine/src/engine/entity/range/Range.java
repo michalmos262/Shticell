@@ -58,6 +58,10 @@ public class Range {
         return includedColumns;
     }
 
+    public int getNumOfRows() {
+        return toPosition.getRow() - fromPosition.getRow() + 1;
+    }
+
     @Override
     public String toString() {
         return fromPosition + ".." + toPosition;

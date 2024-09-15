@@ -1,10 +1,10 @@
 package engine.api;
 
+import engine.entity.cell.EffectiveValue;
 import engine.entity.dto.CellDto;
 import engine.entity.cell.CellPositionInSheet;
 import engine.entity.dto.SheetDto;
 import engine.entity.range.Range;
-import engine.entity.sheet.SheetDimension;
 
 import java.io.IOException;
 import java.util.LinkedHashSet;
@@ -26,7 +26,6 @@ public interface Engine {
     Set<CellPositionInSheet> getInfluencesSet(int row, int column, int sheetVersion);
     CellDto updateSheetCell(int row, int column, String newValue);
     Map<Integer, Integer> getVersion2updatedCellsCount();
-    Map<Integer, SheetDto> getVersion2sheet();
     void validateSheetVersionExists(int version);
     CellPositionInSheet getCellPositionInSheet(int row, int column);
     CellPositionInSheet getCellPositionInSheet(String position);
@@ -37,10 +36,11 @@ public interface Engine {
     int getNumOfSheetColumns();
     int getSheetRowHeight();
     int getSheetColumnWidth();
-    SheetDimension getSheetDimension();
     Range getRangeByName(String rangeName);
     List<String> getRangeNames();
     void createRange(String name, CellPositionInSheet fromPosition, CellPositionInSheet toPosition);
     void deleteRange(String name);
     SheetDto getSortedRowsSheet(Range rangeToSort, LinkedHashSet<String> columnsSortedBy);
+    Map<String, Set<EffectiveValue>> getUniqueColumnValuesByRange(Range range, Set<String> columns);
+    SheetDto getFilteredRowsSheet(Range rangeToFilter, Map<String, Set<EffectiveValue>> column2effectiveValuesFilteredBy);
 }

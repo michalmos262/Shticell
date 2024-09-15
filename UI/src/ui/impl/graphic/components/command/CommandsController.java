@@ -19,30 +19,15 @@ import java.util.stream.Collectors;
 
 public class CommandsController {
 
-    @FXML private ColorPicker cellBackgroundColorPicker;
-    @FXML private ColorPicker cellTextColorPicker;
-    @FXML private ChoiceBox<CellPositionInSheet> cellPositionChoiceBox;
-    @FXML private ChoiceBox<String> columnTextAlignChoiceBox;
-    @FXML private ChoiceBox<Integer> rowChoiceBox;
-    @FXML private ChoiceBox<String> filterByColumnChoiceBox;
-    @FXML private Spinner<Integer> heightSpinner;
-    @FXML private Spinner<Integer> widthSpinner;
-    @FXML private Button defaultCellPropsButton;
-    @FXML private Button defaultColumnPropsButton;
-    @FXML private Button defaultRowPropsButton;
-    @FXML private Button setCellPropsButton;
-    @FXML private Button setColumnPropsButton;
-    @FXML private Button setRowPropsButton;
     @FXML private Button showSortedSheetButton;
     @FXML private Button showFilteredSheetButton;
-    @FXML private ListView<CommandsModelUI.ListViewEntry> columnsListView;
+    @FXML private Button chooseFilterValuesButton;
+    @FXML private ListView<CommandsModelUI.ListViewEntry> sortByColumnsListView;
+    @FXML private ListView<CommandsModelUI.ListViewEntry> filterByColumnsListView;
     @FXML private TextField fromPositionFilterTextField;
     @FXML private TextField fromPositionSortTextField;
     @FXML private TextField toPositionFilterTextField;
     @FXML private TextField toPositionSortTextField;
-    @FXML private TitledPane columnPropsTitledPane;
-    @FXML private TitledPane rowPropsTitledPane;
-    @FXML private TitledPane cellPropsTitledPane;
     @FXML private TitledPane sortSheetTitledPane;
     @FXML private TitledPane filterSheetTitledPane;
 
@@ -53,9 +38,8 @@ public class CommandsController {
 
     @FXML
     private void initialize() {
-        List<TitledPane> titledPanes = Arrays.asList(columnPropsTitledPane, rowPropsTitledPane, cellPropsTitledPane,
-                sortSheetTitledPane, filterSheetTitledPane);
-        modelUi = new CommandsModelUI(titledPanes, columnsListView, showSortedSheetButton);
+        List<TitledPane> titledPanes = Arrays.asList(sortSheetTitledPane, filterSheetTitledPane);
+        modelUi = new CommandsModelUI(titledPanes, sortByColumnsListView, showSortedSheetButton);
         sheetColumns = new LinkedHashSet<>();
     }
 
@@ -79,11 +63,27 @@ public class CommandsController {
 
     private void setColumnsSelectBoxes() {
         for (String column : sheetColumns) {
-            columnsListView.getItems().add(new CommandsModelUI.ListViewEntry(column));
-            filterByColumnChoiceBox.getItems().add(column);
+            sortByColumnsListView.getItems().add(new CommandsModelUI.ListViewEntry(column));
+            filterByColumnsListView.getItems().add(new CommandsModelUI.ListViewEntry(column));
         }
         // Set the cell factory to include a CheckBox in each row
-        columnsListView.setCellFactory(lv -> new ListCell<>() {
+        sortByColumnsListView.setCellFactory(lv -> new ListCell<>() {
+            private final CheckBox checkBox = new CheckBox();
+
+            @Override
+            protected void updateItem(CommandsModelUI.ListViewEntry item, boolean empty) {
+                super.updateItem(item, empty);
+
+                if (empty || item == null) {
+                    setGraphic(null);
+                } else {
+                    checkBox.setText(item.getName());
+                    setGraphic(checkBox);
+                }
+            }
+        });
+
+        filterByColumnsListView.setCellFactory(lv -> new ListCell<>() {
             private final CheckBox checkBox = new CheckBox();
 
             @Override
@@ -107,7 +107,7 @@ public class CommandsController {
             CellPositionInSheet toPosition = PositionFactory.createPosition(toPositionSortTextField.getText());
             Range range = new Range(fromPosition, toPosition);
 
-            LinkedHashSet<String> chosenColumns = columnsListView.getItems().stream()
+            LinkedHashSet<String> chosenColumns = sortByColumnsListView.getItems().stream()
                     .filter(entry -> entry.selectedProperty().get())
                     .map(CommandsModelUI.ListViewEntry::getName)
                     .collect(Collectors.toCollection(LinkedHashSet::new));
@@ -125,34 +125,7 @@ public class CommandsController {
     }
 
     @FXML
-    void defaultCellPropsButtonListener(ActionEvent event) {
+    void chooseFilterValuesButtonListener(ActionEvent event) {
 
     }
-
-    @FXML
-    void defaultColumnPropsButtonListener(ActionEvent event) {
-
-    }
-
-    @FXML
-    void defaultRowPropsButtonListener(ActionEvent event) {
-
-    }
-
-    @FXML
-    void setCellPropsButtonListener(ActionEvent event) {
-
-    }
-
-    @FXML
-    void setColumnPropsButtonListener(ActionEvent event) {
-
-    }
-
-    @FXML
-    void setRowPropsButtonListener(ActionEvent event) {
-
-    }
-
-
 }
