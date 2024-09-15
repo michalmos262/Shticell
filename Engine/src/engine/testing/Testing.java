@@ -48,7 +48,7 @@ public class Testing {
         CellPositionInSheet toPosition = PositionFactory.createPosition("E6");
         Range range = new Range(fromPosition, toPosition);
         LinkedHashSet<String> columns = new LinkedHashSet<>();
-        columns.add("B");
+        columns.add("C");
 
         SheetDto sheetDto = engine.getSortedRowsSheet(range, columns);
         showSheetTable(sheetDto);
@@ -128,6 +128,6 @@ public class Testing {
         Engine engine = new EngineImpl();
         String filename = "C:\\Users\\asafl\\Downloads\\grades.xml";
         engine.loadFile(filename);
-        checkFilter(engine);
+        checkSort(engine);
     }
 }

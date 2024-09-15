@@ -37,19 +37,25 @@ public class CommandsModelUI {
 
     public static class ListViewEntry {
         private final String name;
-        private final SimpleBooleanProperty selected;
+        private boolean selected;
 
         public ListViewEntry(String name) {
             this.name = name;
-            this.selected = new SimpleBooleanProperty(false);
+            this.selected = false;
         }
 
         public String getName() {
             return name;
         }
 
-        public SimpleBooleanProperty selectedProperty() {
+        public boolean isSelected() {
             return selected;
+        }
+
+        public void setSelected(boolean selected) {
+            if (this.selected != selected) {
+                this.selected = selected;
+            }
         }
     }
 }

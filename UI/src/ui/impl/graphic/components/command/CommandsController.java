@@ -66,6 +66,7 @@ public class CommandsController {
             sortByColumnsListView.getItems().add(new CommandsModelUI.ListViewEntry(column));
             filterByColumnsListView.getItems().add(new CommandsModelUI.ListViewEntry(column));
         }
+
         // Set the cell factory to include a CheckBox in each row
         sortByColumnsListView.setCellFactory(lv -> new ListCell<>() {
             private final CheckBox checkBox = new CheckBox();
@@ -77,8 +78,13 @@ public class CommandsController {
                 if (empty || item == null) {
                     setGraphic(null);
                 } else {
-                    checkBox.setText(item.getName());
-                    setGraphic(checkBox);
+                    checkBox.setText(item.getName()); // Set the CheckBox label
+                    checkBox.setSelected(item.isSelected()); // Bind the CheckBox selection to the item state
+
+                    // Update the item's selected state when the CheckBox is toggled
+                    checkBox.setOnAction(event -> item.setSelected(checkBox.isSelected()));
+
+                    setGraphic(checkBox); // Set the CheckBox as the graphic for the row
                 }
             }
         });
@@ -93,8 +99,13 @@ public class CommandsController {
                 if (empty || item == null) {
                     setGraphic(null);
                 } else {
-                    checkBox.setText(item.getName());
-                    setGraphic(checkBox);
+                    checkBox.setText(item.getName()); // Set the CheckBox label
+                    checkBox.setSelected(item.isSelected()); // Bind the CheckBox selection to the item state
+
+                    // Update the item's selected state when the CheckBox is toggled
+                    checkBox.setOnAction(event -> item.setSelected(checkBox.isSelected()));
+
+                    setGraphic(checkBox); // Set the CheckBox as the graphic for the row
                 }
             }
         });
@@ -108,7 +119,7 @@ public class CommandsController {
             Range range = new Range(fromPosition, toPosition);
 
             LinkedHashSet<String> chosenColumns = sortByColumnsListView.getItems().stream()
-                    .filter(entry -> entry.selectedProperty().get())
+                    .filter(CommandsModelUI.ListViewEntry::isSelected)
                     .map(CommandsModelUI.ListViewEntry::getName)
                     .collect(Collectors.toCollection(LinkedHashSet::new));
 
