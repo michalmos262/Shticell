@@ -15,7 +15,7 @@
 
 <BorderPane maxHeight="-Infinity" maxWidth="-Infinity" minHeight="-Infinity" minWidth="-Infinity" prefHeight="273.0" prefWidth="209.0" xmlns="http://javafx.com/javafx/22" xmlns:fx="http://javafx.com/fxml/1" fx:controller="ui.impl.graphic.components.range.RangesController">
    <top>
-      <Label id="renges-label" alignment="TOP_LEFT" contentDisplay="TOP" prefHeight="33.0" prefWidth="210.0" style="-fx-alignment: center;" text="Ranges" textFill="#050000">
+      <Label id="renges-label" alignment="TOP_LEFT" contentDisplay="TOP" prefHeight="21.0" prefWidth="209.0" style="-fx-alignment: center;" text="Ranges" textFill="#050000">
          <font>
             <Font name="Leelawadee UI Bold" size="12.0" />
          </font>

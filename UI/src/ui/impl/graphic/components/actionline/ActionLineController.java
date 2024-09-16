@@ -18,8 +18,15 @@ public class ActionLineController {
     @FXML private Label originalCellValueLabel;
     @FXML private Label selectedCellIdLabel;
     @FXML private Button updateValueButton;
-    @FXML private ChoiceBox<Integer> showSheetVersionSelector;
     @FXML private Button showSheetVersionButton;
+    @FXML private Button backToDefaultDesignButton;
+    @FXML private Button setDesignButton;
+    @FXML private ChoiceBox<String> columnTextAlignmentChoiceBox;
+    @FXML private ChoiceBox<Integer> showSheetVersionSelector;
+    @FXML private Spinner<Integer> columnWidthSpinner;
+    @FXML private Spinner<Integer> rowHeightSpinner;
+    @FXML private ColorPicker cellBackgroundColorPicker;
+    @FXML private ColorPicker cellTextColorPicker;
 
     private MainAppController mainAppController;
     private ActionLineModelUI modelUi;
@@ -153,5 +160,15 @@ public class ActionLineController {
         if (!modelUi.isAnyCellClickedProperty().getValue()) {
             modelUi.isAnyCellClickedProperty().set(true);
         }
+    }
+
+    @FXML
+    void backToDefaultDesignButtonListener(ActionEvent event) {
+
+    }
+
+    @FXML
+    void setDesignButtonListener(ActionEvent event) {
+
     }
 }

@@ -56,14 +56,14 @@ public class GridController {
          // Clear the existing content in the gridContainer
         gridPane.getChildren().clear();
 
-        setMainGridColumnsHeaders(gridPane, numOfColumns, defaultColumnWidth);
-        setMainGridRowsHeaders(gridPane, numOfRows, defaultRowHeight);
+        setGridColumnsHeaders(gridPane, numOfColumns, defaultColumnWidth);
+        setGridRowsHeaders(gridPane, numOfRows, defaultRowHeight);
         setMainGridCells(sheetDto);
 
         fileIsLoading(false);
     }
 
-    private void setMainGridColumnsHeaders(GridPane gridPane, int numOfColumns, int columnWidth) {
+    private void setGridColumnsHeaders(GridPane gridPane, int numOfColumns, int columnWidth) {
         // Add the column headers (A, B, C, ...)
         for (int col = 0; col < numOfColumns; col++) {
             Label columnHeader = new Label(String.valueOf((char) ('A' + col)));
@@ -73,7 +73,7 @@ public class GridController {
         }
     }
 
-    private void setMainGridRowsHeaders(GridPane gridPane, int numOfRows, int rowHeight) {
+    private void setGridRowsHeaders(GridPane gridPane, int numOfRows, int rowHeight) {
         // Add the row headers (1, 2, 3, ...)
         for (int row = 0; row < numOfRows; row++) {
             Label rowHeader = new Label(String.valueOf(row + 1));
@@ -200,7 +200,7 @@ public class GridController {
 
     public void setGridOnVersionCells(GridPane gridPane, SheetDto sheetDto) {
         // Populate the GridPane with Labels in the main grid area
-        for (int row = 0; row < numOfRows; row++) {
+        for (int row = 0; row < sheetDto.getNumOfRows(); row++) {
             for (int col = 0; col < numOfColumns; col++) {
                 CellPositionInSheet cellPositionInSheet = PositionFactory.createPosition(row+1, col+1);
                 Label label = new Label();
@@ -242,12 +242,23 @@ public class GridController {
         dialog.showAndWait();
     }
 
+    public void showFilteredSheet(SheetDto sheetDto) {
+        Dialog<String> dialog = new Dialog<>();
+        dialog.setTitle("Show filtered sheet");
+
+        GridPane gridPane = getGrid(sheetDto);
+
+        dialog.getDialogPane().setContent(gridPane);
+        dialog.getDialogPane().getButtonTypes().setAll(ButtonType.OK);
+        dialog.showAndWait();
+    }
+
     private GridPane getGrid(SheetDto sheetDto) {
         GridPane gridPane = new GridPane();
         gridPane.setPrefWidth(700);
 
-        setMainGridColumnsHeaders(gridPane, numOfColumns, defaultColumnWidth);
-        setMainGridRowsHeaders(gridPane, numOfRows, defaultRowHeight);
+        setGridColumnsHeaders(gridPane, numOfColumns, defaultColumnWidth);
+        setGridRowsHeaders(gridPane, sheetDto.getNumOfRows(), defaultRowHeight);
         setGridOnVersionCells(gridPane, sheetDto);
 
         for (Node node : gridPane.getChildren()) {

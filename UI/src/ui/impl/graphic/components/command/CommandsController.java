@@ -2,6 +2,7 @@ package ui.impl.graphic.components.command;
 
 import engine.api.Engine;
 import engine.entity.cell.CellPositionInSheet;
+import engine.entity.cell.EffectiveValue;
 import engine.entity.cell.PositionFactory;
 import engine.entity.dto.SheetDto;
 import engine.entity.range.Range;
@@ -11,40 +12,23 @@ import javafx.scene.control.*;
 import ui.impl.graphic.components.alert.AlertsHandler;
 import ui.impl.graphic.components.app.MainAppController;
 
-import java.util.Arrays;
-import java.util.LinkedHashSet;
-import java.util.List;
-import java.util.Set;
+import java.util.*;
 import java.util.stream.Collectors;
 
 public class CommandsController {
 
-    @FXML private ColorPicker cellBackgroundColorPicker;
-    @FXML private ColorPicker cellTextColorPicker;
-    @FXML private ChoiceBox<CellPositionInSheet> cellPositionChoiceBox;
-    @FXML private ChoiceBox<String> columnTextAlignChoiceBox;
-    @FXML private ChoiceBox<Integer> rowChoiceBox;
-    @FXML private ChoiceBox<String> filterByColumnChoiceBox;
-    @FXML private Spinner<Integer> heightSpinner;
-    @FXML private Spinner<Integer> widthSpinner;
-    @FXML private Button defaultCellPropsButton;
-    @FXML private Button defaultColumnPropsButton;
-    @FXML private Button defaultRowPropsButton;
-    @FXML private Button setCellPropsButton;
-    @FXML private Button setColumnPropsButton;
-    @FXML private Button setRowPropsButton;
     @FXML private Button showSortedSheetButton;
     @FXML private Button showFilteredSheetButton;
-    @FXML private ListView<CommandsModelUI.ListViewEntry> columnsListView;
+    @FXML private Button chooseFilterValuesButton;
+    @FXML private ListView<CommandsModelUI.ListViewEntry> sortByColumnsListView;
+    @FXML private ListView<CommandsModelUI.ListViewEntry> filterByColumnsListView;
     @FXML private TextField fromPositionFilterTextField;
     @FXML private TextField fromPositionSortTextField;
     @FXML private TextField toPositionFilterTextField;
     @FXML private TextField toPositionSortTextField;
-    @FXML private TitledPane columnPropsTitledPane;
-    @FXML private TitledPane rowPropsTitledPane;
-    @FXML private TitledPane cellPropsTitledPane;
     @FXML private TitledPane sortSheetTitledPane;
     @FXML private TitledPane filterSheetTitledPane;
+    @FXML private TableView<Map<String, CommandsModelUI.EffectiveValueWrapper>> filterValuesTableView;
 
     private MainAppController mainAppController;
     private Engine engine;
@@ -53,9 +37,8 @@ public class CommandsController {
 
     @FXML
     private void initialize() {
-        List<TitledPane> titledPanes = Arrays.asList(columnPropsTitledPane, rowPropsTitledPane, cellPropsTitledPane,
-                sortSheetTitledPane, filterSheetTitledPane);
-        modelUi = new CommandsModelUI(titledPanes, columnsListView, showSortedSheetButton);
+        List<TitledPane> titledPanes = Arrays.asList(sortSheetTitledPane, filterSheetTitledPane);
+        modelUi = new CommandsModelUI(titledPanes, sortByColumnsListView, showSortedSheetButton);
         sheetColumns = new LinkedHashSet<>();
     }
 
@@ -69,35 +52,15 @@ public class CommandsController {
         for (int i = 0; i < engine.getNumOfSheetColumns(); i++) {
             sheetColumns.add(CellPositionInSheet.parseColumn(i + 1));
         }
-        setColumnsSelectBoxes();
+        List<ListView<CommandsModelUI.ListViewEntry>> listViews = new LinkedList<>();
+        listViews.add(filterByColumnsListView);
+        listViews.add(sortByColumnsListView);
+        modelUi.setColumnsSelectBoxes(sheetColumns, listViews);
         fileIsLoading(false);
     }
 
     public void fileIsLoading(boolean isStarted) {
         modelUi.isFileLoadingProperty().set(isStarted);
-    }
-
-    private void setColumnsSelectBoxes() {
-        for (String column : sheetColumns) {
-            columnsListView.getItems().add(new CommandsModelUI.ListViewEntry(column));
-            filterByColumnChoiceBox.getItems().add(column);
-        }
-        // Set the cell factory to include a CheckBox in each row
-        columnsListView.setCellFactory(lv -> new ListCell<>() {
-            private final CheckBox checkBox = new CheckBox();
-
-            @Override
-            protected void updateItem(CommandsModelUI.ListViewEntry item, boolean empty) {
-                super.updateItem(item, empty);
-
-                if (empty || item == null) {
-                    setGraphic(null);
-                } else {
-                    checkBox.setText(item.getName());
-                    setGraphic(checkBox);
-                }
-            }
-        });
     }
 
     @FXML
@@ -107,52 +70,71 @@ public class CommandsController {
             CellPositionInSheet toPosition = PositionFactory.createPosition(toPositionSortTextField.getText());
             Range range = new Range(fromPosition, toPosition);
 
-            LinkedHashSet<String> chosenColumns = columnsListView.getItems().stream()
-                    .filter(entry -> entry.selectedProperty().get())
+            LinkedHashSet<String> chosenColumns = sortByColumnsListView.getItems().stream()
+                    .filter(CommandsModelUI.ListViewEntry::isSelected)
                     .map(CommandsModelUI.ListViewEntry::getName)
                     .collect(Collectors.toCollection(LinkedHashSet::new));
 
             SheetDto sheetDto = engine.getSortedRowsSheet(range, chosenColumns);
-            mainAppController.sortedSheet(sheetDto);
+            mainAppController.sheetIsSorted(sheetDto);
         } catch (Exception e) {
             AlertsHandler.HandleErrorAlert("Show sorted sheet", e.getMessage());
         }
     }
 
     @FXML
+    void chooseFilterValuesButtonListener(ActionEvent event) {
+        try {
+            CellPositionInSheet fromPosition = PositionFactory.createPosition(fromPositionFilterTextField.getText());
+            CellPositionInSheet toPosition = PositionFactory.createPosition(toPositionFilterTextField.getText());
+            Range range = new Range(fromPosition, toPosition);
+
+            Set<String> columns = filterByColumnsListView.getItems().stream()
+                    .filter(CommandsModelUI.ListViewEntry::isSelected)
+                    .map(CommandsModelUI.ListViewEntry::getName)
+                    .collect(Collectors.toCollection(LinkedHashSet::new));
+
+            Map<String, Set<EffectiveValue>> uniqueValuesInColumns = engine.getUniqueColumnValuesByRange(range, columns);
+            modelUi.setupFilterValuesTableView(filterValuesTableView, uniqueValuesInColumns);
+        } catch (Exception e) {
+            AlertsHandler.HandleErrorAlert("Show filtered sheet", e.getMessage());
+        }
+    }
+
+    @FXML
     void showFilteredSheetButtonListener(ActionEvent event) {
+        try {
+            CellPositionInSheet fromPosition = PositionFactory.createPosition(fromPositionFilterTextField.getText());
+            CellPositionInSheet toPosition = PositionFactory.createPosition(toPositionFilterTextField.getText());
+            Range range = new Range(fromPosition, toPosition);
 
+            Map<String, Set<EffectiveValue>> column2effectiveValuesFilteredBy = new HashMap<>();
+
+            // Iterate over each column in the filter TableView
+            for (TableColumn<Map<String, CommandsModelUI.EffectiveValueWrapper>, ?> column : filterValuesTableView.getColumns()) {
+                String columnName = column.getText(); // Get the column name
+                Set<EffectiveValue> selectedValues = new HashSet<>(); // Set to store selected values for the column
+
+                // Iterate over the rows in the TableView
+                for (Map<String, CommandsModelUI.EffectiveValueWrapper> row : filterValuesTableView.getItems()) {
+                    CommandsModelUI.EffectiveValueWrapper wrapper = row.get(columnName);
+
+                    if (wrapper != null && wrapper.isSelected()) {
+                        EffectiveValue value = wrapper.getEffectiveValue();
+                        selectedValues.add(value);
+                    }
+                }
+
+                // Only add the column if there are selected values
+                if (!selectedValues.isEmpty()) {
+                    column2effectiveValuesFilteredBy.put(columnName, selectedValues);
+                }
+            }
+
+            SheetDto sheetDto = engine.getFilteredRowsSheet(range, column2effectiveValuesFilteredBy);
+            mainAppController.sheetIsFiltered(sheetDto);
+        } catch (Exception e) {
+            AlertsHandler.HandleErrorAlert("Show filtered sheet", e.getMessage());
+        }
     }
-
-    @FXML
-    void defaultCellPropsButtonListener(ActionEvent event) {
-
-    }
-
-    @FXML
-    void defaultColumnPropsButtonListener(ActionEvent event) {
-
-    }
-
-    @FXML
-    void defaultRowPropsButtonListener(ActionEvent event) {
-
-    }
-
-    @FXML
-    void setCellPropsButtonListener(ActionEvent event) {
-
-    }
-
-    @FXML
-    void setColumnPropsButtonListener(ActionEvent event) {
-
-    }
-
-    @FXML
-    void setRowPropsButtonListener(ActionEvent event) {
-
-    }
-
-
 }

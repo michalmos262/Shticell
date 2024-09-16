@@ -2,6 +2,8 @@ package engine.testing;
 
 import engine.api.Engine;
 import engine.entity.cell.CellPositionInSheet;
+import engine.entity.cell.CellType;
+import engine.entity.cell.EffectiveValue;
 import engine.entity.cell.PositionFactory;
 import engine.entity.dto.CellDto;
 import engine.entity.dto.SheetDto;
@@ -46,15 +48,39 @@ public class Testing {
         CellPositionInSheet toPosition = PositionFactory.createPosition("E6");
         Range range = new Range(fromPosition, toPosition);
         LinkedHashSet<String> columns = new LinkedHashSet<>();
-        columns.add("B");
+        columns.add("C");
 
         SheetDto sheetDto = engine.getSortedRowsSheet(range, columns);
         showSheetTable(sheetDto);
     }
 
+    private static void checkFilter(Engine engine) {
+        CellPositionInSheet fromPosition = PositionFactory.createPosition("B3");
+        CellPositionInSheet toPosition = PositionFactory.createPosition("E6");
+        Range range = new Range(fromPosition, toPosition);
+
+//        Map<String, Set<EffectiveValue>> allUniqueValuesInColumns = engine.getUniqueColumnValuesByRange(range, columns);
+        //System.out.println(allUniqueValuesInColumns);
+
+        Map<String, Set<EffectiveValue>> allUniqueValuesInColumns = new HashMap<>();
+
+        Set<EffectiveValue> bSet = new LinkedHashSet<>();
+        bSet.add(new EffectiveValue(CellType.STRING, "ex 2"));
+        bSet.add(new EffectiveValue(CellType.STRING, "ex 3"));
+
+        Set<EffectiveValue> cSet = new LinkedHashSet<>();
+        cSet.add(new EffectiveValue(CellType.NUMERIC, 80.0));
+
+        allUniqueValuesInColumns.put("B", bSet);
+        allUniqueValuesInColumns.put("C", cSet);
+
+        SheetDto sheetDto = engine.getFilteredRowsSheet(range, allUniqueValuesInColumns);
+        showSheetTable(sheetDto);
+    }
+
     private static void showSheetTable(SheetDto sheetDto) {
         try {
-            int numOfRows = 10;
+            int numOfRows = sheetDto.getNumOfRows();
             int numOfColumns = 10;
             int rowHeight = 1;
             int columnWidth = 10;

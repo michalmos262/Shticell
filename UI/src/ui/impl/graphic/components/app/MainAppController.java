@@ -104,7 +104,11 @@ public class MainAppController {
         actionLineComponentController.removeCellClickFocus();
     }
 
-    public void sortedSheet(SheetDto sheetDto) {
+    public void sheetIsSorted(SheetDto sheetDto) {
         sheetComponentController.showSortedSheet(sheetDto);
+    }
+
+    public void sheetIsFiltered(SheetDto sheetDto) {
+        sheetComponentController.showFilteredSheet(sheetDto);
     }
 }

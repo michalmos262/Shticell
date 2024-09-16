@@ -45,12 +45,12 @@ public class Range {
         }
     }
 
-    public LinkedHashSet<CellPositionInSheet> getIncludedPositions() {
+    public Set<CellPositionInSheet> getIncludedPositions() {
         return new LinkedHashSet<>(includedPositions);
     }
 
-    public LinkedHashSet<String> getIncludedColumns() {
-        LinkedHashSet<String> includedColumns = new LinkedHashSet<>();
+    public Set<String> getIncludedColumns() {
+        Set<String> includedColumns = new LinkedHashSet<>();
 
         for (CellPositionInSheet position : includedPositions) {
             includedColumns.add(CellPositionInSheet.parseColumn(position.getColumn()));
