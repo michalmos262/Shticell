@@ -46,7 +46,8 @@ public class EngineImpl implements Engine {
                 cellDto = new CellDto("", effectiveValue, effectiveValue, new LinkedHashSet<>(), new LinkedHashSet<>());
             }
             else {
-                cellDto = new CellDto(cell.getOriginalValue(), cell.getEffectiveValue(), getEffectiveValueForDisplay(cell), cell.getInfluencedBy(), cell.getInfluences());
+                EffectiveValue effectiveValue = cell.getEffectiveValue();
+                cellDto = new CellDto(cell.getOriginalValue(), effectiveValue, getEffectiveValueForDisplay(effectiveValue), cell.getInfluencedBy(), cell.getInfluences());
             }
             position2cell.put(entry.getKey(), cellDto);
         }
@@ -69,7 +70,8 @@ public class EngineImpl implements Engine {
                     cellDto = new CellDto("", effectiveValue, effectiveValue, new LinkedHashSet<>(), new LinkedHashSet<>());
                 }
                 else {
-                    cellDto = new CellDto(cell.getOriginalValue(), cell.getEffectiveValue(), getEffectiveValueForDisplay(cell), cell.getInfluencedBy(), cell.getInfluences());
+                    EffectiveValue effectiveValue = cell.getEffectiveValue();
+                    cellDto = new CellDto(cell.getOriginalValue(), effectiveValue, getEffectiveValueForDisplay(effectiveValue), cell.getInfluencedBy(), cell.getInfluences());
                 }
                 position2cell.put(cellPositionInSheet, cellDto);
             }
@@ -79,25 +81,20 @@ public class EngineImpl implements Engine {
         return new SheetDto(position2cell, rowNumber - 1);
     }
 
-    public EffectiveValue getEffectiveValueForDisplay(Cell cell) {
-        EffectiveValue effectiveValue;
+    @Override
+    public EffectiveValue getEffectiveValueForDisplay(EffectiveValue originalEffectiveValue) {
+        String effectiveValueStr = originalEffectiveValue.getValue().toString();
 
-        // if cell is not created yet
-        if (cell.getEffectiveValue() == null) {
-            effectiveValue = new EffectiveValue(CellType.STRING, "");
+        if (effectiveValueStr.matches("-?\\d+(\\.\\d+)?")) {
+            DecimalFormat formatter = new DecimalFormat("#,###.##");
+            originalEffectiveValue = new EffectiveValue(CellType.NUMERIC, formatter.format(new BigDecimal(effectiveValueStr)));
+        } else if (effectiveValueStr.equalsIgnoreCase("true") || effectiveValueStr.equalsIgnoreCase("false")) {
+            originalEffectiveValue = new EffectiveValue(CellType.BOOLEAN, effectiveValueStr.toUpperCase());
         } else {
-            String effectiveValueStr = cell.getEffectiveValue().getValue().toString();
-            if (effectiveValueStr.matches("-?\\d+(\\.\\d+)?")) {
-                DecimalFormat formatter = new DecimalFormat("#,###.##");
-                effectiveValue = new EffectiveValue(CellType.NUMERIC, formatter.format(new BigDecimal(effectiveValueStr)));
-            } else if (effectiveValueStr.equalsIgnoreCase("true") || effectiveValueStr.equalsIgnoreCase("false")) {
-                effectiveValue = new EffectiveValue(CellType.BOOLEAN, effectiveValueStr.toUpperCase());
-            } else {
-                effectiveValue = new EffectiveValue(CellType.STRING, effectiveValueStr);
-            }
+            originalEffectiveValue = new EffectiveValue(CellType.STRING, effectiveValueStr);
         }
 
-        return effectiveValue;
+        return originalEffectiveValue;
     }
 
     @Override
@@ -399,17 +396,20 @@ public class EngineImpl implements Engine {
         sheetManager.getRangesManager().deleteRange(name);
     }
 
-    @Override
-    public SheetDto getSortedRowsSheet(Range rangeToSort, LinkedHashSet<String> columnsSortedBy) {
-        columnsSortedBy.forEach((colSortedBy) -> {
-            List<String> cellsInColumn = rangeToSort.getIncludedColumns().stream()
+    private void validateColumnsInRange(Range range, Set<String> columns) {
+        columns.forEach((colSortedBy) -> {
+            List<String> cellsInColumn = range.getIncludedColumns().stream()
                     .filter((includedCol) -> includedCol.equals(colSortedBy))
                     .toList();
             if (cellsInColumn.isEmpty()) {
-                throw new ColumnIsNotPartOfRangeException(colSortedBy, rangeToSort);
+                throw new ColumnIsNotPartOfRangeException(colSortedBy, range);
             }
         });
+    }
 
+    @Override
+    public SheetDto getSortedRowsSheet(Range rangeToSort, Set<String> columnsSortedBy) {
+        validateColumnsInRange(rangeToSort, columnsSortedBy);
         Sheet inWorkSheet = sheetManager.getSheetByVersion(getCurrentSheetVersion()).clone();
 
         // Extract rows from the sheet based on the given range
@@ -464,16 +464,16 @@ public class EngineImpl implements Engine {
 
     @Override
     public Map<String, Set<EffectiveValue>> getUniqueColumnValuesByRange(Range range, Set<String> columns) {
+        validateColumnsInRange(range, columns);
         Map<String, Set<EffectiveValue>> column2uniqueEffectiveValues = new HashMap<>();
-        columns.forEach((column) -> {
-            column2uniqueEffectiveValues.put(column, new LinkedHashSet<>());
-        });
+        columns.forEach((column) -> column2uniqueEffectiveValues.put(column, new LinkedHashSet<>()));
 
         range.getIncludedPositions().forEach((cellPosition) -> {
             Set<EffectiveValue> uniqueColumnValues = column2uniqueEffectiveValues.get(CellPositionInSheet.parseColumn(cellPosition.getColumn()));
             if (uniqueColumnValues != null) {
-                EffectiveValue effectiveValue = sheetManager.getSheetByVersion(getCurrentSheetVersion()).getCellEffectiveValue(cellPosition);
-                uniqueColumnValues.add(effectiveValue);
+                EffectiveValue originalEffectiveValue = sheetManager.getSheetByVersion(getCurrentSheetVersion()).getCellEffectiveValue(cellPosition);
+                EffectiveValue effectiveValueForDisplay = getEffectiveValueForDisplay(originalEffectiveValue);
+                uniqueColumnValues.add(effectiveValueForDisplay);
             }
         });
 
@@ -492,16 +492,21 @@ public class EngineImpl implements Engine {
 
         // Filter out rows by the columns
         List<Row> filteredRows = rowsToFilter.stream()
-                .filter((row) -> {
-                    // for each column filter
-                    for (Map.Entry<String, Set<EffectiveValue>> entry : column2effectiveValuesFilteredBy.entrySet()) {
-                        Cell cellInColumn = row.getCells().get(entry.getKey());
-                        if ((cellInColumn == null) || !entry.getValue().contains(cellInColumn.getEffectiveValue())) {
-                            return false;
-                        }
+            .filter((row) -> {
+                // for each column filter
+                for (Map.Entry<String, Set<EffectiveValue>> entry : column2effectiveValuesFilteredBy.entrySet()) {
+                    Cell cellInColumn = row.getCells().get(entry.getKey());
+                    if (cellInColumn == null) {
+                        return false;
                     }
-                    return true;
-                }).collect(Collectors.toCollection(LinkedList::new));
+                    EffectiveValue originalEffectiveValue = cellInColumn.getEffectiveValue();
+                    EffectiveValue effectiveValueForDisplay = getEffectiveValueForDisplay(originalEffectiveValue);
+                    if (!entry.getValue().contains(effectiveValueForDisplay)) {
+                        return false;
+                    }
+                }
+                return true;
+            }).collect(Collectors.toCollection(LinkedList::new));
 
         // Add the original rows before the range to filter
         try {

@@ -2,6 +2,7 @@ package ui.impl.graphic.components.command;
 
 import engine.api.Engine;
 import engine.entity.cell.CellPositionInSheet;
+import engine.entity.cell.EffectiveValue;
 import engine.entity.cell.PositionFactory;
 import engine.entity.dto.SheetDto;
 import engine.entity.range.Range;
@@ -27,6 +28,7 @@ public class CommandsController {
     @FXML private TextField toPositionSortTextField;
     @FXML private TitledPane sortSheetTitledPane;
     @FXML private TitledPane filterSheetTitledPane;
+    @FXML private TableView<Map<String, CommandsModelUI.EffectiveValueWrapper>> filterValuesTableView;
 
     private MainAppController mainAppController;
     private Engine engine;
@@ -74,19 +76,65 @@ public class CommandsController {
                     .collect(Collectors.toCollection(LinkedHashSet::new));
 
             SheetDto sheetDto = engine.getSortedRowsSheet(range, chosenColumns);
-            mainAppController.sortedSheet(sheetDto);
+            mainAppController.sheetIsSorted(sheetDto);
         } catch (Exception e) {
             AlertsHandler.HandleErrorAlert("Show sorted sheet", e.getMessage());
         }
     }
 
     @FXML
-    void showFilteredSheetButtonListener(ActionEvent event) {
+    void chooseFilterValuesButtonListener(ActionEvent event) {
+        try {
+            CellPositionInSheet fromPosition = PositionFactory.createPosition(fromPositionFilterTextField.getText());
+            CellPositionInSheet toPosition = PositionFactory.createPosition(toPositionFilterTextField.getText());
+            Range range = new Range(fromPosition, toPosition);
 
+            Set<String> columns = filterByColumnsListView.getItems().stream()
+                    .filter(CommandsModelUI.ListViewEntry::isSelected)
+                    .map(CommandsModelUI.ListViewEntry::getName)
+                    .collect(Collectors.toCollection(LinkedHashSet::new));
+
+            Map<String, Set<EffectiveValue>> uniqueValuesInColumns = engine.getUniqueColumnValuesByRange(range, columns);
+            modelUi.setupFilterValuesTableView(filterValuesTableView, uniqueValuesInColumns);
+        } catch (Exception e) {
+            AlertsHandler.HandleErrorAlert("Show filtered sheet", e.getMessage());
+        }
     }
 
     @FXML
-    void chooseFilterValuesButtonListener(ActionEvent event) {
+    void showFilteredSheetButtonListener(ActionEvent event) {
+        try {
+            CellPositionInSheet fromPosition = PositionFactory.createPosition(fromPositionFilterTextField.getText());
+            CellPositionInSheet toPosition = PositionFactory.createPosition(toPositionFilterTextField.getText());
+            Range range = new Range(fromPosition, toPosition);
 
+            Map<String, Set<EffectiveValue>> column2effectiveValuesFilteredBy = new HashMap<>();
+
+            // Iterate over each column in the filter TableView
+            for (TableColumn<Map<String, CommandsModelUI.EffectiveValueWrapper>, ?> column : filterValuesTableView.getColumns()) {
+                String columnName = column.getText(); // Get the column name
+                Set<EffectiveValue> selectedValues = new HashSet<>(); // Set to store selected values for the column
+
+                // Iterate over the rows in the TableView
+                for (Map<String, CommandsModelUI.EffectiveValueWrapper> row : filterValuesTableView.getItems()) {
+                    CommandsModelUI.EffectiveValueWrapper wrapper = row.get(columnName);
+
+                    if (wrapper != null && wrapper.isSelected()) {
+                        EffectiveValue value = wrapper.getEffectiveValue();
+                        selectedValues.add(value);
+                    }
+                }
+
+                // Only add the column if there are selected values
+                if (!selectedValues.isEmpty()) {
+                    column2effectiveValuesFilteredBy.put(columnName, selectedValues);
+                }
+            }
+
+            SheetDto sheetDto = engine.getFilteredRowsSheet(range, column2effectiveValuesFilteredBy);
+            mainAppController.sheetIsFiltered(sheetDto);
+        } catch (Exception e) {
+            AlertsHandler.HandleErrorAlert("Show filtered sheet", e.getMessage());
+        }
     }
 }
