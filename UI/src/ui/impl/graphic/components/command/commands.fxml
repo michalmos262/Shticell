@@ -45,7 +45,7 @@
                  <TextField fx:id="fromPositionFilterTextField" layoutX="115.0" layoutY="19.0" prefHeight="25.0" prefWidth="33.0" />
                  <Label layoutX="10.0" layoutY="50.0" text="Filter by columns:" />
                  <Button fx:id="showFilteredSheetButton" layoutX="159.0" layoutY="234.0" mnemonicParsing="false" onAction="#showFilteredSheetButtonListener" text="Show" />
-                  <Button fx:id="chooseFilterValuesButton" layoutX="15.0" layoutY="117.0" mnemonicParsing="false" onAction="#chooseFilterValuesButtonListener" text="Click for choosing filter values" />
+                  <Button fx:id="chooseFilterValuesButton" layoutX="14.0" layoutY="111.0" mnemonicParsing="false" onAction="#chooseFilterValuesButtonListener" text="Enter columns" />
                   <ListView fx:id="filterByColumnsListView" layoutX="114.0" layoutY="50.0" prefHeight="61.0" prefWidth="85.0" />
                   <TableView fx:id="filterValuesTableView" layoutX="10.0" layoutY="148.0" prefHeight="79.0" prefWidth="199.0" />
               </AnchorPane>
