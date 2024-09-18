@@ -43,7 +43,7 @@ public class ActionLineModelUI {
         cellTextColorPicker.disableProperty().bind(Bindings.or(isAnyCellClicked.not(), isFileLoading));
 
         selectedCellIdLabel.textProperty().bind(Bindings.concat("Cell ID: ", selectedCellId));
-        originalCellValueTextField.textProperty().bind(selectedCellOriginalValue);
+        originalCellValueTextField.textProperty().bindBidirectional(selectedCellOriginalValue);
         lastCellVersionLabel.textProperty().bind(Bindings.concat("Last Cell Version: ", selectedCellLastVersion));
 
         currentSheetVersion.addListener((obs, oldValue, newValue) -> {
