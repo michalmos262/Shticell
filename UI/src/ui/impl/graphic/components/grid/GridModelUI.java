@@ -53,26 +53,32 @@ public class GridModelUI {
 
     public void setRowsAndColumnsBindings(CellPositionInSheet primaryCellPosition) {
         cellPosition2displayedValue.get(primaryCellPosition).columnWidthProperty()
-                .addListener((observable, oldValue, newValue) ->
-                        cellPosition2displayedValue.forEach((cellPosition, properties) -> {
-                            if (cellPosition.getColumn() == primaryCellPosition.getColumn()) {
-                                Label labelInColumn = (Label) gridPane.lookup("#" + cellPosition);
-                                labelInColumn.setStyle(labelInColumn.getStyle() + ";-fx-min-width: " + newValue +
-                                        ";-fx-pref-width: " + newValue + ";-fx-max-width: " + newValue + ";");
-                            }
-                        })
-                );
+                .addListener((observable, oldValue, newValue) -> {
+                    cellPosition2displayedValue.forEach((cellPosition, properties) -> {
+                        if (cellPosition.getColumn() == primaryCellPosition.getColumn()) {
+                            Label labelInColumn = (Label) gridPane.lookup("#" + cellPosition);
+                            labelInColumn.setStyle(labelInColumn.getStyle() + ";-fx-min-width: " + newValue +
+                                    ";-fx-pref-width: " + newValue + ";-fx-max-width: " + newValue + ";");
+                        }
+                    });
+                    Label columnLabel = (Label) gridPane.lookup("#" + CellPositionInSheet.parseColumn(primaryCellPosition.getColumn()));
+                    columnLabel.setStyle(columnLabel.getStyle() + ";-fx-min-width: " + newValue +
+                            ";-fx-pref-width: " + newValue + ";-fx-max-width: " + newValue + ";");
+                });
 
         cellPosition2displayedValue.get(primaryCellPosition).rowHeightProperty()
-                .addListener((observable, oldValue, newValue) ->
-                        cellPosition2displayedValue.forEach((cellPosition, properties) -> {
-                            if (cellPosition.getRow() == primaryCellPosition.getRow()) {
-                                Label labelInRow = (Label) gridPane.lookup("#" + cellPosition);
-                                labelInRow.setStyle(labelInRow.getStyle() + ";-fx-min-height: " + newValue +
-                                        ";-fx-pref-height: " + newValue + ";-fx-max-height: " + newValue + ";");
-                            }
-                        })
-                );
+                .addListener((observable, oldValue, newValue) -> {
+                    cellPosition2displayedValue.forEach((cellPosition, properties) -> {
+                        if (cellPosition.getRow() == primaryCellPosition.getRow()) {
+                            Label labelInRow = (Label) gridPane.lookup("#" + cellPosition);
+                            labelInRow.setStyle(labelInRow.getStyle() + ";-fx-min-height: " + newValue +
+                                    ";-fx-pref-height: " + newValue + ";-fx-max-height: " + newValue + ";");
+                        }
+                    });
+                    Label rowLabel = (Label) gridPane.lookup("#" + primaryCellPosition.getRow());
+                    rowLabel.setStyle(rowLabel.getStyle() + ";-fx-min-height: " + newValue +
+                            ";-fx-pref-height: " + newValue + ";-fx-max-height: " + newValue + ";");
+                });
 
         cellPosition2displayedValue.get(primaryCellPosition).textAlignmentProperty()
                 .addListener((observable, oldValue, newValue) ->

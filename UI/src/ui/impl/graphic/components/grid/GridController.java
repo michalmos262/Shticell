@@ -7,7 +7,6 @@ import engine.entity.dto.CellDto;
 import engine.entity.dto.SheetDto;
 import javafx.beans.property.SimpleStringProperty;
 import javafx.fxml.FXML;
-import javafx.geometry.Insets;
 import javafx.geometry.Pos;
 import javafx.scene.Node;
 import javafx.scene.control.ButtonType;
@@ -68,8 +67,10 @@ public class GridController {
     private void setGridColumnsHeaders(GridPane gridPane, int numOfColumns) {
         // Add the column headers (A, B, C, ...)
         for (int col = 0; col < numOfColumns; col++) {
-            Label columnHeader = new Label(String.valueOf((char) ('A' + col)));
+            String colStr = String.valueOf((char) ('A' + col));
+            Label columnHeader = new Label(colStr);
             columnHeader.getStyleClass().add("column-header");
+            columnHeader.setId(colStr);
             columnHeader.setMinWidth(defaultColumnWidth);
             columnHeader.setPrefWidth(defaultColumnWidth);
             columnHeader.setMaxWidth(defaultColumnWidth);
@@ -80,8 +81,10 @@ public class GridController {
     private void setGridRowsHeaders(GridPane gridPane, int numOfRows) {
         // Add the row headers (1, 2, 3, ...)
         for (int row = 0; row < numOfRows; row++) {
-            Label rowHeader = new Label(String.valueOf(row + 1));
+            String rowStr = String.valueOf(row + 1);
+            Label rowHeader = new Label(rowStr);
             rowHeader.getStyleClass().add("row-header");
+            rowHeader.setId(rowStr);
             rowHeader.setPrefSize(20, defaultRowHeight);
             rowHeader.setMinSize(20, defaultRowHeight);
             rowHeader.setPrefSize(20, defaultRowHeight);
