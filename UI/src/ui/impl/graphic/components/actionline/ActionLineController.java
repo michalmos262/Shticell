@@ -18,7 +18,7 @@ import ui.impl.graphic.components.app.MainAppController;
 public class ActionLineController {
 
     @FXML private Label lastCellVersionLabel;
-    @FXML private Label originalCellValueLabel;
+    @FXML private TextField originalCellValueTextField;
     @FXML private Label selectedCellIdLabel;
     @FXML private Button updateValueButton;
     @FXML private Button showSheetVersionButton;
@@ -34,7 +34,6 @@ public class ActionLineController {
     private MainAppController mainAppController;
     private ActionLineModelUI modelUi;
     private Engine engine;
-    private Label clickedLabel;
 
     @FXML
     private void initialize() {
@@ -46,7 +45,7 @@ public class ActionLineController {
         rowHeightSpinner.setValueFactory(new SpinnerValueFactory.IntegerSpinnerValueFactory(0, 100, 0, 1));
         columnWidthSpinner.setValueFactory(new SpinnerValueFactory.IntegerSpinnerValueFactory(0, 100, 0, 1));
 
-        modelUi = new ActionLineModelUI(updateValueButton, selectedCellIdLabel, originalCellValueLabel,
+        modelUi = new ActionLineModelUI(updateValueButton, selectedCellIdLabel, originalCellValueTextField,
                 lastCellVersionLabel, showSheetVersionSelector, columnTextAlignmentChoiceBox, showSheetVersionButton,
                 columnWidthSpinner, rowHeightSpinner, cellBackgroundColorPicker, cellTextColorPicker);
     }
@@ -173,7 +172,6 @@ public class ActionLineController {
     }
 
     public CellDto cellClicked(Label clickedCell) {
-        this.clickedLabel = clickedCell;
         String cellPositionId = clickedCell.getId();
         CellPositionInSheet cellPositionInSheet = PositionFactory.createPosition(cellPositionId);
         CellDto cellDto = engine.getSheet(engine.getCurrentSheetVersion()).getCell(cellPositionInSheet);

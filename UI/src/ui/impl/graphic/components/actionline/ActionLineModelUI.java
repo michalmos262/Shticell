@@ -13,7 +13,7 @@ public class ActionLineModelUI {
     private final SimpleIntegerProperty selectedCellLastVersion;
     private final SimpleIntegerProperty currentSheetVersion;
 
-    public ActionLineModelUI(Button updateValueButton, Label selectedCellIdLabel, Label originalCellValueLabel,
+    public ActionLineModelUI(Button updateValueButton, Label selectedCellIdLabel, TextField originalCellValueTextField,
                              Label lastCellVersionLabel, ChoiceBox<Integer> showSheetVersionSelector,
                              ChoiceBox<Pos> columnTextAlignmentChoiceBox, Button showSheetVersionButton,
                              Spinner<Integer> columnWidthSpinner, Spinner<Integer> rowHeightSpinner,
@@ -26,6 +26,7 @@ public class ActionLineModelUI {
         selectedCellLastVersion = new SimpleIntegerProperty();
         currentSheetVersion = new SimpleIntegerProperty(0);
 
+        originalCellValueTextField.disableProperty().bind(Bindings.or(isAnyCellClicked.not(), isFileLoading));
         updateValueButton.disableProperty().bind(Bindings.or(isAnyCellClicked.not(), isFileLoading));
         showSheetVersionButton.disableProperty().bind(Bindings.or(currentSheetVersion.isEqualTo(0), isFileLoading));
         showSheetVersionSelector.disableProperty().bind(Bindings.or(currentSheetVersion.isEqualTo(0), isFileLoading));
@@ -36,7 +37,7 @@ public class ActionLineModelUI {
         cellTextColorPicker.disableProperty().bind(Bindings.or(currentSheetVersion.isEqualTo(0), isFileLoading));
 
         selectedCellIdLabel.textProperty().bind(Bindings.concat("Cell ID: ", selectedCellId));
-        originalCellValueLabel.textProperty().bind(Bindings.concat("Original Value: ", selectedCellOriginalValue));
+        originalCellValueTextField.textProperty().bind(selectedCellOriginalValue);
         lastCellVersionLabel.textProperty().bind(Bindings.concat("Last Cell Version: ", selectedCellLastVersion));
 
         currentSheetVersion.addListener((obs, oldValue, newValue) -> {

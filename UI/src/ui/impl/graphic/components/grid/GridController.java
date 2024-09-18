@@ -58,34 +58,34 @@ public class GridController {
          // Clear the existing content in the gridContainer
         gridPane.getChildren().clear();
 
-        setGridColumnsHeaders(gridPane, numOfColumns, defaultColumnWidth);
-        setGridRowsHeaders(gridPane, numOfRows, defaultRowHeight);
+        setGridColumnsHeaders(gridPane, numOfColumns);
+        setGridRowsHeaders(gridPane, numOfRows);
         setMainGridCells(sheetDto);
 
         fileIsLoading(false);
     }
 
-    private void setGridColumnsHeaders(GridPane gridPane, int numOfColumns, int columnWidth) {
+    private void setGridColumnsHeaders(GridPane gridPane, int numOfColumns) {
         // Add the column headers (A, B, C, ...)
         for (int col = 0; col < numOfColumns; col++) {
             Label columnHeader = new Label(String.valueOf((char) ('A' + col)));
             columnHeader.getStyleClass().add("column-header");
-            columnHeader.setMinWidth(columnWidth);
-            columnHeader.setPrefWidth(columnWidth);
-            columnHeader.setMaxWidth(columnWidth);
+            columnHeader.setMinWidth(defaultColumnWidth);
+            columnHeader.setPrefWidth(defaultColumnWidth);
+            columnHeader.setMaxWidth(defaultColumnWidth);
             gridPane.add(columnHeader, col + 1, 0);  // Place the column header in the first row
         }
     }
 
-    private void setGridRowsHeaders(GridPane gridPane, int numOfRows, int rowHeight) {
+    private void setGridRowsHeaders(GridPane gridPane, int numOfRows) {
         // Add the row headers (1, 2, 3, ...)
         for (int row = 0; row < numOfRows; row++) {
             Label rowHeader = new Label(String.valueOf(row + 1));
             rowHeader.getStyleClass().add("row-header");
-            rowHeader.setMinHeight(defaultRowHeight);
-            rowHeader.setPrefHeight(rowHeight);
+            rowHeader.setPrefSize(20, defaultRowHeight);
+            rowHeader.setMinSize(20, defaultRowHeight);
+            rowHeader.setPrefSize(20, defaultRowHeight);
             rowHeader.setMaxHeight(defaultRowHeight);
-            rowHeader.setPadding(new Insets(rowHeight));
             gridPane.add(rowHeader, 0, row + 1);  // Place the row header in the first column
         }
     }
@@ -231,9 +231,11 @@ public class GridController {
                         : sheetDto.getCell(cellPositionInSheet).getEffectiveValueForDisplay().toString();
                 label.setText(cellDisplayedValue);
                 label.setPrefWidth(defaultColumnWidth);
+                label.setMinWidth(defaultColumnWidth);
+                label.setMaxWidth(defaultColumnWidth);
                 label.setPrefHeight(defaultRowHeight);
-                label.setMaxWidth(Double.MAX_VALUE);
-                label.setMaxHeight(Double.MAX_VALUE);
+                label.setMinHeight(defaultRowHeight);
+                label.setMaxHeight(defaultRowHeight);
 
                 gridPane.add(label, col + 1, row + 1);  // Offset by 1 to leave space for headers
             }
@@ -278,8 +280,8 @@ public class GridController {
         GridPane gridPane = new GridPane();
         gridPane.setPrefWidth(700);
 
-        setGridColumnsHeaders(gridPane, numOfColumns, defaultColumnWidth);
-        setGridRowsHeaders(gridPane, sheetDto.getNumOfRows(), defaultRowHeight);
+        setGridColumnsHeaders(gridPane, numOfColumns);
+        setGridRowsHeaders(gridPane, sheetDto.getNumOfRows());
         setGridOnVersionCells(gridPane, sheetDto);
 
         for (Node node : gridPane.getChildren()) {
