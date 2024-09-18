@@ -59,6 +59,10 @@ public class RangesController {
             modelUi.addRange(rangeName, range);
         }
 
+        addNewRangeTitledPane.setExpanded(false);
+        showRangesTitledPane.setExpanded(false);
+        deleteRangeTitledPane.setExpanded(false);
+
         modelUi.isFileLoadingProperty().set(false);
     }
 

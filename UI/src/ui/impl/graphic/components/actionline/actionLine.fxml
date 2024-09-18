@@ -99,11 +99,11 @@
         </AnchorPane>
         <AnchorPane prefHeight="200.0" prefWidth="200.0" GridPane.columnIndex="3">
             <Label layoutX="43.0" layoutY="5.0" text="Row height (in px):" />
-            <Spinner fx:id="rowHeightSpinner" layoutX="43.0" layoutY="21.0" prefHeight="25.0" prefWidth="99.0" />
+            <Spinner fx:id="rowHeightSpinner" editable="true" layoutX="43.0" layoutY="21.0" prefHeight="25.0" prefWidth="99.0" />
         </AnchorPane>
         <AnchorPane prefHeight="200.0" prefWidth="200.0" GridPane.columnIndex="4">
             <Label layoutX="14.0" layoutY="5.0" text="Column width (in px):" />
-            <Spinner fx:id="columnWidthSpinner" layoutX="14.0" layoutY="21.0" prefHeight="25.0" prefWidth="113.0" />
+            <Spinner fx:id="columnWidthSpinner" editable="true" layoutX="14.0" layoutY="21.0" prefHeight="25.0" prefWidth="113.0" />
         </AnchorPane>
     </GridPane>
    <Button fx:id="setDesignButton" mnemonicParsing="false" onAction="#setDesignButtonListener" text="Set" GridPane.columnIndex="1" GridPane.rowIndex="1">

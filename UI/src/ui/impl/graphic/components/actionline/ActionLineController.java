@@ -15,6 +15,9 @@ import javafx.scene.paint.Color;
 import ui.impl.graphic.components.alert.AlertsHandler;
 import ui.impl.graphic.components.app.MainAppController;
 
+import java.util.LinkedList;
+import java.util.List;
+
 public class ActionLineController {
 
     @FXML private Label lastCellVersionLabel;
@@ -42,10 +45,15 @@ public class ActionLineController {
         columnTextAlignmentChoiceBox.getSelectionModel().selectFirst();
 
         // set the spinners
-        rowHeightSpinner.setValueFactory(new SpinnerValueFactory.IntegerSpinnerValueFactory(0, 100, 0, 1));
-        columnWidthSpinner.setValueFactory(new SpinnerValueFactory.IntegerSpinnerValueFactory(0, 100, 0, 1));
+        rowHeightSpinner.setValueFactory(new SpinnerValueFactory.IntegerSpinnerValueFactory(20, 500, 0, 1));
+        columnWidthSpinner.setValueFactory(new SpinnerValueFactory.IntegerSpinnerValueFactory(20, 500, 0, 1));
 
-        modelUi = new ActionLineModelUI(updateValueButton, selectedCellIdLabel, originalCellValueTextField,
+        List<Button> cellButtons = new LinkedList<>();
+        cellButtons.add(updateValueButton);
+        cellButtons.add(backToDefaultDesignButton);
+        cellButtons.add(setDesignButton);
+
+        modelUi = new ActionLineModelUI(cellButtons, selectedCellIdLabel, originalCellValueTextField,
                 lastCellVersionLabel, showSheetVersionSelector, columnTextAlignmentChoiceBox, showSheetVersionButton,
                 columnWidthSpinner, rowHeightSpinner, cellBackgroundColorPicker, cellTextColorPicker);
     }
