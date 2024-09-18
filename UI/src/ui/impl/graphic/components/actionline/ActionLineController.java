@@ -7,8 +7,11 @@ import engine.entity.dto.CellDto;
 import engine.operation.Operation;
 import javafx.event.ActionEvent;
 import javafx.fxml.FXML;
+import javafx.geometry.Pos;
 import javafx.scene.control.*;
+import javafx.scene.layout.Background;
 import javafx.scene.layout.VBox;
+import javafx.scene.paint.Color;
 import ui.impl.graphic.components.alert.AlertsHandler;
 import ui.impl.graphic.components.app.MainAppController;
 
@@ -21,7 +24,7 @@ public class ActionLineController {
     @FXML private Button showSheetVersionButton;
     @FXML private Button backToDefaultDesignButton;
     @FXML private Button setDesignButton;
-    @FXML private ChoiceBox<String> columnTextAlignmentChoiceBox;
+    @FXML private ChoiceBox<Pos> columnTextAlignmentChoiceBox;
     @FXML private ChoiceBox<Integer> showSheetVersionSelector;
     @FXML private Spinner<Integer> columnWidthSpinner;
     @FXML private Spinner<Integer> rowHeightSpinner;
@@ -31,11 +34,21 @@ public class ActionLineController {
     private MainAppController mainAppController;
     private ActionLineModelUI modelUi;
     private Engine engine;
+    private Label clickedLabel;
 
     @FXML
     private void initialize() {
+        // put all possible text alignments in columnTextAlignmentChoiceBox
+        columnTextAlignmentChoiceBox.getItems().addAll(Pos.values());
+        columnTextAlignmentChoiceBox.getSelectionModel().selectFirst();
+
+        // set the spinners
+        rowHeightSpinner.setValueFactory(new SpinnerValueFactory.IntegerSpinnerValueFactory(0, 100, 0, 1));
+        columnWidthSpinner.setValueFactory(new SpinnerValueFactory.IntegerSpinnerValueFactory(0, 100, 0, 1));
+
         modelUi = new ActionLineModelUI(updateValueButton, selectedCellIdLabel, originalCellValueLabel,
-                lastCellVersionLabel, showSheetVersionSelector, showSheetVersionButton);
+                lastCellVersionLabel, showSheetVersionSelector, columnTextAlignmentChoiceBox, showSheetVersionButton,
+                columnWidthSpinner, rowHeightSpinner, cellBackgroundColorPicker, cellTextColorPicker);
     }
 
     public void setMainController(MainAppController mainAppController, Engine engine) {
@@ -54,6 +67,12 @@ public class ActionLineController {
         fileIsLoading(false);
         removeCellClickFocus();
         modelUi.currentSheetVersionProperty().set(1);
+        // Set an initial value
+        int rowHeight = engine.getSheetRowHeight();
+        rowHeightSpinner.getValueFactory().setValue(rowHeight);
+
+        int columnWidth = engine.getSheetColumnWidth();
+        columnWidthSpinner.getValueFactory().setValue(columnWidth);
     }
 
     public void fileIsLoading(boolean isStarted) {
@@ -119,7 +138,7 @@ public class ActionLineController {
         });
 
         // Show the dialog and handle the result
-        dialog.showAndWait().ifPresent(this::updateCell);
+        dialog.showAndWait().ifPresent(this::updateCellValues);
     }
 
     @FXML
@@ -140,7 +159,7 @@ public class ActionLineController {
         AlertsHandler.HandleOkAlert("Update succeeded!");
     }
 
-    public void updateCell(String cellNewOriginalValue) {
+    private void updateCellValues(String cellNewOriginalValue) {
         try {
             CellPositionInSheet cellPositionInSheet = PositionFactory.createPosition(modelUi.selectedCellIdProperty().getValue());
             CellDto cellDto = engine.updateSheetCell(cellPositionInSheet.getRow(), cellPositionInSheet.getColumn(), cellNewOriginalValue);
@@ -153,13 +172,40 @@ public class ActionLineController {
         }
     }
 
-    public void cellClicked(String cellPositionId, String originalValue, int lastCellVersion) {
+    public CellDto cellClicked(Label clickedCell) {
+        this.clickedLabel = clickedCell;
+        String cellPositionId = clickedCell.getId();
+        CellPositionInSheet cellPositionInSheet = PositionFactory.createPosition(cellPositionId);
+        CellDto cellDto = engine.getSheet(engine.getCurrentSheetVersion()).getCell(cellPositionInSheet);
+        int lastCellVersion = engine.getLastCellVersion(cellPositionInSheet.getRow(), cellPositionInSheet.getColumn());
+        String originalValue = cellDto == null ? "" : cellDto.getOriginalValue();
+
         modelUi.selectedCellIdProperty().set(cellPositionId);
         modelUi.selectedCellLastVersionProperty().set(lastCellVersion);
         modelUi.selectedCellOriginalValueProperty().set(originalValue);
-        if (!modelUi.isAnyCellClickedProperty().getValue()) {
-            modelUi.isAnyCellClickedProperty().set(true);
+
+        Color backgroundColor = Color.WHITE;
+
+        // Check if the Label has a background
+        Background background = clickedCell.getBackground();
+        if (background != null && !background.getFills().isEmpty()) {
+            backgroundColor = (Color) background.getFills().getFirst().getFill();
         }
+        Color textColor = (Color) clickedCell.getTextFill();
+        Pos textAlignment = clickedCell.getAlignment();
+        int rowHeight = (int) clickedCell.getHeight();
+        int columnWidth = (int) clickedCell.getWidth();
+
+        // Update the header based on the selected cell's properties (background color, text color, etc.)
+        cellBackgroundColorPicker.setValue(backgroundColor);
+        cellTextColorPicker.setValue(textColor);
+        columnTextAlignmentChoiceBox.setValue(textAlignment);
+        rowHeightSpinner.getValueFactory().setValue(rowHeight);
+        columnWidthSpinner.getValueFactory().setValue(columnWidth);
+
+        modelUi.isAnyCellClickedProperty().set(true);
+
+        return cellDto;
     }
 
     @FXML
@@ -169,6 +215,13 @@ public class ActionLineController {
 
     @FXML
     void setDesignButtonListener(ActionEvent event) {
+        String cellId = modelUi.selectedCellIdProperty().get();
+        Color cellBackgroundColor = cellBackgroundColorPicker.getValue();
+        Color cellTextColor = cellTextColorPicker.getValue();
+        Pos columnTextAlignment = columnTextAlignmentChoiceBox.getValue();
+        int rowHeight = rowHeightSpinner.getValue();
+        int columnWidth = columnWidthSpinner.getValue();
 
+        mainAppController.updateCellDesign(cellId, cellBackgroundColor, cellTextColor, columnTextAlignment, rowHeight, columnWidth);
     }
 }

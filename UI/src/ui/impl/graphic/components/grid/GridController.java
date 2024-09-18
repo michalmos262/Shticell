@@ -8,6 +8,7 @@ import engine.entity.dto.SheetDto;
 import javafx.beans.property.SimpleStringProperty;
 import javafx.fxml.FXML;
 import javafx.geometry.Insets;
+import javafx.geometry.Pos;
 import javafx.scene.Node;
 import javafx.scene.control.ButtonType;
 import javafx.scene.control.Dialog;
@@ -15,6 +16,7 @@ import javafx.scene.control.Label;
 import javafx.scene.control.ScrollPane;
 import javafx.scene.input.MouseEvent;
 import javafx.scene.layout.GridPane;
+import javafx.scene.paint.Color;
 import ui.impl.graphic.components.app.MainAppController;
 
 import java.util.ArrayList;
@@ -35,7 +37,7 @@ public class GridController {
 
     @FXML
     private void initialize() {
-        modelUi = new GridModelUI();
+        modelUi = new GridModelUI(gridPane);
     }
 
     public void setMainController(MainAppController mainAppController, Engine engine) {
@@ -68,7 +70,9 @@ public class GridController {
         for (int col = 0; col < numOfColumns; col++) {
             Label columnHeader = new Label(String.valueOf((char) ('A' + col)));
             columnHeader.getStyleClass().add("column-header");
+            columnHeader.setMinWidth(columnWidth);
             columnHeader.setPrefWidth(columnWidth);
+            columnHeader.setMaxWidth(columnWidth);
             gridPane.add(columnHeader, col + 1, 0);  // Place the column header in the first row
         }
     }
@@ -78,7 +82,9 @@ public class GridController {
         for (int row = 0; row < numOfRows; row++) {
             Label rowHeader = new Label(String.valueOf(row + 1));
             rowHeader.getStyleClass().add("row-header");
+            rowHeader.setMinHeight(defaultRowHeight);
             rowHeader.setPrefHeight(rowHeight);
+            rowHeader.setMaxHeight(defaultRowHeight);
             rowHeader.setPadding(new Insets(rowHeight));
             gridPane.add(rowHeader, 0, row + 1);  // Place the row header in the first column
         }
@@ -93,8 +99,14 @@ public class GridController {
                 label.getStyleClass().add("cell");
                 label.setId((char) ('A' + col) + String.valueOf(row + 1));
                 modelUi.setCellLabelBinding(label, sheetDto, cellPositionInSheet);
+
+                label.setMinHeight(defaultRowHeight);
                 label.setPrefHeight(defaultRowHeight);
+                label.setMaxHeight(defaultRowHeight);
+
+                label.setMinWidth(defaultColumnWidth);
                 label.setPrefWidth(defaultColumnWidth);
+                label.setMaxWidth(defaultColumnWidth);
 
                 // Attach the click event handler
                 label.setOnMouseClicked(this::handleCellClick);
@@ -102,12 +114,19 @@ public class GridController {
                 gridPane.add(label, col + 1, row + 1);  // Offset by 1 to leave space for headers
             }
         }
+
+        for (int row = 0; row < numOfRows; row++) {
+            for (int col = 0; col < numOfColumns; col++) {
+                CellPositionInSheet cellPositionInSheet = PositionFactory.createPosition(row + 1, col + 1);
+                modelUi.setRowsAndColumnsBindings(cellPositionInSheet);
+            }
+        }
     }
 
     @FXML
     private void handleCellClick(MouseEvent event) {
         clickedLabel = (Label) event.getSource();
-        CellDto cellDto = mainAppController.cellClicked(clickedLabel.getId());
+        CellDto cellDto = mainAppController.cellClicked(clickedLabel);
         setClickedCellColors(cellDto);
     }
 
@@ -187,11 +206,13 @@ public class GridController {
     }
 
     public void cellUpdated(CellPositionInSheet cellPositionInSheet, CellDto cellDto) {
-        SimpleStringProperty strProperty = modelUi.getCellPosition2displayedValue().get(cellPositionInSheet);
-        strProperty.setValue(cellDto.getEffectiveValueForDisplay().toString());
+        SimpleStringProperty displayedValue = modelUi.getCellPosition2displayedValue().get(cellPositionInSheet).
+                displayedValueProperty();
+        displayedValue.setValue(cellDto.getEffectiveValueForDisplay().toString());
         // Update the visible affected cells
         cellDto.getInfluences().forEach(influencedPosition -> {
-            SimpleStringProperty visibleValue = modelUi.getCellPosition2displayedValue().get(influencedPosition);
+            SimpleStringProperty visibleValue = modelUi.getCellPosition2displayedValue().get(influencedPosition).
+                    displayedValueProperty();
             CellDto influencedCell = engine.findCellInSheet(influencedPosition.getRow(), influencedPosition.getColumn(), engine.getCurrentSheetVersion());
             visibleValue.setValue(influencedCell.getEffectiveValueForDisplay().toString());
         });
@@ -272,5 +293,15 @@ public class GridController {
 
     public void showCellsInRange(String name) {
         setRangeCellsColors(name);
+    }
+
+    public void updateCellDesign(String cellId, Color cellBackgroundColor, Color cellTextColor,
+                                 Pos columnTextAlignment, int rowHeight, int columnWidth) {
+        CellPositionInSheet cellPositionInSheet = PositionFactory.createPosition(cellId);
+        modelUi.getCellPosition2displayedValue().get(cellPositionInSheet).backgroundColorProperty().setValue(cellBackgroundColor);
+        modelUi.getCellPosition2displayedValue().get(cellPositionInSheet).textColorProperty().setValue(cellTextColor);
+        modelUi.getCellPosition2displayedValue().get(cellPositionInSheet).textAlignmentProperty().setValue(columnTextAlignment);
+        modelUi.getCellPosition2displayedValue().get(cellPositionInSheet).rowHeightProperty().setValue(rowHeight);
+        modelUi.getCellPosition2displayedValue().get(cellPositionInSheet).columnWidthProperty().setValue(columnWidth);
     }
 }

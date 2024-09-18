@@ -2,14 +2,16 @@ package ui.impl.graphic.components.app;
 
 import engine.api.Engine;
 import engine.entity.cell.CellPositionInSheet;
-import engine.entity.cell.PositionFactory;
 import engine.entity.dto.CellDto;
 import engine.entity.dto.SheetDto;
 import engine.impl.EngineImpl;
 import javafx.fxml.FXML;
+import javafx.geometry.Pos;
+import javafx.scene.control.Label;
 import javafx.scene.control.ScrollPane;
 import javafx.scene.layout.BorderPane;
 import javafx.scene.layout.GridPane;
+import javafx.scene.paint.Color;
 import javafx.stage.Stage;
 import ui.impl.graphic.components.actionline.ActionLineController;
 import ui.impl.graphic.components.command.CommandsController;
@@ -77,20 +79,18 @@ public class MainAppController {
         sheetComponentController.initMainGrid(sheetDto);
     }
 
-    public CellDto cellClicked(String cellPositionId) {
-        CellPositionInSheet cellPositionInSheet = PositionFactory.createPosition(cellPositionId);
-        CellDto cellDto = engine.getSheet(engine.getCurrentSheetVersion()).getCell(cellPositionInSheet);
-        int lastCellVersion = engine.getLastCellVersion(cellPositionInSheet.getRow(), cellPositionInSheet.getColumn());
-        String originalValue = cellDto == null ? "" : cellDto.getOriginalValue();
-
-        actionLineComponentController.cellClicked(cellPositionId, originalValue, lastCellVersion);
-
-        return cellDto;
+    public CellDto cellClicked(Label clickedCell) {
+        return actionLineComponentController.cellClicked(clickedCell);
     }
 
     public void cellIsUpdated(CellPositionInSheet cellPositionInSheet, CellDto cellDto) {
         sheetComponentController.cellUpdated(cellPositionInSheet, cellDto);
         actionLineComponentController.updateCellSucceeded();
+    }
+
+    public void updateCellDesign(String cellId, Color cellBackgroundColor, Color cellTextColor,
+                                 Pos columnTextAlignment, int rowHeight, int columnWidth) {
+        sheetComponentController.updateCellDesign(cellId, cellBackgroundColor, cellTextColor, columnTextAlignment, rowHeight, columnWidth);
     }
 
     public void selectSheetVersion(int version) {
