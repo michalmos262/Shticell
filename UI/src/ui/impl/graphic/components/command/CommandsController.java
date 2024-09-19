@@ -56,6 +56,10 @@ public class CommandsController {
         listViews.add(filterByColumnsListView);
         listViews.add(sortByColumnsListView);
         modelUi.setColumnsSelectBoxes(sheetColumns, listViews);
+
+        filterSheetTitledPane.setExpanded(false);
+        sortSheetTitledPane.setExpanded(false);
+
         fileIsLoading(false);
     }
 

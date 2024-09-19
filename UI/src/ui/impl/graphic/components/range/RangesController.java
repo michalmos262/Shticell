@@ -59,6 +59,10 @@ public class RangesController {
             modelUi.addRange(rangeName, range);
         }
 
+        addNewRangeTitledPane.setExpanded(false);
+        showRangesTitledPane.setExpanded(false);
+        deleteRangeTitledPane.setExpanded(false);
+
         modelUi.isFileLoadingProperty().set(false);
     }
 
@@ -91,6 +95,7 @@ public class RangesController {
             engine.deleteRange(rangeName);
             modelUi.removeRange(rangeName);
             deleteRangeNameChoiceBox.setValue(null); // clean current choice
+            mainAppController.removeCellsPaints();
             AlertsHandler.HandleOkAlert("Range " + rangeName + " deleted successfully!");
         } catch (Exception e) {
             AlertsHandler.HandleErrorAlert("Delete range", e.getMessage());

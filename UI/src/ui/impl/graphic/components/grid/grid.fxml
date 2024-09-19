@@ -4,7 +4,7 @@
 <?import javafx.scene.layout.GridPane?>
 
 
-<ScrollPane fx:id="scrollPane" xmlns="http://javafx.com/javafx/22" xmlns:fx="http://javafx.com/fxml/1" stylesheets="@grid.css" fx:controller="ui.impl.graphic.components.grid.GridController">
+<ScrollPane fx:id="scrollPane" xmlns="http://javafx.com/javafx/22" xmlns:fx="http://javafx.com/fxml/1" stylesheets="@css/defaultGrid.css" fx:controller="ui.impl.graphic.components.grid.GridController">
     <GridPane fx:id="gridPane">
         
     </GridPane>

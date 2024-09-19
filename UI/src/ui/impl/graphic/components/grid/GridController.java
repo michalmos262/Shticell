@@ -7,7 +7,7 @@ import engine.entity.dto.CellDto;
 import engine.entity.dto.SheetDto;
 import javafx.beans.property.SimpleStringProperty;
 import javafx.fxml.FXML;
-import javafx.geometry.Insets;
+import javafx.geometry.Pos;
 import javafx.scene.Node;
 import javafx.scene.control.ButtonType;
 import javafx.scene.control.Dialog;
@@ -15,6 +15,7 @@ import javafx.scene.control.Label;
 import javafx.scene.control.ScrollPane;
 import javafx.scene.input.MouseEvent;
 import javafx.scene.layout.GridPane;
+import javafx.scene.paint.Color;
 import ui.impl.graphic.components.app.MainAppController;
 
 import java.util.ArrayList;
@@ -35,7 +36,7 @@ public class GridController {
 
     @FXML
     private void initialize() {
-        modelUi = new GridModelUI();
+        modelUi = new GridModelUI(gridPane);
     }
 
     public void setMainController(MainAppController mainAppController, Engine engine) {
@@ -56,30 +57,38 @@ public class GridController {
          // Clear the existing content in the gridContainer
         gridPane.getChildren().clear();
 
-        setGridColumnsHeaders(gridPane, numOfColumns, defaultColumnWidth);
-        setGridRowsHeaders(gridPane, numOfRows, defaultRowHeight);
+        setGridColumnsHeaders(gridPane, numOfColumns);
+        setGridRowsHeaders(gridPane, numOfRows);
         setMainGridCells(sheetDto);
 
         fileIsLoading(false);
     }
 
-    private void setGridColumnsHeaders(GridPane gridPane, int numOfColumns, int columnWidth) {
+    private void setGridColumnsHeaders(GridPane gridPane, int numOfColumns) {
         // Add the column headers (A, B, C, ...)
         for (int col = 0; col < numOfColumns; col++) {
-            Label columnHeader = new Label(String.valueOf((char) ('A' + col)));
+            String colStr = String.valueOf((char) ('A' + col));
+            Label columnHeader = new Label(colStr);
             columnHeader.getStyleClass().add("column-header");
-            columnHeader.setPrefWidth(columnWidth);
+            columnHeader.setId(colStr);
+            columnHeader.setMinWidth(defaultColumnWidth);
+            columnHeader.setPrefWidth(defaultColumnWidth);
+            columnHeader.setMaxWidth(defaultColumnWidth);
             gridPane.add(columnHeader, col + 1, 0);  // Place the column header in the first row
         }
     }
 
-    private void setGridRowsHeaders(GridPane gridPane, int numOfRows, int rowHeight) {
+    private void setGridRowsHeaders(GridPane gridPane, int numOfRows) {
         // Add the row headers (1, 2, 3, ...)
         for (int row = 0; row < numOfRows; row++) {
-            Label rowHeader = new Label(String.valueOf(row + 1));
+            String rowStr = String.valueOf(row + 1);
+            Label rowHeader = new Label(rowStr);
             rowHeader.getStyleClass().add("row-header");
-            rowHeader.setPrefHeight(rowHeight);
-            rowHeader.setPadding(new Insets(rowHeight));
+            rowHeader.setId(rowStr);
+            rowHeader.setPrefSize(20, defaultRowHeight);
+            rowHeader.setMinSize(20, defaultRowHeight);
+            rowHeader.setPrefSize(20, defaultRowHeight);
+            rowHeader.setMaxHeight(defaultRowHeight);
             gridPane.add(rowHeader, 0, row + 1);  // Place the row header in the first column
         }
     }
@@ -93,8 +102,14 @@ public class GridController {
                 label.getStyleClass().add("cell");
                 label.setId((char) ('A' + col) + String.valueOf(row + 1));
                 modelUi.setCellLabelBinding(label, sheetDto, cellPositionInSheet);
+
+                label.setMinHeight(defaultRowHeight);
                 label.setPrefHeight(defaultRowHeight);
+                label.setMaxHeight(defaultRowHeight);
+
+                label.setMinWidth(defaultColumnWidth);
                 label.setPrefWidth(defaultColumnWidth);
+                label.setMaxWidth(defaultColumnWidth);
 
                 // Attach the click event handler
                 label.setOnMouseClicked(this::handleCellClick);
@@ -102,12 +117,19 @@ public class GridController {
                 gridPane.add(label, col + 1, row + 1);  // Offset by 1 to leave space for headers
             }
         }
+
+        for (int row = 0; row < numOfRows; row++) {
+            for (int col = 0; col < numOfColumns; col++) {
+                CellPositionInSheet cellPositionInSheet = PositionFactory.createPosition(row + 1, col + 1);
+                modelUi.setRowsAndColumnsBindings(cellPositionInSheet);
+            }
+        }
     }
 
     @FXML
     private void handleCellClick(MouseEvent event) {
         clickedLabel = (Label) event.getSource();
-        CellDto cellDto = mainAppController.cellClicked(clickedLabel.getId());
+        CellDto cellDto = mainAppController.cellClicked(clickedLabel);
         setClickedCellColors(cellDto);
     }
 
@@ -187,11 +209,13 @@ public class GridController {
     }
 
     public void cellUpdated(CellPositionInSheet cellPositionInSheet, CellDto cellDto) {
-        SimpleStringProperty strProperty = modelUi.getCellPosition2displayedValue().get(cellPositionInSheet);
-        strProperty.setValue(cellDto.getEffectiveValueForDisplay().toString());
+        SimpleStringProperty displayedValue = modelUi.getCellPosition2displayedValue().get(cellPositionInSheet).
+                displayedValueProperty();
+        displayedValue.setValue(cellDto.getEffectiveValueForDisplay().toString());
         // Update the visible affected cells
         cellDto.getInfluences().forEach(influencedPosition -> {
-            SimpleStringProperty visibleValue = modelUi.getCellPosition2displayedValue().get(influencedPosition);
+            SimpleStringProperty visibleValue = modelUi.getCellPosition2displayedValue().get(influencedPosition).
+                    displayedValueProperty();
             CellDto influencedCell = engine.findCellInSheet(influencedPosition.getRow(), influencedPosition.getColumn(), engine.getCurrentSheetVersion());
             visibleValue.setValue(influencedCell.getEffectiveValueForDisplay().toString());
         });
@@ -210,9 +234,11 @@ public class GridController {
                         : sheetDto.getCell(cellPositionInSheet).getEffectiveValueForDisplay().toString();
                 label.setText(cellDisplayedValue);
                 label.setPrefWidth(defaultColumnWidth);
+                label.setMinWidth(defaultColumnWidth);
+                label.setMaxWidth(defaultColumnWidth);
                 label.setPrefHeight(defaultRowHeight);
-                label.setMaxWidth(Double.MAX_VALUE);
-                label.setMaxHeight(Double.MAX_VALUE);
+                label.setMinHeight(defaultRowHeight);
+                label.setMaxHeight(defaultRowHeight);
 
                 gridPane.add(label, col + 1, row + 1);  // Offset by 1 to leave space for headers
             }
@@ -257,8 +283,8 @@ public class GridController {
         GridPane gridPane = new GridPane();
         gridPane.setPrefWidth(700);
 
-        setGridColumnsHeaders(gridPane, numOfColumns, defaultColumnWidth);
-        setGridRowsHeaders(gridPane, sheetDto.getNumOfRows(), defaultRowHeight);
+        setGridColumnsHeaders(gridPane, numOfColumns);
+        setGridRowsHeaders(gridPane, sheetDto.getNumOfRows());
         setGridOnVersionCells(gridPane, sheetDto);
 
         for (Node node : gridPane.getChildren()) {
@@ -272,5 +298,39 @@ public class GridController {
 
     public void showCellsInRange(String name) {
         setRangeCellsColors(name);
+    }
+
+    public void removeCellsPaints() {
+        clearPaintedCells();
+    }
+
+    public void changeCellBackground(String cellId, Color cellBackgroundColor) {
+        CellPositionInSheet cellPositionInSheet = PositionFactory.createPosition(cellId);
+        modelUi.getCellPosition2displayedValue().get(cellPositionInSheet).backgroundColorProperty().setValue(cellBackgroundColor);
+    }
+
+    public void changeCellTextColor(String cellId, Color cellTextColor) {
+        CellPositionInSheet cellPositionInSheet = PositionFactory.createPosition(cellId);
+        modelUi.getCellPosition2displayedValue().get(cellPositionInSheet).textColorProperty().setValue(cellTextColor);
+    }
+
+    public void changeColumnTextAlignment(String cellId, Pos columnTextAlignment) {
+        CellPositionInSheet cellPositionInSheet = PositionFactory.createPosition(cellId);
+        modelUi.getCellPosition2displayedValue().get(cellPositionInSheet).textAlignmentProperty().setValue(columnTextAlignment);
+    }
+
+    public void changeRowHeight(String cellId, int rowHeight) {
+        CellPositionInSheet cellPositionInSheet = PositionFactory.createPosition(cellId);
+        modelUi.getCellPosition2displayedValue().get(cellPositionInSheet).rowHeightProperty().setValue(rowHeight);
+    }
+
+    public void changeColumnWidth(String cellId, int columnWidth) {
+        CellPositionInSheet cellPositionInSheet = PositionFactory.createPosition(cellId);
+        modelUi.getCellPosition2displayedValue().get(cellPositionInSheet).columnWidthProperty().setValue(columnWidth);
+    }
+
+    public void updateCellColors(String cellId, Color cellBackgroundColor, Color cellTextColor) {
+        changeCellBackground(cellId, cellBackgroundColor);
+        changeCellTextColor(cellId, cellTextColor);
     }
 }

@@ -1,0 +1,53 @@
+.label {
+    -fx-border-color: #a6aaab;
+    -fx-text-fill: black;
+    -fx-max-width: Infinity;
+    -fx-max-height: Infinity;
+}
+
+.cell {
+    -fx-background-color: white;
+}
+
+.cell:hover {
+    -fx-border-color: black;
+    -fx-border-width: 2px;
+    -fx-border-radius: 5px;
+}
+
+.cell.influenced-cell {
+    -fx-border-color: green;
+    -fx-border-width: 2px;
+    -fx-border-radius: 5px;
+    -fx-effect: dropshadow(gaussian, green, 10, 0.5, 0, 0);
+}
+
+.cell.influencing-cell {
+    -fx-border-color: blue;
+    -fx-border-width: 2px;
+    -fx-border-radius: 5px;
+    -fx-effect: dropshadow(gaussian, blue, 10, 0.5, 0, 0);
+}
+
+.cell.clicked {
+    -fx-border-color: black;
+}
+
+.cell.of-range {
+    -fx-border-color: orange;
+    -fx-border-width: 2px;
+    -fx-border-radius: 5px;
+    -fx-effect: dropshadow(gaussian, orange, 10, 0.5, 0, 0);
+}
+
+.row-header {
+    -fx-background-color: lightgray;
+    -fx-alignment: center;
+    -fx-border-style: solid;
+}
+
+.column-header {
+    -fx-background-color: lightgray;
+    -fx-alignment: center;
+    -fx-border-style: solid;
+}

@@ -1,13 +1,11 @@
 package ui.impl.graphic.components.actionline;
 
 import javafx.beans.binding.Bindings;
-import javafx.beans.property.BooleanProperty;
-import javafx.beans.property.SimpleBooleanProperty;
-import javafx.beans.property.SimpleIntegerProperty;
-import javafx.beans.property.SimpleStringProperty;
-import javafx.scene.control.Button;
-import javafx.scene.control.ChoiceBox;
-import javafx.scene.control.Label;
+import javafx.beans.property.*;
+import javafx.geometry.Pos;
+import javafx.scene.control.*;
+
+import java.util.List;
 
 public class ActionLineModelUI {
     private final SimpleBooleanProperty isFileLoading;
@@ -17,9 +15,12 @@ public class ActionLineModelUI {
     private final SimpleIntegerProperty selectedCellLastVersion;
     private final SimpleIntegerProperty currentSheetVersion;
 
-    public ActionLineModelUI(Button updateValueButton, Label selectedCellIdLabel, Label originalCellValueLabel,
+    public ActionLineModelUI(List<Button> cellButtons, Label selectedCellIdLabel, TextField originalCellValueTextField,
                              Label lastCellVersionLabel, ChoiceBox<Integer> showSheetVersionSelector,
-                             Button showSheetVersionButton) {
+                             ChoiceBox<Pos> columnTextAlignmentChoiceBox, Button showSheetVersionButton,
+                             Spinner<Integer> columnWidthSpinner, Spinner<Integer> rowHeightSpinner,
+                             ColorPicker cellBackgroundColorPicker, ColorPicker cellTextColorPicker) {
+
         isFileLoading = new SimpleBooleanProperty(false);
         isAnyCellClicked = new SimpleBooleanProperty(false);
         selectedCellId = new SimpleStringProperty("");
@@ -27,12 +28,23 @@ public class ActionLineModelUI {
         selectedCellLastVersion = new SimpleIntegerProperty();
         currentSheetVersion = new SimpleIntegerProperty(0);
 
-        updateValueButton.disableProperty().bind(Bindings.or(isAnyCellClicked.not(), isFileLoading));
-        selectedCellIdLabel.textProperty().bind(Bindings.concat("Cell ID: ", selectedCellId));
-        originalCellValueLabel.textProperty().bind(Bindings.concat("Original Value: ", selectedCellOriginalValue));
-        lastCellVersionLabel.textProperty().bind(Bindings.concat("Last Cell Version: ", selectedCellLastVersion));
+        for (Button button : cellButtons) {
+            button.disableProperty().bind(Bindings.or(isAnyCellClicked.not(), isFileLoading));
+        }
+
         showSheetVersionButton.disableProperty().bind(Bindings.or(currentSheetVersion.isEqualTo(0), isFileLoading));
         showSheetVersionSelector.disableProperty().bind(Bindings.or(currentSheetVersion.isEqualTo(0), isFileLoading));
+
+        originalCellValueTextField.disableProperty().bind(Bindings.or(isAnyCellClicked.not(), isFileLoading));
+        columnTextAlignmentChoiceBox.disableProperty().bind(Bindings.or(isAnyCellClicked.not(), isFileLoading));
+        columnWidthSpinner.disableProperty().bind(Bindings.or(isAnyCellClicked.not(), isFileLoading));
+        rowHeightSpinner.disableProperty().bind(Bindings.or(isAnyCellClicked.not(), isFileLoading));
+        cellBackgroundColorPicker.disableProperty().bind(Bindings.or(isAnyCellClicked.not(), isFileLoading));
+        cellTextColorPicker.disableProperty().bind(Bindings.or(isAnyCellClicked.not(), isFileLoading));
+
+        selectedCellIdLabel.textProperty().bind(selectedCellId);
+        originalCellValueTextField.textProperty().bindBidirectional(selectedCellOriginalValue);
+        lastCellVersionLabel.textProperty().bind(Bindings.concat("Last Cell Version: ", selectedCellLastVersion));
 
         currentSheetVersion.addListener((obs, oldValue, newValue) -> {
             if (newValue.equals(1)) {

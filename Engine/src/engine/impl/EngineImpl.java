@@ -83,18 +83,22 @@ public class EngineImpl implements Engine {
 
     @Override
     public EffectiveValue getEffectiveValueForDisplay(EffectiveValue originalEffectiveValue) {
-        String effectiveValueStr = originalEffectiveValue.getValue().toString();
+        String effectiveValueStr;
+        EffectiveValue effectiveValueForDisplay = null;
 
-        if (effectiveValueStr.matches("-?\\d+(\\.\\d+)?")) {
-            DecimalFormat formatter = new DecimalFormat("#,###.##");
-            originalEffectiveValue = new EffectiveValue(CellType.NUMERIC, formatter.format(new BigDecimal(effectiveValueStr)));
-        } else if (effectiveValueStr.equalsIgnoreCase("true") || effectiveValueStr.equalsIgnoreCase("false")) {
-            originalEffectiveValue = new EffectiveValue(CellType.BOOLEAN, effectiveValueStr.toUpperCase());
-        } else {
-            originalEffectiveValue = new EffectiveValue(CellType.STRING, effectiveValueStr);
+        if (originalEffectiveValue != null) {
+            effectiveValueStr = originalEffectiveValue.getValue().toString();
+            if (effectiveValueStr.matches("-?\\d+(\\.\\d+)?")) {
+                DecimalFormat formatter = new DecimalFormat("#,###.##");
+                effectiveValueForDisplay = new EffectiveValue(CellType.NUMERIC, formatter.format(new BigDecimal(effectiveValueStr)));
+            } else if (effectiveValueStr.equalsIgnoreCase("true") || effectiveValueStr.equalsIgnoreCase("false")) {
+                effectiveValueForDisplay = new EffectiveValue(CellType.BOOLEAN, effectiveValueStr.toUpperCase());
+            } else {
+                effectiveValueForDisplay = new EffectiveValue(CellType.STRING, effectiveValueStr);
+            }
         }
 
-        return originalEffectiveValue;
+        return effectiveValueForDisplay;
     }
 
     @Override
@@ -496,13 +500,18 @@ public class EngineImpl implements Engine {
                 // for each column filter
                 for (Map.Entry<String, Set<EffectiveValue>> entry : column2effectiveValuesFilteredBy.entrySet()) {
                     Cell cellInColumn = row.getCells().get(entry.getKey());
-                    if (cellInColumn == null) {
-                        return false;
+                    // if an empty cell and empty cell value (which is null) is one of the values to filter
+                    if (cellInColumn == null || cellInColumn.getEffectiveValue() == null) {
+                        if (!entry.getValue().contains(null)) {
+                            return false;
+                        }
                     }
-                    EffectiveValue originalEffectiveValue = cellInColumn.getEffectiveValue();
-                    EffectiveValue effectiveValueForDisplay = getEffectiveValueForDisplay(originalEffectiveValue);
-                    if (!entry.getValue().contains(effectiveValueForDisplay)) {
-                        return false;
+                    else {
+                        EffectiveValue originalEffectiveValue = cellInColumn.getEffectiveValue();
+                        EffectiveValue effectiveValueForDisplay = getEffectiveValueForDisplay(originalEffectiveValue);
+                        if (!entry.getValue().contains(effectiveValueForDisplay)) {
+                            return false;
+                        }
                     }
                 }
                 return true;

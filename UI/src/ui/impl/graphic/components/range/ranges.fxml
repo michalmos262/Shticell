@@ -11,14 +11,10 @@
 <?import javafx.scene.control.TitledPane?>
 <?import javafx.scene.layout.AnchorPane?>
 <?import javafx.scene.layout.BorderPane?>
-<?import javafx.scene.text.Font?>
 
 <BorderPane maxHeight="-Infinity" maxWidth="-Infinity" minHeight="-Infinity" minWidth="-Infinity" prefHeight="273.0" prefWidth="209.0" xmlns="http://javafx.com/javafx/22" xmlns:fx="http://javafx.com/fxml/1" fx:controller="ui.impl.graphic.components.range.RangesController">
    <top>
       <Label id="renges-label" alignment="TOP_LEFT" contentDisplay="TOP" prefHeight="21.0" prefWidth="209.0" style="-fx-alignment: center;" text="Ranges" textFill="#050000">
-         <font>
-            <Font name="Leelawadee UI Bold" size="12.0" />
-         </font>
          <BorderPane.margin>
             <Insets />
          </BorderPane.margin>
@@ -42,8 +38,8 @@
                   <Label layoutX="8.0" layoutY="27.0" text="Name:" />
                   <Label layoutX="96.0" layoutY="71.0" text=".." />
                   <Label layoutX="7.0" layoutY="63.0" text="Range:" />
-                  <TextField fx:id="addFromRangeTextInput" layoutX="51.0" layoutY="58.0" prefHeight="25.0" prefWidth="36.0" />
-                  <TextField fx:id="addToRangeTextInput" layoutX="111.0" layoutY="58.0" prefHeight="25.0" prefWidth="36.0" />
+                  <TextField fx:id="addFromRangeTextInput" layoutX="51.0" layoutY="58.0" prefHeight="25.0" prefWidth="42.0" promptText="from" />
+                  <TextField fx:id="addToRangeTextInput" layoutX="105.0" layoutY="58.0" prefHeight="25.0" prefWidth="42.0" promptText="to" />
                   <TextField fx:id="addRangeNameTextInput" layoutX="51.0" layoutY="18.0" prefHeight="25.0" prefWidth="116.0" />
                   <Button fx:id="addRangeButton" layoutX="155.0" layoutY="130.0" mnemonicParsing="false" onAction="#addRangeButtonListener" text="Add" />
                </AnchorPane>

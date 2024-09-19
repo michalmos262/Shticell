@@ -7,21 +7,25 @@ import engine.entity.dto.CellDto;
 import engine.operation.Operation;
 import javafx.event.ActionEvent;
 import javafx.fxml.FXML;
+import javafx.geometry.Pos;
 import javafx.scene.control.*;
-import javafx.scene.layout.VBox;
+import javafx.scene.layout.Background;
+import javafx.scene.paint.Color;
 import ui.impl.graphic.components.alert.AlertsHandler;
 import ui.impl.graphic.components.app.MainAppController;
+
+import java.util.LinkedList;
+import java.util.List;
 
 public class ActionLineController {
 
     @FXML private Label lastCellVersionLabel;
-    @FXML private Label originalCellValueLabel;
+    @FXML private TextField originalCellValueTextField;
     @FXML private Label selectedCellIdLabel;
     @FXML private Button updateValueButton;
     @FXML private Button showSheetVersionButton;
     @FXML private Button backToDefaultDesignButton;
-    @FXML private Button setDesignButton;
-    @FXML private ChoiceBox<String> columnTextAlignmentChoiceBox;
+    @FXML private ChoiceBox<Pos> columnTextAlignmentChoiceBox;
     @FXML private ChoiceBox<Integer> showSheetVersionSelector;
     @FXML private Spinner<Integer> columnWidthSpinner;
     @FXML private Spinner<Integer> rowHeightSpinner;
@@ -31,11 +35,60 @@ public class ActionLineController {
     private MainAppController mainAppController;
     private ActionLineModelUI modelUi;
     private Engine engine;
+    private Color defaultCellBackgroundColor;
+    private Color defaultCellTextColor;
+    private Label clickedCellLabel;
 
     @FXML
     private void initialize() {
-        modelUi = new ActionLineModelUI(updateValueButton, selectedCellIdLabel, originalCellValueLabel,
-                lastCellVersionLabel, showSheetVersionSelector, showSheetVersionButton);
+        // put all possible text alignments in columnTextAlignmentChoiceBox
+        columnTextAlignmentChoiceBox.getItems().addAll(Pos.values());
+        columnTextAlignmentChoiceBox.getSelectionModel().selectFirst();
+
+        // set the spinners
+        rowHeightSpinner.setValueFactory(new SpinnerValueFactory.IntegerSpinnerValueFactory(20, 500, 0, 1));
+        columnWidthSpinner.setValueFactory(new SpinnerValueFactory.IntegerSpinnerValueFactory(20, 500, 0, 1));
+
+        List<Button> cellButtons = new LinkedList<>();
+        cellButtons.add(updateValueButton);
+        cellButtons.add(backToDefaultDesignButton);
+
+        defaultCellBackgroundColor = cellBackgroundColorPicker.getValue();
+        defaultCellTextColor = cellTextColorPicker.getValue();
+
+        modelUi = new ActionLineModelUI(cellButtons, selectedCellIdLabel, originalCellValueTextField,
+                lastCellVersionLabel, showSheetVersionSelector, columnTextAlignmentChoiceBox, showSheetVersionButton,
+                columnWidthSpinner, rowHeightSpinner, cellBackgroundColorPicker, cellTextColorPicker);
+
+        rowHeightSpinner.valueProperty().addListener((obs, oldValue, newValue) -> {
+            if (modelUi.isAnyCellClickedProperty().get()) {
+                mainAppController.changeRowHeight(selectedCellIdLabel.getText(), newValue);
+            }
+        });
+
+        columnWidthSpinner.valueProperty().addListener((obs, oldValue, newValue) -> {
+            if (modelUi.isAnyCellClickedProperty().get()) {
+                mainAppController.changeColumnWidth(selectedCellIdLabel.getText(), newValue);
+            }
+        });
+
+        cellBackgroundColorPicker.valueProperty().addListener((obs, oldValue, newValue) -> {
+            if (modelUi.isAnyCellClickedProperty().get()) {
+                mainAppController.changeCellBackground(selectedCellIdLabel.getText(), newValue);
+            }
+        });
+
+        cellTextColorPicker.valueProperty().addListener((obs, oldValue, newValue) -> {
+            if (modelUi.isAnyCellClickedProperty().get()) {
+                mainAppController.changeCellTextColor(selectedCellIdLabel.getText(), newValue);
+            }
+        });
+
+        columnTextAlignmentChoiceBox.valueProperty().addListener((obs, oldValue, newValue) -> {
+            if (modelUi.isAnyCellClickedProperty().get()) {
+                mainAppController.changeColumnTextAlignment(selectedCellIdLabel.getText(), newValue);
+            }
+        });
     }
 
     public void setMainController(MainAppController mainAppController, Engine engine) {
@@ -54,6 +107,12 @@ public class ActionLineController {
         fileIsLoading(false);
         removeCellClickFocus();
         modelUi.currentSheetVersionProperty().set(1);
+        // Set an initial value
+        int rowHeight = engine.getSheetRowHeight();
+        rowHeightSpinner.getValueFactory().setValue(rowHeight);
+
+        int columnWidth = engine.getSheetColumnWidth();
+        columnWidthSpinner.getValueFactory().setValue(columnWidth);
     }
 
     public void fileIsLoading(boolean isStarted) {
@@ -62,64 +121,33 @@ public class ActionLineController {
 
     @FXML
     void UpdateValueButtonListener(ActionEvent event) {
-        // Create a new Dialog
-        Dialog<String> dialog = new Dialog<>();
-        dialog.setTitle("Update Cell Value");
-        dialog.setHeaderText(selectedCellIdLabel.getText());
-
-        // Create the input field
-        TextField inputField = new TextField();
-        inputField.setPromptText("Enter new value");
-
-        // Create a button to show/hide details
-        Button showDetailsButton = new Button("Functions Documentation");
-
-        StringBuilder content = new StringBuilder();
-        for(Operation operation : Operation.values()) {
-            content.append(operation.getDocumentation())
-                    .append("\n");
+        try {
+            String cellNewOriginalValue = originalCellValueTextField.getText();
+            CellPositionInSheet cellPositionInSheet = PositionFactory.createPosition(modelUi.selectedCellIdProperty().getValue());
+            CellDto cellDto = engine.updateSheetCell(cellPositionInSheet.getRow(), cellPositionInSheet.getColumn(), cellNewOriginalValue);
+            modelUi.selectedCellOriginalValueProperty().set(cellNewOriginalValue);
+            modelUi.selectedCellLastVersionProperty().set(engine.getLastCellVersion(cellPositionInSheet.getRow(), cellPositionInSheet.getColumn()));
+            modelUi.currentSheetVersionProperty().set(engine.getCurrentSheetVersion());
+            mainAppController.cellIsUpdated(cellPositionInSheet, cellDto);
+        } catch (Exception e) {
+            updateCellFailed(e.getMessage());
         }
-
-        // Create a VBox for additional details
-        VBox detailsBox = new VBox();
-        detailsBox.setStyle("-fx-padding: 10; -fx-background-color: lightgrey;");
-        detailsBox.setVisible(false); // Initially hidden
-
-        // Set content to show in the functions documentation box
-        Label detailsLabel = new Label(String.valueOf(content));
-        detailsBox.getChildren().add(detailsLabel);
-
-        // Set action for the Show Details button
-        showDetailsButton.setOnAction(ev -> {
-            boolean currentlyVisible = detailsBox.isVisible();
-            detailsBox.setVisible(!currentlyVisible);
-            showDetailsButton.setText(currentlyVisible ? "Functions Documentation" : "Hide");
-        });
-
-        // Create a VBox to contain the input field and the button
-        VBox contentBox = new VBox(10, inputField, showDetailsButton, detailsBox);
-
-        // Set the custom content for the dialog
-        dialog.getDialogPane().setContent(contentBox);
-
-        // Add OK and Cancel buttons
-        ButtonType okButtonType = new ButtonType("OK", ButtonBar.ButtonData.OK_DONE);
-        ButtonType cancelButtonType = new ButtonType("Cancel", ButtonBar.ButtonData.CANCEL_CLOSE);
-        dialog.getDialogPane().getButtonTypes().setAll(okButtonType, cancelButtonType);
-
-         // Set the result converter to handle button clicks
-        dialog.setResultConverter(dialogButton -> {
-            if (dialogButton == okButtonType) {
-                // Return the text from the input field when OK is clicked
-                return inputField.getText();
-            } else {
-                // Return null if Cancel is clicked
-                return null;
-            }
-        });
-
-        // Show the dialog and handle the result
-        dialog.showAndWait().ifPresent(this::updateCell);
+//        Button showDetailsButton = new Button("Functions Documentation");
+//
+//        StringBuilder content = new StringBuilder();
+//        for(Operation operation : Operation.values()) {
+//            content.append(operation.getDocumentation())
+//                    .append("\n");
+//        }
+//
+//        // Create a VBox for additional details
+//        VBox detailsBox = new VBox();
+//        detailsBox.setStyle("-fx-padding: 10; -fx-background-color: lightgrey;");
+//        detailsBox.setVisible(false); // Initially hidden
+//
+//        // Set content to show in the functions documentation box
+//        Label detailsLabel = new Label(String.valueOf(content));
+//        detailsBox.getChildren().add(detailsLabel);
     }
 
     @FXML
@@ -140,35 +168,47 @@ public class ActionLineController {
         AlertsHandler.HandleOkAlert("Update succeeded!");
     }
 
-    public void updateCell(String cellNewOriginalValue) {
-        try {
-            CellPositionInSheet cellPositionInSheet = PositionFactory.createPosition(modelUi.selectedCellIdProperty().getValue());
-            CellDto cellDto = engine.updateSheetCell(cellPositionInSheet.getRow(), cellPositionInSheet.getColumn(), cellNewOriginalValue);
-            modelUi.selectedCellOriginalValueProperty().set(cellNewOriginalValue);
-            modelUi.selectedCellLastVersionProperty().set(engine.getLastCellVersion(cellPositionInSheet.getRow(), cellPositionInSheet.getColumn()));
-            modelUi.currentSheetVersionProperty().set(engine.getCurrentSheetVersion());
-            mainAppController.cellIsUpdated(cellPositionInSheet, cellDto);
-        } catch (Exception e) {
-            updateCellFailed(e.getMessage());
-        }
-    }
+    public CellDto cellClicked(Label clickedCell) {
+        this.clickedCellLabel = clickedCell;
+        String cellPositionId = clickedCell.getId();
+        CellPositionInSheet cellPositionInSheet = PositionFactory.createPosition(cellPositionId);
+        CellDto cellDto = engine.getSheet(engine.getCurrentSheetVersion()).getCell(cellPositionInSheet);
+        int lastCellVersion = engine.getLastCellVersion(cellPositionInSheet.getRow(), cellPositionInSheet.getColumn());
+        String originalValue = cellDto == null ? "" : cellDto.getOriginalValue();
 
-    public void cellClicked(String cellPositionId, String originalValue, int lastCellVersion) {
         modelUi.selectedCellIdProperty().set(cellPositionId);
         modelUi.selectedCellLastVersionProperty().set(lastCellVersion);
         modelUi.selectedCellOriginalValueProperty().set(originalValue);
-        if (!modelUi.isAnyCellClickedProperty().getValue()) {
-            modelUi.isAnyCellClickedProperty().set(true);
+
+        Color backgroundColor = Color.WHITE;
+
+        // Check if the Label has a background
+        Background background = clickedCell.getBackground();
+        if (background != null && !background.getFills().isEmpty()) {
+            backgroundColor = (Color) background.getFills().getFirst().getFill();
         }
+        Color textColor = (Color) clickedCell.getTextFill();
+        Pos textAlignment = clickedCell.getAlignment();
+        int rowHeight = (int) clickedCell.getHeight();
+        int columnWidth = (int) clickedCell.getWidth();
+
+        // Update the header based on the selected cell's properties (background color, text color, etc.)
+        cellBackgroundColorPicker.setValue(backgroundColor);
+        cellTextColorPicker.setValue(textColor);
+        columnTextAlignmentChoiceBox.setValue(textAlignment);
+        rowHeightSpinner.getValueFactory().setValue(rowHeight);
+        columnWidthSpinner.getValueFactory().setValue(columnWidth);
+
+        modelUi.isAnyCellClickedProperty().set(true);
+
+        return cellDto;
     }
 
     @FXML
     void backToDefaultDesignButtonListener(ActionEvent event) {
+        String cellId = modelUi.selectedCellIdProperty().get();
 
-    }
-
-    @FXML
-    void setDesignButtonListener(ActionEvent event) {
-
+        mainAppController.updateCellColors(cellId, defaultCellBackgroundColor, defaultCellTextColor);
+        cellClicked(this.clickedCellLabel);
     }
 }
