@@ -3,6 +3,7 @@ package engine.impl;
 import engine.api.Engine;
 import engine.entity.cell.*;
 import engine.entity.dto.CellDto;
+import engine.entity.dto.RowDto;
 import engine.entity.range.Range;
 import engine.entity.sheet.Row;
 import engine.entity.sheet.api.Sheet;
@@ -39,16 +40,7 @@ public class EngineImpl implements Engine {
         position2cell = new HashMap<>();
 
         for (Map.Entry<CellPositionInSheet, Cell> entry: sheet.getPosition2cell().entrySet()) {
-            Cell cell = entry.getValue();
-            CellDto cellDto;
-            if (cell == null) {
-                EffectiveValue effectiveValue = new EffectiveValue(CellType.UNKNOWN, "");
-                cellDto = new CellDto("", effectiveValue, effectiveValue, new LinkedHashSet<>(), new LinkedHashSet<>());
-            }
-            else {
-                EffectiveValue effectiveValue = cell.getEffectiveValue();
-                cellDto = new CellDto(cell.getOriginalValue(), effectiveValue, getEffectiveValueForDisplay(effectiveValue), cell.getInfluencedBy(), cell.getInfluences());
-            }
+            CellDto cellDto = getCellDto(entry.getValue());
             position2cell.put(entry.getKey(), cellDto);
         }
 
@@ -63,16 +55,8 @@ public class EngineImpl implements Engine {
         for (Row row: rows) {
             for (Map.Entry<String, Cell> col2cellEntry: row.getCells().entrySet()) {
                 Cell cell = col2cellEntry.getValue();
-                CellDto cellDto;
                 CellPositionInSheet cellPositionInSheet = PositionFactory.createPosition(rowNumber, col2cellEntry.getKey());
-                if (cell == null) {
-                    EffectiveValue effectiveValue = new EffectiveValue(CellType.UNKNOWN, "");
-                    cellDto = new CellDto("", effectiveValue, effectiveValue, new LinkedHashSet<>(), new LinkedHashSet<>());
-                }
-                else {
-                    EffectiveValue effectiveValue = cell.getEffectiveValue();
-                    cellDto = new CellDto(cell.getOriginalValue(), effectiveValue, getEffectiveValueForDisplay(effectiveValue), cell.getInfluencedBy(), cell.getInfluences());
-                }
+                CellDto cellDto = getCellDto(cell);
                 position2cell.put(cellPositionInSheet, cellDto);
             }
             rowNumber++;
@@ -412,7 +396,7 @@ public class EngineImpl implements Engine {
     }
 
     @Override
-    public SheetDto getSortedRowsSheet(Range rangeToSort, Set<String> columnsSortedBy) {
+    public LinkedList<RowDto> getSortedRowsSheet(Range rangeToSort, Set<String> columnsSortedBy) {
         validateColumnsInRange(rangeToSort, columnsSortedBy);
         Sheet inWorkSheet = sheetManager.getSheetByVersion(getCurrentSheetVersion()).clone();
 
@@ -436,7 +420,35 @@ public class EngineImpl implements Engine {
         // Update the map with sorted rows
         updateSheetWithSortedRows(inWorkSheet, rangeToSort, sortedNumericRows);
 
-        return createSheetDto(inWorkSheet);
+        return createSortedRange(sortedNumericRows);
+    }
+
+    private LinkedList<RowDto> createSortedRange(List<Row> sortedRows) {
+        LinkedList<RowDto> sortedRowsDto = new LinkedList<>();
+
+        for (Row row : sortedRows) {
+            RowDto rowDto = new RowDto(row.getRowNumber(), new HashMap<>());
+            for (Map.Entry<String, Cell> column2cell : row.getCells().entrySet()) {
+                CellDto cellDto = getCellDto(column2cell.getValue());
+                rowDto.getCells().put(column2cell.getKey(), cellDto);
+            }
+            sortedRowsDto.add(rowDto);
+        }
+
+        return sortedRowsDto;
+    }
+
+    private CellDto getCellDto(Cell cell) {
+        CellDto cellDto;
+        if (cell == null) {
+            EffectiveValue effectiveValue = new EffectiveValue(CellType.UNKNOWN, "");
+            cellDto = new CellDto("", effectiveValue, effectiveValue, new LinkedHashSet<>(), new LinkedHashSet<>());
+        } else {
+            EffectiveValue effectiveValue = cell.getEffectiveValue();
+            cellDto = new CellDto(cell.getOriginalValue(), effectiveValue, getEffectiveValueForDisplay(effectiveValue), cell.getInfluencedBy(), cell.getInfluences());
+        }
+
+        return cellDto;
     }
 
     private List<Row> extractRowsInRange(Sheet sheet, Range range) {

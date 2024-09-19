@@ -6,6 +6,7 @@ import engine.entity.cell.CellType;
 import engine.entity.cell.EffectiveValue;
 import engine.entity.cell.PositionFactory;
 import engine.entity.dto.CellDto;
+import engine.entity.dto.RowDto;
 import engine.entity.dto.SheetDto;
 import engine.entity.range.Range;
 import engine.impl.EngineImpl;
@@ -44,14 +45,18 @@ public class Testing {
     }
 
     private static void checkSort(Engine engine) {
-        CellPositionInSheet fromPosition = PositionFactory.createPosition("B2");
-        CellPositionInSheet toPosition = PositionFactory.createPosition("E6");
+        CellPositionInSheet fromPosition = PositionFactory.createPosition("C3");
+        CellPositionInSheet toPosition = PositionFactory.createPosition("E5");
         Range range = new Range(fromPosition, toPosition);
         LinkedHashSet<String> columns = new LinkedHashSet<>();
         columns.add("C");
 
-        SheetDto sheetDto = engine.getSortedRowsSheet(range, columns);
-        showSheetTable(sheetDto);
+        SheetDto sheetDto = engine.getSheet(engine.getCurrentSheetVersion());
+        LinkedList<RowDto> rows = new LinkedList<>();
+
+        rows = engine.getSortedRowsSheet(range, columns);
+
+        System.out.println(rows);
     }
 
     private static void checkFilter(Engine engine) {

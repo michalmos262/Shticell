@@ -4,7 +4,9 @@ import engine.api.Engine;
 import engine.entity.cell.CellPositionInSheet;
 import engine.entity.cell.PositionFactory;
 import engine.entity.dto.CellDto;
+import engine.entity.dto.RowDto;
 import engine.entity.dto.SheetDto;
+import engine.entity.range.Range;
 import javafx.beans.property.SimpleStringProperty;
 import javafx.fxml.FXML;
 import javafx.geometry.Pos;
@@ -18,14 +20,12 @@ import javafx.scene.layout.GridPane;
 import javafx.scene.paint.Color;
 import ui.impl.graphic.components.app.MainAppController;
 
-import java.util.ArrayList;
-import java.util.List;
-import java.util.Set;
+import java.util.*;
 
 public class GridController {
 
     @FXML private ScrollPane scrollPane;
-    @FXML private GridPane gridPane;
+    @FXML private GridPane mainGridPane;
 
     private MainAppController mainAppController;
     private Engine engine;
@@ -36,7 +36,7 @@ public class GridController {
 
     @FXML
     private void initialize() {
-        modelUi = new GridModelUI(gridPane);
+        modelUi = new GridModelUI(mainGridPane);
     }
 
     public void setMainController(MainAppController mainAppController, Engine engine) {
@@ -55,10 +55,10 @@ public class GridController {
         defaultColumnWidth = engine.getSheetColumnWidth();
 
          // Clear the existing content in the gridContainer
-        gridPane.getChildren().clear();
+        mainGridPane.getChildren().clear();
 
-        setGridColumnsHeaders(gridPane, numOfColumns);
-        setGridRowsHeaders(gridPane, numOfRows);
+        setGridColumnsHeaders(mainGridPane, numOfColumns);
+        setGridRowsHeaders(mainGridPane, numOfRows);
         setMainGridCells(sheetDto);
 
         fileIsLoading(false);
@@ -114,7 +114,7 @@ public class GridController {
                 // Attach the click event handler
                 label.setOnMouseClicked(this::handleCellClick);
 
-                gridPane.add(label, col + 1, row + 1);  // Offset by 1 to leave space for headers
+                mainGridPane.add(label, col + 1, row + 1);  // Offset by 1 to leave space for headers
             }
         }
 
@@ -172,7 +172,7 @@ public class GridController {
         Set<CellPositionInSheet> influencesCells = cellDto.getInfluences();
 
         influencesCells.forEach(influencesCellPosition ->
-                influencesCellsLabels.add((Label) gridPane.lookup("#" + influencesCellPosition))
+                influencesCellsLabels.add((Label) mainGridPane.lookup("#" + influencesCellPosition))
         );
 
         return influencesCellsLabels;
@@ -183,7 +183,7 @@ public class GridController {
         Set<CellPositionInSheet> influencedByCells = cellDto.getInfluencedBy();
 
         influencedByCells.forEach(influencedByCellPosition ->
-                influencedByCellsLabels.add((Label) gridPane.lookup("#" + influencedByCellPosition))
+                influencedByCellsLabels.add((Label) mainGridPane.lookup("#" + influencedByCellPosition))
         );
 
         return influencedByCellsLabels;
@@ -194,7 +194,7 @@ public class GridController {
         Set<CellPositionInSheet> rangeCellPositions = engine.getRangeByName(rangeName).getIncludedPositions();
 
         rangeCellPositions.forEach(position ->
-                rangeCellsLabels.add((Label) gridPane.lookup("#" + position))
+                rangeCellsLabels.add((Label) mainGridPane.lookup("#" + position))
         );
 
         return rangeCellsLabels;
@@ -222,7 +222,7 @@ public class GridController {
         setClickedCellColors(cellDto);
     }
 
-    public void setGridOnVersionCells(GridPane gridPane, SheetDto sheetDto) {
+    public void setGridOnLastVersionCells(GridPane gridPane, SheetDto sheetDto) {
         // Populate the GridPane with Labels in the main grid area
         for (int row = 0; row < sheetDto.getNumOfRows(); row++) {
             for (int col = 0; col < numOfColumns; col++) {
@@ -250,49 +250,127 @@ public class GridController {
         dialog.setTitle("Show sheet on specific version");
         dialog.setHeaderText("Sheet version " + version);
 
-        GridPane gridPane = getGrid(sheetDto);
+        GridPane gridPane = getUnStyledGrid(sheetDto);
 
         dialog.getDialogPane().setContent(gridPane);
         dialog.getDialogPane().getButtonTypes().setAll(ButtonType.OK);
         dialog.showAndWait();
     }
 
-    public void showSortedSheet(SheetDto sheetDto) {
+    private boolean isPositionInSortedRow(LinkedList<RowDto> sortedRows, CellPositionInSheet cellPositionInSheet) {
+        for (RowDto row : sortedRows) {
+            if (row.getRowNumber() == cellPositionInSheet.getRow()) {
+                return true;
+            }
+        }
+        return false;
+    }
+
+    public void showSortedSheet(SheetDto sheetDto, LinkedList<RowDto> sortedRows, Range rangeToSort) {
         Dialog<String> dialog = new Dialog<>();
         dialog.setTitle("Show sorted sheet");
 
-        GridPane gridPane = getGrid(sheetDto);
+        GridPane sortedGrid = getCopiedMainGreed(sheetDto);
+        Iterator<CellPositionInSheet> positionInRangeIterator = rangeToSort.getIncludedPositions().iterator();
 
-        dialog.getDialogPane().setContent(gridPane);
+        for (RowDto row : sortedRows) {
+            for (Map.Entry<String, CellDto> column2cell : row.getCells().entrySet()) {
+                CellPositionInSheet positionInRange = positionInRangeIterator.next();
+                while (positionInRangeIterator.hasNext() && !isPositionInSortedRow(sortedRows, positionInRange)) {
+                    positionInRange = positionInRangeIterator.next();
+                }
+                Label cellInOriginalGrid = (Label) mainGridPane.lookup("#" + column2cell.getKey() + row.getRowNumber());
+                Label cellInSortedGrid = (Label) sortedGrid.lookup("#" + positionInRange + "-copied");
+                cellInSortedGrid.setText(cellInOriginalGrid.getText());
+                cellInSortedGrid.setTextFill(cellInOriginalGrid.getTextFill());
+                cellInSortedGrid.setBackground(cellInOriginalGrid.getBackground());
+            }
+        }
+
+        dialog.getDialogPane().setContent(sortedGrid);
         dialog.getDialogPane().getButtonTypes().setAll(ButtonType.OK);
         dialog.showAndWait();
+    }
+
+    private GridPane getCopiedMainGreed(SheetDto sheetDto) {
+        GridPane gridPane = new GridPane();
+        gridPane.setPrefWidth(700);
+
+        // Add the row headers (1, 2, 3, ...)
+        for (int row = 0; row < numOfRows; row++) {
+            String rowStr = String.valueOf(row + 1);
+            Label rowHeaderInOriginalGrid = (Label) mainGridPane.lookup("#" + rowStr);
+            Label rowHeaderInCopiedGrid = new Label(rowStr);
+            rowHeaderInCopiedGrid.setPrefSize(rowHeaderInOriginalGrid.getPrefWidth(), rowHeaderInOriginalGrid.getPrefHeight());
+            rowHeaderInCopiedGrid.setMinSize(rowHeaderInOriginalGrid.getMinWidth(), rowHeaderInOriginalGrid.getMinHeight());
+            rowHeaderInCopiedGrid.setMaxHeight(rowHeaderInOriginalGrid.getMaxHeight());
+            rowHeaderInCopiedGrid.setBorder(rowHeaderInOriginalGrid.getBorder());
+            gridPane.add(rowHeaderInCopiedGrid, 0, row + 1);  // Place the row header in the first column
+        }
+
+        // Add the column headers (A, B, C, ...)
+        for (int col = 0; col < numOfColumns; col++) {
+            String colStr = String.valueOf((char) ('A' + col));
+            Label columnHeaderInOriginalGrid = (Label) mainGridPane.lookup("#" + colStr);
+            Label columnHeaderInCopiedGrid = new Label(colStr);
+            columnHeaderInCopiedGrid.setMinWidth(columnHeaderInOriginalGrid.getMinWidth());
+            columnHeaderInCopiedGrid.setPrefWidth(columnHeaderInOriginalGrid.getPrefWidth());
+            columnHeaderInCopiedGrid.setMaxWidth(columnHeaderInOriginalGrid.getMaxWidth());
+            columnHeaderInCopiedGrid.setBorder(columnHeaderInOriginalGrid.getBorder());
+            gridPane.add(columnHeaderInCopiedGrid, col + 1, 0);  // Place the column header in the first row
+        }
+
+        // Populate the GridPane with Labels in the main grid area
+        for (int row = 0; row < sheetDto.getNumOfRows(); row++) {
+            for (int col = 0; col < numOfColumns; col++) {
+                CellPositionInSheet cellPositionInSheet = PositionFactory.createPosition(row+1, col+1);
+                Label cellInOriginalGrid = (Label) mainGridPane.lookup("#" + CellPositionInSheet.parseColumn(cellPositionInSheet.getColumn()) + cellPositionInSheet.getRow());
+                Label cellInCopiedGrid = new Label();
+                cellInCopiedGrid.setId(CellPositionInSheet.parseColumn(cellPositionInSheet.getColumn()) + cellPositionInSheet.getRow() + "-copied");
+                cellInCopiedGrid.setText(cellInOriginalGrid.getText());
+                cellInCopiedGrid.setPrefWidth(cellInOriginalGrid.getPrefWidth());
+                cellInCopiedGrid.setMinWidth(cellInOriginalGrid.getMinWidth());
+                cellInCopiedGrid.setMaxWidth(cellInOriginalGrid.getMaxWidth());
+                cellInCopiedGrid.setPrefHeight(cellInOriginalGrid.getPrefHeight());
+                cellInCopiedGrid.setMinHeight(cellInOriginalGrid.getMinHeight());
+                cellInCopiedGrid.setMaxHeight(cellInOriginalGrid.getMaxHeight());
+                cellInCopiedGrid.setBorder(cellInOriginalGrid.getBorder());
+
+                cellInCopiedGrid.setBackground(cellInOriginalGrid.getBackground());
+                cellInCopiedGrid.setTextFill(cellInOriginalGrid.getTextFill());
+                cellInCopiedGrid.setAlignment(cellInOriginalGrid.getAlignment());
+
+                gridPane.add(cellInCopiedGrid, col + 1, row + 1);  // Offset by 1 to leave space for headers
+            }
+        }
+
+        return gridPane;
     }
 
     public void showFilteredSheet(SheetDto sheetDto) {
         Dialog<String> dialog = new Dialog<>();
         dialog.setTitle("Show filtered sheet");
 
-        GridPane gridPane = getGrid(sheetDto);
+        GridPane gridPane = getUnStyledGrid(sheetDto);
 
         dialog.getDialogPane().setContent(gridPane);
         dialog.getDialogPane().getButtonTypes().setAll(ButtonType.OK);
         dialog.showAndWait();
     }
 
-    private GridPane getGrid(SheetDto sheetDto) {
+    private GridPane getUnStyledGrid(SheetDto sheetDto) {
         GridPane gridPane = new GridPane();
         gridPane.setPrefWidth(700);
 
         setGridColumnsHeaders(gridPane, numOfColumns);
         setGridRowsHeaders(gridPane, sheetDto.getNumOfRows());
-        setGridOnVersionCells(gridPane, sheetDto);
+        setGridOnLastVersionCells(gridPane, sheetDto);
 
         for (Node node : gridPane.getChildren()) {
             if (node instanceof Label label) {
                 label.setStyle("-fx-border-color: black; -fx-alignment: top-center;");
             }
         }
-
         return gridPane;
     }
 

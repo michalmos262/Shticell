@@ -4,6 +4,7 @@ import engine.api.Engine;
 import engine.entity.cell.CellPositionInSheet;
 import engine.entity.cell.EffectiveValue;
 import engine.entity.cell.PositionFactory;
+import engine.entity.dto.RowDto;
 import engine.entity.dto.SheetDto;
 import engine.entity.range.Range;
 import javafx.event.ActionEvent;
@@ -79,8 +80,10 @@ public class CommandsController {
                     .map(CommandsModelUI.ListViewEntry::getName)
                     .collect(Collectors.toCollection(LinkedHashSet::new));
 
-            SheetDto sheetDto = engine.getSortedRowsSheet(range, chosenColumns);
-            mainAppController.sheetIsSorted(sheetDto);
+            SheetDto sheetDto = engine.getSheet(engine.getCurrentSheetVersion());
+            LinkedList<RowDto> sortedRows = engine.getSortedRowsSheet(range, chosenColumns);
+
+            mainAppController.sheetIsSorted(sheetDto, sortedRows, range);
         } catch (Exception e) {
             AlertsHandler.HandleErrorAlert("Show sorted sheet", e.getMessage());
         }
