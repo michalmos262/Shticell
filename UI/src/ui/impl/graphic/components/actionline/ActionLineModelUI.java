@@ -42,7 +42,7 @@ public class ActionLineModelUI {
         cellBackgroundColorPicker.disableProperty().bind(Bindings.or(isAnyCellClicked.not(), isFileLoading));
         cellTextColorPicker.disableProperty().bind(Bindings.or(isAnyCellClicked.not(), isFileLoading));
 
-        selectedCellIdLabel.textProperty().bind(Bindings.concat("Cell ID: ", selectedCellId));
+        selectedCellIdLabel.textProperty().bind(selectedCellId);
         originalCellValueTextField.textProperty().bindBidirectional(selectedCellOriginalValue);
         lastCellVersionLabel.textProperty().bind(Bindings.concat("Last Cell Version: ", selectedCellLastVersion));
 

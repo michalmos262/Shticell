@@ -1,0 +1,9 @@
+#updateValueButton {
+    -fx-background-color: #1E90FF;
+    -fx-text-fill: white;
+    -fx-transition: -fx-background-color 0.3s;
+}
+
+#updateValueButton:hover {
+    -fx-background-color: rgba(71, 255, 234, 0.49);
+}

@@ -88,9 +88,24 @@ public class MainAppController {
         actionLineComponentController.updateCellSucceeded();
     }
 
-    public void updateCellDesign(String cellId, Color cellBackgroundColor, Color cellTextColor,
-                                 Pos columnTextAlignment, int rowHeight, int columnWidth) {
-        sheetComponentController.updateCellDesign(cellId, cellBackgroundColor, cellTextColor, columnTextAlignment, rowHeight, columnWidth);
+    public void changeCellBackground(String cellId, Color cellBackgroundColor) {
+        sheetComponentController.changeCellBackground(cellId, cellBackgroundColor);
+    }
+
+    public void changeCellTextColor(String cellId, Color cellTextColor) {
+        sheetComponentController.changeCellTextColor(cellId, cellTextColor);
+    }
+
+    public void changeColumnTextAlignment(String cellId, Pos columnTextAlignment) {
+        sheetComponentController.changeColumnTextAlignment(cellId, columnTextAlignment);
+    }
+
+    public void changeRowHeight(String cellId, int rowHeight) {
+        sheetComponentController.changeRowHeight(cellId, rowHeight);
+    }
+
+    public void changeColumnWidth(String cellId, int columnWidth) {
+        sheetComponentController.changeColumnWidth(cellId, columnWidth);
     }
 
     public void updateCellColors(String cellId, Color cellBackgroundColor, Color cellTextColor) {
@@ -114,5 +129,9 @@ public class MainAppController {
 
     public void sheetIsFiltered(SheetDto sheetDto) {
         sheetComponentController.showFilteredSheet(sheetDto);
+    }
+
+    public void removeCellsPaints() {
+        sheetComponentController.removeCellsPaints();
     }
 }

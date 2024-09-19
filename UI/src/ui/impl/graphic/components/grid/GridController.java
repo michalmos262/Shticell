@@ -300,18 +300,37 @@ public class GridController {
         setRangeCellsColors(name);
     }
 
-    public void updateCellDesign(String cellId, Color cellBackgroundColor, Color cellTextColor,
-                                 Pos columnTextAlignment, int rowHeight, int columnWidth) {
+    public void removeCellsPaints() {
+        clearPaintedCells();
+    }
+
+    public void changeCellBackground(String cellId, Color cellBackgroundColor) {
         CellPositionInSheet cellPositionInSheet = PositionFactory.createPosition(cellId);
-        updateCellColors(cellId, cellBackgroundColor, cellTextColor);
+        modelUi.getCellPosition2displayedValue().get(cellPositionInSheet).backgroundColorProperty().setValue(cellBackgroundColor);
+    }
+
+    public void changeCellTextColor(String cellId, Color cellTextColor) {
+        CellPositionInSheet cellPositionInSheet = PositionFactory.createPosition(cellId);
+        modelUi.getCellPosition2displayedValue().get(cellPositionInSheet).textColorProperty().setValue(cellTextColor);
+    }
+
+    public void changeColumnTextAlignment(String cellId, Pos columnTextAlignment) {
+        CellPositionInSheet cellPositionInSheet = PositionFactory.createPosition(cellId);
         modelUi.getCellPosition2displayedValue().get(cellPositionInSheet).textAlignmentProperty().setValue(columnTextAlignment);
+    }
+
+    public void changeRowHeight(String cellId, int rowHeight) {
+        CellPositionInSheet cellPositionInSheet = PositionFactory.createPosition(cellId);
         modelUi.getCellPosition2displayedValue().get(cellPositionInSheet).rowHeightProperty().setValue(rowHeight);
+    }
+
+    public void changeColumnWidth(String cellId, int columnWidth) {
+        CellPositionInSheet cellPositionInSheet = PositionFactory.createPosition(cellId);
         modelUi.getCellPosition2displayedValue().get(cellPositionInSheet).columnWidthProperty().setValue(columnWidth);
     }
 
     public void updateCellColors(String cellId, Color cellBackgroundColor, Color cellTextColor) {
-        CellPositionInSheet cellPositionInSheet = PositionFactory.createPosition(cellId);
-        modelUi.getCellPosition2displayedValue().get(cellPositionInSheet).backgroundColorProperty().setValue(cellBackgroundColor);
-        modelUi.getCellPosition2displayedValue().get(cellPositionInSheet).textColorProperty().setValue(cellTextColor);
+        changeCellBackground(cellId, cellBackgroundColor);
+        changeCellTextColor(cellId, cellTextColor);
     }
 }

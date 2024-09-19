@@ -25,7 +25,6 @@ public class ActionLineController {
     @FXML private Button updateValueButton;
     @FXML private Button showSheetVersionButton;
     @FXML private Button backToDefaultDesignButton;
-    @FXML private Button setDesignButton;
     @FXML private ChoiceBox<Pos> columnTextAlignmentChoiceBox;
     @FXML private ChoiceBox<Integer> showSheetVersionSelector;
     @FXML private Spinner<Integer> columnWidthSpinner;
@@ -38,6 +37,7 @@ public class ActionLineController {
     private Engine engine;
     private Color defaultCellBackgroundColor;
     private Color defaultCellTextColor;
+    private Label clickedCellLabel;
 
     @FXML
     private void initialize() {
@@ -52,7 +52,6 @@ public class ActionLineController {
         List<Button> cellButtons = new LinkedList<>();
         cellButtons.add(updateValueButton);
         cellButtons.add(backToDefaultDesignButton);
-        cellButtons.add(setDesignButton);
 
         defaultCellBackgroundColor = cellBackgroundColorPicker.getValue();
         defaultCellTextColor = cellTextColorPicker.getValue();
@@ -60,6 +59,36 @@ public class ActionLineController {
         modelUi = new ActionLineModelUI(cellButtons, selectedCellIdLabel, originalCellValueTextField,
                 lastCellVersionLabel, showSheetVersionSelector, columnTextAlignmentChoiceBox, showSheetVersionButton,
                 columnWidthSpinner, rowHeightSpinner, cellBackgroundColorPicker, cellTextColorPicker);
+
+        rowHeightSpinner.valueProperty().addListener((obs, oldValue, newValue) -> {
+            if (modelUi.isAnyCellClickedProperty().get()) {
+                mainAppController.changeRowHeight(selectedCellIdLabel.getText(), newValue);
+            }
+        });
+
+        columnWidthSpinner.valueProperty().addListener((obs, oldValue, newValue) -> {
+            if (modelUi.isAnyCellClickedProperty().get()) {
+                mainAppController.changeColumnWidth(selectedCellIdLabel.getText(), newValue);
+            }
+        });
+
+        cellBackgroundColorPicker.valueProperty().addListener((obs, oldValue, newValue) -> {
+            if (modelUi.isAnyCellClickedProperty().get()) {
+                mainAppController.changeCellBackground(selectedCellIdLabel.getText(), newValue);
+            }
+        });
+
+        cellTextColorPicker.valueProperty().addListener((obs, oldValue, newValue) -> {
+            if (modelUi.isAnyCellClickedProperty().get()) {
+                mainAppController.changeCellTextColor(selectedCellIdLabel.getText(), newValue);
+            }
+        });
+
+        columnTextAlignmentChoiceBox.valueProperty().addListener((obs, oldValue, newValue) -> {
+            if (modelUi.isAnyCellClickedProperty().get()) {
+                mainAppController.changeColumnTextAlignment(selectedCellIdLabel.getText(), newValue);
+            }
+        });
     }
 
     public void setMainController(MainAppController mainAppController, Engine engine) {
@@ -140,6 +169,7 @@ public class ActionLineController {
     }
 
     public CellDto cellClicked(Label clickedCell) {
+        this.clickedCellLabel = clickedCell;
         String cellPositionId = clickedCell.getId();
         CellPositionInSheet cellPositionInSheet = PositionFactory.createPosition(cellPositionId);
         CellDto cellDto = engine.getSheet(engine.getCurrentSheetVersion()).getCell(cellPositionInSheet);
@@ -179,17 +209,6 @@ public class ActionLineController {
         String cellId = modelUi.selectedCellIdProperty().get();
 
         mainAppController.updateCellColors(cellId, defaultCellBackgroundColor, defaultCellTextColor);
-    }
-
-    @FXML
-    void setDesignButtonListener(ActionEvent event) {
-        String cellId = modelUi.selectedCellIdProperty().get();
-        Color cellBackgroundColor = cellBackgroundColorPicker.getValue();
-        Color cellTextColor = cellTextColorPicker.getValue();
-        Pos columnTextAlignment = columnTextAlignmentChoiceBox.getValue();
-        int rowHeight = rowHeightSpinner.getValue();
-        int columnWidth = columnWidthSpinner.getValue();
-
-        mainAppController.updateCellDesign(cellId, cellBackgroundColor, cellTextColor, columnTextAlignment, rowHeight, columnWidth);
+        cellClicked(this.clickedCellLabel);
     }
 }
