@@ -36,6 +36,8 @@ public class ActionLineController {
     private MainAppController mainAppController;
     private ActionLineModelUI modelUi;
     private Engine engine;
+    private Color defaultCellBackgroundColor;
+    private Color defaultCellTextColor;
 
     @FXML
     private void initialize() {
@@ -51,6 +53,9 @@ public class ActionLineController {
         cellButtons.add(updateValueButton);
         cellButtons.add(backToDefaultDesignButton);
         cellButtons.add(setDesignButton);
+
+        defaultCellBackgroundColor = cellBackgroundColorPicker.getValue();
+        defaultCellTextColor = cellTextColorPicker.getValue();
 
         modelUi = new ActionLineModelUI(cellButtons, selectedCellIdLabel, originalCellValueTextField,
                 lastCellVersionLabel, showSheetVersionSelector, columnTextAlignmentChoiceBox, showSheetVersionButton,
@@ -171,7 +176,9 @@ public class ActionLineController {
 
     @FXML
     void backToDefaultDesignButtonListener(ActionEvent event) {
+        String cellId = modelUi.selectedCellIdProperty().get();
 
+        mainAppController.updateCellColors(cellId, defaultCellBackgroundColor, defaultCellTextColor);
     }
 
     @FXML

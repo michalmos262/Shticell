@@ -93,6 +93,10 @@ public class MainAppController {
         sheetComponentController.updateCellDesign(cellId, cellBackgroundColor, cellTextColor, columnTextAlignment, rowHeight, columnWidth);
     }
 
+    public void updateCellColors(String cellId, Color cellBackgroundColor, Color cellTextColor) {
+        sheetComponentController.updateCellColors(cellId, cellBackgroundColor, cellTextColor);
+    }
+
     public void selectSheetVersion(int version) {
         SheetDto sheetDto = engine.getSheet(version);
 

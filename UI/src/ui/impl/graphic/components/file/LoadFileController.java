@@ -7,6 +7,7 @@ import javafx.fxml.FXML;
 import javafx.scene.control.Button;
 import javafx.scene.control.Label;
 import javafx.scene.control.ProgressBar;
+import javafx.scene.control.TextField;
 import javafx.stage.FileChooser;
 import ui.impl.graphic.components.alert.AlertsHandler;
 import ui.impl.graphic.components.app.MainAppController;
@@ -15,7 +16,7 @@ import ui.impl.graphic.task.LoadFileTask;
 import java.io.File;
 
 public class LoadFileController {
-    @FXML private Label filePathLabel;
+    @FXML private TextField filePathTextField;
     @FXML private Button loadFileButton;
     @FXML private Label loadingProcessLabel;
     @FXML private ProgressBar progressBar;
@@ -27,7 +28,7 @@ public class LoadFileController {
 
     @FXML
     private void initialize() {
-        modelUi = new LoadFileModelUI(filePathLabel, loadFileButton);
+        modelUi = new LoadFileModelUI(filePathTextField, loadFileButton);
     }
 
     public void setMainController(MainAppController mainAppController, Engine engine) {

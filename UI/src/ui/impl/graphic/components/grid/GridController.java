@@ -303,10 +303,15 @@ public class GridController {
     public void updateCellDesign(String cellId, Color cellBackgroundColor, Color cellTextColor,
                                  Pos columnTextAlignment, int rowHeight, int columnWidth) {
         CellPositionInSheet cellPositionInSheet = PositionFactory.createPosition(cellId);
-        modelUi.getCellPosition2displayedValue().get(cellPositionInSheet).backgroundColorProperty().setValue(cellBackgroundColor);
-        modelUi.getCellPosition2displayedValue().get(cellPositionInSheet).textColorProperty().setValue(cellTextColor);
+        updateCellColors(cellId, cellBackgroundColor, cellTextColor);
         modelUi.getCellPosition2displayedValue().get(cellPositionInSheet).textAlignmentProperty().setValue(columnTextAlignment);
         modelUi.getCellPosition2displayedValue().get(cellPositionInSheet).rowHeightProperty().setValue(rowHeight);
         modelUi.getCellPosition2displayedValue().get(cellPositionInSheet).columnWidthProperty().setValue(columnWidth);
+    }
+
+    public void updateCellColors(String cellId, Color cellBackgroundColor, Color cellTextColor) {
+        CellPositionInSheet cellPositionInSheet = PositionFactory.createPosition(cellId);
+        modelUi.getCellPosition2displayedValue().get(cellPositionInSheet).backgroundColorProperty().setValue(cellBackgroundColor);
+        modelUi.getCellPosition2displayedValue().get(cellPositionInSheet).textColorProperty().setValue(cellTextColor);
     }
 }

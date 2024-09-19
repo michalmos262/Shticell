@@ -42,8 +42,8 @@
                   <Label layoutX="8.0" layoutY="27.0" text="Name:" />
                   <Label layoutX="96.0" layoutY="71.0" text=".." />
                   <Label layoutX="7.0" layoutY="63.0" text="Range:" />
-                  <TextField fx:id="addFromRangeTextInput" layoutX="51.0" layoutY="58.0" prefHeight="25.0" prefWidth="36.0" />
-                  <TextField fx:id="addToRangeTextInput" layoutX="111.0" layoutY="58.0" prefHeight="25.0" prefWidth="36.0" />
+                  <TextField fx:id="addFromRangeTextInput" layoutX="51.0" layoutY="58.0" prefHeight="25.0" prefWidth="42.0" promptText="from" />
+                  <TextField fx:id="addToRangeTextInput" layoutX="105.0" layoutY="58.0" prefHeight="25.0" prefWidth="42.0" promptText="to" />
                   <TextField fx:id="addRangeNameTextInput" layoutX="51.0" layoutY="18.0" prefHeight="25.0" prefWidth="116.0" />
                   <Button fx:id="addRangeButton" layoutX="155.0" layoutY="130.0" mnemonicParsing="false" onAction="#addRangeButtonListener" text="Add" />
                </AnchorPane>

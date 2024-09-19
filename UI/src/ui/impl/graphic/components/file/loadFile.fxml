@@ -4,6 +4,7 @@
 <?import javafx.scene.control.Button?>
 <?import javafx.scene.control.Label?>
 <?import javafx.scene.control.ProgressBar?>
+<?import javafx.scene.control.TextField?>
 <?import javafx.scene.layout.ColumnConstraints?>
 <?import javafx.scene.layout.GridPane?>
 <?import javafx.scene.layout.RowConstraints?>
@@ -18,11 +19,6 @@
     <rowConstraints>
         <RowConstraints minHeight="10.0" prefHeight="30.0" vgrow="SOMETIMES" />
     </rowConstraints>
-    <Label fx:id="filePathLabel" text="File path" GridPane.columnIndex="1">
-        <GridPane.margin>
-          <Insets left="5.0" />
-        </GridPane.margin>
-    </Label>
     <Button fx:id="loadFileButton" mnemonicParsing="false" onAction="#loadFileButtonListener" prefHeight="25.0" prefWidth="88.0" text="Load File">
         <GridPane.margin>
           <Insets left="16.0" />
@@ -35,7 +31,8 @@
    </ProgressBar>
    <Label fx:id="loadingProcessLabel" prefHeight="17.0" prefWidth="425.0" GridPane.columnIndex="2">
       <GridPane.margin>
-         <Insets />
+         <Insets left="10.0" />
       </GridPane.margin>
    </Label>
+   <TextField fx:id="filePathTextField" disable="true" editable="false" promptText="File Path" GridPane.columnIndex="1" />
 </GridPane>
