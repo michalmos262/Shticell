@@ -44,5 +44,5 @@ public interface Engine {
     void deleteRange(String name);
     LinkedList<RowDto> getSortedRowsSheet(Range rangeToSort, Set<String> columnsSortedBy);
     Map<String, Set<EffectiveValue>> getUniqueColumnValuesByRange(Range range, Set<String> columns);
-    SheetDto getFilteredRowsSheet(Range rangeToFilter, Map<String, Set<EffectiveValue>> column2effectiveValuesFilteredBy);
+    LinkedList<RowDto> getFilteredRowsSheet(Range rangeToFilter, Map<String, Set<EffectiveValue>> column2effectiveValuesFilteredBy);
 }

@@ -86,6 +86,7 @@ public class GridModelUI {
                             if (cellPosition.getColumn() == primaryCellPosition.getColumn()) {
                                 Label labelInColumn = (Label) gridPane.lookup("#" + cellPosition);
                                 labelInColumn.setStyle(labelInColumn.getStyle() + ";-fx-alignment: " + newValue + ";");
+                                labelInColumn.setAlignment(newValue);
                             }
                         })
                 );

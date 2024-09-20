@@ -127,12 +127,12 @@ public class MainAppController {
         actionLineComponentController.removeCellClickFocus();
     }
 
-    public void sheetIsSorted(SheetDto sheetDto, LinkedList<RowDto> sortedRows, Range rangeToSort) {
-        sheetComponentController.showSortedSheet(sheetDto, sortedRows, rangeToSort);
+    public void sheetIsSorted(LinkedList<RowDto> sortedRows, Range rangeToSort) {
+        sheetComponentController.showSortedSheet(sortedRows, rangeToSort);
     }
 
-    public void sheetIsFiltered(SheetDto sheetDto) {
-        sheetComponentController.showFilteredSheet(sheetDto);
+    public void sheetIsFiltered(LinkedList<RowDto> filteredRows, Range rangeToFilter) {
+        sheetComponentController.showFilteredSheet(filteredRows, rangeToFilter);
     }
 
     public void removeCellsPaints() {
