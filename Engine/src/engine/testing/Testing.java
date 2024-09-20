@@ -6,6 +6,7 @@ import engine.entity.cell.CellType;
 import engine.entity.cell.EffectiveValue;
 import engine.entity.cell.PositionFactory;
 import engine.entity.dto.CellDto;
+import engine.entity.dto.RowDto;
 import engine.entity.dto.SheetDto;
 import engine.entity.range.Range;
 import engine.impl.EngineImpl;
@@ -44,19 +45,20 @@ public class Testing {
     }
 
     private static void checkSort(Engine engine) {
-        CellPositionInSheet fromPosition = PositionFactory.createPosition("B2");
-        CellPositionInSheet toPosition = PositionFactory.createPosition("E6");
+        CellPositionInSheet fromPosition = PositionFactory.createPosition("C3");
+        CellPositionInSheet toPosition = PositionFactory.createPosition("E5");
         Range range = new Range(fromPosition, toPosition);
         LinkedHashSet<String> columns = new LinkedHashSet<>();
         columns.add("C");
 
-        SheetDto sheetDto = engine.getSortedRowsSheet(range, columns);
-        showSheetTable(sheetDto);
+        LinkedList<RowDto> rows = engine.getSortedRowsSheet(range, columns);
+
+        System.out.println(rows);
     }
 
     private static void checkFilter(Engine engine) {
-        CellPositionInSheet fromPosition = PositionFactory.createPosition("B3");
-        CellPositionInSheet toPosition = PositionFactory.createPosition("E6");
+        CellPositionInSheet fromPosition = PositionFactory.createPosition("C3");
+        CellPositionInSheet toPosition = PositionFactory.createPosition("E5");
         Range range = new Range(fromPosition, toPosition);
 
 //        Map<String, Set<EffectiveValue>> allUniqueValuesInColumns = engine.getUniqueColumnValuesByRange(range, columns);
@@ -64,23 +66,23 @@ public class Testing {
 
         Map<String, Set<EffectiveValue>> allUniqueValuesInColumns = new HashMap<>();
 
-        Set<EffectiveValue> bSet = new LinkedHashSet<>();
-        bSet.add(new EffectiveValue(CellType.STRING, "ex 2"));
-        bSet.add(new EffectiveValue(CellType.STRING, "ex 3"));
+//        Set<EffectiveValue> bSet = new LinkedHashSet<>();
+//        bSet.add(new EffectiveValue(CellType.STRING, "ex 2"));
+//        bSet.add(new EffectiveValue(CellType.STRING, "ex 3"));
 
         Set<EffectiveValue> cSet = new LinkedHashSet<>();
-        cSet.add(new EffectiveValue(CellType.NUMERIC, 80.0));
+        cSet.add(new EffectiveValue(CellType.NUMERIC, "80"));
 
-        allUniqueValuesInColumns.put("B", bSet);
         allUniqueValuesInColumns.put("C", cSet);
 
-        SheetDto sheetDto = engine.getFilteredRowsSheet(range, allUniqueValuesInColumns);
-        showSheetTable(sheetDto);
+        List<RowDto> rows = engine.getFilteredRowsSheet(range, allUniqueValuesInColumns);
+
+        System.out.println(rows);
     }
 
     private static void showSheetTable(SheetDto sheetDto) {
         try {
-            int numOfRows = sheetDto.getNumOfRows();
+            int numOfRows = 10;
             int numOfColumns = 10;
             int rowHeight = 1;
             int columnWidth = 10;
@@ -128,6 +130,6 @@ public class Testing {
         Engine engine = new EngineImpl();
         String filename = "C:\\Users\\asafl\\Downloads\\grades.xml";
         engine.loadFile(filename);
-        checkSort(engine);
+        checkFilter(engine);
     }
 }

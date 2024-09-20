@@ -3,7 +3,9 @@ package ui.impl.graphic.components.app;
 import engine.api.Engine;
 import engine.entity.cell.CellPositionInSheet;
 import engine.entity.dto.CellDto;
+import engine.entity.dto.RowDto;
 import engine.entity.dto.SheetDto;
+import engine.entity.range.Range;
 import engine.impl.EngineImpl;
 import javafx.fxml.FXML;
 import javafx.geometry.Pos;
@@ -18,6 +20,8 @@ import ui.impl.graphic.components.command.CommandsController;
 import ui.impl.graphic.components.file.LoadFileController;
 import ui.impl.graphic.components.grid.GridController;
 import ui.impl.graphic.components.range.RangesController;
+
+import java.util.LinkedList;
 
 public class MainAppController {
     @FXML private GridPane loadFileComponent;
@@ -123,12 +127,12 @@ public class MainAppController {
         actionLineComponentController.removeCellClickFocus();
     }
 
-    public void sheetIsSorted(SheetDto sheetDto) {
-        sheetComponentController.showSortedSheet(sheetDto);
+    public void sheetIsSorted(LinkedList<RowDto> sortedRows, Range rangeToSort) {
+        sheetComponentController.showSortedSheet(sortedRows, rangeToSort);
     }
 
-    public void sheetIsFiltered(SheetDto sheetDto) {
-        sheetComponentController.showFilteredSheet(sheetDto);
+    public void sheetIsFiltered(LinkedList<RowDto> filteredRows, Range rangeToFilter) {
+        sheetComponentController.showFilteredSheet(filteredRows, rangeToFilter);
     }
 
     public void removeCellsPaints() {

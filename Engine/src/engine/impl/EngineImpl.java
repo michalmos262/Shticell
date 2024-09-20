@@ -3,6 +3,7 @@ package engine.impl;
 import engine.api.Engine;
 import engine.entity.cell.*;
 import engine.entity.dto.CellDto;
+import engine.entity.dto.RowDto;
 import engine.entity.range.Range;
 import engine.entity.sheet.Row;
 import engine.entity.sheet.api.Sheet;
@@ -39,20 +40,11 @@ public class EngineImpl implements Engine {
         position2cell = new HashMap<>();
 
         for (Map.Entry<CellPositionInSheet, Cell> entry: sheet.getPosition2cell().entrySet()) {
-            Cell cell = entry.getValue();
-            CellDto cellDto;
-            if (cell == null) {
-                EffectiveValue effectiveValue = new EffectiveValue(CellType.UNKNOWN, "");
-                cellDto = new CellDto("", effectiveValue, effectiveValue, new LinkedHashSet<>(), new LinkedHashSet<>());
-            }
-            else {
-                EffectiveValue effectiveValue = cell.getEffectiveValue();
-                cellDto = new CellDto(cell.getOriginalValue(), effectiveValue, getEffectiveValueForDisplay(effectiveValue), cell.getInfluencedBy(), cell.getInfluences());
-            }
+            CellDto cellDto = getCellDto(entry.getValue());
             position2cell.put(entry.getKey(), cellDto);
         }
 
-        return new SheetDto(position2cell, getNumOfSheetRows());
+        return new SheetDto(position2cell);
     }
 
     private SheetDto createSheetDto(List<Row> rows) {
@@ -63,22 +55,14 @@ public class EngineImpl implements Engine {
         for (Row row: rows) {
             for (Map.Entry<String, Cell> col2cellEntry: row.getCells().entrySet()) {
                 Cell cell = col2cellEntry.getValue();
-                CellDto cellDto;
                 CellPositionInSheet cellPositionInSheet = PositionFactory.createPosition(rowNumber, col2cellEntry.getKey());
-                if (cell == null) {
-                    EffectiveValue effectiveValue = new EffectiveValue(CellType.UNKNOWN, "");
-                    cellDto = new CellDto("", effectiveValue, effectiveValue, new LinkedHashSet<>(), new LinkedHashSet<>());
-                }
-                else {
-                    EffectiveValue effectiveValue = cell.getEffectiveValue();
-                    cellDto = new CellDto(cell.getOriginalValue(), effectiveValue, getEffectiveValueForDisplay(effectiveValue), cell.getInfluencedBy(), cell.getInfluences());
-                }
+                CellDto cellDto = getCellDto(cell);
                 position2cell.put(cellPositionInSheet, cellDto);
             }
             rowNumber++;
         }
 
-        return new SheetDto(position2cell, rowNumber - 1);
+        return new SheetDto(position2cell);
     }
 
     @Override
@@ -412,7 +396,7 @@ public class EngineImpl implements Engine {
     }
 
     @Override
-    public SheetDto getSortedRowsSheet(Range rangeToSort, Set<String> columnsSortedBy) {
+    public LinkedList<RowDto> getSortedRowsSheet(Range rangeToSort, Set<String> columnsSortedBy) {
         validateColumnsInRange(rangeToSort, columnsSortedBy);
         Sheet inWorkSheet = sheetManager.getSheetByVersion(getCurrentSheetVersion()).clone();
 
@@ -436,7 +420,35 @@ public class EngineImpl implements Engine {
         // Update the map with sorted rows
         updateSheetWithSortedRows(inWorkSheet, rangeToSort, sortedNumericRows);
 
-        return createSheetDto(inWorkSheet);
+        return getRowDto(sortedNumericRows);
+    }
+
+    private LinkedList<RowDto> getRowDto(List<Row> rows) {
+        LinkedList<RowDto> rowsDto = new LinkedList<>();
+
+        for (Row row : rows) {
+            RowDto rowDto = new RowDto(row.getRowNumber(), new HashMap<>());
+            for (Map.Entry<String, Cell> column2cell : row.getCells().entrySet()) {
+                CellDto cellDto = getCellDto(column2cell.getValue());
+                rowDto.getCells().put(column2cell.getKey(), cellDto);
+            }
+            rowsDto.add(rowDto);
+        }
+
+        return rowsDto;
+    }
+
+    private CellDto getCellDto(Cell cell) {
+        CellDto cellDto;
+        if (cell == null) {
+            EffectiveValue effectiveValue = new EffectiveValue(CellType.UNKNOWN, "");
+            cellDto = new CellDto("", effectiveValue, effectiveValue, new LinkedHashSet<>(), new LinkedHashSet<>());
+        } else {
+            EffectiveValue effectiveValue = cell.getEffectiveValue();
+            cellDto = new CellDto(cell.getOriginalValue(), effectiveValue, getEffectiveValueForDisplay(effectiveValue), cell.getInfluencedBy(), cell.getInfluences());
+        }
+
+        return cellDto;
     }
 
     private List<Row> extractRowsInRange(Sheet sheet, Range range) {
@@ -485,14 +497,8 @@ public class EngineImpl implements Engine {
     }
 
     @Override
-    public SheetDto getFilteredRowsSheet(Range rangeToFilter, Map<String, Set<EffectiveValue>> column2effectiveValuesFilteredBy) {
-        List<Row> sheetRowsForDisplay = new LinkedList<>();
-
-        // Extract the whole rows from the sheet based on the given range
-        CellPositionInSheet fromPosition = PositionFactory.createPosition(rangeToFilter.getFromPosition().getRow(), 1);
-        CellPositionInSheet toPosition = PositionFactory.createPosition(rangeToFilter.getToPosition().getRow(), getNumOfSheetColumns());
-        Range wholeRowsRangeToFilter = new Range(fromPosition, toPosition);
-        List<Row> rowsToFilter = extractRowsInRange(sheetManager.getSheetByVersion(getCurrentSheetVersion()), wholeRowsRangeToFilter);
+    public LinkedList<RowDto> getFilteredRowsSheet(Range rangeToFilter, Map<String, Set<EffectiveValue>> column2effectiveValuesFilteredBy) {
+        List<Row> rowsToFilter = extractRowsInRange(sheetManager.getSheetByVersion(getCurrentSheetVersion()), rangeToFilter);
 
         // Filter out rows by the columns
         List<Row> filteredRows = rowsToFilter.stream()
@@ -517,31 +523,6 @@ public class EngineImpl implements Engine {
                 return true;
             }).collect(Collectors.toCollection(LinkedList::new));
 
-        // Add the original rows before the range to filter
-        try {
-            fromPosition = PositionFactory.createPosition("A1");
-            toPosition = PositionFactory.createPosition(rangeToFilter.getFromPosition().getRow() - 1, getNumOfSheetColumns());
-            Range range = new Range(fromPosition, toPosition);
-            List<Row> rows = extractRowsInRange(sheetManager.getSheetByVersion(getCurrentSheetVersion()), range);
-            sheetRowsForDisplay.addAll(rows);
-        } catch (Exception ignored) {
-            // the range to filter started from the first row
-        }
-
-        // Add the filtered rows
-        sheetRowsForDisplay.addAll(filteredRows);
-
-        // Add the original rows after the range
-        try {
-            fromPosition = PositionFactory.createPosition(rangeToFilter.getToPosition().getRow() + 1, 1);
-            toPosition = PositionFactory.createPosition(getNumOfSheetRows(), getNumOfSheetColumns());
-            Range range = new Range(fromPosition, toPosition);
-            List<Row> rows = extractRowsInRange(sheetManager.getSheetByVersion(getCurrentSheetVersion()), range);
-            sheetRowsForDisplay.addAll(rows);
-        } catch (Exception ignored) {
-            // the range to filter ends on the last row
-        }
-
-        return createSheetDto(sheetRowsForDisplay);
+        return getRowDto(filteredRows);
     }
 }
