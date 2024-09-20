@@ -4,6 +4,7 @@
 <?import javafx.scene.control.Button?>
 <?import javafx.scene.control.ChoiceBox?>
 <?import javafx.scene.control.ColorPicker?>
+<?import javafx.scene.control.ComboBox?>
 <?import javafx.scene.control.Label?>
 <?import javafx.scene.control.Spinner?>
 <?import javafx.scene.control.TextField?>
@@ -24,9 +25,9 @@
     </rowConstraints>
     <GridPane prefHeight="44.0" prefWidth="747.0">
         <columnConstraints>
-            <ColumnConstraints hgrow="SOMETIMES" maxWidth="211.4000244140625" minWidth="10.0" prefWidth="86.59998168945313" />
-            <ColumnConstraints hgrow="SOMETIMES" maxWidth="435.9999755859375" minWidth="10.0" prefWidth="321.80003662109374" />
-            <ColumnConstraints hgrow="SOMETIMES" maxWidth="214.0000122070312" minWidth="10.0" prefWidth="212.1999633789062" />
+            <ColumnConstraints hgrow="SOMETIMES" maxWidth="211.4000244140625" minWidth="10.0" prefWidth="66.40000610351562" />
+            <ColumnConstraints hgrow="SOMETIMES" maxWidth="435.9999755859375" minWidth="10.0" prefWidth="319.9999755859375" />
+            <ColumnConstraints hgrow="SOMETIMES" maxWidth="234.80002441406253" minWidth="10.0" prefWidth="234.80002441406253" />
             <ColumnConstraints hgrow="SOMETIMES" maxWidth="212.40003662109382" minWidth="10.0" prefWidth="126.20004882812498" />
         </columnConstraints>
         <rowConstraints>
@@ -48,6 +49,11 @@
             </GridPane.margin>
         </Label>
       <TextField fx:id="originalCellValueTextField" prefHeight="25.0" prefWidth="117.0" GridPane.columnIndex="1" />
+      <Button fx:id="dynamicAnalysisButton" mnemonicParsing="false" onAction="#dynamicAnalysisButtonListener" text="Dynamic Analysis" GridPane.columnIndex="2">
+         <GridPane.margin>
+            <Insets left="100.0" />
+         </GridPane.margin>
+      </Button>
       <opaqueInsets>
          <Insets />
       </opaqueInsets>
@@ -82,11 +88,11 @@
             <RowConstraints minHeight="10.0" prefHeight="30.0" vgrow="SOMETIMES" />
         </rowConstraints>
         <AnchorPane prefHeight="200.0" prefWidth="200.0">
-            <Label layoutX="15.0" layoutY="5.0" text="Cell background color:" />
+            <Label layoutX="15.0" layoutY="5.0" text="Cell background color" />
             <ColorPicker fx:id="cellBackgroundColorPicker" layoutX="13.0" layoutY="22.0" />
         </AnchorPane>
         <AnchorPane prefHeight="200.0" prefWidth="200.0" GridPane.columnIndex="1">
-            <Label layoutX="25.0" layoutY="5.0" text="Cell text color:" />
+            <Label layoutX="25.0" layoutY="5.0" text="Cell text color" />
             <ColorPicker fx:id="cellTextColorPicker" layoutX="25.0" layoutY="22.0">
                 <value>
                     <Color />
@@ -94,21 +100,31 @@
             </ColorPicker>
         </AnchorPane>
         <AnchorPane prefHeight="200.0" prefWidth="200.0" GridPane.columnIndex="2">
-            <Label layoutX="26.0" layoutY="5.0" text="Column text alignment:" />
+            <Label layoutX="26.0" layoutY="5.0" text="Column text alignment" />
             <ChoiceBox fx:id="columnTextAlignmentChoiceBox" layoutX="26.0" layoutY="22.0" prefHeight="25.0" prefWidth="120.0" />
         </AnchorPane>
         <AnchorPane prefHeight="200.0" prefWidth="200.0" GridPane.columnIndex="3">
-            <Label layoutX="43.0" layoutY="5.0" text="Row height (in px):" />
+            <Label layoutX="43.0" layoutY="5.0" text="Row height (in px)" />
             <Spinner fx:id="rowHeightSpinner" editable="true" layoutX="43.0" layoutY="21.0" prefHeight="25.0" prefWidth="99.0" />
         </AnchorPane>
         <AnchorPane prefHeight="200.0" prefWidth="200.0" GridPane.columnIndex="4">
-            <Label layoutX="14.0" layoutY="5.0" text="Column width (in px):" />
+            <Label layoutX="14.0" layoutY="5.0" text="Column width (in px)" />
             <Spinner fx:id="columnWidthSpinner" editable="true" layoutX="14.0" layoutY="21.0" prefHeight="25.0" prefWidth="113.0" />
         </AnchorPane>
     </GridPane>
    <Button fx:id="backToDefaultDesignButton" defaultButton="true" mnemonicParsing="false" onAction="#backToDefaultDesignButtonListener" text="Set cell default style" GridPane.columnIndex="1" GridPane.rowIndex="1">
       <GridPane.margin>
-         <Insets left="10.0" top="15.0" />
+         <Insets top="15.0" />
       </GridPane.margin>
    </Button>
+   <ComboBox fx:id="systemSkinComboBox" prefHeight="25.0" prefWidth="106.0" promptText="Default" GridPane.columnIndex="1" GridPane.rowIndex="1">
+      <GridPane.margin>
+         <Insets left="140.0" top="15.0" />
+      </GridPane.margin>
+   </ComboBox>
+   <Label text="System skin" GridPane.columnIndex="1" GridPane.rowIndex="1">
+      <GridPane.margin>
+         <Insets bottom="25.0" left="141.0" />
+      </GridPane.margin>
+   </Label>
 </GridPane>

@@ -11,10 +11,7 @@ import javafx.beans.property.SimpleStringProperty;
 import javafx.fxml.FXML;
 import javafx.geometry.Pos;
 import javafx.scene.Node;
-import javafx.scene.control.ButtonType;
-import javafx.scene.control.Dialog;
-import javafx.scene.control.Label;
-import javafx.scene.control.ScrollPane;
+import javafx.scene.control.*;
 import javafx.scene.input.MouseEvent;
 import javafx.scene.layout.Background;
 import javafx.scene.layout.Border;
@@ -261,7 +258,7 @@ public class GridController {
     public void showSheetInVersion(SheetDto sheetDto, int version) {
         Dialog<String> dialog = new Dialog<>();
         dialog.setTitle("Show sheet on specific version");
-        dialog.setHeaderText("Sheet version " + version);
+        dialog.setHeaderText("Sheet version: " + version);
 
         GridPane gridPane = getUnStyledGrid(sheetDto);
 
@@ -446,5 +443,47 @@ public class GridController {
     public void updateCellColors(String cellId, Color cellBackgroundColor, Color cellTextColor) {
         changeCellBackground(cellId, cellBackgroundColor);
         changeCellTextColor(cellId, cellTextColor);
+    }
+
+    public void showDynamicAnalysis(String cellId) {
+        Dialog<String> dialog = new Dialog<>();
+        dialog.setTitle("Dynamic analysis");
+        dialog.setHeaderText("Dynamic analysis of cell in position: " + cellId);
+
+        GridPane copiedGrid = getCopiedMainGreed();
+
+        TextField fromRangeTextField = new TextField();
+        TextField toRangeTextField = new TextField();
+        TextField stepSizeTextField = new TextField();
+
+        Label fromRangeLabel = new Label("From number:");
+        Label toRangeLabel = new Label("To number:");
+        Label stepSizeLabel = new Label("Step size:");
+
+        Slider slider = new Slider(0, 500, 14);
+
+        // Create the content for the dialog
+        GridPane dialogGridPane = new GridPane();
+        dialogGridPane.setHgap(10);
+        dialogGridPane.setVgap(10);
+
+        GridPane textFieldsGridPane = new GridPane();
+        textFieldsGridPane.setHgap(10);
+        textFieldsGridPane.setVgap(10);
+
+        textFieldsGridPane.add(fromRangeLabel, 0, 0);
+        textFieldsGridPane.add(fromRangeTextField, 1, 0);
+        textFieldsGridPane.add(toRangeLabel, 0, 1);
+        textFieldsGridPane.add(toRangeTextField, 1, 1);
+        textFieldsGridPane.add(stepSizeLabel, 0, 2);
+        textFieldsGridPane.add(stepSizeTextField, 1, 2);
+        textFieldsGridPane.add(slider, 1, 3);
+
+        dialogGridPane.add(textFieldsGridPane, 0, 0);
+        dialogGridPane.add(copiedGrid, 1, 0);
+
+        dialog.getDialogPane().setContent(dialogGridPane);
+        dialog.getDialogPane().getButtonTypes().setAll(ButtonType.OK);
+        dialog.showAndWait();
     }
 }

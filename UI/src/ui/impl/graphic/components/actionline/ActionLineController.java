@@ -2,9 +2,9 @@ package ui.impl.graphic.components.actionline;
 
 import engine.api.Engine;
 import engine.entity.cell.CellPositionInSheet;
+import engine.entity.cell.CellType;
 import engine.entity.cell.PositionFactory;
 import engine.entity.dto.CellDto;
-import engine.operation.Operation;
 import javafx.event.ActionEvent;
 import javafx.fxml.FXML;
 import javafx.geometry.Pos;
@@ -25,12 +25,14 @@ public class ActionLineController {
     @FXML private Button updateValueButton;
     @FXML private Button showSheetVersionButton;
     @FXML private Button backToDefaultDesignButton;
+    @FXML private Button dynamicAnalysisButton;
     @FXML private ChoiceBox<Pos> columnTextAlignmentChoiceBox;
     @FXML private ChoiceBox<Integer> showSheetVersionSelector;
     @FXML private Spinner<Integer> columnWidthSpinner;
     @FXML private Spinner<Integer> rowHeightSpinner;
     @FXML private ColorPicker cellBackgroundColorPicker;
     @FXML private ColorPicker cellTextColorPicker;
+    @FXML private ComboBox<String> systemSkinComboBox;
 
     private MainAppController mainAppController;
     private ActionLineModelUI modelUi;
@@ -52,13 +54,18 @@ public class ActionLineController {
         List<Button> cellButtons = new LinkedList<>();
         cellButtons.add(updateValueButton);
         cellButtons.add(backToDefaultDesignButton);
+        cellButtons.add(dynamicAnalysisButton);
 
         defaultCellBackgroundColor = cellBackgroundColorPicker.getValue();
         defaultCellTextColor = cellTextColorPicker.getValue();
 
+        systemSkinComboBox.getItems().add("Default");
+        systemSkinComboBox.getItems().add("Light");
+        systemSkinComboBox.getItems().add("Dark");
+
         modelUi = new ActionLineModelUI(cellButtons, selectedCellIdLabel, originalCellValueTextField,
                 lastCellVersionLabel, showSheetVersionSelector, columnTextAlignmentChoiceBox, showSheetVersionButton,
-                columnWidthSpinner, rowHeightSpinner, cellBackgroundColorPicker, cellTextColorPicker);
+                columnWidthSpinner, rowHeightSpinner, cellBackgroundColorPicker, cellTextColorPicker, systemSkinComboBox);
 
         rowHeightSpinner.valueProperty().addListener((obs, oldValue, newValue) -> {
             if (modelUi.isAnyCellClickedProperty().get()) {
@@ -210,5 +217,29 @@ public class ActionLineController {
 
         mainAppController.updateCellColors(cellId, defaultCellBackgroundColor, defaultCellTextColor);
         cellClicked(this.clickedCellLabel);
+    }
+
+    @FXML
+    void dynamicAnalysisButtonListener(ActionEvent event) {
+        String cellId = modelUi.selectedCellIdProperty().getValue();
+        CellPositionInSheet cellPositionInSheet = PositionFactory.createPosition(cellId);
+        CellDto cellDto = engine.findCellInSheet(cellPositionInSheet.getRow(), cellPositionInSheet.getColumn(), engine.getCurrentSheetVersion());
+        String originalValue = "";
+        CellType cellType = CellType.UNKNOWN;
+
+        try {
+            if (cellDto != null) {
+                originalValue = cellDto.getOriginalValue();
+                cellType = cellDto.getEffectiveValue().getCellType();
+            }
+            Double.parseDouble(originalValue);
+            if (cellType != CellType.NUMERIC) {
+                throw new NumberFormatException();
+            }
+            mainAppController.showDynamicAnalysis(cellId);
+
+        } catch (Exception e) {
+            AlertsHandler.HandleErrorAlert("Dynamic Analysis", "Dynamic analysis is available only for numeric and not functioned values");
+        }
     }
 }

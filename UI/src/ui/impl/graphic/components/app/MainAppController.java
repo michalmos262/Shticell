@@ -138,4 +138,8 @@ public class MainAppController {
     public void removeCellsPaints() {
         sheetComponentController.removeCellsPaints();
     }
+
+    public void showDynamicAnalysis(String cellId) {
+        sheetComponentController.showDynamicAnalysis(cellId);
+    }
 }

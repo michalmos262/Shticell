@@ -19,7 +19,8 @@ public class ActionLineModelUI {
                              Label lastCellVersionLabel, ChoiceBox<Integer> showSheetVersionSelector,
                              ChoiceBox<Pos> columnTextAlignmentChoiceBox, Button showSheetVersionButton,
                              Spinner<Integer> columnWidthSpinner, Spinner<Integer> rowHeightSpinner,
-                             ColorPicker cellBackgroundColorPicker, ColorPicker cellTextColorPicker) {
+                             ColorPicker cellBackgroundColorPicker, ColorPicker cellTextColorPicker,
+                             ComboBox<String> systemSkinComboBox) {
 
         isFileLoading = new SimpleBooleanProperty(false);
         isAnyCellClicked = new SimpleBooleanProperty(false);
@@ -34,6 +35,7 @@ public class ActionLineModelUI {
 
         showSheetVersionButton.disableProperty().bind(Bindings.or(currentSheetVersion.isEqualTo(0), isFileLoading));
         showSheetVersionSelector.disableProperty().bind(Bindings.or(currentSheetVersion.isEqualTo(0), isFileLoading));
+        systemSkinComboBox.disableProperty().bind(Bindings.or(currentSheetVersion.isEqualTo(0), isFileLoading));
 
         originalCellValueTextField.disableProperty().bind(Bindings.or(isAnyCellClicked.not(), isFileLoading));
         columnTextAlignmentChoiceBox.disableProperty().bind(Bindings.or(isAnyCellClicked.not(), isFileLoading));
