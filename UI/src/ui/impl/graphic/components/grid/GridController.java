@@ -36,6 +36,16 @@ public class GridController {
     private Label clickedLabel;
     private int numOfRows, numOfColumns, defaultRowHeight, defaultColumnWidth;
 
+    private final String CELL_CSS_CLASS = "cell";
+    private final String INFLUENCED_CELL_CSS_CLASS = "influenced-cell";
+    private final String INFLUENCING_CELL_CSS_CLASS = "influencing-cell";
+    private final String CLICKED_CELL_CSS_CLASS = "clicked";
+    private final String OF_RANGE_CSS_CLASS = "of-range";
+    private final String COLUMN_HEADER_CSS_CLASS = "column-header";
+    private final String ROW_HEADER_CSS_CLASS = "row-header";
+    private final String COPIED_CELL_PREFIX_CSS_CLASS = "-copied";
+
+
     @FXML
     private void initialize() {
         modelUi = new GridModelUI(mainGridPane);
@@ -71,7 +81,7 @@ public class GridController {
         for (int col = 0; col < numOfColumns; col++) {
             String colStr = String.valueOf((char) ('A' + col));
             Label columnHeader = new Label(colStr);
-            columnHeader.getStyleClass().add("column-header");
+            columnHeader.getStyleClass().add(COLUMN_HEADER_CSS_CLASS);
             columnHeader.setId(colStr);
             columnHeader.setMinWidth(defaultColumnWidth);
             columnHeader.setPrefWidth(defaultColumnWidth);
@@ -85,7 +95,7 @@ public class GridController {
         for (int row = 0; row < numOfRows; row++) {
             String rowStr = String.valueOf(row + 1);
             Label rowHeader = new Label(rowStr);
-            rowHeader.getStyleClass().add("row-header");
+            rowHeader.getStyleClass().add(ROW_HEADER_CSS_CLASS);
             rowHeader.setId(rowStr);
             rowHeader.setPrefSize(20, defaultRowHeight);
             rowHeader.setMinSize(20, defaultRowHeight);
@@ -101,7 +111,7 @@ public class GridController {
             for (int col = 0; col < numOfColumns; col++) {
                 CellPositionInSheet cellPositionInSheet = PositionFactory.createPosition(row+1, col+1);
                 Label label = new Label();
-                label.getStyleClass().add("cell");
+                label.getStyleClass().add(CELL_CSS_CLASS);
                 label.setId((char) ('A' + col) + String.valueOf(row + 1));
                 modelUi.setCellLabelBinding(label, sheetDto, cellPositionInSheet);
 
@@ -139,7 +149,7 @@ public class GridController {
         // Clear the previously painted cells
         clearPaintedCells();
 
-        clickedLabel.getStyleClass().add("clicked");
+        clickedLabel.getStyleClass().add(CLICKED_CELL_CSS_CLASS);
         currentlyPaintedCells.add(clickedLabel); // Keep track of the painted cells
 
         if (cellDto != null) {
@@ -147,11 +157,11 @@ public class GridController {
             List<Label> influencesCellsLabels = getInfluencesCellsToPaint(cellDto);
             List<Label> influencedByCellsLabels = getInfluencedByCellsToPaint(cellDto);
             for (Label cellLabel : influencesCellsLabels) {
-                cellLabel.getStyleClass().add("influenced-cell");
+                cellLabel.getStyleClass().add(INFLUENCED_CELL_CSS_CLASS);
                 currentlyPaintedCells.add(cellLabel); // Keep track of the painted cells
             }
             for (Label cellLabel : influencedByCellsLabels) {
-                cellLabel.getStyleClass().add("influencing-cell");
+                cellLabel.getStyleClass().add(INFLUENCING_CELL_CSS_CLASS);
                 currentlyPaintedCells.add(cellLabel); // Keep track of the painted cells
             }
         }
@@ -164,7 +174,7 @@ public class GridController {
         // get cell positions
         List<Label> cellsToPainter = getRangeCellsToPaint(rangeName);
         for (Label cellLabel : cellsToPainter) {
-            cellLabel.getStyleClass().add("of-range");
+            cellLabel.getStyleClass().add(OF_RANGE_CSS_CLASS);
             currentlyPaintedCells.add(cellLabel);
         }
     }
@@ -205,7 +215,8 @@ public class GridController {
     // Method to clear the previously painted cells
     private void clearPaintedCells() {
         for (Label cell : currentlyPaintedCells) {
-            cell.getStyleClass().removeAll("influenced-cell", "clicked", "influencing-cell", "of-range");
+            cell.getStyleClass().removeAll(INFLUENCED_CELL_CSS_CLASS, CLICKED_CELL_CSS_CLASS,
+                    INFLUENCING_CELL_CSS_CLASS, OF_RANGE_CSS_CLASS);
         }
         currentlyPaintedCells.clear(); // Clear the list after un-painting
     }
@@ -230,7 +241,7 @@ public class GridController {
             for (int col = 0; col < numOfColumns; col++) {
                 CellPositionInSheet cellPositionInSheet = PositionFactory.createPosition(row+1, col+1);
                 Label label = new Label();
-                label.getStyleClass().add("cell");
+                label.getStyleClass().add(CELL_CSS_CLASS);
                 String cellDisplayedValue = sheetDto.getCell(cellPositionInSheet) == null
                         ? ""
                         : sheetDto.getCell(cellPositionInSheet).getEffectiveValueForDisplay().toString();
@@ -282,16 +293,20 @@ public class GridController {
                     positionInRange = positionInRangeIterator.next();
                 }
                 Label cellInOriginalGrid = (Label) mainGridPane.lookup("#" + column2cell.getKey() + row.getRowNumber());
-                Label cellInSortedGrid = (Label) sortedGrid.lookup("#" + positionInRange + "-copied");
-                cellInSortedGrid.setText(cellInOriginalGrid.getText());
-                cellInSortedGrid.setTextFill(cellInOriginalGrid.getTextFill());
-                cellInSortedGrid.setBackground(cellInOriginalGrid.getBackground());
+                Label cellInSortedGrid = (Label) sortedGrid.lookup("#" + positionInRange + COPIED_CELL_PREFIX_CSS_CLASS);
+                copyCellStyle(cellInOriginalGrid, cellInSortedGrid);
             }
         }
 
         dialog.getDialogPane().setContent(sortedGrid);
         dialog.getDialogPane().getButtonTypes().setAll(ButtonType.OK);
         dialog.showAndWait();
+    }
+
+    private void copyCellStyle(Label originalCell, Label copiedCell) {
+        copiedCell.setText(originalCell.getText());
+        copiedCell.setTextFill(originalCell.getTextFill());
+        copiedCell.setBackground(originalCell.getBackground());
     }
 
     private GridPane getCopiedMainGreed() {
@@ -328,7 +343,7 @@ public class GridController {
                 CellPositionInSheet cellPositionInSheet = PositionFactory.createPosition(row+1, col+1);
                 Label cellInOriginalGrid = (Label) mainGridPane.lookup("#" + CellPositionInSheet.parseColumn(cellPositionInSheet.getColumn()) + cellPositionInSheet.getRow());
                 Label cellInCopiedGrid = new Label();
-                cellInCopiedGrid.setId(CellPositionInSheet.parseColumn(cellPositionInSheet.getColumn()) + cellPositionInSheet.getRow() + "-copied");
+                cellInCopiedGrid.setId(CellPositionInSheet.parseColumn(cellPositionInSheet.getColumn()) + cellPositionInSheet.getRow() + COPIED_CELL_PREFIX_CSS_CLASS);
                 cellInCopiedGrid.setText(cellInOriginalGrid.getText());
                 cellInCopiedGrid.setPrefWidth(cellInOriginalGrid.getPrefWidth());
                 cellInCopiedGrid.setMinWidth(cellInOriginalGrid.getMinWidth());
@@ -359,19 +374,16 @@ public class GridController {
         for (RowDto row : filteredRows) {
             for (Map.Entry<String, CellDto> column2cell : row.getCells().entrySet()) {
                 CellPositionInSheet positionInRange = positionInRangeIterator.next();
-
                 Label cellInOriginalGrid = (Label) mainGridPane.lookup("#" + column2cell.getKey() + row.getRowNumber());
-                Label cellInSortedGrid = (Label) filteredGrid.lookup("#" + positionInRange + "-copied");
-                cellInSortedGrid.setText(cellInOriginalGrid.getText());
-                cellInSortedGrid.setTextFill(cellInOriginalGrid.getTextFill());
-                cellInSortedGrid.setBackground(cellInOriginalGrid.getBackground());
+                Label cellInSortedGrid = (Label) filteredGrid.lookup("#" + positionInRange + COPIED_CELL_PREFIX_CSS_CLASS);
+                copyCellStyle(cellInOriginalGrid, cellInSortedGrid);
             }
         }
 
         if (positionInRangeIterator.hasNext()) {
             while (positionInRangeIterator.hasNext()) {
                 CellPositionInSheet positionInRange = positionInRangeIterator.next();
-                Label cellInSortedGrid = (Label) filteredGrid.lookup("#" + positionInRange + "-copied");
+                Label cellInSortedGrid = (Label) filteredGrid.lookup("#" + positionInRange + COPIED_CELL_PREFIX_CSS_CLASS);
                 cellInSortedGrid.setText("");
                 cellInSortedGrid.setBackground(Background.fill(Color.WHITE));
             }
