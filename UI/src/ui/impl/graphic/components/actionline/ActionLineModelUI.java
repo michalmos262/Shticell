@@ -35,7 +35,7 @@ public class ActionLineModelUI {
 
         showSheetVersionButton.disableProperty().bind(Bindings.or(currentSheetVersion.isEqualTo(0), isFileLoading));
         showSheetVersionSelector.disableProperty().bind(Bindings.or(currentSheetVersion.isEqualTo(0), isFileLoading));
-        systemSkinComboBox.disableProperty().bind(Bindings.or(currentSheetVersion.isEqualTo(0), isFileLoading));
+        systemSkinComboBox.disableProperty().bind(isFileLoading);
 
         originalCellValueTextField.disableProperty().bind(Bindings.or(isAnyCellClicked.not(), isFileLoading));
         columnTextAlignmentChoiceBox.disableProperty().bind(Bindings.or(isAnyCellClicked.not(), isFileLoading));

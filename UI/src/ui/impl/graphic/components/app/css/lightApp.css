@@ -1,0 +1,13 @@
+.label {
+    -fx-font-family: Georgia;
+}
+
+.text-field {
+    -fx-border-color: rgb(56, 127, 57);
+    -fx-border-width: 1 1 1 1;
+    -fx-background-color: transparent;
+}
+
+.text-field:hover {
+    -fx-background-color: #b8d880;
+}

@@ -1,18 +1,13 @@
-.label {
+.cell {
+    -fx-background-color: white;
     -fx-border-color: #a6aaab;
     -fx-text-fill: black;
     -fx-max-width: Infinity;
     -fx-max-height: Infinity;
 }
 
-.cell {
-    -fx-background-color: white;
-}
-
 .cell:hover {
     -fx-border-color: black;
-    -fx-border-width: 2px;
-    -fx-border-radius: 5px;
 }
 
 .cell.influenced-cell {
@@ -31,6 +26,8 @@
 
 .cell.clicked {
     -fx-border-color: black;
+    -fx-border-width: 2px;
+    -fx-border-radius: 5px;
 }
 
 .cell.of-range {

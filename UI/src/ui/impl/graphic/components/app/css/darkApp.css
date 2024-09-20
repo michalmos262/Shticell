@@ -1,0 +1,16 @@
+.label {
+    -fx-font-family: Monospaced;
+    -fx-text-fill: white;
+    -fx-font-size: 9;
+}
+
+.text-field {
+    -fx-border-color: rgb(28, 32, 59);
+    -fx-border-width: 1 1 1 1;
+    -fx-background-color: transparent;
+    -fx-text-fill: white;
+}
+
+.text-field:hover {
+    -fx-background-color: rgba(136, 112, 112, 0.35);
+}

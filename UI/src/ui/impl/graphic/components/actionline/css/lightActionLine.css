@@ -1,0 +1,15 @@
+#updateValueButton {
+    -fx-background-color: #1E90FF;
+    -fx-text-fill: white;
+    -fx-transition: -fx-background-color 0.3s;
+}
+
+#updateValueButton:hover {
+    -fx-background-color: rgba(71, 255, 234, 0.49);
+}
+
+#mainGridPane {
+    -fx-background-color: rgba(202, 239, 225, 0.66);
+    -fx-background-insets: 0;
+    -fx-background-radius: 0;
+}

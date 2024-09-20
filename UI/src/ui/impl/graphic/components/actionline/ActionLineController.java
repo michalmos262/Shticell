@@ -63,6 +63,10 @@ public class ActionLineController {
         systemSkinComboBox.getItems().add("Light");
         systemSkinComboBox.getItems().add("Dark");
 
+        systemSkinComboBox.getSelectionModel().selectedItemProperty()
+                .addListener((obs, oldValue, newValue) ->
+                        mainAppController.changeSystemSkin(systemSkinComboBox.getSelectionModel().getSelectedItem()));
+
         modelUi = new ActionLineModelUI(cellButtons, selectedCellIdLabel, originalCellValueTextField,
                 lastCellVersionLabel, showSheetVersionSelector, columnTextAlignmentChoiceBox, showSheetVersionButton,
                 columnWidthSpinner, rowHeightSpinner, cellBackgroundColorPicker, cellTextColorPicker, systemSkinComboBox);
@@ -139,22 +143,6 @@ public class ActionLineController {
         } catch (Exception e) {
             updateCellFailed(e.getMessage());
         }
-//        Button showDetailsButton = new Button("Functions Documentation");
-//
-//        StringBuilder content = new StringBuilder();
-//        for(Operation operation : Operation.values()) {
-//            content.append(operation.getDocumentation())
-//                    .append("\n");
-//        }
-//
-//        // Create a VBox for additional details
-//        VBox detailsBox = new VBox();
-//        detailsBox.setStyle("-fx-padding: 10; -fx-background-color: lightgrey;");
-//        detailsBox.setVisible(false); // Initially hidden
-//
-//        // Set content to show in the functions documentation box
-//        Label detailsLabel = new Label(String.valueOf(content));
-//        detailsBox.getChildren().add(detailsLabel);
     }
 
     @FXML
@@ -187,7 +175,7 @@ public class ActionLineController {
         modelUi.selectedCellLastVersionProperty().set(lastCellVersion);
         modelUi.selectedCellOriginalValueProperty().set(originalValue);
 
-        Color backgroundColor = Color.WHITE;
+        Color backgroundColor = defaultCellBackgroundColor;
 
         // Check if the Label has a background
         Background background = clickedCell.getBackground();

@@ -23,6 +23,8 @@ import ui.impl.graphic.components.range.RangesController;
 
 import java.util.LinkedList;
 
+import static ui.impl.graphic.resources.CommonResourcesPaths.*;
+
 public class MainAppController {
     @FXML private GridPane loadFileComponent;
     @FXML private LoadFileController loadFileComponentController;
@@ -141,5 +143,41 @@ public class MainAppController {
 
     public void showDynamicAnalysis(String cellId) {
         sheetComponentController.showDynamicAnalysis(cellId);
+    }
+
+    public void changeSystemSkin(String skinOption) {
+        primaryStage.getScene().getStylesheets().clear();
+        actionLineComponent.getScene().getStylesheets().clear();
+        sheetComponent.getScene().getStylesheets().clear();
+        commandsComponent.getScene().getStylesheets().clear();
+        rangesComponent.getScene().getStylesheets().clear();
+        loadFileComponent.getScene().getStylesheets().clear();
+
+        switch (skinOption) {
+            case "Light":
+                primaryStage.getScene().getStylesheets().add(MAIN_APP_LIGHT_CSS_RESOURCE);
+                actionLineComponent.getScene().getStylesheets().add(ACTION_LINE_LIGHT_CSS_RESOURCE);
+                sheetComponent.getScene().getStylesheets().add(GRID_LIGHT_CSS_RESOURCE);
+                commandsComponent.getScene().getStylesheets().add(COMMAND_LIGHT_CSS_RESOURCE);
+                rangesComponent.getScene().getStylesheets().add(RANGE_LIGHT_CSS_RESOURCE);
+                loadFileComponent.getScene().getStylesheets().add(LOAD_FILE_LIGHT_CSS_RESOURCE);
+                break;
+            case "Dark":
+                primaryStage.getScene().getStylesheets().add(MAIN_APP_DARK_CSS_RESOURCE);
+                actionLineComponent.getScene().getStylesheets().add(ACTION_LINE_DARK_CSS_RESOURCE);
+                sheetComponent.getScene().getStylesheets().add(GRID_DARK_CSS_RESOURCE);
+                commandsComponent.getScene().getStylesheets().add(COMMAND_DARK_CSS_RESOURCE);
+                rangesComponent.getScene().getStylesheets().add(RANGE_DARK_CSS_RESOURCE);
+                loadFileComponent.getScene().getStylesheets().add(LOAD_FILE_DARK_CSS_RESOURCE);
+                break;
+            default:
+
+//                primaryStage.getScene().getStylesheets().add(MAIN_APP_DEFAULT_CSS_RESOURCE);
+//                actionLineComponent.getScene().getStylesheets().add(ACTION_LINE_DEFAULT_CSS_RESOURCE);
+//                sheetComponent.getScene().getStylesheets().add(GRID_DEFAULT_CSS_RESOURCE);
+//                commandsComponent.getScene().getStylesheets().add(COMMAND_DEFAULT_CSS_RESOURCE);
+//                rangesComponent.getScene().getStylesheets().add(RANGE_DEFAULT_CSS_RESOURCE);
+//                loadFileComponent.getScene().getStylesheets().add(LOAD_FILE_DEFAULT_CSS_RESOURCE);
+        }
     }
 }

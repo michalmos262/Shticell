@@ -1,7 +1,6 @@
 #loadFileButton {
     -fx-background-color: #1E90FF;
     -fx-text-fill: white;
-    -fx-transition: -fx-background-color 0.3s;
 }
 
 #loadFileButton:hover {
