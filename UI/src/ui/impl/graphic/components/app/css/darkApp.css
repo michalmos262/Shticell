@@ -29,7 +29,7 @@
 }
 
 .button {
-    -fx-background-color: linear-gradient(#5d3d3d, #635669);
+    -fx-background-color: linear-gradient(#590b0b, #0b3e6f);
     -fx-text-fill: white;
     -fx-font-size: 12px;
     -fx-border-radius: 30px;
@@ -44,6 +44,10 @@
     -fx-effect: dropshadow(gaussian, rgba(0, 0, 0, 0.5), 15, 0, 0, 4);
     -fx-scale-x: 0.98;
     -fx-scale-y: 0.98;
+}
+
+.button:hover {
+    -fx-background-color: rgba(71, 178, 255, 0.49);
 }
 
 #borderPane {
