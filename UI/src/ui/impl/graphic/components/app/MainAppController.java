@@ -170,14 +170,6 @@ public class MainAppController {
                 rangesComponent.getScene().getStylesheets().add(RANGE_DARK_CSS_RESOURCE);
                 loadFileComponent.getScene().getStylesheets().add(LOAD_FILE_DARK_CSS_RESOURCE);
                 break;
-            default:
-
-//                primaryStage.getScene().getStylesheets().add(MAIN_APP_DEFAULT_CSS_RESOURCE);
-//                actionLineComponent.getScene().getStylesheets().add(ACTION_LINE_DEFAULT_CSS_RESOURCE);
-//                sheetComponent.getScene().getStylesheets().add(GRID_DEFAULT_CSS_RESOURCE);
-//                commandsComponent.getScene().getStylesheets().add(COMMAND_DEFAULT_CSS_RESOURCE);
-//                rangesComponent.getScene().getStylesheets().add(RANGE_DEFAULT_CSS_RESOURCE);
-//                loadFileComponent.getScene().getStylesheets().add(LOAD_FILE_DEFAULT_CSS_RESOURCE);
         }
     }
 }
