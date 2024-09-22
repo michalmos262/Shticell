@@ -525,4 +525,20 @@ public class EngineImpl implements Engine {
 
         return getRowDto(filteredRows);
     }
+
+
+
+    @Override
+    public SheetDto getSheetAfterDynamicAnalysisOfCell(CellPositionInSheet cellPosition, double cellOriginalValue) {
+        SheetDto dynamicAnalysedSheetDto;
+        Sheet inWorkSheet = sheetManager.getSheetByVersion(getCurrentSheetVersion()).clone();
+        Set<CellPositionInSheet> visitedCellPositions = new HashSet<>();
+
+        String originalValueStr = String.valueOf(cellOriginalValue);
+        setCellInfo(inWorkSheet, cellPosition, originalValueStr);
+        updateInfluencedByCell(inWorkSheet, cellPosition, visitedCellPositions);
+
+        dynamicAnalysedSheetDto = createSheetDto(inWorkSheet);
+        return dynamicAnalysedSheetDto;
+    }
 }
