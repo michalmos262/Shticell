@@ -48,6 +48,14 @@
     -fx-background-color: rgba(241, 175, 195, 0.49);
 }
 
+#scrollPane {
+    -fx-background-color: rgba(206, 188, 218, 0.66);
+}
+
 #borderPane {
+    -fx-background-color: rgba(206, 188, 218, 0.66);
+}
+
+#mainGridPane {
     -fx-background-color: rgba(206, 188, 218, 0.66);
 }

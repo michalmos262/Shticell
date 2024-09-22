@@ -14,6 +14,7 @@ import javafx.scene.paint.Color;
 import ui.impl.graphic.components.alert.AlertsHandler;
 import ui.impl.graphic.components.app.MainAppController;
 
+import java.io.IOException;
 import java.util.LinkedList;
 import java.util.List;
 
@@ -65,7 +66,13 @@ public class ActionLineController {
 
         systemSkinComboBox.getSelectionModel().selectedItemProperty()
                 .addListener((obs, oldValue, newValue) ->
-                        mainAppController.changeSystemSkin(systemSkinComboBox.getSelectionModel().getSelectedItem()));
+                {
+                    try {
+                        mainAppController.changeSystemSkin(systemSkinComboBox.getSelectionModel().getSelectedItem());
+                    } catch (IOException e) {
+                        throw new RuntimeException(e);
+                    }
+                });
 
         modelUi = new ActionLineModelUI(cellButtons, selectedCellIdLabel, originalCellValueTextField,
                 lastCellVersionLabel, showSheetVersionSelector, columnTextAlignmentChoiceBox, showSheetVersionButton,

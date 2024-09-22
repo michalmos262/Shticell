@@ -1,0 +1,6 @@
+Manifest-Version: 1.0
+Main-Class: ui.impl.graphic.Main
+Class-Path: ../Engine/Engine.jar ../mod/angus-activation.jar ../mod/jakarta.activation-api.jar
+    ../mod/jakarta.xml.bind-api.jar ../mod/jaxb-core.jar ../mod/jaxb-impl.jar ../mod/jaxb-jxc.jar ../mod/jaxb-xjc.jar
+    ../lib/javafx.base.jar ../lib/javafx.controls.jar ../lib/javafx.fxml.jar ../lib/javafx.graphics.jar
+    ../lib/javafx.media.jar ../lib/javafx.swing.jar ../lib/javafx.web.jar ../lib/javafx-swt.jar
