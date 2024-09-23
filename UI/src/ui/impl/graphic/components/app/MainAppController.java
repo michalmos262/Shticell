@@ -21,7 +21,10 @@ import ui.impl.graphic.components.file.LoadFileController;
 import ui.impl.graphic.components.grid.GridController;
 import ui.impl.graphic.components.range.RangesController;
 
+import java.io.IOException;
 import java.util.LinkedList;
+
+import static ui.impl.graphic.resources.CommonResourcesPaths.*;
 
 public class MainAppController {
     @FXML private GridPane loadFileComponent;
@@ -137,5 +140,23 @@ public class MainAppController {
 
     public void removeCellsPaints() {
         sheetComponentController.removeCellsPaints();
+    }
+
+    public void showDynamicAnalysis(String cellId) {
+        sheetComponentController.showDynamicAnalysis(cellId);
+    }
+
+    public void changeSystemSkin(String skinOption) throws IOException {
+        primaryStage.getScene().getStylesheets().clear();
+        sheetComponent.getScene().getStylesheets().clear();
+
+        switch (skinOption) {
+            case "Light":
+                primaryStage.getScene().getStylesheets().add(getClass().getResource(MAIN_APP_LIGHT_CSS_RESOURCE).toExternalForm());
+                break;
+            case "Dark":
+                primaryStage.getScene().getStylesheets().add(getClass().getResource(MAIN_APP_DARK_CSS_RESOURCE).toExternalForm());
+                break;
+        }
     }
 }

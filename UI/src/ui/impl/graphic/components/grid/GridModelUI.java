@@ -18,37 +18,54 @@ public class GridModelUI {
     private final SimpleBooleanProperty isFileLoading;
     private final GridPane gridPane;
     private final Map<CellPositionInSheet, CellProperties> cellPosition2displayedValue;
+    private final Map<CellPositionInSheet, CellProperties> cellPosition2displayedValueDynamicAnalysis;
 
     public GridModelUI(GridPane gridPane) {
         this.gridPane = gridPane;
         isFileLoading = new SimpleBooleanProperty(false);
         cellPosition2displayedValue = new HashMap<>();
+        cellPosition2displayedValueDynamicAnalysis = new HashMap<>();
     }
 
     public Map<CellPositionInSheet, CellProperties> getCellPosition2displayedValue() {
         return cellPosition2displayedValue;
     }
 
-    public void setCellLabelBinding(Label label, SheetDto sheetDto, CellPositionInSheet primaryCellPosition) {
-        SimpleStringProperty displayedValue = sheetDto.getCell(primaryCellPosition) == null
-                ? new SimpleStringProperty("")
-                : new SimpleStringProperty(sheetDto.getCell(primaryCellPosition)
-                    .getEffectiveValueForDisplay().toString());
+    public Map<CellPositionInSheet, CellProperties> getCellPosition2displayedValueDynamicAnalysis() {
+        return cellPosition2displayedValueDynamicAnalysis;
+    }
 
+    public void setCellLabelBinding(Label label, SheetDto sheetDto, CellPositionInSheet cellPosition) {
+        SimpleStringProperty displayedValue = getDisplayedValue(sheetDto, cellPosition);
         CellProperties cellProperties = new CellProperties(displayedValue);
 
-        cellPosition2displayedValue.put(primaryCellPosition, cellProperties);
-        label.textProperty().bind(cellPosition2displayedValue.get(primaryCellPosition).displayedValue);
+        cellPosition2displayedValue.put(cellPosition, cellProperties);
+        label.textProperty().bind(cellPosition2displayedValue.get(cellPosition).displayedValue);
         label.disableProperty().bind(isFileLoading);
 
-        cellPosition2displayedValue.get(primaryCellPosition).backgroundColorProperty()
+        cellPosition2displayedValue.get(cellPosition).backgroundColorProperty()
                 .addListener((observable, oldValue, newValue) -> label.setStyle(label.getStyle() + "-fx-background-color: " +
                         colorToHex(newValue) + ";"));
 
-        cellPosition2displayedValue.get(primaryCellPosition).textColorProperty()
+        cellPosition2displayedValue.get(cellPosition).textColorProperty()
                 .addListener((observable, oldValue, newValue) -> label.setStyle(label.getStyle() + ";-fx-text-fill: " +
                         colorToHex(newValue) + ";"));
 
+    }
+
+    public void setCellLabelBindingDynamicAnalysis(Label label, SheetDto sheetDto, CellPositionInSheet cellPosition) {
+        SimpleStringProperty displayedValue = getDisplayedValue(sheetDto, cellPosition);
+        CellProperties cellProperties = new CellProperties(displayedValue);
+
+        cellPosition2displayedValueDynamicAnalysis.put(cellPosition, cellProperties);
+        label.textProperty().bind(cellPosition2displayedValueDynamicAnalysis.get(cellPosition).displayedValue);
+    }
+
+    public SimpleStringProperty getDisplayedValue(SheetDto sheetDto, CellPositionInSheet cellPosition) {
+        return sheetDto.getCell(cellPosition) == null
+                ? new SimpleStringProperty("")
+                : new SimpleStringProperty(sheetDto.getCell(cellPosition)
+                    .getEffectiveValueForDisplay().toString());
     }
 
     public void setRowsAndColumnsBindings(CellPositionInSheet primaryCellPosition) {

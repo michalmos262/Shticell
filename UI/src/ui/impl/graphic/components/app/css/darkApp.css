@@ -1,0 +1,64 @@
+.label {
+    -fx-font-family: Monospaced;
+    -fx-font-size: 9;
+    -fx-font-weight: bold;
+}
+
+.text-field {
+    -fx-background-color: #f3c9c9;
+    -fx-background-radius: 5;
+    -fx-border-color: #350404;
+    -fx-border-radius: 5;
+    -fx-border-width: 2;
+    -fx-padding: 5 10 5 10;
+    -fx-text-fill: #151212;
+    -fx-prompt-text-fill: #828181;
+}
+
+.text-field:focused {
+    -fx-background-color: #ffffff;
+    -fx-border-color: #72300c;
+    -fx-border-width: 2;
+}
+
+.text-field:hover {
+    -fx-background-color: #f1e1e1;
+}
+
+.text-field:disabled {
+    -fx-opacity: 0.5;
+}
+
+.button {
+    -fx-background-color: linear-gradient(#590b0b, #0b3e6f);
+    -fx-text-fill: white;
+    -fx-font-size: 12px;
+    -fx-border-radius: 30px;
+    -fx-background-radius: 30px;
+    -fx-cursor: hand;
+    -fx-effect: dropshadow(gaussian, rgba(0, 0, 0, 0.3), 10, 0, 0, 2);
+    -fx-transition: 0.3s ease-in-out;
+}
+
+.button:pressed {
+    -fx-background-color: linear-gradient(#e24c4c, #322342);
+    -fx-effect: dropshadow(gaussian, rgba(0, 0, 0, 0.5), 15, 0, 0, 4);
+    -fx-scale-x: 0.98;
+    -fx-scale-y: 0.98;
+}
+
+.button:hover {
+    -fx-background-color: rgba(71, 178, 255, 0.49);
+}
+
+#scrollPane {
+    -fx-background-color: rgba(87, 14, 21, 0.66);
+}
+
+#borderPane {
+    -fx-background-color: rgba(87, 14, 21, 0.66);
+}
+
+#mainGridPane {
+    -fx-background-color: rgba(87, 14, 21, 0.66);
+}

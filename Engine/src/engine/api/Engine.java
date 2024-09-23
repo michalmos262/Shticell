@@ -45,4 +45,5 @@ public interface Engine {
     LinkedList<RowDto> getSortedRowsSheet(Range rangeToSort, Set<String> columnsSortedBy);
     Map<String, Set<EffectiveValue>> getUniqueColumnValuesByRange(Range range, Set<String> columns);
     LinkedList<RowDto> getFilteredRowsSheet(Range rangeToFilter, Map<String, Set<EffectiveValue>> column2effectiveValuesFilteredBy);
+    SheetDto getSheetAfterDynamicAnalysisOfCell(CellPositionInSheet cellPosition, double cellOriginalValue);
 }

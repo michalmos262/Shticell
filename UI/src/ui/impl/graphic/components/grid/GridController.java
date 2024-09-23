@@ -11,15 +11,13 @@ import javafx.beans.property.SimpleStringProperty;
 import javafx.fxml.FXML;
 import javafx.geometry.Pos;
 import javafx.scene.Node;
-import javafx.scene.control.ButtonType;
-import javafx.scene.control.Dialog;
-import javafx.scene.control.Label;
-import javafx.scene.control.ScrollPane;
+import javafx.scene.control.*;
 import javafx.scene.input.MouseEvent;
 import javafx.scene.layout.Background;
 import javafx.scene.layout.Border;
 import javafx.scene.layout.GridPane;
 import javafx.scene.paint.Color;
+import ui.impl.graphic.components.alert.AlertsHandler;
 import ui.impl.graphic.components.app.MainAppController;
 
 import java.util.*;
@@ -44,6 +42,9 @@ public class GridController {
     private final String COLUMN_HEADER_CSS_CLASS = "column-header";
     private final String ROW_HEADER_CSS_CLASS = "row-header";
     private final String COPIED_CELL_PREFIX_CSS_CLASS = "-copied";
+    private double currentStepSize = 1;
+    private double currentFromRange = 0;
+    private double currentToRange = 1000;
 
 
     @FXML
@@ -261,7 +262,7 @@ public class GridController {
     public void showSheetInVersion(SheetDto sheetDto, int version) {
         Dialog<String> dialog = new Dialog<>();
         dialog.setTitle("Show sheet on specific version");
-        dialog.setHeaderText("Sheet version " + version);
+        dialog.setHeaderText("Sheet version: " + version);
 
         GridPane gridPane = getUnStyledGrid(sheetDto);
 
@@ -337,7 +338,7 @@ public class GridController {
             gridPane.add(columnHeaderInCopiedGrid, col + 1, 0);  // Place the column header in the first row
         }
 
-        // Populate the GridPane with Labels in the main grid area
+        // Populate the GridPane with Labels (sheet cells)
         for (int row = 0; row < numOfRows; row++) {
             for (int col = 0; col < numOfColumns; col++) {
                 CellPositionInSheet cellPositionInSheet = PositionFactory.createPosition(row+1, col+1);
@@ -446,5 +447,127 @@ public class GridController {
     public void updateCellColors(String cellId, Color cellBackgroundColor, Color cellTextColor) {
         changeCellBackground(cellId, cellBackgroundColor);
         changeCellTextColor(cellId, cellTextColor);
+    }
+
+    public void showDynamicAnalysis(String cellId) {
+        Dialog<String> dialog = new Dialog<>();
+        dialog.setTitle("Dynamic analysis");
+        dialog.setHeaderText("Dynamic analysis of cell in position: " + cellId);
+
+        GridPane copiedGrid = getCopiedMainGreed();
+
+        for (int row = 0; row < numOfRows; row++) {
+            for (int col = 0; col < numOfColumns; col++) {
+                CellPositionInSheet cellPositionInSheet = PositionFactory.createPosition(row + 1, col + 1);
+                Label cellLabel = (Label) copiedGrid.lookup("#" + CellPositionInSheet.parseColumn(cellPositionInSheet.getColumn()) + cellPositionInSheet.getRow() + COPIED_CELL_PREFIX_CSS_CLASS);
+                SheetDto sheetDto = engine.getSheet(engine.getCurrentSheetVersion());
+                modelUi.setCellLabelBindingDynamicAnalysis(cellLabel, sheetDto, cellPositionInSheet);
+            }
+        }
+
+        TextField fromRangeTextField = new TextField();
+        TextField toRangeTextField = new TextField();
+        TextField stepSizeTextField = new TextField();
+
+        fromRangeTextField.setPromptText("default: " + currentFromRange);
+        toRangeTextField.setPromptText("default: " + currentToRange);
+        stepSizeTextField.setPromptText("default: " + currentStepSize);
+
+        Label fromRangeLabel = new Label("From number:");
+        Label toRangeLabel = new Label("To number:");
+        Label stepSizeLabel = new Label("Step size:");
+
+        Slider slider = new Slider(currentFromRange, currentToRange, currentStepSize);
+
+        // Create the content for the dialog
+        GridPane dialogGridPane = new GridPane();
+        dialogGridPane.setHgap(10);
+        dialogGridPane.setVgap(10);
+
+        GridPane textFieldsGridPane = new GridPane();
+        textFieldsGridPane.setHgap(10);
+        textFieldsGridPane.setVgap(10);
+
+        textFieldsGridPane.add(fromRangeLabel, 0, 0);
+        textFieldsGridPane.add(fromRangeTextField, 1, 0);
+        textFieldsGridPane.add(toRangeLabel, 0, 1);
+        textFieldsGridPane.add(toRangeTextField, 1, 1);
+        textFieldsGridPane.add(stepSizeLabel, 0, 2);
+        textFieldsGridPane.add(stepSizeTextField, 1, 2);
+        textFieldsGridPane.add(slider, 1, 3);
+
+        dialogGridPane.add(textFieldsGridPane, 0, 0);
+        dialogGridPane.add(copiedGrid, 1, 0);
+
+        setDynamicAnalysisListeners(cellId, fromRangeTextField, toRangeTextField, stepSizeTextField, slider);
+
+        dialog.getDialogPane().setContent(dialogGridPane);
+        dialog.getDialogPane().getButtonTypes().setAll(ButtonType.OK);
+        dialog.showAndWait();
+    }
+
+    private void setDynamicAnalysisListeners(String cellId, TextField fromRangeTextField, TextField toRangeTextField,
+                                             TextField stepSizeTextField, Slider slider ) {
+        fromRangeTextField.textProperty().addListener((observable, oldValue, newValue) -> {
+            try {
+                if (!newValue.isEmpty()) {
+                    slider.setMin(Double.parseDouble(fromRangeTextField.getText()));
+                } else {
+                    slider.setMin(0);
+                }
+            } catch (Exception e) {
+                AlertsHandler.HandleErrorAlert("Set from range", "Please enter a valid number");
+            }
+        });
+
+        toRangeTextField.textProperty().addListener((observable, oldValue, newValue) -> {
+            try {
+                if (!newValue.isEmpty()) {
+                    slider.setMax(Double.parseDouble(toRangeTextField.getText()));
+                } else {
+                    slider.setMax(1000);
+                }
+            } catch (Exception e) {
+                AlertsHandler.HandleErrorAlert("Set to range", "Please enter a valid number");
+            }
+        });
+
+        stepSizeTextField.textProperty().addListener((observable, oldValue, newValue) -> {
+            try {
+                if (!newValue.isEmpty()) {
+                    currentStepSize = Double.parseDouble(newValue);
+                } else {
+                    currentStepSize = 1;
+                }
+                slider.setMajorTickUnit(currentStepSize);
+                slider.setBlockIncrement(currentStepSize);
+                slider.setSnapToTicks(true); // Ensure the slider snaps to the defined ticks
+                slider.setShowTickMarks(true);
+                slider.setMinorTickCount(0); // No minor ticks
+            } catch (NumberFormatException e) {
+                AlertsHandler.HandleErrorAlert("Set step size", "Please enter a valid number");
+            }
+        });
+
+        slider.valueProperty().addListener((observable, oldValue, newValue) -> {
+            // Calculate the nearest value according to the step size
+            double newValueRounded = Math.round(newValue.doubleValue() / currentStepSize) * currentStepSize;
+            slider.setValue(newValueRounded); // Set the slider to the rounded value
+
+            CellPositionInSheet cellPositionInSheet = PositionFactory.createPosition(cellId);
+            SheetDto newSheetDto = engine.getSheetAfterDynamicAnalysisOfCell(cellPositionInSheet, newValueRounded);
+            SimpleStringProperty displayedValue = modelUi.getCellPosition2displayedValueDynamicAnalysis().get(cellPositionInSheet).
+                displayedValueProperty();
+
+            CellDto cellDto = newSheetDto.getCell(cellPositionInSheet);
+            displayedValue.setValue(cellDto.getEffectiveValueForDisplay().toString());
+            // Update the visible affected cells
+            cellDto.getInfluences().forEach(influencedPosition -> {
+                SimpleStringProperty visibleValue = modelUi.getCellPosition2displayedValueDynamicAnalysis().get(influencedPosition).
+                        displayedValueProperty();
+                CellDto influencedCell = newSheetDto.getCell(influencedPosition);
+                visibleValue.setValue(influencedCell.getEffectiveValueForDisplay().toString());
+            });
+        });
     }
 }

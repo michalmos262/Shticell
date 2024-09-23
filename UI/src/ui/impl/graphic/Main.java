@@ -33,7 +33,7 @@ public class Main extends Application {
 
         // set stage
         primaryStage.setTitle("Shticell");
-        Scene scene = new Scene(root, 1100, 770);
+        Scene scene = new Scene(root, 1005, 770);
         primaryStage.setScene(scene);
         primaryStage.show();
     }
