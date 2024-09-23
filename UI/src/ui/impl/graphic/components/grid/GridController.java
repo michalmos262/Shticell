@@ -44,7 +44,7 @@ public class GridController {
     private final String COPIED_CELL_PREFIX_CSS_CLASS = "-copied";
     private double currentStepSize = 1;
     private double currentFromRange = 0;
-    private double currentToRange = 100;
+    private double currentToRange = 1000;
 
 
     @FXML
@@ -477,7 +477,7 @@ public class GridController {
         Label toRangeLabel = new Label("To number:");
         Label stepSizeLabel = new Label("Step size:");
 
-        Slider slider = new Slider(0, 600, 14);
+        Slider slider = new Slider(currentFromRange, currentToRange, currentStepSize);
 
         // Create the content for the dialog
         GridPane dialogGridPane = new GridPane();
@@ -499,6 +499,15 @@ public class GridController {
         dialogGridPane.add(textFieldsGridPane, 0, 0);
         dialogGridPane.add(copiedGrid, 1, 0);
 
+        setDynamicAnalysisListeners(cellId, fromRangeTextField, toRangeTextField, stepSizeTextField, slider);
+
+        dialog.getDialogPane().setContent(dialogGridPane);
+        dialog.getDialogPane().getButtonTypes().setAll(ButtonType.OK);
+        dialog.showAndWait();
+    }
+
+    private void setDynamicAnalysisListeners(String cellId, TextField fromRangeTextField, TextField toRangeTextField,
+                                             TextField stepSizeTextField, Slider slider ) {
         fromRangeTextField.textProperty().addListener((observable, oldValue, newValue) -> {
             try {
                 if (!newValue.isEmpty()) {
@@ -544,7 +553,6 @@ public class GridController {
             // Calculate the nearest value according to the step size
             double newValueRounded = Math.round(newValue.doubleValue() / currentStepSize) * currentStepSize;
             slider.setValue(newValueRounded); // Set the slider to the rounded value
-            System.out.println(newValueRounded); // Print the adjusted value
 
             CellPositionInSheet cellPositionInSheet = PositionFactory.createPosition(cellId);
             SheetDto newSheetDto = engine.getSheetAfterDynamicAnalysisOfCell(cellPositionInSheet, newValueRounded);
@@ -561,9 +569,5 @@ public class GridController {
                 visibleValue.setValue(influencedCell.getEffectiveValueForDisplay().toString());
             });
         });
-
-        dialog.getDialogPane().setContent(dialogGridPane);
-        dialog.getDialogPane().getButtonTypes().setAll(ButtonType.OK);
-        dialog.showAndWait();
     }
 }
