@@ -511,7 +511,13 @@ public class GridController {
         fromRangeTextField.textProperty().addListener((observable, oldValue, newValue) -> {
             try {
                 if (!newValue.isEmpty()) {
-                    slider.setMin(Double.parseDouble(fromRangeTextField.getText()));
+                    double min = Double.parseDouble(fromRangeTextField.getText());
+                    slider.setMin(min);
+
+                    // Adjust slider value if it's less than the new minimum
+                    if (slider.getValue() < min) {
+                        slider.setValue(min);
+                    }
                 } else {
                     slider.setMin(0);
                 }
@@ -523,7 +529,13 @@ public class GridController {
         toRangeTextField.textProperty().addListener((observable, oldValue, newValue) -> {
             try {
                 if (!newValue.isEmpty()) {
-                    slider.setMax(Double.parseDouble(toRangeTextField.getText()));
+                    double max = Double.parseDouble(toRangeTextField.getText());
+                    slider.setMax(max);
+
+                    // Adjust slider value if it's greater than the new maximum
+                    if (slider.getValue() > max) {
+                        slider.setValue(max);
+                    }
                 } else {
                     slider.setMax(1000);
                 }
@@ -539,28 +551,47 @@ public class GridController {
                 } else {
                     currentStepSize = 1;
                 }
+
                 slider.setMajorTickUnit(currentStepSize);
                 slider.setBlockIncrement(currentStepSize);
-                slider.setSnapToTicks(true); // Ensure the slider snaps to the defined ticks
+                slider.setSnapToTicks(true);
                 slider.setShowTickMarks(true);
-                slider.setMinorTickCount(0); // No minor ticks
+                slider.setMinorTickCount(0);
+
+                // Adjust the slider value to a valid multiple of the step size, ensuring it doesn't exceed the max
+                double currentValue = slider.getValue();
+                double roundedValue = Math.round((currentValue - slider.getMin()) / currentStepSize) * currentStepSize + slider.getMin();
+
+                if (roundedValue > slider.getMax()) {
+                    roundedValue = slider.getMax() - (slider.getMax() - slider.getMin()) % currentStepSize;
+                }
+
+                slider.setValue(roundedValue);
+
             } catch (NumberFormatException e) {
                 AlertsHandler.HandleErrorAlert("Set step size", "Please enter a valid number");
             }
         });
 
         slider.valueProperty().addListener((observable, oldValue, newValue) -> {
-            // Calculate the nearest value according to the step size
-            double newValueRounded = Math.round(newValue.doubleValue() / currentStepSize) * currentStepSize;
-            slider.setValue(newValueRounded); // Set the slider to the rounded value
+            // Ensure slider value respects the step size
+            double roundedValue = Math.round((newValue.doubleValue() - slider.getMin()) / currentStepSize) * currentStepSize + slider.getMin();
+
+            // Ensure the slider value doesn't exceed the maximum
+            if (roundedValue > slider.getMax()) {
+                roundedValue = slider.getMax() - (slider.getMax() - slider.getMin()) % currentStepSize;
+            }
+
+            slider.setValue(roundedValue);
 
             CellPositionInSheet cellPositionInSheet = PositionFactory.createPosition(cellId);
-            SheetDto newSheetDto = engine.getSheetAfterDynamicAnalysisOfCell(cellPositionInSheet, newValueRounded);
+            SheetDto newSheetDto = engine.getSheetAfterDynamicAnalysisOfCell(cellPositionInSheet, roundedValue);
             SimpleStringProperty displayedValue = modelUi.getCellPosition2displayedValueDynamicAnalysis().get(cellPositionInSheet).
                 displayedValueProperty();
 
             CellDto cellDto = newSheetDto.getCell(cellPositionInSheet);
             displayedValue.setValue(cellDto.getEffectiveValueForDisplay().toString());
+
             // Update the visible affected cells
             cellDto.getInfluences().forEach(influencedPosition -> {
                 SimpleStringProperty visibleValue = modelUi.getCellPosition2displayedValueDynamicAnalysis().get(influencedPosition).
