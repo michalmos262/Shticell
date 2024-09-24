@@ -40,7 +40,7 @@
                     <RowConstraints maxHeight="75.2" minHeight="10.0" prefHeight="28.39999847412109" vgrow="SOMETIMES" />
                     <RowConstraints maxHeight="97.60000076293946" minHeight="10.0" prefHeight="86.0000015258789" vgrow="SOMETIMES" />
                 </rowConstraints>
-                <fx:include fx:id="loadFileComponent" source="../file/loadFile.fxml" />
+                <fx:include fx:id="loadFileComponent" source="../loadfile/loadFile.fxml" />
                 <fx:include fx:id="actionLineComponent" source="../actionline/actionLine.fxml" GridPane.rowIndex="1" />
             <padding>
                <Insets bottom="10.0" />

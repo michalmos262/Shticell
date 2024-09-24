@@ -17,7 +17,7 @@ import javafx.scene.paint.Color;
 import javafx.stage.Stage;
 import ui.impl.graphic.components.actionline.ActionLineController;
 import ui.impl.graphic.components.command.CommandsController;
-import ui.impl.graphic.components.file.LoadFileController;
+import ui.impl.graphic.components.loadfile.LoadFileController;
 import ui.impl.graphic.components.grid.GridController;
 import ui.impl.graphic.components.range.RangesController;
 
