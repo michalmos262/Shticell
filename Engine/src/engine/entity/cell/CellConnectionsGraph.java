@@ -2,6 +2,7 @@ package engine.entity.cell;
 
 import engine.entity.range.Range;
 import engine.entity.range.RangesManager;
+import engine.exception.range.RangeNotExistException;
 import engine.jaxb.schema.generated.STLCell;
 import engine.jaxb.schema.generated.STLCells;
 
@@ -64,6 +65,8 @@ public class CellConnectionsGraph {
                     for (CellPositionInSheet cellPositionInSheet: range.getIncludedPositions()) {
                         addEdge(cellPositionInSheet, currentPosition);
                     }
+                } else {
+                    throw new RangeNotExistException(extractedString);
                 }
             }
         }
