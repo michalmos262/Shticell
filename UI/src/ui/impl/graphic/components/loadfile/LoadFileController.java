@@ -1,4 +1,4 @@
-package ui.impl.graphic.components.file;
+package ui.impl.graphic.components.loadfile;
 
 import engine.api.Engine;
 import javafx.application.Platform;

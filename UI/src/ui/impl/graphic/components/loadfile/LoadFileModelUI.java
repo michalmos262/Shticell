@@ -1,4 +1,4 @@
-package ui.impl.graphic.components.file;
+package ui.impl.graphic.components.loadfile;
 
 import javafx.beans.property.SimpleBooleanProperty;
 import javafx.beans.property.SimpleStringProperty;
