@@ -4,6 +4,7 @@
     -fx-text-fill: black;
     -fx-max-width: Infinity;
     -fx-max-height: Infinity;
+    -fx-alignment: center;
 }
 
 .cell:hover {
