@@ -405,7 +405,7 @@ public class GridController {
 
         for (Node node : gridPane.getChildren()) {
             if (node instanceof Label label) {
-                label.setStyle("-fx-border-color: black; -fx-alignment: top-center;");
+                label.setStyle("-fx-border-color: black; -fx-alignment: center;");
             }
         }
         return gridPane;
