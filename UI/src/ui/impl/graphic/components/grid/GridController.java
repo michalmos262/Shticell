@@ -43,8 +43,8 @@ public class GridController {
     private final String ROW_HEADER_CSS_CLASS = "row-header";
     private final String COPIED_CELL_PREFIX_CSS_CLASS = "-copied";
     private double currentStepSize = 1;
-    private double currentFromRange = 0;
-    private double currentToRange = 1000;
+    private final double defaultFromRange = 0;
+    private final double defaultToRange = 1000;
 
 
     @FXML
@@ -469,15 +469,15 @@ public class GridController {
         TextField toRangeTextField = new TextField();
         TextField stepSizeTextField = new TextField();
 
-        fromRangeTextField.setPromptText("default: " + currentFromRange);
-        toRangeTextField.setPromptText("default: " + currentToRange);
+        fromRangeTextField.setPromptText("default: " + defaultFromRange);
+        toRangeTextField.setPromptText("default: " + defaultToRange);
         stepSizeTextField.setPromptText("default: " + currentStepSize);
 
         Label fromRangeLabel = new Label("From number:");
         Label toRangeLabel = new Label("To number:");
         Label stepSizeLabel = new Label("Step size:");
 
-        Slider slider = new Slider(currentFromRange, currentToRange, currentStepSize);
+        Slider slider = new Slider(defaultFromRange, defaultToRange, currentStepSize);
 
         // Create the content for the dialog
         GridPane dialogGridPane = new GridPane();
@@ -519,7 +519,7 @@ public class GridController {
                         slider.setValue(min);
                     }
                 } else {
-                    slider.setMin(0);
+                    slider.setMin(defaultFromRange);
                 }
             } catch (Exception e) {
                 AlertsHandler.HandleErrorAlert("Set from range", "Please enter a valid number");
@@ -537,7 +537,7 @@ public class GridController {
                         slider.setValue(max);
                     }
                 } else {
-                    slider.setMax(1000);
+                    slider.setMax(defaultToRange);
                 }
             } catch (Exception e) {
                 AlertsHandler.HandleErrorAlert("Set to range", "Please enter a valid number");
