@@ -17,7 +17,6 @@ import javafx.scene.paint.Color;
 import javafx.stage.Stage;
 import ui.impl.graphic.components.actionline.ActionLineController;
 import ui.impl.graphic.components.command.CommandsController;
-import ui.impl.graphic.components.loadfile.LoadFileController;
 import ui.impl.graphic.components.grid.GridController;
 import ui.impl.graphic.components.range.RangesController;
 
@@ -27,8 +26,6 @@ import java.util.LinkedList;
 import static ui.impl.graphic.resources.CommonResourcesPaths.*;
 
 public class MainAppController {
-    @FXML private GridPane loadFileComponent;
-    @FXML private LoadFileController loadFileComponentController;
     @FXML private GridPane actionLineComponent;
     @FXML private ActionLineController actionLineComponentController;
     @FXML private BorderPane commandsComponent;
@@ -45,14 +42,18 @@ public class MainAppController {
     void initialize() {
         this.engine = new EngineImpl();
 
-        if (loadFileComponentController != null && sheetComponentController != null && actionLineComponent != null &&
+        if (sheetComponentController != null && actionLineComponent != null &&
                 rangesComponentController != null && commandsComponentController != null) {
-            loadFileComponentController.setMainController(this, engine);
             sheetComponentController.setMainController(this, engine);
             actionLineComponentController.setMainController(this, engine);
             rangesComponentController.setMainController(this, engine);
             commandsComponentController.setMainController(this, engine);
         }
+    }
+
+    @FXML
+    private void backToDashboardButtonListener() {
+
     }
 
     public void setPrimaryStage(Stage primaryStage) {

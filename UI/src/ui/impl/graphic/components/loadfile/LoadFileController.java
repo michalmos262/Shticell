@@ -61,7 +61,6 @@ public class LoadFileController {
                 }
             },
             onFinish -> {
-                modelUi.selectedFileAbsolutePathProperty().setValue(selectedFileName);
                 modelUi.isFileLoadingProperty().set(false);
                 mainAppController.fileLoadedSuccessfully();
             }
