@@ -8,6 +8,7 @@ import engine.entity.dto.SheetDto;
 import engine.entity.range.Range;
 
 import java.io.IOException;
+import java.io.InputStream;
 import java.util.LinkedList;
 import java.util.List;
 import java.util.Map;
@@ -33,6 +34,7 @@ public interface Engine {
     void writeSystemToFile(String fileName) throws IOException;
     void readSystemFromFile(String fileName);
     void loadFile(String fileName) throws Exception;
+    void loadFile(InputStream fileInputStream) throws Exception;
     int getNumOfSheetRows();
     int getNumOfSheetColumns();
     int getSheetRowHeight();

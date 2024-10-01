@@ -47,24 +47,6 @@ public class EngineImpl implements Engine {
         return new SheetDto(position2cell);
     }
 
-    private SheetDto createSheetDto(List<Row> rows) {
-        Map<CellPositionInSheet, CellDto> position2cell;
-        position2cell = new HashMap<>();
-        int rowNumber = 1;
-
-        for (Row row: rows) {
-            for (Map.Entry<String, Cell> col2cellEntry: row.getCells().entrySet()) {
-                Cell cell = col2cellEntry.getValue();
-                CellPositionInSheet cellPositionInSheet = PositionFactory.createPosition(rowNumber, col2cellEntry.getKey());
-                CellDto cellDto = getCellDto(cell);
-                position2cell.put(cellPositionInSheet, cellDto);
-            }
-            rowNumber++;
-        }
-
-        return new SheetDto(position2cell);
-    }
-
     @Override
     public EffectiveValue getEffectiveValueForDisplay(EffectiveValue originalEffectiveValue) {
         String effectiveValueStr;
@@ -251,6 +233,20 @@ public class EngineImpl implements Engine {
         JAXBContext jaxbContext = JAXBContext.newInstance(STLSheet.class);
         Unmarshaller jaxbUnmarshaller = jaxbContext.createUnmarshaller();
         STLSheet jaxbSheet = (STLSheet) jaxbUnmarshaller.unmarshal(file);
+
+        setSheetManagerFromJaxbSheet(jaxbSheet);
+    }
+
+    @Override
+    public void loadFile(InputStream fileInputStream) throws Exception {
+        JAXBContext jaxbContext = JAXBContext.newInstance(STLSheet.class);
+        Unmarshaller jaxbUnmarshaller = jaxbContext.createUnmarshaller();
+        STLSheet jaxbSheet = (STLSheet) jaxbUnmarshaller.unmarshal(fileInputStream);
+
+        setSheetManagerFromJaxbSheet(jaxbSheet);
+    }
+
+    private void setSheetManagerFromJaxbSheet(STLSheet jaxbSheet) {
         List<STLRange> ranges = jaxbSheet.getSTLRanges().getSTLRange();
 
         // Creating sheet manager
