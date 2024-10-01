@@ -11,11 +11,11 @@ import engine.entity.sheet.SheetDimension;
 import engine.entity.dto.SheetDto;
 import engine.entity.sheet.impl.SheetImpl;
 import engine.entity.sheet.SheetManager;
-import engine.exception.file.FileAlreadyExistsException;
 import engine.exception.file.FileNotExistException;
 import engine.exception.file.InvalidFileTypeException;
 import engine.entity.cell.CellConnectionsGraph;
 import engine.exception.range.ColumnIsNotPartOfRangeException;
+import engine.file.SheetFilesManager;
 import engine.jaxb.schema.generated.STLCell;
 import engine.jaxb.schema.generated.STLCells;
 import engine.jaxb.schema.generated.STLRange;
@@ -32,7 +32,7 @@ import java.util.stream.Collectors;
 import static engine.expression.impl.ExpressionEvaluator.evaluateArgument;
 
 public class EngineImpl implements Engine {
-    private SheetManager sheetManager;
+    private final SheetFilesManager sheetFilesManager = new SheetFilesManager();
     private boolean isDataLoaded = false;
 
     private SheetDto createSheetDto(Sheet sheet) {
@@ -73,33 +73,29 @@ public class EngineImpl implements Engine {
     }
 
     @Override
-    public String getSheetName() {
-        return sheetManager.getName();
+    public int getCurrentSheetVersion(String sheetName) {
+        return sheetFilesManager.getSheetManager(sheetName).getCurrentVersion();
     }
 
     @Override
-    public int getCurrentSheetVersion() {
-        return sheetManager.getCurrentVersion();
-    }
-
-    @Override
-    public CellDto findCellInSheet(int row, int column, int sheetVersion) {
-        SheetDto sheetDto = getSheet(sheetVersion);
+    public CellDto findCellInSheet(String sheetName, int row, int column, int sheetVersion) {
+        SheetDto sheetDto = getSheet(sheetName, sheetVersion);
         CellPositionInSheet cellPosition = PositionFactory.createPosition(row, column);
 
         return sheetDto.getCell(cellPosition);
     }
 
     @Override
-    public SheetDto getSheet(int sheetVersion) {
-        Sheet sheet = sheetManager.getSheetByVersion(sheetVersion);
+    public SheetDto getSheet(String sheetName, int sheetVersion) {
+        Sheet sheet = sheetFilesManager.getSheetManager(sheetName).getSheetByVersion(sheetVersion);
 
         return createSheetDto(sheet);
     }
 
     @Override
-    public int getLastCellVersion(int row, int column) {
-        Sheet sheet = sheetManager.getSheetByVersion(sheetManager.getCurrentVersion());
+    public int getLastCellVersion(String sheetName, int row, int column) {
+        Sheet sheet = sheetFilesManager.getSheetManager(sheetName)
+                .getSheetByVersion(sheetFilesManager.getSheetManager(sheetName).getCurrentVersion());
         CellPositionInSheet cellPosition = PositionFactory.createPosition(row, column);
         Cell cell = sheet.getCell(cellPosition);
 
@@ -111,13 +107,13 @@ public class EngineImpl implements Engine {
     }
 
     @Override
-    public Set<CellPositionInSheet> getInfluencedBySet(int row, int column, int sheetVersion) {
-        return findCellInSheet(row, column, sheetVersion).getInfluencedBy();
+    public Set<CellPositionInSheet> getInfluencedBySet(String sheetName, int row, int column, int sheetVersion) {
+        return findCellInSheet(sheetName, row, column, sheetVersion).getInfluencedBy();
     }
 
     @Override
-    public Set<CellPositionInSheet> getInfluencesSet(int row, int column, int sheetVersion) {
-        return findCellInSheet(row, column, sheetVersion).getInfluences();
+    public Set<CellPositionInSheet> getInfluencesSet(String sheetName, int row, int column, int sheetVersion) {
+        return findCellInSheet(sheetName, row, column, sheetVersion).getInfluences();
     }
 
     public EffectiveValue handleEffectiveValue(Sheet sheet, CellPositionInSheet cellPosition, String originalValue) {
@@ -153,8 +149,9 @@ public class EngineImpl implements Engine {
     }
 
     @Override //THE FIRST UPDATE
-    public CellDto updateSheetCell(int row, int column, String newOriginalValue) {
-        Sheet clonedSheet = sheetManager.getSheetByVersion(sheetManager.getCurrentVersion()).clone();
+    public CellDto updateSheetCell(String sheetName, int row, int column, String newOriginalValue) {
+        Sheet clonedSheet = sheetFilesManager.getSheetManager(sheetName)
+                .getSheetByVersion(sheetFilesManager.getSheetManager(sheetName).getCurrentVersion()).clone();
         Set<CellPositionInSheet> visitedCellPositions = new HashSet<>();
         CellPositionInSheet cellPosition = PositionFactory.createPosition(row, column);
         int cellsUpdatedCounter = 1;
@@ -163,9 +160,9 @@ public class EngineImpl implements Engine {
         updateInfluencedByCell(clonedSheet, cellPosition, visitedCellPositions);
         cellsUpdatedCounter += visitedCellPositions.size();
         clonedSheet.setUpdatedCellsCount(cellsUpdatedCounter);
-        sheetManager.addNewSheet(clonedSheet);
+        sheetFilesManager.getSheetManager(sheetName).addNewSheet(clonedSheet);
 
-        return findCellInSheet(row, column, getCurrentSheetVersion());
+        return findCellInSheet(sheetName, row, column, getCurrentSheetVersion(sheetName));
     }
 
     private void setCellInfo(Sheet sheet, CellPositionInSheet cellPosition, String originalValue) {
@@ -234,7 +231,7 @@ public class EngineImpl implements Engine {
         Unmarshaller jaxbUnmarshaller = jaxbContext.createUnmarshaller();
         STLSheet jaxbSheet = (STLSheet) jaxbUnmarshaller.unmarshal(file);
 
-        setSheetManagerFromJaxbSheet(jaxbSheet);
+        addNewSheetManagerFromJaxbSheet(jaxbSheet);
     }
 
     @Override
@@ -243,14 +240,19 @@ public class EngineImpl implements Engine {
         Unmarshaller jaxbUnmarshaller = jaxbContext.createUnmarshaller();
         STLSheet jaxbSheet = (STLSheet) jaxbUnmarshaller.unmarshal(fileInputStream);
 
-        setSheetManagerFromJaxbSheet(jaxbSheet);
+        addNewSheetManagerFromJaxbSheet(jaxbSheet);
     }
 
-    private void setSheetManagerFromJaxbSheet(STLSheet jaxbSheet) {
+    @Override
+    public int getFilesAmount() {
+        return sheetFilesManager.getSheetManagersCount();
+    }
+
+    private void addNewSheetManagerFromJaxbSheet(STLSheet jaxbSheet) {
         List<STLRange> ranges = jaxbSheet.getSTLRanges().getSTLRange();
 
         // Creating sheet manager
-        SheetManager sheetManager = getSheetManager(jaxbSheet);
+        SheetManager sheetManager = getNewSheetManager(jaxbSheet);
         // Creating ranges
         for (STLRange range: ranges) {
             CellPositionInSheet fromPosition = PositionFactory.createPosition(range.getSTLBoundaries().getFrom());
@@ -262,11 +264,11 @@ public class EngineImpl implements Engine {
         int cellsUpdatedCounter = createCellsFromFile(sheet, jaxbSheet.getSTLCells(), sheetManager);
         sheet.setUpdatedCellsCount(cellsUpdatedCounter);
         sheetManager.addNewSheet(sheet);
-        this.sheetManager = sheetManager;
+        sheetFilesManager.addSheetManager(jaxbSheet.getName(), sheetManager);
         isDataLoaded = true;
     }
 
-    private static SheetManager getSheetManager(STLSheet jaxbSheet) {
+    private SheetManager getNewSheetManager(STLSheet jaxbSheet) {
         int numOfRows = jaxbSheet.getSTLLayout().getRows();
         int numOfColumns = jaxbSheet.getSTLLayout().getColumns();
         int rowHeight = jaxbSheet.getSTLLayout().getSTLSize().getRowsHeightUnits();
@@ -274,110 +276,64 @@ public class EngineImpl implements Engine {
 
         SheetDimension sheetDimension = new SheetDimension(numOfRows, numOfColumns, rowHeight, columnWidth);
 
-        return new SheetManager(jaxbSheet.getName(), sheetDimension);
+        return new SheetManager(sheetDimension);
     }
 
     @Override
-    public void writeSystemToFile(String fileName) throws IOException {
-        String fullFileName = fileName + "." + SYSTEM_FILE_TYPE;
-        File file = new File(fullFileName);
-
-        if (file.isFile() && file.exists()) {
-            throw new FileAlreadyExistsException(file.getAbsolutePath());
-        }
-
-        ObjectOutputStream out =
-                new ObjectOutputStream(
-                        new FileOutputStream(fullFileName));
-        out.writeObject(this.sheetManager);
-        out.flush();
-    }
-
-    @Override
-    public void readSystemFromFile(String fileName) {
-        try {
-            ObjectInputStream in =
-                new ObjectInputStream(
-                        new FileInputStream(fileName));
-            this.sheetManager = (SheetManager) in.readObject();
-            isDataLoaded = true;
-        } catch (Exception e) {
-            throw new InvalidFileTypeException(fileName, SYSTEM_FILE_TYPE);
-        }
-    }
-
-    @Override
-    public Map<Integer, Integer> getVersion2updatedCellsCount() {
-        Map<Integer, Integer> version2updatedCellsCount = new HashMap<>();
-
-        sheetManager.getVersion2sheet().forEach((version, sheet) ->
-                version2updatedCellsCount.put(version, sheet.getUpdatedCellsCount()));
-
-        return version2updatedCellsCount;
-    }
-
-    @Override
-    public void validateSheetVersionExists(int version) {
-        Map<Integer, Integer> version2updatedCellsCount = getVersion2updatedCellsCount();
-
-        if (!version2updatedCellsCount.containsKey(version)) {
-            throw new IllegalArgumentException();
-        }
-    }
-
-    @Override
-    public CellPositionInSheet getCellPositionInSheet(int row, int column) {
+    public CellPositionInSheet getCellPositionInSheet(String sheetName, int row, int column) {
         CellPositionInSheet cellPosition = PositionFactory.createPosition(row, column);
-        sheetManager.validatePositionInSheetBounds(cellPosition);
+        sheetFilesManager.getSheetManager(sheetName).validatePositionInSheetBounds(cellPosition);
 
         return cellPosition;
     }
 
     @Override
-    public CellPositionInSheet getCellPositionInSheet(String position) {
+    public CellPositionInSheet getCellPositionInSheet(String sheetName, String position) {
         CellPositionInSheet cellPosition = PositionFactory.createPosition(position);
 
-        return getCellPositionInSheet(cellPosition.getRow(), cellPosition.getColumn());
+        return getCellPositionInSheet(sheetName, cellPosition.getRow(), cellPosition.getColumn());
     }
 
     @Override
-    public int getNumOfSheetRows() {
-        return sheetManager.getSheetDimension().getNumOfRows();
+    public int getNumOfSheetRows(String sheetName) {
+        return sheetFilesManager.getSheetManager(sheetName).getSheetDimension().getNumOfRows();
     }
 
     @Override
-    public int getNumOfSheetColumns() {
-        return sheetManager.getSheetDimension().getNumOfColumns();
+    public int getNumOfSheetColumns(String sheetName) {
+        return sheetFilesManager.getSheetManager(sheetName).getSheetDimension().getNumOfColumns();
     }
 
     @Override
-    public int getSheetRowHeight() {
-        return sheetManager.getSheetDimension().getRowHeight();
+    public int getSheetRowHeight(String sheetName) {
+        return sheetFilesManager.getSheetManager(sheetName).getSheetDimension().getRowHeight();
     }
 
     @Override
-    public int getSheetColumnWidth() {
-        return sheetManager.getSheetDimension().getColumnWidth();
+    public int getSheetColumnWidth(String sheetName) {
+        return sheetFilesManager.getSheetManager(sheetName).getSheetDimension().getColumnWidth();
     }
 
     @Override
-    public Range getRangeByName(String rangeName) {
-        return sheetManager.getRangesManager().getRangeByName(rangeName);
+    public Range getRangeByName(String sheetName, String rangeName) {
+        return sheetFilesManager.getSheetManager(sheetName).getRangesManager().getRangeByName(rangeName);
     }
 
     @Override
-    public List<String> getRangeNames() {
+    public List<String> getRangeNames(String sheetName) {
         List<String> rangeNames = new ArrayList<>();
-        sheetManager.getRangesManager().getName2Range().forEach((name, range) -> rangeNames.add(name));
+        sheetFilesManager.getSheetManager(sheetName).getRangesManager().getName2Range()
+                .forEach((name, range) -> rangeNames.add(name));
+
         return rangeNames;
     }
 
-    public void createRange(String name, CellPositionInSheet fromPosition, CellPositionInSheet toPosition) {
-        sheetManager.createRange(name, fromPosition, toPosition);
+    public void createRange(String sheetName, String rangeName, CellPositionInSheet fromPosition, CellPositionInSheet toPosition) {
+        sheetFilesManager.getSheetManager(sheetName).createRange(rangeName, fromPosition, toPosition);
     }
 
-    public void deleteRange(String name) {
-        sheetManager.getRangesManager().deleteRange(name);
+    public void deleteRange(String sheetName, String rangeName) {
+        sheetFilesManager.getSheetManager(sheetName).getRangesManager().deleteRange(rangeName);
     }
 
     private void validateColumnsInRange(Range range, Set<String> columns) {
@@ -392,9 +348,10 @@ public class EngineImpl implements Engine {
     }
 
     @Override
-    public LinkedList<RowDto> getSortedRowsSheet(Range rangeToSort, Set<String> columnsSortedBy) {
+    public LinkedList<RowDto> getSortedRowsSheet(String sheetName, Range rangeToSort, Set<String> columnsSortedBy) {
         validateColumnsInRange(rangeToSort, columnsSortedBy);
-        Sheet inWorkSheet = sheetManager.getSheetByVersion(getCurrentSheetVersion()).clone();
+        Sheet inWorkSheet = sheetFilesManager.getSheetManager(sheetName)
+                .getSheetByVersion(getCurrentSheetVersion(sheetName)).clone();
 
         // Extract rows from the sheet based on the given range
         List<Row> rows = extractRowsInRange(inWorkSheet, rangeToSort);
@@ -475,7 +432,7 @@ public class EngineImpl implements Engine {
     }
 
     @Override
-    public Map<String, Set<EffectiveValue>> getUniqueColumnValuesByRange(Range range, Set<String> columns) {
+    public Map<String, Set<EffectiveValue>> getUniqueColumnValuesByRange(String sheetName, Range range, Set<String> columns) {
         validateColumnsInRange(range, columns);
         Map<String, Set<EffectiveValue>> column2uniqueEffectiveValues = new HashMap<>();
         columns.forEach((column) -> column2uniqueEffectiveValues.put(column, new LinkedHashSet<>()));
@@ -483,7 +440,8 @@ public class EngineImpl implements Engine {
         range.getIncludedPositions().forEach((cellPosition) -> {
             Set<EffectiveValue> uniqueColumnValues = column2uniqueEffectiveValues.get(CellPositionInSheet.parseColumn(cellPosition.getColumn()));
             if (uniqueColumnValues != null) {
-                EffectiveValue originalEffectiveValue = sheetManager.getSheetByVersion(getCurrentSheetVersion()).getCellEffectiveValue(cellPosition);
+                EffectiveValue originalEffectiveValue = sheetFilesManager.getSheetManager(sheetName)
+                        .getSheetByVersion(getCurrentSheetVersion(sheetName)).getCellEffectiveValue(cellPosition);
                 EffectiveValue effectiveValueForDisplay = getEffectiveValueForDisplay(originalEffectiveValue);
                 uniqueColumnValues.add(effectiveValueForDisplay);
             }
@@ -493,8 +451,9 @@ public class EngineImpl implements Engine {
     }
 
     @Override
-    public LinkedList<RowDto> getFilteredRowsSheet(Range rangeToFilter, Map<String, Set<EffectiveValue>> column2effectiveValuesFilteredBy) {
-        List<Row> rowsToFilter = extractRowsInRange(sheetManager.getSheetByVersion(getCurrentSheetVersion()), rangeToFilter);
+    public LinkedList<RowDto> getFilteredRowsSheet(String sheetName, Range rangeToFilter, Map<String, Set<EffectiveValue>> column2effectiveValuesFilteredBy) {
+        List<Row> rowsToFilter = extractRowsInRange(sheetFilesManager.getSheetManager(sheetName)
+                .getSheetByVersion(getCurrentSheetVersion(sheetName)), rangeToFilter);
 
         // Filter out rows by the columns
         List<Row> filteredRows = rowsToFilter.stream()
@@ -525,9 +484,10 @@ public class EngineImpl implements Engine {
 
 
     @Override
-    public SheetDto getSheetAfterDynamicAnalysisOfCell(CellPositionInSheet cellPosition, double cellOriginalValue) {
+    public SheetDto getSheetAfterDynamicAnalysisOfCell(String sheetName, CellPositionInSheet cellPosition, double cellOriginalValue) {
         SheetDto dynamicAnalysedSheetDto;
-        Sheet inWorkSheet = sheetManager.getSheetByVersion(getCurrentSheetVersion()).clone();
+        Sheet inWorkSheet = sheetFilesManager.getSheetManager(sheetName)
+                .getSheetByVersion(getCurrentSheetVersion(sheetName)).clone();
         Set<CellPositionInSheet> visitedCellPositions = new HashSet<>();
 
         String originalValueStr = String.valueOf(cellOriginalValue);

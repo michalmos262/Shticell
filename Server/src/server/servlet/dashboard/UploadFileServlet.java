@@ -30,7 +30,7 @@ public class UploadFileServlet extends HttpServlet {
                 InputStream fileInputStream = filePart.getInputStream();
                 engine.loadFile(fileInputStream);
                 response.setStatus(HttpServletResponse.SC_OK);
-                response.getWriter().println("File uploaded successfully");
+                response.getWriter().println("Existing files amount: " + engine.getFilesAmount());
             }
         } catch (Exception e) {
             response.setStatus(HttpServletResponse.SC_INTERNAL_SERVER_ERROR);

@@ -3,6 +3,7 @@ package engine.entity.dto;
 import engine.entity.cell.CellPositionInSheet;
 import engine.entity.cell.EffectiveValue;
 
+import java.util.Collections;
 import java.util.Set;
 
 public class CellDto {
@@ -34,10 +35,10 @@ public class CellDto {
     }
 
     public Set<CellPositionInSheet> getInfluencedBy() {
-        return influencedBy;
+        return Collections.unmodifiableSet(influencedBy);
     }
 
     public Set<CellPositionInSheet> getInfluences() {
-        return influences;
+        return Collections.unmodifiableSet(influences);
     }
 }
