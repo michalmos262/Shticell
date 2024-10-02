@@ -15,7 +15,6 @@ import java.util.Set;
 
 public interface Engine {
     String SUPPORTED_FILE_TYPE = "xml";
-    String SYSTEM_FILE_TYPE = "shticell";
 
     boolean isDataLoaded();
     int getCurrentSheetVersion(String sheetName);
@@ -27,8 +26,8 @@ public interface Engine {
     CellDto updateSheetCell(String sheetName, int row, int column, String newValue);
     CellPositionInSheet getCellPositionInSheet(String sheetName, int row, int column);
     CellPositionInSheet getCellPositionInSheet(String sheetName, String position);
-    void loadFile(String fileName) throws Exception;
-    void loadFile(InputStream fileInputStream) throws Exception;
+    String loadFile(String fileName) throws Exception;
+    String loadFile(InputStream fileInputStream) throws Exception;
     int getFilesAmount();
     int getNumOfSheetRows(String sheetName);
     int getNumOfSheetColumns(String sheetName);
@@ -37,10 +36,10 @@ public interface Engine {
     EffectiveValue getEffectiveValueForDisplay(EffectiveValue originalEffectiveValue);
     Range getRangeByName(String sheetName, String rangeName);
     List<String> getRangeNames(String sheetName);
-    void createRange(String sheetName, String rangeName, CellPositionInSheet fromPosition, CellPositionInSheet toPosition);
+    Range createRange(String sheetName, String rangeName, CellPositionInSheet fromPosition, CellPositionInSheet toPosition);
     void deleteRange(String sheetName, String rangeName);
     LinkedList<RowDto> getSortedRowsSheet(String sheetName, Range rangeToSort, Set<String> columnsSortedBy);
     Map<String, Set<EffectiveValue>> getUniqueColumnValuesByRange(String sheetName, Range range, Set<String> columns);
-    LinkedList<RowDto> getFilteredRowsSheet(String sheetName, Range rangeToFilter, Map<String, Set<EffectiveValue>> column2effectiveValuesFilteredBy);
+    LinkedList<RowDto> getFilteredRowsSheet(String sheetName, Range rangeToFilter, Map<String, Set<String>> column2effectiveValuesFilteredBy);
     SheetDto getSheetAfterDynamicAnalysisOfCell(String sheetName, CellPositionInSheet cellPosition, double cellOriginalValue);
 }

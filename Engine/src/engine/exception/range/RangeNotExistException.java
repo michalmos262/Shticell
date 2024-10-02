@@ -1,6 +1,6 @@
 package engine.exception.range;
 
-public class RangeNotExistException extends IllegalStateException {
+public class RangeNotExistException extends NullPointerException {
     private final String rangeName;
 
     public RangeNotExistException(String rangeName) {

@@ -1,10 +1,12 @@
 package engine.entity.sheet;
 
 import engine.entity.cell.CellPositionInSheet;
+import engine.entity.range.Range;
 import engine.entity.range.RangesManager;
 import engine.entity.sheet.api.Sheet;
 import engine.entity.sheet.impl.SheetImpl;
 import engine.exception.cell.CellPositionOutOfSheetBoundsException;
+import engine.exception.sheet.SheetVersionDoesNotExistException;
 
 import java.io.Serializable;
 import java.util.LinkedHashMap;
@@ -41,6 +43,9 @@ public class SheetManager implements Serializable {
     }
 
     public Sheet getSheetByVersion(int version) {
+        if (!version2sheet.containsKey(version)) {
+            throw new SheetVersionDoesNotExistException(version);
+        }
         return version2sheet.get(version);
     }
 
@@ -59,11 +64,11 @@ public class SheetManager implements Serializable {
         }
     }
 
-    public void createRange(String name, CellPositionInSheet fromPosition, CellPositionInSheet toPosition) {
+    public Range createRange(String name, CellPositionInSheet fromPosition, CellPositionInSheet toPosition) {
         validatePositionInSheetBounds(fromPosition);
         validatePositionInSheetBounds(toPosition);
 
-        rangesManager.createRange(name, fromPosition, toPosition);
+        return rangesManager.createRange(name, fromPosition, toPosition);
     }
 
     @Override

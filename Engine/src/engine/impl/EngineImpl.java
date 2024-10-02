@@ -217,7 +217,7 @@ public class EngineImpl implements Engine {
     }
 
     @Override
-    public void loadFile(String filePath) throws Exception {
+    public String loadFile(String filePath) throws Exception {
         File file = new File(filePath);
 
         if (!(file.exists() && file.isFile())) {
@@ -231,16 +231,16 @@ public class EngineImpl implements Engine {
         Unmarshaller jaxbUnmarshaller = jaxbContext.createUnmarshaller();
         STLSheet jaxbSheet = (STLSheet) jaxbUnmarshaller.unmarshal(file);
 
-        addNewSheetManagerFromJaxbSheet(jaxbSheet);
+        return addNewSheetManagerFromJaxbSheet(jaxbSheet);
     }
 
     @Override
-    public void loadFile(InputStream fileInputStream) throws Exception {
+    public String loadFile(InputStream fileInputStream) throws Exception {
         JAXBContext jaxbContext = JAXBContext.newInstance(STLSheet.class);
         Unmarshaller jaxbUnmarshaller = jaxbContext.createUnmarshaller();
         STLSheet jaxbSheet = (STLSheet) jaxbUnmarshaller.unmarshal(fileInputStream);
 
-        addNewSheetManagerFromJaxbSheet(jaxbSheet);
+        return addNewSheetManagerFromJaxbSheet(jaxbSheet);
     }
 
     @Override
@@ -248,7 +248,7 @@ public class EngineImpl implements Engine {
         return sheetFilesManager.getSheetManagersCount();
     }
 
-    private void addNewSheetManagerFromJaxbSheet(STLSheet jaxbSheet) {
+    private String addNewSheetManagerFromJaxbSheet(STLSheet jaxbSheet) {
         List<STLRange> ranges = jaxbSheet.getSTLRanges().getSTLRange();
 
         // Creating sheet manager
@@ -266,6 +266,7 @@ public class EngineImpl implements Engine {
         sheetManager.addNewSheet(sheet);
         sheetFilesManager.addSheetManager(jaxbSheet.getName(), sheetManager);
         isDataLoaded = true;
+        return jaxbSheet.getName();
     }
 
     private SheetManager getNewSheetManager(STLSheet jaxbSheet) {
@@ -328,8 +329,8 @@ public class EngineImpl implements Engine {
         return rangeNames;
     }
 
-    public void createRange(String sheetName, String rangeName, CellPositionInSheet fromPosition, CellPositionInSheet toPosition) {
-        sheetFilesManager.getSheetManager(sheetName).createRange(rangeName, fromPosition, toPosition);
+    public Range createRange(String sheetName, String rangeName, CellPositionInSheet fromPosition, CellPositionInSheet toPosition) {
+        return sheetFilesManager.getSheetManager(sheetName).createRange(rangeName, fromPosition, toPosition);
     }
 
     public void deleteRange(String sheetName, String rangeName) {
@@ -451,7 +452,7 @@ public class EngineImpl implements Engine {
     }
 
     @Override
-    public LinkedList<RowDto> getFilteredRowsSheet(String sheetName, Range rangeToFilter, Map<String, Set<EffectiveValue>> column2effectiveValuesFilteredBy) {
+    public LinkedList<RowDto> getFilteredRowsSheet(String sheetName, Range rangeToFilter, Map<String, Set<String>> column2effectiveValuesFilteredBy) {
         List<Row> rowsToFilter = extractRowsInRange(sheetFilesManager.getSheetManager(sheetName)
                 .getSheetByVersion(getCurrentSheetVersion(sheetName)), rangeToFilter);
 
@@ -459,7 +460,7 @@ public class EngineImpl implements Engine {
         List<Row> filteredRows = rowsToFilter.stream()
             .filter((row) -> {
                 // for each column filter
-                for (Map.Entry<String, Set<EffectiveValue>> entry : column2effectiveValuesFilteredBy.entrySet()) {
+                for (Map.Entry<String, Set<String>> entry : column2effectiveValuesFilteredBy.entrySet()) {
                     Cell cellInColumn = row.getCells().get(entry.getKey());
                     // if an empty cell and empty cell value (which is null) is one of the values to filter
                     if (cellInColumn == null || cellInColumn.getEffectiveValue() == null) {
@@ -470,7 +471,7 @@ public class EngineImpl implements Engine {
                     else {
                         EffectiveValue originalEffectiveValue = cellInColumn.getEffectiveValue();
                         EffectiveValue effectiveValueForDisplay = getEffectiveValueForDisplay(originalEffectiveValue);
-                        if (!entry.getValue().contains(effectiveValueForDisplay)) {
+                        if (!entry.getValue().contains(effectiveValueForDisplay.getValue().toString())) {
                             return false;
                         }
                     }

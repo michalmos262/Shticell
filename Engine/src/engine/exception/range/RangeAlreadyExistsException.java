@@ -1,6 +1,6 @@
 package engine.exception.range;
 
-public class RangeAlreadyExistsException extends IllegalStateException {
+public class RangeAlreadyExistsException extends RuntimeException {
     private final String rangeName;
 
     public RangeAlreadyExistsException(String rangeName) {

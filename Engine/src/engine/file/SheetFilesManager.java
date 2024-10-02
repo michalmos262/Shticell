@@ -1,6 +1,8 @@
 package engine.file;
 
 import engine.entity.sheet.SheetManager;
+import engine.exception.sheet.SheetNameAlreadyExistsException;
+import engine.exception.sheet.SheetNameDoesNotExistException;
 
 import java.util.HashMap;
 import java.util.Map;
@@ -14,12 +16,15 @@ public class SheetFilesManager {
 
     public void addSheetManager(String sheetName, SheetManager sheetManager) {
         if (name2sheetManager.containsKey(sheetName)) {
-            throw new IllegalArgumentException("Sheet name already exists");
+            throw new SheetNameAlreadyExistsException(sheetName);
         }
         name2sheetManager.put(sheetName, sheetManager);
     }
 
     public SheetManager getSheetManager(String sheetName) {
+        if (!name2sheetManager.containsKey(sheetName)) {
+            throw new SheetNameDoesNotExistException(sheetName);
+        }
         return name2sheetManager.get(sheetName);
     }
 
