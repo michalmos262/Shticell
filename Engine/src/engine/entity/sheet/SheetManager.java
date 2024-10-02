@@ -1,39 +1,32 @@
 package engine.entity.sheet;
 
 import engine.entity.cell.CellPositionInSheet;
+import engine.entity.range.Range;
 import engine.entity.range.RangesManager;
 import engine.entity.sheet.api.Sheet;
 import engine.entity.sheet.impl.SheetImpl;
 import engine.exception.cell.CellPositionOutOfSheetBoundsException;
+import engine.exception.sheet.SheetVersionDoesNotExistException;
 
 import java.io.Serializable;
 import java.util.LinkedHashMap;
 import java.util.Map;
+import java.util.Objects;
 
 import static engine.entity.cell.CellPositionInSheet.parseColumn;
 
 public class SheetManager implements Serializable {
     private final Map<Integer, Sheet> version2sheet;
-    private final String name;
     private int currentVersion;
     private final SheetDimension sheetDimension;
     private final RangesManager rangesManager;
 
-    public SheetManager(String name, SheetDimension sheetDimension) {
+    public SheetManager(SheetDimension sheetDimension) {
         currentVersion = 0;
         version2sheet = new LinkedHashMap<>();
         version2sheet.put(1, new SheetImpl(this));
-        this.name = name;
         this.sheetDimension = sheetDimension;
         rangesManager = new RangesManager();
-    }
-
-    public String getName() {
-        return name;
-    }
-
-    public Map<Integer, Sheet> getVersion2sheet() {
-        return version2sheet;
     }
 
     public int getCurrentVersion() {
@@ -50,6 +43,9 @@ public class SheetManager implements Serializable {
     }
 
     public Sheet getSheetByVersion(int version) {
+        if (!version2sheet.containsKey(version)) {
+            throw new SheetVersionDoesNotExistException(version);
+        }
         return version2sheet.get(version);
     }
 
@@ -68,10 +64,23 @@ public class SheetManager implements Serializable {
         }
     }
 
-    public void createRange(String name, CellPositionInSheet fromPosition, CellPositionInSheet toPosition) {
+    public Range createRange(String name, CellPositionInSheet fromPosition, CellPositionInSheet toPosition) {
         validatePositionInSheetBounds(fromPosition);
         validatePositionInSheetBounds(toPosition);
 
-        rangesManager.createRange(name, fromPosition, toPosition);
+        return rangesManager.createRange(name, fromPosition, toPosition);
+    }
+
+    @Override
+    public boolean equals(Object o) {
+        if (this == o) return true;
+        if (o == null || getClass() != o.getClass()) return false;
+        SheetManager that = (SheetManager) o;
+        return getCurrentVersion() == that.getCurrentVersion() && Objects.equals(version2sheet, that.version2sheet) && Objects.equals(getSheetDimension(), that.getSheetDimension()) && Objects.equals(getRangesManager(), that.getRangesManager());
+    }
+
+    @Override
+    public int hashCode() {
+        return Objects.hash(version2sheet, getCurrentVersion(), getSheetDimension(), getRangesManager());
     }
 }

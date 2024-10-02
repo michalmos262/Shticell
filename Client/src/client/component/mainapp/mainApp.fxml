@@ -1,0 +1,10 @@
+<?xml version="1.0" encoding="UTF-8"?>
+
+<?import javafx.scene.control.ScrollPane?>
+<?import javafx.scene.layout.AnchorPane?>
+
+<ScrollPane maxHeight="-Infinity" maxWidth="-Infinity" minHeight="-Infinity" minWidth="-Infinity" prefHeight="604.0" prefWidth="787.0" xmlns:fx="http://javafx.com/fxml/1" xmlns="http://javafx.com/javafx/22" fx:controller="client.component.mainapp.MainAppController">
+  <content>
+    <AnchorPane fx:id="mainPanel" minHeight="0.0" minWidth="0.0" prefHeight="599.0" prefWidth="781.0" />
+  </content>
+</ScrollPane>

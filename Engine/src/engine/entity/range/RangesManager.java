@@ -24,12 +24,14 @@ public class RangesManager {
         return name2Range.get(name);
     }
 
-    public void createRange(String name, CellPositionInSheet fromPosition, CellPositionInSheet toPosition) {
+    public Range createRange(String name, CellPositionInSheet fromPosition, CellPositionInSheet toPosition) {
         if (name2Range.containsKey(name)) {
             throw new RangeAlreadyExistsException(name);
         }
         Range range = new Range(fromPosition, toPosition);
         name2Range.put(name, range);
+
+        return range;
     }
 
     public void deleteRange(String name) {

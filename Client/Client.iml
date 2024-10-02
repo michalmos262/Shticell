@@ -7,7 +7,10 @@
     </content>
     <orderEntry type="inheritedJdk" />
     <orderEntry type="sourceFolder" forTests="false" />
-    <orderEntry type="module" module-name="Engine" />
     <orderEntry type="library" name="lib" level="project" />
+    <orderEntry type="library" name="okhttp" level="project" />
+    <orderEntry type="library" name="mod" level="project" />
+    <orderEntry type="module" module-name="Server" />
+    <orderEntry type="library" name="gson" level="project" />
   </component>
 </module>
