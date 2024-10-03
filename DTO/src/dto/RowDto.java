@@ -1,4 +1,4 @@
-package engine.entity.dto;
+package dto;
 
 import java.util.Map;
 

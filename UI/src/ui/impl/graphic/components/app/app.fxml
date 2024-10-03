@@ -9,8 +9,8 @@
 <?import javafx.scene.layout.GridPane?>
 <?import javafx.scene.layout.RowConstraints?>
 
-<ScrollPane maxHeight="-Infinity" maxWidth="-Infinity" minHeight="700.0" minWidth="800.0" prefHeight="769.0" prefWidth="1005.0" xmlns="http://javafx.com/javafx/22" xmlns:fx="http://javafx.com/fxml/1" fx:controller="ui.impl.graphic.components.app.MainAppController">
-    <BorderPane fx:id="borderPane" maxHeight="800.0" maxWidth="1010.0" minHeight="700.0" minWidth="1000.0" prefHeight="765.0" prefWidth="1059.0">
+<ScrollPane maxHeight="-Infinity" maxWidth="-Infinity" minHeight="700.0" minWidth="800.0" prefHeight="769.0" prefWidth="1013.0" xmlns="http://javafx.com/javafx/22" xmlns:fx="http://javafx.com/fxml/1" fx:controller="ui.impl.graphic.components.app.MainAppController">
+    <BorderPane fx:id="borderPane" maxHeight="800.0" maxWidth="1010.0" minHeight="700.0" minWidth="1000.0" prefHeight="765.0" prefWidth="1233.0">
         <left>
             <GridPane alignment="CENTER" prefHeight="689.0" prefWidth="259.0" BorderPane.alignment="CENTER">
                 <columnConstraints>
@@ -33,21 +33,6 @@
             </opaqueInsets>
             </GridPane>
         </left>
-        <top>
-            <GridPane alignment="CENTER" prefHeight="142.0" prefWidth="1002.0" BorderPane.alignment="CENTER">
-                <columnConstraints>
-                    <ColumnConstraints hgrow="SOMETIMES" minWidth="10.0" prefWidth="100.0" />
-                </columnConstraints>
-                <rowConstraints>
-                    <RowConstraints maxHeight="75.2" minHeight="10.0" prefHeight="28.39999847412109" vgrow="SOMETIMES" />
-                    <RowConstraints maxHeight="97.60000076293946" minHeight="10.0" prefHeight="86.0000015258789" vgrow="SOMETIMES" />
-                </rowConstraints>
-                <fx:include fx:id="actionLineComponent" source="../actionline/actionLine.fxml" GridPane.rowIndex="1" />
-            <padding>
-               <Insets bottom="10.0" />
-            </padding>
-            </GridPane>
-        </top>
         <center>
             <fx:include fx:id="sheetComponent" source="../grid/grid.fxml" BorderPane.alignment="CENTER" />
         </center>
@@ -58,5 +43,8 @@
             </children>
          </AnchorPane>
       </right>
+      <top>
+             <fx:include fx:id="actionLineComponent" source="../actionline/actionLine.fxml" GridPane.rowIndex="1" />
+      </top>
     </BorderPane>
 </ScrollPane>

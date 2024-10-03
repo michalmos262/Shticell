@@ -11,95 +11,64 @@
 <?import javafx.scene.layout.RowConstraints?>
 <?import javafx.scene.layout.VBox?>
 
-
 <BorderPane maxHeight="-Infinity" maxWidth="-Infinity" minHeight="-Infinity" minWidth="-Infinity" prefHeight="632.0" prefWidth="845.0" xmlns="http://javafx.com/javafx/22" xmlns:fx="http://javafx.com/fxml/1" fx:controller="client.component.dashboard.DashboardController">
    <center>
        <GridPane prefHeight="482.0" prefWidth="597.0" BorderPane.alignment="CENTER">
            <columnConstraints>
-               <ColumnConstraints hgrow="SOMETIMES" minWidth="10.0" prefWidth="100.0"/>
+               <ColumnConstraints hgrow="SOMETIMES" minWidth="10.0" prefWidth="100.0" />
            </columnConstraints>
            <rowConstraints>
-               <RowConstraints maxHeight="94.19998168945312" minHeight="0.0" prefHeight="31.599996948242186"
-                               vgrow="SOMETIMES"/>
-               <RowConstraints maxHeight="295.4" minHeight="0.0" prefHeight="241.6000030517578" vgrow="SOMETIMES"/>
-               <RowConstraints maxHeight="324.39996337890625" minHeight="0.0" prefHeight="38.0000061035156"
-                               vgrow="SOMETIMES"/>
-               <RowConstraints maxHeight="338.20000610351565" minHeight="10.0" prefHeight="262.3999938964844"
-                               vgrow="SOMETIMES"/>
+               <RowConstraints maxHeight="94.19998168945312" minHeight="0.0" prefHeight="31.599996948242186" vgrow="SOMETIMES" />
+               <RowConstraints maxHeight="295.4" minHeight="0.0" prefHeight="241.6000030517578" vgrow="SOMETIMES" />
+               <RowConstraints maxHeight="324.39996337890625" minHeight="0.0" prefHeight="38.0000061035156" vgrow="SOMETIMES" />
+               <RowConstraints maxHeight="338.20000610351565" minHeight="10.0" prefHeight="262.3999938964844" vgrow="SOMETIMES" />
            </rowConstraints>
            <BorderPane.margin>
-               <Insets left="10.0"/>
+               <Insets left="10.0" />
            </BorderPane.margin>
            <padding>
-               <Insets left="10.0" right="10.0"/>
+               <Insets left="10.0" right="10.0" />
            </padding>
            <TableView fx:id="availableSheetsTableView" prefHeight="278.0" prefWidth="577.0" GridPane.rowIndex="1">
                <columns>
-                   <TableColumn prefWidth="75.0" text="C1"/>
-                   <TableColumn prefWidth="75.0" text="C2"/>
+                   <TableColumn fx:id="ownerUsernameColumn" minWidth="0.0" prefWidth="195.0" text="Owner Username" />
+                   <TableColumn fx:id="sheetNameColumn" prefWidth="195.9999542236328" text="Sheet Name" />
+               <TableColumn fx:id="sheetSizeColumn" prefWidth="99.5999755859375" text="Sheet Size" />
+               <TableColumn fx:id="yourPermissionTypeColumn" prefWidth="171.20000000000005" text="Your Permission Type" />
                </columns>
               <GridPane.margin>
-                  <Insets/>
+                  <Insets />
               </GridPane.margin>
            </TableView>
            <TableView fx:id="permissionsTableView" prefHeight="283.0" prefWidth="577.0" GridPane.rowIndex="3">
                <columns>
-                   <TableColumn prefWidth="75.0" text="C1"/>
-                   <TableColumn prefWidth="75.0" text="C2"/>
+                   <TableColumn fx:id="usernameColumn" prefWidth="240.0" text="Username" />
+                   <TableColumn fx:id="permissionTypeColumn" minWidth="1.600006103515625" prefWidth="240.0" text="Permission Type" />
+               <TableColumn fx:id="permissionApprovalStateColumn" prefWidth="181.9999877929688" text="Permission Approval State" />
                </columns>
               <GridPane.margin>
-                  <Insets bottom="10.0"/>
+                  <Insets bottom="10.0" />
               </GridPane.margin>
            </TableView>
-           <Label style="-fx-font-size: 14;" text="Available Sheets"/>
-           <Label style="-fx-font-size: 14;" text="Permissions for selected sheet" GridPane.rowIndex="2"/>
+           <Label style="-fx-font-size: 14;" text="Available Sheets" />
+           <Label style="-fx-font-size: 14;" text="Permissions for selected sheet" GridPane.rowIndex="2" />
        </GridPane>
    </center>
-   <top>
-       <GridPane BorderPane.alignment="CENTER">
-           <columnConstraints>
-               <ColumnConstraints hgrow="SOMETIMES" minWidth="10.0" prefWidth="100.0"/>
-           </columnConstraints>
-           <rowConstraints>
-               <RowConstraints minHeight="10.0" prefHeight="30.0" vgrow="SOMETIMES"/>
-               <RowConstraints minHeight="10.0" prefHeight="30.0" vgrow="SOMETIMES"/>
-           </rowConstraints>
-           <BorderPane.margin>
-               <Insets left="10.0"/>
-           </BorderPane.margin>
-           <fx:include fx:id="loadFileComponent"
-                       source="../../../../../UI/src/ui/impl/graphic/components/loadfile/loadFile.fxml"
-                       GridPane.rowIndex="1"/>
-           <Label fx:id="usernameLabel" text="Logged in as: Michal">
-              <GridPane.margin>
-                  <Insets left="10.0"/>
-              </GridPane.margin>
-           </Label>
-           <Label style="-fx-font-size: 20; -fx-font-weight: bold;" text="Management Dashboard">
-              <padding>
-                  <Insets left="290.0"/>
-              </padding>
-           </Label>
-       </GridPane>
-   </top>
    <right>
-       <VBox alignment="TOP_CENTER" maxHeight="510.0" prefHeight="510.0" prefWidth="142.0" spacing="20.0"
-             BorderPane.alignment="CENTER">
+       <VBox alignment="TOP_CENTER" maxHeight="510.0" prefHeight="510.0" prefWidth="142.0" spacing="20.0" BorderPane.alignment="CENTER">
            <BorderPane.margin>
-               <Insets right="10.0"/>
+               <Insets right="10.0" />
            </BorderPane.margin>
            <opaqueInsets>
-               <Insets/>
+               <Insets />
            </opaqueInsets>
-           <Label prefWidth="76.0" style="-fx-font-size: 14;" text="Commands"/>
-           <Button fx:id="viewSheetButton" alignment="BASELINE_LEFT" mnemonicParsing="false"
-                   onAction="#ViewSheetButtonListener" prefHeight="45.0" prefWidth="118.0" text="View sheet"/>
-           <Button fx:id="requestPermissionButton" alignment="BASELINE_LEFT" contentDisplay="TOP"
-                   mnemonicParsing="false" onAction="#RequestPermissionButtonListener" prefHeight="45.0"
-                   prefWidth="118.0" text="Request permission" wrapText="true"/>
-           <Button fx:id="accDenyPermReqButton" alignment="BASELINE_LEFT" mnemonicParsing="false"
-                   onAction="#AccDenyPermReqButtonListener" prefHeight="45.0" prefWidth="118.0"
-                   text="Accept\deny permission request" wrapText="true"/>
+           <Label prefWidth="76.0" style="-fx-font-size: 14;" text="Commands" />
+           <Button fx:id="viewSheetButton" alignment="BASELINE_LEFT" mnemonicParsing="false" onAction="#ViewSheetButtonListener" prefHeight="45.0" prefWidth="118.0" text="View sheet" />
+           <Button fx:id="requestPermissionButton" alignment="BASELINE_LEFT" contentDisplay="TOP" mnemonicParsing="false" onAction="#RequestPermissionButtonListener" prefHeight="45.0" prefWidth="118.0" text="Request permission" wrapText="true" />
+           <Button fx:id="accDenyPermReqButton" alignment="BASELINE_LEFT" mnemonicParsing="false" onAction="#AccDenyPermReqButtonListener" prefHeight="45.0" prefWidth="118.0" text="Accept\deny permission request" wrapText="true" />
        </VBox>
    </right>
+   <top>
+        <fx:include fx:id="loadFileComponent" source="loadfile/loadFile.fxml" GridPane.rowIndex="1" />
+   </top>
 </BorderPane>

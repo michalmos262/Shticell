@@ -5,11 +5,10 @@
 <?import javafx.scene.control.TextField?>
 <?import javafx.scene.layout.AnchorPane?>
 
-
 <AnchorPane fx:id="loginComponent" maxHeight="-Infinity" maxWidth="-Infinity" minHeight="-Infinity" minWidth="-Infinity" prefHeight="770.0" prefWidth="1005.0" xmlns="http://javafx.com/javafx/22" xmlns:fx="http://javafx.com/fxml/1" fx:controller="client.component.login.LoginController">
    <Label layoutX="295.0" layoutY="198.0" prefHeight="58.0" prefWidth="354.0" style="-fx-font-size: 38;" text="Welcome to Shticell!" />
    <Label layoutX="295.0" layoutY="287.0" style="-fx-font-size: 20;" text="Username:" />
    <TextField fx:id="usernameTextField" layoutX="399.0" layoutY="289.0" prefHeight="25.0" prefWidth="240.0" />
-   <Button fx:id="loginButton" layoutX="596.0" layoutY="354.0" mnemonicParsing="false" onAction="#loginButtonListener" style="-fx-font-size: 14;" text="Login" />
-   <Label fx:id="errorMessageLabel" layoutX="175.0" layoutY="198.0" prefHeight="20.0" prefWidth="240.0" style="-fx-font-size: 14;" text="Error Message" textFill="RED" visible="false" />
+   <Button fx:id="loginButton" layoutX="586.0" layoutY="355.0" mnemonicParsing="false" onAction="#loginButtonListener" style="-fx-font-size: 14;" text="Login" />
+   <Label fx:id="errorMessageLabel" layoutX="295.0" layoutY="317.0" prefHeight="30.0" prefWidth="548.0" style="-fx-font-size: 14;" textFill="RED" />
 </AnchorPane>

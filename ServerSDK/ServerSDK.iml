@@ -7,11 +7,7 @@
     </content>
     <orderEntry type="inheritedJdk" />
     <orderEntry type="sourceFolder" forTests="false" />
-    <orderEntry type="library" name="lib" level="project" />
-    <orderEntry type="library" name="okhttp" level="project" />
+    <orderEntry type="library" scope="PROVIDED" name="Tomcat 10.1.30" level="application_server_libraries" />
     <orderEntry type="library" name="gson" level="project" />
-    <orderEntry type="module" module-name="DTO" />
-    <orderEntry type="module" module-name="ServerSDK" />
-    <orderEntry type="module" module-name="Server" />
   </component>
 </module>

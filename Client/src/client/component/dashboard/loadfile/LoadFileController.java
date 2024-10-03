@@ -1,6 +1,8 @@
-package ui.impl.graphic.components.loadfile;
+package client.component.dashboard.loadfile;
 
-import engine.api.Engine;
+import client.component.alert.AlertsHandler;
+import client.component.dashboard.DashboardController;
+import client.component.dashboard.loadfile.task.LoadFileTask;
 import javafx.application.Platform;
 import javafx.event.ActionEvent;
 import javafx.fxml.FXML;
@@ -9,11 +11,13 @@ import javafx.scene.control.Label;
 import javafx.scene.control.ProgressBar;
 import javafx.scene.control.TextField;
 import javafx.stage.FileChooser;
-import ui.impl.graphic.components.alert.AlertsHandler;
-import ui.impl.graphic.components.app.MainAppController;
-import ui.impl.graphic.task.LoadFileTask;
+import okhttp3.*;
+import serversdk.exception.ServerException;
 
 import java.io.File;
+
+import static client.resources.CommonResourcesPaths.*;
+import static client.util.http.HttpClientUtil.HTTP_CLIENT;
 
 public class LoadFileController {
     @FXML private TextField filePathTextField;
@@ -21,9 +25,8 @@ public class LoadFileController {
     @FXML private Label loadingProcessLabel;
     @FXML private ProgressBar progressBar;
 
-    private MainAppController mainAppController;
+    private DashboardController dashboardController;
     private LoadFileModelUI modelUi;
-    private Engine engine;
     private LoadFileTask loadFileTask;
 
     @FXML
@@ -31,40 +34,56 @@ public class LoadFileController {
         modelUi = new LoadFileModelUI(filePathTextField, loadFileButton);
     }
 
-    public void setMainController(MainAppController mainAppController, Engine engine) {
-        this.mainAppController = mainAppController;
-        this.engine = engine;
+    public void setDashboardController(DashboardController mainAppController) {
+        this.dashboardController = mainAppController;
     }
 
     @FXML
     void loadFileButtonListener(ActionEvent event) {
         FileChooser fileChooser = new FileChooser();
-        fileChooser.setTitle("Select an " + Engine.SUPPORTED_FILE_TYPE.toUpperCase() + " file");
+        fileChooser.setTitle("Select an " + SUPPORTED_FILE_TYPE.toUpperCase() + " file");
         fileChooser.getExtensionFilters().add(
-                new FileChooser.ExtensionFilter(Engine.SUPPORTED_FILE_TYPE.toUpperCase() + " files", "*." + Engine.SUPPORTED_FILE_TYPE)
+                new FileChooser.ExtensionFilter(SUPPORTED_FILE_TYPE.toUpperCase() + " files", "*." + SUPPORTED_FILE_TYPE)
         );
-        File selectedFile = fileChooser.showOpenDialog(mainAppController.getPrimaryStage());
+        File selectedFile = fileChooser.showOpenDialog(dashboardController.getPrimaryStage());
         if (selectedFile == null) {
             return;
         }
         String selectedFileName = selectedFile.getAbsolutePath();
         modelUi.isFileLoadingProperty().set(true);
-        mainAppController.fileIsLoading();
+        dashboardController.fileIsLoading();
 
         loadFileTask = new LoadFileTask(
             selectedFileName,
-            file -> {
+            fileFunction -> {
                 try {
-                    engine.loadFile(selectedFileName); // Load the file logic
+                    RequestBody body =
+                            new MultipartBody.Builder()
+                                .addFormDataPart("file", selectedFileName, RequestBody.create(selectedFile, MediaType.parse("text/plain")))
+                                .build();
+
+                    Request request = new Request.Builder()
+                            .url(SHEET_ENDPOINT)
+                            .post(body)
+                            .build();
+
+                    Call call = HTTP_CLIENT.newCall(request);
+
+                    Response response = call.execute();
+
+                    if (!response.isSuccessful()) {
+                        ServerException.ErrorResponse errorResponse = GSON_INSTANCE.fromJson(response.body().string(), ServerException.ErrorResponse.class);
+                        throw new RuntimeException(errorResponse.getMessage());
+                    }
+
                 } catch (Exception e) {
                     throw new RuntimeException(e.getMessage()); // Pass the exception
                 }
             },
             onFinish -> {
                 modelUi.isFileLoadingProperty().set(false);
-                mainAppController.fileLoadedSuccessfully();
-            }
-        );
+                dashboardController.fileLoadedSuccessfully();
+        });
 
         // Handle task failure
         loadFileTask.setOnFailed(eventFailed -> {
@@ -73,7 +92,7 @@ public class LoadFileController {
                 Platform.runLater(() -> {
                     loadFileFailed(exception.getMessage()); // Call failure handler on the JavaFX thread
                     modelUi.isFileLoadingProperty().set(false);
-                    mainAppController.fileFailedLoading();
+                    dashboardController.fileFailedLoading();
                 });
             }
         });

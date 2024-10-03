@@ -1,10 +1,9 @@
 package server.servlet.sheet;
 
+import dto.RowDto;
 import engine.api.Engine;
 import engine.entity.cell.CellPositionInSheet;
-import engine.entity.cell.EffectiveValue;
 import engine.entity.cell.PositionFactory;
-import engine.entity.dto.RowDto;
 import engine.entity.range.Range;
 import jakarta.servlet.annotation.WebServlet;
 import jakarta.servlet.http.HttpServlet;
@@ -15,10 +14,9 @@ import server.util.ServletUtils;
 import server.util.SessionUtils;
 
 import java.io.IOException;
-import java.util.*;
+import java.util.LinkedList;
 
 import static server.constant.Constants.*;
-import static server.constant.Constants.GSON_INSTANCE;
 
 @WebServlet(name = "FilteredRowsServlet", urlPatterns = "/sheet/filtered-rows")
 public class FilteredRowsServlet extends HttpServlet {

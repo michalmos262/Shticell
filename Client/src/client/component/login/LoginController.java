@@ -6,15 +6,14 @@ import javafx.application.Platform;
 import javafx.event.ActionEvent;
 import javafx.fxml.FXML;
 import javafx.scene.control.*;
-import okhttp3.Call;
-import okhttp3.Callback;
-import okhttp3.HttpUrl;
-import okhttp3.Response;
+import okhttp3.*;
 import org.jetbrains.annotations.NotNull;
+import serversdk.exception.ServerException;
+import serversdk.request.body.LoginBody;
 
 import java.io.IOException;
 
-import static client.resources.CommonResourcesPaths.LOGIN_PAGE;
+import static client.resources.CommonResourcesPaths.*;
 
 public class LoginController {
 
@@ -36,40 +35,36 @@ public class LoginController {
 
     @FXML
     void loginButtonListener(ActionEvent event) {
-        String userName = usernameTextField.getText();
-        if (userName.isEmpty()) {
+        String username = usernameTextField.getText();
+
+        if (username.isEmpty()) {
             modelUi.errorMessageProperty().set("User name is empty. You can't login with empty user name");
             return;
         }
 
-        //noinspection ConstantConditions
-        String finalUrl = HttpUrl
-                        .parse(LOGIN_PAGE)
-                        .newBuilder()
-                        .addQueryParameter("username", userName)
-                        .build()
-                        .toString();
+        // create the request body
+        String loginBodyJson = GSON_INSTANCE.toJson(new LoginBody(username));
+        MediaType mediaType = MediaType.get(JSON_MEDIA_TYPE);
+        RequestBody requestBody = RequestBody.create(loginBodyJson, mediaType);
 
-        HttpClientUtil.runAsync(finalUrl, new Callback() {
-
+        HttpClientUtil.runPost(LOGIN_PAGE, requestBody, new Callback() {
             @Override
             public void onFailure(@NotNull Call call, @NotNull IOException e) {
-                Platform.runLater(() ->
-                        modelUi.errorMessageProperty().set("Something went wrong: " + e.getMessage())
-                );
+                Platform.runLater(() -> modelUi.errorMessageProperty().set(e.getMessage()));
             }
 
             @Override
             public void onResponse(@NotNull Call call, @NotNull Response response) throws IOException {
-                if (response.code() != 200) {
-                    String responseBody = response.body().string();
-                    Platform.runLater(() ->
-                            modelUi.errorMessageProperty().set("Something went wrong: " + responseBody)
-                    );
+                if (!response.isSuccessful()) {
+                    String responseBody = response.body() != null ? response.body().string() : GENERAL_ERROR_JSON;
+                    Platform.runLater(() -> {
+                        ServerException.ErrorResponse errorResponse = GSON_INSTANCE.fromJson(responseBody, ServerException.ErrorResponse.class);
+                        modelUi.errorMessageProperty().set(errorResponse.getMessage());
+                    });
                 } else {
                     Platform.runLater(() -> {
-                            mainAppController.updateUserName(userName);
-                            mainAppController.switchToDashboardPage();
+                        mainAppController.loggedIn(username);
+                        mainAppController.switchToDashboardPage();
                     });
                 }
             }

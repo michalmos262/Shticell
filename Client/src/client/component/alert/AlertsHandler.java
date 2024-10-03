@@ -1,4 +1,4 @@
-package ui.impl.graphic.components.alert;
+package client.component.alert;
 
 import javafx.scene.control.Alert;
 import javafx.scene.control.ButtonType;

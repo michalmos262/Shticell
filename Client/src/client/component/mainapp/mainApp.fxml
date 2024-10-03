@@ -1,10 +1,26 @@
 <?xml version="1.0" encoding="UTF-8"?>
 
+<?import javafx.geometry.Insets?>
+<?import javafx.scene.control.Label?>
 <?import javafx.scene.control.ScrollPane?>
+<?import javafx.scene.control.SplitPane?>
 <?import javafx.scene.layout.AnchorPane?>
 
-<ScrollPane maxHeight="-Infinity" maxWidth="-Infinity" minHeight="-Infinity" minWidth="-Infinity" prefHeight="604.0" prefWidth="787.0" xmlns:fx="http://javafx.com/fxml/1" xmlns="http://javafx.com/javafx/22" fx:controller="client.component.mainapp.MainAppController">
-  <content>
-    <AnchorPane fx:id="mainPanel" minHeight="0.0" minWidth="0.0" prefHeight="599.0" prefWidth="781.0" />
-  </content>
+<ScrollPane maxHeight="-Infinity" maxWidth="-Infinity" minHeight="-Infinity" minWidth="-Infinity" prefHeight="770.0" prefWidth="1005.0" xmlns="http://javafx.com/javafx/22" xmlns:fx="http://javafx.com/fxml/1" fx:controller="client.component.mainapp.MainAppController">
+   <content>
+      <SplitPane fx:id="mainSplitPane" dividerPositions="0.04564072557050908" orientation="VERTICAL" prefHeight="767.0" prefWidth="1002.0">
+        <items>
+          <AnchorPane minHeight="0.0" minWidth="0.0" prefHeight="518.0" prefWidth="781.0">
+               <children>
+                  <Label fx:id="loggedInAsLabel" layoutX="7.0" layoutY="7.0" text="Logged in as: Michal" />
+                  <Label fx:id="headingLabel" layoutX="365.0" layoutY="-1.0" style="-fx-font-size: 20; -fx-font-weight: bold;" text="Welcome to Shticell!" />
+               </children>
+            </AnchorPane>
+          <AnchorPane fx:id="contentAnchorPane" minHeight="0.0" minWidth="0.0" prefHeight="644.0" prefWidth="781.0" />
+        </items>
+         <opaqueInsets>
+            <Insets bottom="1.0" left="1.0" right="1.0" top="1.0" />
+         </opaqueInsets>
+      </SplitPane>
+   </content>
 </ScrollPane>

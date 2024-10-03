@@ -1,5 +1,7 @@
 package engine.user;
 
+import engine.exception.user.UserAlreadyExistsException;
+
 import java.util.Collections;
 import java.util.HashSet;
 import java.util.Set;
@@ -12,6 +14,9 @@ public class UserManager {
     }
 
     public synchronized void addUser(String username) {
+        if (isUserExists(username)) {
+            throw new UserAlreadyExistsException(username);
+        }
         usersSet.add(username);
     }
 

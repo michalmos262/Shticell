@@ -1,10 +1,10 @@
 package engine.api;
 
+import dto.CellDto;
+import dto.RowDto;
+import dto.SheetDto;
 import engine.entity.cell.EffectiveValue;
-import engine.entity.dto.CellDto;
 import engine.entity.cell.CellPositionInSheet;
-import engine.entity.dto.RowDto;
-import engine.entity.dto.SheetDto;
 import engine.entity.range.Range;
 
 import java.io.InputStream;

@@ -1,9 +1,9 @@
 package server.servlet.sheet;
 
+import dto.RowDto;
 import engine.api.Engine;
 import engine.entity.cell.CellPositionInSheet;
 import engine.entity.cell.PositionFactory;
-import engine.entity.dto.RowDto;
 import engine.entity.range.Range;
 import jakarta.servlet.annotation.WebServlet;
 import jakarta.servlet.http.HttpServlet;

@@ -1,11 +1,11 @@
-package ui.impl.graphic.components.loadfile;
+package client.component.dashboard.loadfile;
 
+import client.component.dashboard.loadfile.task.LoadFileTask;
 import javafx.beans.property.SimpleBooleanProperty;
 import javafx.scene.control.Button;
 import javafx.scene.control.Label;
 import javafx.scene.control.ProgressBar;
 import javafx.scene.control.TextField;
-import ui.impl.graphic.task.LoadFileTask;
 
 public class LoadFileModelUI {
     private final SimpleBooleanProperty isFileLoading;

@@ -5,6 +5,8 @@ import client.component.login.LoginController;
 import javafx.fxml.FXML;
 import javafx.fxml.FXMLLoader;
 import javafx.scene.Parent;
+import javafx.scene.control.Label;
+import javafx.scene.control.SplitPane;
 import javafx.scene.layout.AnchorPane;
 import javafx.scene.layout.BorderPane;
 
@@ -16,22 +18,29 @@ import static client.resources.CommonResourcesPaths.DASHBOARD_PAGE_FXML_RESOURCE
 import static client.resources.CommonResourcesPaths.LOGIN_PAGE_FXML_RESOURCE_LOCATION;
 
 public class MainAppController implements Closeable {
-    @FXML private AnchorPane mainPanel;
+    @FXML private Label headingLabel;
+    @FXML private Label loggedInAsLabel;
+    @FXML private SplitPane mainSplitPane;
+    @FXML private AnchorPane contentAnchorPane;
     @FXML private AnchorPane loginComponent;
     @FXML private LoginController loginComponentController;
     @FXML private BorderPane dashboardComponent;
     @FXML private DashboardController dashboardComponentController;
+
+    private MainModelUI modelUi;
 
     @FXML
     public void initialize() {
         // prepare components
         loadLoginPage();
         loadDashboardPage();
+
+        modelUi = new MainModelUI(loggedInAsLabel);
     }
 
     private void setMainPanelTo(Parent pane) {
-        mainPanel.getChildren().clear();
-        mainPanel.getChildren().add(pane);
+        contentAnchorPane.getChildren().clear();
+        contentAnchorPane.getChildren().add(pane);
         AnchorPane.setBottomAnchor(pane, 1.0);
         AnchorPane.setTopAnchor(pane, 1.0);
         AnchorPane.setLeftAnchor(pane, 1.0);
@@ -47,6 +56,7 @@ public class MainAppController implements Closeable {
             loginComponentController = fxmlLoader.getController();
             loginComponentController.setMainAppController(this);
             setMainPanelTo(loginComponent);
+            headingLabel.setText("Login");
         } catch (IOException e) {
             e.printStackTrace();
         }
@@ -61,6 +71,7 @@ public class MainAppController implements Closeable {
             dashboardComponentController = fxmlLoader.getController();
             dashboardComponentController.setMainAppController(this);
             setMainPanelTo(loginComponent);
+            headingLabel.setText("Management Dashboard");
         } catch (IOException e) {
             e.printStackTrace();
         }
@@ -77,6 +88,10 @@ public class MainAppController implements Closeable {
 
     public void updateUserName(String userName) {
 
+    }
+
+    public void loggedIn(String username) {
+        modelUi.usernameProperty().set(username);
     }
 
     public void switchToDashboardPage() {

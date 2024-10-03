@@ -4,6 +4,11 @@ import engine.api.Engine;
 import engine.impl.EngineImpl;
 import engine.user.UserManager;
 import jakarta.servlet.ServletContext;
+import jakarta.servlet.http.HttpServletRequest;
+
+import java.io.BufferedReader;
+import java.io.IOException;
+import java.io.InputStreamReader;
 
 public class ServletUtils {
     private static final String USER_MANAGER_ATTRIBUTE_NAME = "userManager";
@@ -28,5 +33,21 @@ public class ServletUtils {
 			}
 		}
 		return (Engine) servletContext.getAttribute(ENGINE_ATTRIBUTE_NAME);
+	}
+
+	public static String extractRequestBody(HttpServletRequest request) throws IOException {
+		// Read the request body
+		StringBuilder stringBuilder = new StringBuilder();
+		String line;
+
+		// Using BufferedReader to read the input stream
+		try (BufferedReader reader = new BufferedReader(new InputStreamReader(request.getInputStream()))) {
+			while ((line = reader.readLine()) != null) {
+				stringBuilder.append(line);
+			}
+		}
+
+		// Get the request body as a String
+		return stringBuilder.toString();
 	}
 }

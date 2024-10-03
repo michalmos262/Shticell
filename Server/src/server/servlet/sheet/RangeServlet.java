@@ -11,6 +11,7 @@ import jakarta.servlet.http.HttpServletResponse;
 import server.util.ExceptionUtil;
 import server.util.ServletUtils;
 import server.util.SessionUtils;
+import serversdk.request.body.RangeBody;
 
 import java.io.IOException;
 
@@ -42,12 +43,17 @@ public class RangeServlet extends HttpServlet {
             if (SessionUtils.isAuthorized(request, response) && SessionUtils.isInSheet(request, response)) {
                 Engine engine = ServletUtils.getEngineInstance(getServletContext());
                 String sheetName = SessionUtils.getCurrentSheetName(request);
-                String rangeName = request.getParameter(RANGE_NAME);
-                String fromCellPositionStr = request.getParameter(FROM_CELL_POSITION);
+
+                String requestBody = ServletUtils.extractRequestBody(request);
+                RangeBody rangeBody = GSON_INSTANCE.fromJson(requestBody, RangeBody.class);
+                String rangeName = rangeBody.getName();
+                String fromCellPositionStr = rangeBody.getFromPosition();
+
                 CellPositionInSheet fromCellPosition = PositionFactory.createPosition(fromCellPositionStr);
-                String toCellPositionStr = request.getParameter(TO_CELL_POSITION);
+                String toCellPositionStr = rangeBody.getToPosition();
                 CellPositionInSheet toCellPosition = PositionFactory.createPosition(toCellPositionStr);
                 Range range = engine.createRange(sheetName, rangeName, fromCellPosition, toCellPosition);
+
                 String json = GSON_INSTANCE.toJson(range);
                 response.getWriter().println(json);
             }

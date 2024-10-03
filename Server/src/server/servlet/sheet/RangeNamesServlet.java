@@ -14,8 +14,8 @@ import java.util.List;
 
 import static server.constant.Constants.*;
 
-@WebServlet(name = "RangesServlet", urlPatterns = "/sheet/ranges")
-public class RangesServlet extends HttpServlet {
+@WebServlet(name = "RangeNamesServlet", urlPatterns = "/sheet/range-names")
+public class RangeNamesServlet extends HttpServlet {
     @Override
     protected void doGet(HttpServletRequest request, HttpServletResponse response) throws IOException {
         response.setContentType(APPLICATION_JSON);

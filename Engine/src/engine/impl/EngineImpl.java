@@ -1,14 +1,14 @@
 package engine.impl;
 
+import dto.CellDto;
+import dto.RowDto;
+import dto.SheetDto;
 import engine.api.Engine;
 import engine.entity.cell.*;
-import engine.entity.dto.CellDto;
-import engine.entity.dto.RowDto;
 import engine.entity.range.Range;
 import engine.entity.sheet.Row;
 import engine.entity.sheet.api.Sheet;
 import engine.entity.sheet.SheetDimension;
-import engine.entity.dto.SheetDto;
 import engine.entity.sheet.impl.SheetImpl;
 import engine.entity.sheet.SheetManager;
 import engine.exception.file.FileNotExistException;
