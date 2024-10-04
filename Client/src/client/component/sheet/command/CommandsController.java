@@ -1,16 +1,9 @@
-package ui.impl.graphic.components.command;
+package client.component.sheet.command;
 
-import engine.api.Engine;
-import engine.entity.cell.CellPositionInSheet;
-import engine.entity.cell.EffectiveValue;
-import engine.entity.cell.PositionFactory;
-import engine.entity.dto.RowDto;
-import engine.entity.range.Range;
+import client.component.sheet.app.MainSheetController;
 import javafx.event.ActionEvent;
 import javafx.fxml.FXML;
 import javafx.scene.control.*;
-import ui.impl.graphic.components.alert.AlertsHandler;
-import ui.impl.graphic.components.app.MainAppController;
 
 import java.util.*;
 import java.util.stream.Collectors;
@@ -30,8 +23,7 @@ public class CommandsController {
     @FXML private TitledPane filterSheetTitledPane;
     @FXML private TableView<Map<String, CommandsModelUI.EffectiveValueWrapper>> filterValuesTableView;
 
-    private MainAppController mainAppController;
-    private Engine engine;
+    private MainSheetController mainSheetController;
     private CommandsModelUI modelUi;
     private Set<String> sheetColumns;
 
@@ -42,9 +34,8 @@ public class CommandsController {
         sheetColumns = new LinkedHashSet<>();
     }
 
-    public void setMainController(MainAppController mainAppController, Engine engine) {
-        this.mainAppController = mainAppController;
-        this.engine = engine;
+    public void setMainController(MainSheetController mainSheetController) {
+        this.mainSheetController = mainSheetController;
     }
 
     public void fileLoadedSuccessfully() {
@@ -81,7 +72,7 @@ public class CommandsController {
 
             LinkedList<RowDto> sortedRows = engine.getSortedRowsSheet(range, chosenColumns);
 
-            mainAppController.sheetIsSorted(sortedRows, range);
+            mainSheetController.sheetIsSorted(sortedRows, range);
         } catch (Exception e) {
             AlertsHandler.HandleErrorAlert("Show sorted sheet", e.getMessage());
         }
@@ -137,7 +128,7 @@ public class CommandsController {
             }
 
             LinkedList<RowDto> filteredRows = engine.getFilteredRowsSheet(range, column2effectiveValuesFilteredBy);
-            mainAppController.sheetIsFiltered(filteredRows, range);
+            mainSheetController.sheetIsFiltered(filteredRows, range);
         } catch (Exception e) {
             AlertsHandler.HandleErrorAlert("Show filtered sheet", e.getMessage());
         }

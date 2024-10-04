@@ -1,11 +1,10 @@
 package server.servlet.login;
 
-import engine.user.UserManager;
+import engine.user.usermanager.UserManager;
 import jakarta.servlet.annotation.WebServlet;
 import jakarta.servlet.http.HttpServlet;
 import jakarta.servlet.http.HttpServletRequest;
 import jakarta.servlet.http.HttpServletResponse;
-import server.constant.Constants;
 import server.util.ExceptionUtil;
 import server.util.ServletUtils;
 import server.util.SessionUtils;
@@ -14,6 +13,7 @@ import serversdk.request.body.LoginBody;
 import java.io.IOException;
 
 import static server.constant.Constants.*;
+import static serversdk.request.parameter.RequestParameters.*;
 
 @WebServlet(name = "LoginServlet", urlPatterns = "/login")
 public class LoginServlet extends HttpServlet {
@@ -39,7 +39,7 @@ public class LoginServlet extends HttpServlet {
                     synchronized (this) {
                         //add the new user to the users list
                         userManager.addUser(username);
-                        request.getSession(true).setAttribute(Constants.USERNAME, username);
+                        request.getSession(true).setAttribute(USERNAME, username);
                         response.setStatus(HttpServletResponse.SC_OK);
                     }
                 }

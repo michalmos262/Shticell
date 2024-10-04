@@ -2,7 +2,7 @@ package server.util;
 
 import engine.api.Engine;
 import engine.impl.EngineImpl;
-import engine.user.UserManager;
+import engine.user.usermanager.UserManager;
 import jakarta.servlet.ServletContext;
 import jakarta.servlet.http.HttpServletRequest;
 

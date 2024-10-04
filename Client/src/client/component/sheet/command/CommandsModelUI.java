@@ -1,4 +1,4 @@
-package ui.impl.graphic.components.command;
+package client.component.sheet.command;
 
 import engine.entity.cell.EffectiveValue;
 import javafx.beans.binding.Bindings;

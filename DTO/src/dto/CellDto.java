@@ -12,14 +12,16 @@ public class CellDto {
     private final EffectiveValue effectiveValueForDisplay;
     private final Set<CellPositionInSheet> influencedBy;
     private final Set<CellPositionInSheet> influences;
+    private final int lastUpdatedInVersion;
 
     public CellDto(String originalValue, EffectiveValue effectiveValue, EffectiveValue effectiveValueForDisplay,
-                   Set<CellPositionInSheet> influencedBy, Set<CellPositionInSheet> influences) {
+                   Set<CellPositionInSheet> influencedBy, Set<CellPositionInSheet> influences, int lastUpdatedInVersion) {
         this.originalValue = originalValue;
         this.effectiveValue = effectiveValue;
         this.effectiveValueForDisplay = effectiveValueForDisplay;
         this.influencedBy = influencedBy;
         this.influences = influences;
+        this.lastUpdatedInVersion = lastUpdatedInVersion;
     }
 
     public String getOriginalValue() {
@@ -40,5 +42,9 @@ public class CellDto {
 
     public Set<CellPositionInSheet> getInfluences() {
         return Collections.unmodifiableSet(influences);
+    }
+
+    public int getLastUpdatedInVersion() {
+        return lastUpdatedInVersion;
     }
 }

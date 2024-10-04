@@ -5,15 +5,23 @@ import client.component.mainapp.MainAppController;
 import javafx.event.ActionEvent;
 import javafx.fxml.FXML;
 import javafx.scene.control.Button;
+import javafx.scene.control.TableColumn;
 import javafx.scene.control.TableView;
+import javafx.scene.input.MouseEvent;
 import javafx.scene.layout.GridPane;
-import javafx.stage.Stage;
+import serversdk.response.FileMetadata;
 
 public class DashboardController {
     @FXML private Button viewSheetButton;
     @FXML private Button requestPermissionButton;
     @FXML private Button accDenyPermReqButton;
-    @FXML private TableView<?> availableSheetsTableView;
+
+    @FXML private TableView<DashboardModelUI.SheetsTableEntry> availableSheetsTableView;
+    @FXML private TableColumn<DashboardModelUI.SheetsTableEntry, String> sheetNameColumn;
+    @FXML private TableColumn<DashboardModelUI.SheetsTableEntry, String> ownerUsernameColumn;
+    @FXML private TableColumn<DashboardModelUI.SheetsTableEntry, String> sheetSizeColumn;
+    @FXML private TableColumn<DashboardModelUI.SheetsTableEntry, String> yourPermissionTypeColumn;
+
     @FXML private TableView<?> permissionsTableView;
     @FXML private GridPane mainPanel;
     @FXML private GridPane loadFileComponent;
@@ -21,27 +29,18 @@ public class DashboardController {
 
     private DashboardModelUI modelUi;
     private MainAppController mainAppController;
-    private Stage primaryStage;
 
     @FXML
     public void initialize() {
         if (loadFileComponent != null) {
             loadFileComponentController.setDashboardController(this);
         }
-
-        modelUi = new DashboardModelUI();
+        modelUi = new DashboardModelUI(availableSheetsTableView,
+                sheetNameColumn, ownerUsernameColumn, sheetSizeColumn, yourPermissionTypeColumn);
     }
 
     public void setMainAppController(MainAppController mainAppController) {
         this.mainAppController = mainAppController;
-    }
-
-    public void setPrimaryStage(Stage primaryStage) {
-        this.primaryStage = primaryStage;
-    }
-
-    public Stage getPrimaryStage() {
-        return primaryStage;
     }
 
     public void fileIsLoading() {
@@ -52,18 +51,21 @@ public class DashboardController {
 //        modelUi.fileIsLoading(false);
     }
 
-    public void fileLoadedSuccessfully() {
-//        actionLineComponentController.fileLoadedSuccessfully();
-//        rangesComponentController.fileLoadedSuccessfully();
-//        commandsComponentController.fileLoadedSuccessfully();
-//
-//        SheetDto sheetDto = engine.getSheet(engine.getCurrentSheetVersion());
-//        sheetComponentController.initMainGrid(sheetDto);
+    public void fileLoadedSuccessfully(FileMetadata fileMetadata) {
+        modelUi.addSheet(fileMetadata.getSheetName(), fileMetadata.getOwner(), fileMetadata.getSheetSize(), "Owner");
+    }
+
+    @FXML
+    void availableSheetOnMouseClickedListener(MouseEvent event) {
+
     }
 
     @FXML
     public void ViewSheetButtonListener(ActionEvent actionEvent) {
-
+        DashboardModelUI.SheetsTableEntry selectedRow = availableSheetsTableView.getSelectionModel().getSelectedItem();
+        if (selectedRow != null) {
+            mainAppController.switchToSheet(selectedRow.sheetNameProperty().getValue());
+        }
     }
 
     @FXML

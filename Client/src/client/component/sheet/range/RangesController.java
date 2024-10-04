@@ -1,15 +1,10 @@
-package ui.impl.graphic.components.range;
+package client.component.sheet.range;
 
-import engine.api.Engine;
-import engine.entity.cell.CellPositionInSheet;
-import engine.entity.cell.PositionFactory;
-import engine.entity.range.Range;
 import javafx.event.ActionEvent;
 import javafx.fxml.FXML;
 import javafx.scene.control.*;
 import javafx.scene.input.MouseEvent;
-import ui.impl.graphic.components.alert.AlertsHandler;
-import ui.impl.graphic.components.app.MainAppController;
+import client.component.sheet.app.MainSheetController;
 
 import java.util.Arrays;
 import java.util.List;
@@ -29,8 +24,7 @@ public class RangesController {
     @FXML private TableColumn<RangeModelUI.TableEntry, String> rangeColumn;
     @FXML private TitledPane showRangesTitledPane;
 
-    private MainAppController mainAppController;
-    private Engine engine;
+    private MainSheetController mainSheetController;
     private RangeModelUI modelUi;
 
     @FXML
@@ -41,9 +35,8 @@ public class RangesController {
                 titledPanes, textFields);
     }
 
-    public void setMainController(MainAppController mainAppController, Engine engine) {
-        this.mainAppController = mainAppController;
-        this.engine = engine;
+    public void setMainController(MainSheetController mainSheetController) {
+        this.mainSheetController = mainSheetController;
     }
 
     public void fileIsLoading(boolean isStarted) {
@@ -95,7 +88,7 @@ public class RangesController {
             engine.deleteRange(rangeName);
             modelUi.removeRange(rangeName);
             deleteRangeNameChoiceBox.setValue(null); // clean current choice
-            mainAppController.removeCellsPaints();
+            mainSheetController.removeCellsPaints();
             AlertsHandler.HandleOkAlert("Range " + rangeName + " deleted successfully!");
         } catch (Exception e) {
             AlertsHandler.HandleErrorAlert("Delete range", e.getMessage());
@@ -106,7 +99,7 @@ public class RangesController {
     void tableViewOnMouseClickedListener(MouseEvent event) {
         RangeModelUI.TableEntry selectedRow = showRangesTable.getSelectionModel().getSelectedItem();
         if (selectedRow != null) {
-            mainAppController.showCellsInRange(selectedRow.nameProperty().getValue());
+            mainSheetController.showCellsInRange(selectedRow.nameProperty().getValue());
         }
     }
 }

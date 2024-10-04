@@ -1,4 +1,4 @@
-package ui.impl.graphic.components.range;
+package client.component.sheet.range;
 
 import engine.entity.range.Range;
 import javafx.beans.binding.Bindings;
@@ -33,7 +33,7 @@ public class RangeModelUI {
     }
 
     private void bindTableView(TableView<TableEntry> showRangesTable, TableColumn<TableEntry, String> nameColumn,
-                        TableColumn<RangeModelUI.TableEntry, String> rangeColumn, ChoiceBox<String> deleteRangeNameChoiceBox) {
+                        TableColumn<TableEntry, String> rangeColumn, ChoiceBox<String> deleteRangeNameChoiceBox) {
         // Initialize the columns in the TableView
         nameColumn.setCellValueFactory(cellData -> cellData.getValue().nameProperty());
         rangeColumn.setCellValueFactory(cellData -> cellData.getValue().rangeProperty());

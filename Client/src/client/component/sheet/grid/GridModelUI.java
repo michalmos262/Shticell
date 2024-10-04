@@ -1,7 +1,6 @@
-package ui.impl.graphic.components.grid;
+package client.component.sheet.grid;
 
-import engine.entity.cell.CellPositionInSheet;
-import engine.entity.dto.SheetDto;
+import dto.SheetDto;
 import javafx.beans.property.SimpleBooleanProperty;
 import javafx.beans.property.SimpleIntegerProperty;
 import javafx.beans.property.SimpleObjectProperty;

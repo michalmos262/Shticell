@@ -1,12 +1,10 @@
-package ui.impl.graphic.components.grid;
+package client.component.sheet.grid;
 
-import engine.api.Engine;
-import engine.entity.cell.CellPositionInSheet;
-import engine.entity.cell.PositionFactory;
-import engine.entity.dto.CellDto;
-import engine.entity.dto.RowDto;
-import engine.entity.dto.SheetDto;
-import engine.entity.range.Range;
+import client.component.alert.AlertsHandler;
+import client.component.sheet.app.MainSheetController;
+import dto.CellDto;
+import dto.RowDto;
+import dto.SheetDto;
 import javafx.beans.property.SimpleStringProperty;
 import javafx.fxml.FXML;
 import javafx.geometry.Pos;
@@ -17,8 +15,6 @@ import javafx.scene.layout.Background;
 import javafx.scene.layout.Border;
 import javafx.scene.layout.GridPane;
 import javafx.scene.paint.Color;
-import ui.impl.graphic.components.alert.AlertsHandler;
-import ui.impl.graphic.components.app.MainAppController;
 
 import java.util.*;
 
@@ -27,8 +23,7 @@ public class GridController {
     @FXML private ScrollPane scrollPane;
     @FXML private GridPane mainGridPane;
 
-    private MainAppController mainAppController;
-    private Engine engine;
+    private MainSheetController mainSheetController;
     private GridModelUI modelUi;
     private final List<Label> currentlyPaintedCells = new ArrayList<>(); // List to store painted cells
     private Label clickedLabel;
@@ -52,9 +47,8 @@ public class GridController {
         modelUi = new GridModelUI(mainGridPane);
     }
 
-    public void setMainController(MainAppController mainAppController, Engine engine) {
-        this.mainAppController = mainAppController;
-        this.engine = engine;
+    public void setMainController(MainSheetController mainSheetController) {
+        this.mainSheetController = mainSheetController;
     }
 
     public void fileIsLoading(boolean isStarted) {
@@ -142,7 +136,7 @@ public class GridController {
     @FXML
     private void handleCellClick(MouseEvent event) {
         clickedLabel = (Label) event.getSource();
-        CellDto cellDto = mainAppController.cellClicked(clickedLabel);
+        CellDto cellDto = mainSheetController.cellClicked(clickedLabel);
         setClickedCellColors(cellDto);
     }
 
@@ -222,7 +216,7 @@ public class GridController {
         currentlyPaintedCells.clear(); // Clear the list after un-painting
     }
 
-    public void cellUpdated(CellPositionInSheet cellPositionInSheet, CellDto cellDto) {
+    public void cellUpdated(String cellPositionInSheet, CellDto cellDto) {
         SimpleStringProperty displayedValue = modelUi.getCellPosition2displayedValue().get(cellPositionInSheet).
                 displayedValueProperty();
         displayedValue.setValue(cellDto.getEffectiveValueForDisplay().toString());

@@ -5,9 +5,14 @@ import serversdk.exception.ServerException;
 
 public class CommonResourcesPaths {
     // fxml locations
-    public final static String DASHBOARD_PAGE_FXML_RESOURCE_LOCATION = "/client/component/dashboard/dashboard.fxml";
     public final static String LOGIN_PAGE_FXML_RESOURCE_LOCATION = "/client/component/login/login.fxml";
+    public final static String DASHBOARD_PAGE_FXML_RESOURCE_LOCATION = "/client/component/dashboard/dashboard.fxml";
+    public final static String SHEET_PAGE_FXML_RESOURCE_LOCATION = "/client/component/sheet/grid.fxml";
     public final static String MAIN_APP_FXML_RESOURCE_LOCATION = "/client/component/mainapp/mainApp.fxml";
+
+    // css locations
+    public final static String MAIN_APP_LIGHT_CSS_RESOURCE = "/client/component/sheet/app/css/lightApp.css";
+    public final static String MAIN_APP_DARK_CSS_RESOURCE = "/client/component/sheet/app/css/darkApp.css";
 
     // Server resources locations
     public final static String BASE_DOMAIN = "localhost";
@@ -20,6 +25,7 @@ public class CommonResourcesPaths {
 
     public final static String DASHBOARD_ENDPOINT = FULL_SERVER_PATH + "/dashboard";
     public final static String SHEET_ENDPOINT = DASHBOARD_ENDPOINT + "/sheet";
+    public final static String CELL_ENDPOINT = SHEET_ENDPOINT + "/cell";
 
     // GSON instance
     public final static Gson GSON_INSTANCE = new Gson();

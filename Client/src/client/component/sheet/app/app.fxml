@@ -9,7 +9,7 @@
 <?import javafx.scene.layout.GridPane?>
 <?import javafx.scene.layout.RowConstraints?>
 
-<ScrollPane maxHeight="-Infinity" maxWidth="-Infinity" minHeight="700.0" minWidth="800.0" prefHeight="769.0" prefWidth="1013.0" xmlns="http://javafx.com/javafx/22" xmlns:fx="http://javafx.com/fxml/1" fx:controller="ui.impl.graphic.components.app.MainAppController">
+<ScrollPane maxHeight="-Infinity" maxWidth="-Infinity" minHeight="700.0" minWidth="800.0" prefHeight="769.0" prefWidth="1013.0" xmlns="http://javafx.com/javafx/22" xmlns:fx="http://javafx.com/fxml/1" fx:controller="client.component.sheet.app.MainSheetController">
     <BorderPane fx:id="borderPane" maxHeight="800.0" maxWidth="1010.0" minHeight="700.0" minWidth="1000.0" prefHeight="765.0" prefWidth="1233.0">
         <left>
             <GridPane alignment="CENTER" prefHeight="689.0" prefWidth="259.0" BorderPane.alignment="CENTER">

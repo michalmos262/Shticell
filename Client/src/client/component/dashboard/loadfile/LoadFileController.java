@@ -13,6 +13,7 @@ import javafx.scene.control.TextField;
 import javafx.stage.FileChooser;
 import okhttp3.*;
 import serversdk.exception.ServerException;
+import serversdk.response.FileMetadata;
 
 import java.io.File;
 
@@ -28,6 +29,7 @@ public class LoadFileController {
     private DashboardController dashboardController;
     private LoadFileModelUI modelUi;
     private LoadFileTask loadFileTask;
+    private FileMetadata currentFileMetadata;
 
     @FXML
     private void initialize() {
@@ -45,7 +47,7 @@ public class LoadFileController {
         fileChooser.getExtensionFilters().add(
                 new FileChooser.ExtensionFilter(SUPPORTED_FILE_TYPE.toUpperCase() + " files", "*." + SUPPORTED_FILE_TYPE)
         );
-        File selectedFile = fileChooser.showOpenDialog(dashboardController.getPrimaryStage());
+        File selectedFile = fileChooser.showOpenDialog(loadFileButton.getScene().getWindow());
         if (selectedFile == null) {
             return;
         }
@@ -67,13 +69,13 @@ public class LoadFileController {
                             .post(body)
                             .build();
 
-                    Call call = HTTP_CLIENT.newCall(request);
-
-                    Response response = call.execute();
+                    Response response = HTTP_CLIENT.newCall(request).execute();
 
                     if (!response.isSuccessful()) {
                         ServerException.ErrorResponse errorResponse = GSON_INSTANCE.fromJson(response.body().string(), ServerException.ErrorResponse.class);
                         throw new RuntimeException(errorResponse.getMessage());
+                    } else {
+                        currentFileMetadata = GSON_INSTANCE.fromJson(response.body().string(), FileMetadata.class);
                     }
 
                 } catch (Exception e) {
@@ -82,7 +84,7 @@ public class LoadFileController {
             },
             onFinish -> {
                 modelUi.isFileLoadingProperty().set(false);
-                dashboardController.fileLoadedSuccessfully();
+                dashboardController.fileLoadedSuccessfully(currentFileMetadata);
         });
 
         // Handle task failure

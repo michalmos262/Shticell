@@ -17,7 +17,7 @@ import java.io.IOException;
 import java.util.*;
 
 import static server.constant.Constants.*;
-import static server.constant.Constants.TO_CELL_POSITION;
+import static serversdk.request.parameter.RequestParameters.*;
 
 @WebServlet(name = "SortedRowsServlet", urlPatterns = "/sheet/sorted-rows")
 public class SortedRowsServlet extends HttpServlet {

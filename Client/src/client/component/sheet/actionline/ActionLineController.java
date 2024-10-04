@@ -1,18 +1,23 @@
-package ui.impl.graphic.components.actionline;
+package client.component.sheet.actionline;
 
-import engine.api.Engine;
-import engine.entity.cell.CellPositionInSheet;
-import engine.entity.cell.CellType;
-import engine.entity.cell.PositionFactory;
-import engine.entity.dto.CellDto;
+import client.component.alert.AlertsHandler;
+import client.util.http.HttpClientUtil;
+import dto.CellDto;
+import javafx.application.Platform;
 import javafx.event.ActionEvent;
 import javafx.fxml.FXML;
 import javafx.geometry.Pos;
 import javafx.scene.control.*;
 import javafx.scene.layout.Background;
 import javafx.scene.paint.Color;
-import ui.impl.graphic.components.alert.AlertsHandler;
-import ui.impl.graphic.components.app.MainAppController;
+import client.component.sheet.app.MainSheetController;
+import okhttp3.*;
+import org.jetbrains.annotations.NotNull;
+import serversdk.response.CellPositionInSheet;
+import serversdk.response.CellType;
+
+import static client.resources.CommonResourcesPaths.*;
+import static serversdk.request.parameter.RequestParameters.*;
 
 import java.io.IOException;
 import java.util.LinkedList;
@@ -35,9 +40,8 @@ public class ActionLineController {
     @FXML private ColorPicker cellTextColorPicker;
     @FXML private ComboBox<String> systemSkinComboBox;
 
-    private MainAppController mainAppController;
+    private MainSheetController mainSheetController;
     private ActionLineModelUI modelUi;
-    private Engine engine;
     private Color defaultCellBackgroundColor;
     private Color defaultCellTextColor;
     private Label clickedCellLabel;
@@ -60,58 +64,43 @@ public class ActionLineController {
         defaultCellBackgroundColor = cellBackgroundColorPicker.getValue();
         defaultCellTextColor = cellTextColorPicker.getValue();
 
-        systemSkinComboBox.getItems().add("Default");
-        systemSkinComboBox.getItems().add("Light");
-        systemSkinComboBox.getItems().add("Dark");
-
-        systemSkinComboBox.getSelectionModel().selectedItemProperty()
-                .addListener((obs, oldValue, newValue) ->
-                {
-                    try {
-                        mainAppController.changeSystemSkin(systemSkinComboBox.getSelectionModel().getSelectedItem());
-                    } catch (IOException e) {
-                        throw new RuntimeException(e);
-                    }
-                });
-
         modelUi = new ActionLineModelUI(cellButtons, selectedCellIdLabel, originalCellValueTextField,
                 lastCellVersionLabel, showSheetVersionSelector, columnTextAlignmentChoiceBox, showSheetVersionButton,
-                columnWidthSpinner, rowHeightSpinner, cellBackgroundColorPicker, cellTextColorPicker, systemSkinComboBox);
+                columnWidthSpinner, rowHeightSpinner, cellBackgroundColorPicker, cellTextColorPicker);
 
         rowHeightSpinner.valueProperty().addListener((obs, oldValue, newValue) -> {
             if (modelUi.isAnyCellClickedProperty().get()) {
-                mainAppController.changeRowHeight(selectedCellIdLabel.getText(), newValue);
+                mainSheetController.changeRowHeight(selectedCellIdLabel.getText(), newValue);
             }
         });
 
         columnWidthSpinner.valueProperty().addListener((obs, oldValue, newValue) -> {
             if (modelUi.isAnyCellClickedProperty().get()) {
-                mainAppController.changeColumnWidth(selectedCellIdLabel.getText(), newValue);
+                mainSheetController.changeColumnWidth(selectedCellIdLabel.getText(), newValue);
             }
         });
 
         cellBackgroundColorPicker.valueProperty().addListener((obs, oldValue, newValue) -> {
             if (modelUi.isAnyCellClickedProperty().get()) {
-                mainAppController.changeCellBackground(selectedCellIdLabel.getText(), newValue);
+                mainSheetController.changeCellBackground(selectedCellIdLabel.getText(), newValue);
             }
         });
 
         cellTextColorPicker.valueProperty().addListener((obs, oldValue, newValue) -> {
             if (modelUi.isAnyCellClickedProperty().get()) {
-                mainAppController.changeCellTextColor(selectedCellIdLabel.getText(), newValue);
+                mainSheetController.changeCellTextColor(selectedCellIdLabel.getText(), newValue);
             }
         });
 
         columnTextAlignmentChoiceBox.valueProperty().addListener((obs, oldValue, newValue) -> {
             if (modelUi.isAnyCellClickedProperty().get()) {
-                mainAppController.changeColumnTextAlignment(selectedCellIdLabel.getText(), newValue);
+                mainSheetController.changeColumnTextAlignment(selectedCellIdLabel.getText(), newValue);
             }
         });
     }
 
-    public void setMainController(MainAppController mainAppController, Engine engine) {
-        this.mainAppController = mainAppController;
-        this.engine = engine;
+    public void setMainController(MainSheetController mainSheetController) {
+        this.mainSheetController = mainSheetController;
     }
 
     public void removeCellClickFocus() {
@@ -121,32 +110,35 @@ public class ActionLineController {
         modelUi.selectedCellLastVersionProperty().set(0);
     }
 
-    public void fileLoadedSuccessfully() {
-        fileIsLoading(false);
-        removeCellClickFocus();
-        modelUi.currentSheetVersionProperty().set(1);
-        // Set an initial value
-        int rowHeight = engine.getSheetRowHeight();
-        rowHeightSpinner.getValueFactory().setValue(rowHeight);
-
-        int columnWidth = engine.getSheetColumnWidth();
-        columnWidthSpinner.getValueFactory().setValue(columnWidth);
-    }
-
-    public void fileIsLoading(boolean isStarted) {
-        modelUi.isFileLoadingProperty().set(isStarted);
-    }
-
     @FXML
     void UpdateValueButtonListener(ActionEvent event) {
+        String cellId = modelUi.selectedCellIdProperty().getValue();
+        String cellNewOriginalValue = originalCellValueTextField.getText();
+
+        String url = HttpUrl
+                .parse(CELL_ENDPOINT)
+                .newBuilder()
+                .addQueryParameter(CELL_ORIGINAL_VALUE, cellNewOriginalValue)
+                .addQueryParameter(CELL_POSITION, cellId)
+                .build()
+                .toString();
+
+        Request request = new Request.Builder()
+                .url(url)
+                .build();
+
         try {
-            String cellNewOriginalValue = originalCellValueTextField.getText();
-            CellPositionInSheet cellPositionInSheet = PositionFactory.createPosition(modelUi.selectedCellIdProperty().getValue());
-            CellDto cellDto = engine.updateSheetCell(cellPositionInSheet.getRow(), cellPositionInSheet.getColumn(), cellNewOriginalValue);
-            modelUi.selectedCellOriginalValueProperty().set(cellNewOriginalValue);
-            modelUi.selectedCellLastVersionProperty().set(engine.getLastCellVersion(cellPositionInSheet.getRow(), cellPositionInSheet.getColumn()));
-            modelUi.currentSheetVersionProperty().set(engine.getCurrentSheetVersion());
-            mainAppController.cellIsUpdated(cellPositionInSheet, cellDto);
+            Response response = HttpClientUtil.HTTP_CLIENT.newCall(request).execute();
+            if (response.isSuccessful()) {
+                String responseBody = response.body().string();
+                CellDto cellDto = GSON_INSTANCE.fromJson(responseBody, CellDto.class);
+                modelUi.selectedCellOriginalValueProperty().set(cellNewOriginalValue);
+                modelUi.selectedCellLastVersionProperty().set(cellDto.getLastUpdatedInVersion());
+                modelUi.currentSheetVersionProperty().set(cellDto.getLastUpdatedInVersion());
+                mainSheetController.cellIsUpdated(cellId, cellDto);
+            } else {
+                updateCellFailed(response.body().string());
+            }
         } catch (Exception e) {
             updateCellFailed(e.getMessage());
         }
@@ -156,7 +148,7 @@ public class ActionLineController {
     void showSheetVersionButtonListener(ActionEvent event) {
         Integer selectedValue = showSheetVersionSelector.getSelectionModel().getSelectedItem();
         if (selectedValue != null) {
-            mainAppController.selectSheetVersion(selectedValue);
+            mainSheetController.selectSheetVersion(selectedValue);
         } else {
             AlertsHandler.HandleErrorAlert("Show sheet version", "You need to choose a sheet version.");
         }
@@ -173,35 +165,57 @@ public class ActionLineController {
     public CellDto cellClicked(Label clickedCell) {
         this.clickedCellLabel = clickedCell;
         String cellPositionId = clickedCell.getId();
-        CellPositionInSheet cellPositionInSheet = PositionFactory.createPosition(cellPositionId);
-        CellDto cellDto = engine.getSheet(engine.getCurrentSheetVersion()).getCell(cellPositionInSheet);
-        int lastCellVersion = engine.getLastCellVersion(cellPositionInSheet.getRow(), cellPositionInSheet.getColumn());
-        String originalValue = cellDto == null ? "" : cellDto.getOriginalValue();
+        CellDto cellDto = null;
 
-        modelUi.selectedCellIdProperty().set(cellPositionId);
-        modelUi.selectedCellLastVersionProperty().set(lastCellVersion);
-        modelUi.selectedCellOriginalValueProperty().set(originalValue);
+        String url = HttpUrl
+                .parse(CELL_ENDPOINT)
+                .newBuilder()
+                .addQueryParameter(CELL_POSITION, cellPositionId)
+                .build()
+                .toString();
 
-        Color backgroundColor = defaultCellBackgroundColor;
+        Request request = new Request.Builder()
+                .url(url)
+                .build();
 
-        // Check if the Label has a background
-        Background background = clickedCell.getBackground();
-        if (background != null && !background.getFills().isEmpty()) {
-            backgroundColor = (Color) background.getFills().getFirst().getFill();
+        try {
+            Response response = HttpClientUtil.HTTP_CLIENT.newCall(request).execute();
+            if (response.isSuccessful()) {
+                String responseBody = response.body().string();
+                cellDto = GSON_INSTANCE.fromJson(responseBody, CellDto.class);
+                String originalValue = cellDto == null ? "" : cellDto.getOriginalValue();
+                int lastCellVersion = cellDto == null ? 0 : cellDto.getLastUpdatedInVersion();
+                modelUi.selectedCellIdProperty().set(cellPositionId);
+                modelUi.selectedCellLastVersionProperty().set(lastCellVersion);
+                modelUi.selectedCellOriginalValueProperty().set(originalValue);
+
+                Color backgroundColor = defaultCellBackgroundColor;
+
+                // Check if the Label has a background
+                Background background = clickedCell.getBackground();
+                if (background != null && !background.getFills().isEmpty()) {
+                    backgroundColor = (Color) background.getFills().getFirst().getFill();
+                }
+                Color textColor = (Color) clickedCell.getTextFill();
+                Pos textAlignment = clickedCell.getAlignment();
+                int rowHeight = (int) clickedCell.getHeight();
+                int columnWidth = (int) clickedCell.getWidth();
+
+                // Update the header based on the selected cell's properties (background color, text color, etc.)
+                cellBackgroundColorPicker.setValue(backgroundColor);
+                cellTextColorPicker.setValue(textColor);
+                columnTextAlignmentChoiceBox.setValue(textAlignment);
+                rowHeightSpinner.getValueFactory().setValue(rowHeight);
+                columnWidthSpinner.getValueFactory().setValue(columnWidth);
+
+                modelUi.isAnyCellClickedProperty().set(true);
+
+                return cellDto;
+            }
+
+        } catch (Exception e) {
+            e.printStackTrace();
         }
-        Color textColor = (Color) clickedCell.getTextFill();
-        Pos textAlignment = clickedCell.getAlignment();
-        int rowHeight = (int) clickedCell.getHeight();
-        int columnWidth = (int) clickedCell.getWidth();
-
-        // Update the header based on the selected cell's properties (background color, text color, etc.)
-        cellBackgroundColorPicker.setValue(backgroundColor);
-        cellTextColorPicker.setValue(textColor);
-        columnTextAlignmentChoiceBox.setValue(textAlignment);
-        rowHeightSpinner.getValueFactory().setValue(rowHeight);
-        columnWidthSpinner.getValueFactory().setValue(columnWidth);
-
-        modelUi.isAnyCellClickedProperty().set(true);
 
         return cellDto;
     }
@@ -210,7 +224,7 @@ public class ActionLineController {
     void backToDefaultDesignButtonListener(ActionEvent event) {
         String cellId = modelUi.selectedCellIdProperty().get();
 
-        mainAppController.updateCellColors(cellId, defaultCellBackgroundColor, defaultCellTextColor);
+        mainSheetController.updateCellColors(cellId, defaultCellBackgroundColor, defaultCellTextColor);
         cellClicked(this.clickedCellLabel);
     }
 
@@ -231,7 +245,7 @@ public class ActionLineController {
             if (cellType != CellType.NUMERIC) {
                 throw new NumberFormatException();
             }
-            mainAppController.showDynamicAnalysis(cellId);
+            mainSheetController.showDynamicAnalysis(cellId);
 
         } catch (Exception e) {
             AlertsHandler.HandleErrorAlert("Dynamic Analysis", "Dynamic analysis is available only for numeric and not functioned values");

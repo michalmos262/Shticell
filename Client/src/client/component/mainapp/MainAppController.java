@@ -14,8 +14,7 @@ import java.io.Closeable;
 import java.io.IOException;
 import java.net.URL;
 
-import static client.resources.CommonResourcesPaths.DASHBOARD_PAGE_FXML_RESOURCE_LOCATION;
-import static client.resources.CommonResourcesPaths.LOGIN_PAGE_FXML_RESOURCE_LOCATION;
+import static client.resources.CommonResourcesPaths.*;
 
 public class MainAppController implements Closeable {
     @FXML private Label headingLabel;
@@ -35,7 +34,7 @@ public class MainAppController implements Closeable {
         loadLoginPage();
         loadDashboardPage();
 
-        modelUi = new MainModelUI(loggedInAsLabel);
+        modelUi = new MainModelUI(mainSplitPane, headingLabel, loggedInAsLabel);
     }
 
     private void setMainPanelTo(Parent pane) {
@@ -56,7 +55,6 @@ public class MainAppController implements Closeable {
             loginComponentController = fxmlLoader.getController();
             loginComponentController.setMainAppController(this);
             setMainPanelTo(loginComponent);
-            headingLabel.setText("Login");
         } catch (IOException e) {
             e.printStackTrace();
         }
@@ -71,14 +69,23 @@ public class MainAppController implements Closeable {
             dashboardComponentController = fxmlLoader.getController();
             dashboardComponentController.setMainAppController(this);
             setMainPanelTo(loginComponent);
-            headingLabel.setText("Management Dashboard");
         } catch (IOException e) {
             e.printStackTrace();
         }
     }
 
     private void loadSheetPage() {
-        //todo
+        URL loginPageUrl = getClass().getResource(SHEET_PAGE_FXML_RESOURCE_LOCATION);
+        try {
+            FXMLLoader fxmlLoader = new FXMLLoader();
+            fxmlLoader.setLocation(loginPageUrl);
+            dashboardComponent = fxmlLoader.load();
+            dashboardComponentController = fxmlLoader.getController();
+            dashboardComponentController.setMainAppController(this);
+            setMainPanelTo(loginComponent);
+        } catch (IOException e) {
+            e.printStackTrace();
+        }
     }
 
     @Override
@@ -95,6 +102,12 @@ public class MainAppController implements Closeable {
     }
 
     public void switchToDashboardPage() {
+        modelUi.pageHeadingProperty().set("Management Dashboard");
         setMainPanelTo(dashboardComponent);
+    }
+
+    public void switchToSheet(String sheetName) {
+        modelUi.pageHeadingProperty().set("In sheet: " + sheetName);
+        //setMainPanelTo(sheetComponent);
     }
 }

@@ -29,10 +29,10 @@
            <padding>
                <Insets left="10.0" right="10.0" />
            </padding>
-           <TableView fx:id="availableSheetsTableView" prefHeight="278.0" prefWidth="577.0" GridPane.rowIndex="1">
+           <TableView fx:id="availableSheetsTableView" onMouseClicked="#availableSheetOnMouseClickedListener" prefHeight="278.0" prefWidth="577.0" GridPane.rowIndex="1">
                <columns>
-                   <TableColumn fx:id="ownerUsernameColumn" minWidth="0.0" prefWidth="195.0" text="Owner Username" />
                    <TableColumn fx:id="sheetNameColumn" prefWidth="195.9999542236328" text="Sheet Name" />
+                   <TableColumn fx:id="ownerUsernameColumn" minWidth="0.0" prefWidth="195.0" text="Owner Username" />
                <TableColumn fx:id="sheetSizeColumn" prefWidth="99.5999755859375" text="Sheet Size" />
                <TableColumn fx:id="yourPermissionTypeColumn" prefWidth="171.20000000000005" text="Your Permission Type" />
                </columns>
@@ -44,7 +44,7 @@
                <columns>
                    <TableColumn fx:id="usernameColumn" prefWidth="240.0" text="Username" />
                    <TableColumn fx:id="permissionTypeColumn" minWidth="1.600006103515625" prefWidth="240.0" text="Permission Type" />
-               <TableColumn fx:id="permissionApprovalStateColumn" prefWidth="181.9999877929688" text="Permission Approval State" />
+               <TableColumn fx:id="isPermissionApprovedColumn" prefWidth="181.9999877929688" text="Is permission approved" />
                </columns>
               <GridPane.margin>
                   <Insets bottom="10.0" />

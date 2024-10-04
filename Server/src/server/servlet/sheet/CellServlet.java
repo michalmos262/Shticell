@@ -15,6 +15,7 @@ import server.util.SessionUtils;
 import java.io.IOException;
 
 import static server.constant.Constants.*;
+import static serversdk.request.parameter.RequestParameters.*;
 
 @WebServlet(name = "CellServlet", urlPatterns = "/sheet/cell")
 public class CellServlet extends HttpServlet {
@@ -25,7 +26,15 @@ public class CellServlet extends HttpServlet {
             if (SessionUtils.isAuthorized(request, response) && SessionUtils.isInSheet(request, response)) {
                 Engine engine = ServletUtils.getEngineInstance(getServletContext());
                 String sheetName = SessionUtils.getCurrentSheetName(request);
-                int sheetVersion = Integer.parseInt(request.getParameter(SHEET_VERSION));
+                String sheetVersionParameter = request.getParameter(SHEET_VERSION);
+                int sheetVersion;
+
+                if (sheetVersionParameter == null) {
+                    sheetVersion = engine.getCurrentSheetVersion(sheetName);
+                } else {
+                    sheetVersion = Integer.parseInt(sheetVersionParameter);
+                }
+
                 String cellPositionStr = request.getParameter(CELL_POSITION);
                 CellPositionInSheet cellPositionInSheet = PositionFactory.createPosition(cellPositionStr);
                 CellDto cellDto = engine.findCellInSheet(sheetName, cellPositionInSheet.getRow(),
