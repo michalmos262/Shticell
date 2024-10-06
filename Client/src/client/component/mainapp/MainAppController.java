@@ -2,6 +2,7 @@ package client.component.mainapp;
 
 import client.component.dashboard.DashboardController;
 import client.component.login.LoginController;
+import client.component.sheet.mainsheet.MainSheetController;
 import javafx.fxml.FXML;
 import javafx.fxml.FXMLLoader;
 import javafx.scene.Parent;
@@ -13,6 +14,8 @@ import javafx.scene.layout.BorderPane;
 import java.io.Closeable;
 import java.io.IOException;
 import java.net.URL;
+import java.util.HashMap;
+import java.util.Map;
 
 import static client.resources.CommonResourcesPaths.*;
 
@@ -27,14 +30,20 @@ public class MainAppController implements Closeable {
     @FXML private DashboardController dashboardComponentController;
 
     private MainModelUI modelUi;
+    private Map<String, BorderPane> sheetName2Component;
+    private Map<String, MainSheetController> sheetName2Controller;
 
     @FXML
     public void initialize() {
+        modelUi = new MainModelUI(mainSplitPane, headingLabel, loggedInAsLabel);
+        sheetName2Component = new HashMap<>();
+        sheetName2Controller = new HashMap<>();
+
         // prepare components
         loadLoginPage();
         loadDashboardPage();
 
-        modelUi = new MainModelUI(mainSplitPane, headingLabel, loggedInAsLabel);
+        setMainPanelTo(loginComponent);
     }
 
     private void setMainPanelTo(Parent pane) {
@@ -54,47 +63,43 @@ public class MainAppController implements Closeable {
             loginComponent = fxmlLoader.load();
             loginComponentController = fxmlLoader.getController();
             loginComponentController.setMainAppController(this);
-            setMainPanelTo(loginComponent);
         } catch (IOException e) {
-            e.printStackTrace();
+            System.out.println(e.getMessage());
         }
     }
 
     private void loadDashboardPage() {
-        URL loginPageUrl = getClass().getResource(DASHBOARD_PAGE_FXML_RESOURCE_LOCATION);
+        URL dashboardPageUrl = getClass().getResource(DASHBOARD_PAGE_FXML_RESOURCE_LOCATION);
         try {
             FXMLLoader fxmlLoader = new FXMLLoader();
-            fxmlLoader.setLocation(loginPageUrl);
+            fxmlLoader.setLocation(dashboardPageUrl);
             dashboardComponent = fxmlLoader.load();
             dashboardComponentController = fxmlLoader.getController();
             dashboardComponentController.setMainAppController(this);
-            setMainPanelTo(loginComponent);
         } catch (IOException e) {
-            e.printStackTrace();
+            System.out.println(e.getMessage());
         }
     }
 
-    private void loadSheetPage() {
-        URL loginPageUrl = getClass().getResource(SHEET_PAGE_FXML_RESOURCE_LOCATION);
+    public void loadSheetPage(String sheetName) {
+        URL sheetPageUrl = getClass().getResource(MAIN_SHEET_PAGE_FXML_RESOURCE_LOCATION);
         try {
             FXMLLoader fxmlLoader = new FXMLLoader();
-            fxmlLoader.setLocation(loginPageUrl);
-            dashboardComponent = fxmlLoader.load();
-            dashboardComponentController = fxmlLoader.getController();
-            dashboardComponentController.setMainAppController(this);
-            setMainPanelTo(loginComponent);
+            fxmlLoader.setLocation(sheetPageUrl);
+            sheetName2Component.put(sheetName, fxmlLoader.load());
+
+            MainSheetController sheetController = fxmlLoader.getController();
+            sheetName2Controller.put(sheetName, sheetController);
+            sheetController.setMainAppController(this);
+            sheetController.prepareResources(sheetName);
         } catch (IOException e) {
-            e.printStackTrace();
+            System.out.println(e.getMessage());
         }
     }
 
     @Override
     public void close() throws IOException {
         //todo
-    }
-
-    public void updateUserName(String userName) {
-
     }
 
     public void loggedIn(String username) {
@@ -108,6 +113,6 @@ public class MainAppController implements Closeable {
 
     public void switchToSheet(String sheetName) {
         modelUi.pageHeadingProperty().set("In sheet: " + sheetName);
-        //setMainPanelTo(sheetComponent);
+        setMainPanelTo(sheetName2Component.get(sheetName));
     }
 }

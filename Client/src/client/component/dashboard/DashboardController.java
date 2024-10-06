@@ -2,6 +2,7 @@ package client.component.dashboard;
 
 import client.component.dashboard.loadfile.LoadFileController;
 import client.component.mainapp.MainAppController;
+import dto.user.UserPermissionDto;
 import javafx.event.ActionEvent;
 import javafx.fxml.FXML;
 import javafx.scene.control.Button;
@@ -9,7 +10,7 @@ import javafx.scene.control.TableColumn;
 import javafx.scene.control.TableView;
 import javafx.scene.input.MouseEvent;
 import javafx.scene.layout.GridPane;
-import serversdk.response.FileMetadata;
+import dto.sheet.FileMetadata;
 
 public class DashboardController {
     @FXML private Button viewSheetButton;
@@ -23,7 +24,7 @@ public class DashboardController {
     @FXML private TableColumn<DashboardModelUI.SheetsTableEntry, String> yourPermissionTypeColumn;
 
     @FXML private TableView<?> permissionsTableView;
-    @FXML private GridPane mainPanel;
+
     @FXML private GridPane loadFileComponent;
     @FXML private LoadFileController loadFileComponentController;
 
@@ -43,16 +44,9 @@ public class DashboardController {
         this.mainAppController = mainAppController;
     }
 
-    public void fileIsLoading() {
-//        modelUi.fileIsLoading(true);
-    }
-
-    public void fileFailedLoading() {
-//        modelUi.fileIsLoading(false);
-    }
-
     public void fileLoadedSuccessfully(FileMetadata fileMetadata) {
-        modelUi.addSheet(fileMetadata.getSheetName(), fileMetadata.getOwner(), fileMetadata.getSheetSize(), "Owner");
+        modelUi.addSheet(fileMetadata.getSheetName(), fileMetadata.getOwner(), fileMetadata.getSheetSize(), UserPermissionDto.OWNER.toString());
+        mainAppController.loadSheetPage(fileMetadata.getSheetName());
     }
 
     @FXML

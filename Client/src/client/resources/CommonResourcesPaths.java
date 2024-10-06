@@ -7,12 +7,12 @@ public class CommonResourcesPaths {
     // fxml locations
     public final static String LOGIN_PAGE_FXML_RESOURCE_LOCATION = "/client/component/login/login.fxml";
     public final static String DASHBOARD_PAGE_FXML_RESOURCE_LOCATION = "/client/component/dashboard/dashboard.fxml";
-    public final static String SHEET_PAGE_FXML_RESOURCE_LOCATION = "/client/component/sheet/grid.fxml";
+    public final static String MAIN_SHEET_PAGE_FXML_RESOURCE_LOCATION = "/client/component/sheet/mainsheet/mainSheet.fxml";
     public final static String MAIN_APP_FXML_RESOURCE_LOCATION = "/client/component/mainapp/mainApp.fxml";
 
     // css locations
-    public final static String MAIN_APP_LIGHT_CSS_RESOURCE = "/client/component/sheet/app/css/lightApp.css";
-    public final static String MAIN_APP_DARK_CSS_RESOURCE = "/client/component/sheet/app/css/darkApp.css";
+    public final static String MAIN_APP_LIGHT_CSS_RESOURCE = "/client/component/sheet/mainsheet/css/lightApp.css";
+    public final static String MAIN_APP_DARK_CSS_RESOURCE = "/client/component/sheet/mainsheet/css/darkApp.css";
 
     // Server resources locations
     public final static String BASE_DOMAIN = "localhost";
@@ -24,8 +24,12 @@ public class CommonResourcesPaths {
     public final static String LOGOUT = FULL_SERVER_PATH + "/logout";
 
     public final static String DASHBOARD_ENDPOINT = FULL_SERVER_PATH + "/dashboard";
-    public final static String SHEET_ENDPOINT = DASHBOARD_ENDPOINT + "/sheet";
+
+    public final static String SHEET_ENDPOINT = FULL_SERVER_PATH + "/sheet";
+    public final static String SORTED_SHEET_ROWS_ENDPOINT = SHEET_ENDPOINT + "/sorted-rows";
     public final static String CELL_ENDPOINT = SHEET_ENDPOINT + "/cell";
+    public final static String RANGE_ENDPOINT = SHEET_ENDPOINT + "/range";
+    public final static String SHEET_DIMENSION_ENDPOINT = SHEET_ENDPOINT + "/dimension";
 
     // GSON instance
     public final static Gson GSON_INSTANCE = new Gson();

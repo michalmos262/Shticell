@@ -2,24 +2,20 @@ package client.component.sheet.actionline;
 
 import client.component.alert.AlertsHandler;
 import client.util.http.HttpClientUtil;
-import dto.CellDto;
-import javafx.application.Platform;
+import dto.cell.CellDto;
 import javafx.event.ActionEvent;
 import javafx.fxml.FXML;
 import javafx.geometry.Pos;
 import javafx.scene.control.*;
 import javafx.scene.layout.Background;
 import javafx.scene.paint.Color;
-import client.component.sheet.app.MainSheetController;
+import client.component.sheet.mainsheet.MainSheetController;
 import okhttp3.*;
-import org.jetbrains.annotations.NotNull;
-import serversdk.response.CellPositionInSheet;
-import serversdk.response.CellType;
+import dto.cell.CellTypeDto;
 
 import static client.resources.CommonResourcesPaths.*;
 import static serversdk.request.parameter.RequestParameters.*;
 
-import java.io.IOException;
 import java.util.LinkedList;
 import java.util.List;
 
@@ -214,7 +210,7 @@ public class ActionLineController {
             }
 
         } catch (Exception e) {
-            e.printStackTrace();
+            System.out.println(e.getMessage());
         }
 
         return cellDto;
@@ -231,24 +227,37 @@ public class ActionLineController {
     @FXML
     void dynamicAnalysisButtonListener(ActionEvent event) {
         String cellId = modelUi.selectedCellIdProperty().getValue();
-        CellPositionInSheet cellPositionInSheet = PositionFactory.createPosition(cellId);
-        CellDto cellDto = engine.findCellInSheet(cellPositionInSheet.getRow(), cellPositionInSheet.getColumn(), engine.getCurrentSheetVersion());
-        String originalValue = "";
-        CellType cellType = CellType.UNKNOWN;
+        CellDto cellDto;
+
+        Request request = new Request.Builder()
+                .url(CELL_ENDPOINT)
+                .build();
 
         try {
-            if (cellDto != null) {
-                originalValue = cellDto.getOriginalValue();
-                cellType = cellDto.getEffectiveValue().getCellType();
-            }
-            Double.parseDouble(originalValue);
-            if (cellType != CellType.NUMERIC) {
-                throw new NumberFormatException();
-            }
-            mainSheetController.showDynamicAnalysis(cellId);
+            Response response = HttpClientUtil.HTTP_CLIENT.newCall(request).execute();
+            if (response.isSuccessful()) {
+                String responseBody = response.body().string();
+                cellDto = GSON_INSTANCE.fromJson(responseBody, CellDto.class);
+                String originalValue = "";
+                CellTypeDto cellType = CellTypeDto.UNKNOWN;
 
+                try {
+                    if (cellDto != null) {
+                        originalValue = cellDto.getOriginalValue();
+                        cellType = cellDto.getEffectiveValue().getCellType();
+                    }
+                    Double.parseDouble(originalValue);
+                    if (cellType != CellTypeDto.NUMERIC) {
+                        throw new NumberFormatException();
+                    }
+                    mainSheetController.showDynamicAnalysis(cellId);
+
+                } catch (Exception e) {
+                    AlertsHandler.HandleErrorAlert("Dynamic Analysis", "Dynamic analysis is available only for numeric and not functioned values");
+                }
+            }
         } catch (Exception e) {
-            AlertsHandler.HandleErrorAlert("Dynamic Analysis", "Dynamic analysis is available only for numeric and not functioned values");
+            System.out.println(e.getMessage());
         }
     }
 }

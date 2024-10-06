@@ -1,10 +1,15 @@
 package client.component.sheet.grid;
 
 import client.component.alert.AlertsHandler;
-import client.component.sheet.app.MainSheetController;
-import dto.CellDto;
-import dto.RowDto;
-import dto.SheetDto;
+import client.component.sheet.mainsheet.MainSheetController;
+import client.util.http.HttpClientUtil;
+import com.google.gson.reflect.TypeToken;
+import dto.cell.CellDto;
+import dto.cell.CellPositionDto;
+import dto.sheet.RangeDto;
+import dto.sheet.RowDto;
+import dto.sheet.SheetDimensionDto;
+import dto.sheet.SheetDto;
 import javafx.beans.property.SimpleStringProperty;
 import javafx.fxml.FXML;
 import javafx.geometry.Pos;
@@ -15,11 +20,17 @@ import javafx.scene.layout.Background;
 import javafx.scene.layout.Border;
 import javafx.scene.layout.GridPane;
 import javafx.scene.paint.Color;
+import okhttp3.HttpUrl;
+import okhttp3.Request;
+import okhttp3.Response;
 
+import java.lang.reflect.Type;
 import java.util.*;
 
-public class GridController {
+import static client.resources.CommonResourcesPaths.*;
+import static serversdk.request.parameter.RequestParameters.*;
 
+public class GridController {
     @FXML private ScrollPane scrollPane;
     @FXML private GridPane mainGridPane;
 
@@ -51,24 +62,40 @@ public class GridController {
         this.mainSheetController = mainSheetController;
     }
 
-    public void fileIsLoading(boolean isStarted) {
-        modelUi.isFileLoadingProperty().set(isStarted);
-    }
+    public void initMainGrid(String sheetName) {
+        String url = HttpUrl
+                .parse(SHEET_DIMENSION_ENDPOINT)
+                .newBuilder()
+                .addQueryParameter(SHEET_NAME, sheetName)
+                .build()
+                .toString();
 
-    public void initMainGrid(SheetDto sheetDto) {
-        numOfRows = engine.getNumOfSheetRows();
-        numOfColumns = engine.getNumOfSheetColumns();
-        defaultRowHeight = engine.getSheetRowHeight();
-        defaultColumnWidth = engine.getSheetColumnWidth();
+        Request request = new Request.Builder()
+                .url(url)
+                .build();
+        try {
+            Response response = HttpClientUtil.HTTP_CLIENT.newCall(request).execute();
+            String responseBody = response.body().string();
+            if (response.isSuccessful()) {
+                SheetDimensionDto sheetDimensionDto = GSON_INSTANCE.fromJson(responseBody, SheetDimensionDto.class);
 
-         // Clear the existing content in the gridContainer
-        mainGridPane.getChildren().clear();
+                numOfRows = sheetDimensionDto.getNumOfRows();
+                numOfColumns = sheetDimensionDto.getNumOfColumns();
+                defaultRowHeight = sheetDimensionDto.getRowHeight();
+                defaultColumnWidth = sheetDimensionDto.getColumnWidth();
 
-        setGridColumnsHeaders(mainGridPane, numOfColumns);
-        setGridRowsHeaders(mainGridPane);
-        setMainGridCells(sheetDto);
+                 // Clear the existing content in the gridContainer
+                mainGridPane.getChildren().clear();
 
-        fileIsLoading(false);
+                setGridColumnsHeaders(mainGridPane, numOfColumns);
+                setGridRowsHeaders(mainGridPane);
+                setMainGridCells(sheetName);
+            } else {
+                System.out.println("Error: " + responseBody);
+            }
+        } catch (Exception e) {
+            System.out.println(e.getMessage());
+        }
     }
 
     private void setGridColumnsHeaders(GridPane gridPane, int numOfColumns) {
@@ -100,36 +127,56 @@ public class GridController {
         }
     }
 
-    private void setMainGridCells(SheetDto sheetDto) {
-        // Populate the GridPane with Labels in the main grid area
-        for (int row = 0; row < numOfRows; row++) {
-            for (int col = 0; col < numOfColumns; col++) {
-                CellPositionInSheet cellPositionInSheet = PositionFactory.createPosition(row+1, col+1);
-                Label label = new Label();
-                label.getStyleClass().add(CELL_CSS_CLASS);
-                label.setId((char) ('A' + col) + String.valueOf(row + 1));
-                modelUi.setCellLabelBinding(label, sheetDto, cellPositionInSheet);
+    private void setMainGridCells(String sheetName) {
+        // todo: getting java.lang.IllegalStateException: Expected BEGIN_OBJECT but was STRING at line 1 column 23
+        String url = HttpUrl
+                .parse(SHEET_ENDPOINT)
+                .newBuilder()
+                .addQueryParameter(SHEET_NAME, sheetName)
+                .build()
+                .toString();
 
-                label.setMinHeight(defaultRowHeight);
-                label.setPrefHeight(defaultRowHeight);
-                label.setMaxHeight(defaultRowHeight);
+        Request request = new Request.Builder()
+                .url(url)
+                .build();
+        try {
+            Response response = HttpClientUtil.HTTP_CLIENT.newCall(request).execute();
+            if (response.isSuccessful()) {
+                String responseBody = response.body().string();
+                SheetDto sheetDto = GSON_INSTANCE.fromJson(responseBody, SheetDto.class);
+                // Populate the GridPane with Labels in the main grid area
+                for (int row = 0; row < numOfRows; row++) {
+                    for (int col = 0; col < numOfColumns; col++) {
+                        CellPositionDto cellPosition = new CellPositionDto(row+1, col+1);
+                        Label label = new Label();
+                        label.getStyleClass().add(CELL_CSS_CLASS);
+                        label.setId((char) ('A' + col) + String.valueOf(row + 1));
+                        modelUi.setCellLabelBinding(label, sheetDto, cellPosition);
 
-                label.setMinWidth(defaultColumnWidth);
-                label.setPrefWidth(defaultColumnWidth);
-                label.setMaxWidth(defaultColumnWidth);
+                        label.setMinHeight(defaultRowHeight);
+                        label.setPrefHeight(defaultRowHeight);
+                        label.setMaxHeight(defaultRowHeight);
 
-                // Attach the click event handler
-                label.setOnMouseClicked(this::handleCellClick);
+                        label.setMinWidth(defaultColumnWidth);
+                        label.setPrefWidth(defaultColumnWidth);
+                        label.setMaxWidth(defaultColumnWidth);
 
-                mainGridPane.add(label, col + 1, row + 1);  // Offset by 1 to leave space for headers
+                        // Attach the click event handler
+                        label.setOnMouseClicked(this::handleCellClick);
+
+                        mainGridPane.add(label, col + 1, row + 1);  // Offset by 1 to leave space for headers
+                    }
+                }
+
+                for (int row = 0; row < numOfRows; row++) {
+                    for (int col = 0; col < numOfColumns; col++) {
+                        CellPositionDto CellPositionDto = new CellPositionDto(row + 1, col + 1);
+                        modelUi.setRowsAndColumnsBindings(CellPositionDto);
+                    }
+                }
             }
-        }
-
-        for (int row = 0; row < numOfRows; row++) {
-            for (int col = 0; col < numOfColumns; col++) {
-                CellPositionInSheet cellPositionInSheet = PositionFactory.createPosition(row + 1, col + 1);
-                modelUi.setRowsAndColumnsBindings(cellPositionInSheet);
-            }
+        } catch (Exception e) {
+            System.out.println(e.getMessage());
         }
     }
 
@@ -176,7 +223,7 @@ public class GridController {
 
     private List<Label> getInfluencesCellsToPaint(CellDto cellDto) {
         List<Label> influencesCellsLabels = new ArrayList<>();
-        Set<CellPositionInSheet> influencesCells = cellDto.getInfluences();
+        Set<CellPositionDto> influencesCells = cellDto.getInfluences();
 
         influencesCells.forEach(influencesCellPosition ->
                 influencesCellsLabels.add((Label) mainGridPane.lookup("#" + influencesCellPosition))
@@ -187,7 +234,7 @@ public class GridController {
 
     private List<Label> getInfluencedByCellsToPaint(CellDto cellDto) {
         List<Label> influencedByCellsLabels = new ArrayList<>();
-        Set<CellPositionInSheet> influencedByCells = cellDto.getInfluencedBy();
+        Set<CellPositionDto> influencedByCells = cellDto.getInfluencedBy();
 
         influencedByCells.forEach(influencedByCellPosition ->
                 influencedByCellsLabels.add((Label) mainGridPane.lookup("#" + influencedByCellPosition))
@@ -197,14 +244,32 @@ public class GridController {
     }
 
     private List<Label> getRangeCellsToPaint(String rangeName) {
-        List<Label> rangeCellsLabels = new ArrayList<>();
-        Set<CellPositionInSheet> rangeCellPositions = engine.getRangeByName(rangeName).getIncludedPositions();
+        String url = HttpUrl
+                .parse(RANGE_ENDPOINT)
+                .newBuilder()
+                .addQueryParameter(RANGE_NAME, rangeName)
+                .build()
+                .toString();
 
-        rangeCellPositions.forEach(position ->
-                rangeCellsLabels.add((Label) mainGridPane.lookup("#" + position))
-        );
-
-        return rangeCellsLabels;
+        Request request = new Request.Builder()
+                .url(url)
+                .build();
+        try {
+            Response response = HttpClientUtil.HTTP_CLIENT.newCall(request).execute();
+            if (response.isSuccessful()) {
+                List<Label> rangeCellsLabels = new ArrayList<>();
+                String responseBody = response.body().string();
+                Type setType = new TypeToken<Set<CellPositionDto>>(){}.getType();
+                Set<CellPositionDto> rangeCellPositions = GSON_INSTANCE.fromJson(responseBody, setType);
+                rangeCellPositions.forEach(position ->
+                    rangeCellsLabels.add((Label) mainGridPane.lookup("#" + position))
+                );
+                return rangeCellsLabels;
+            }
+        } catch (Exception e) {
+            System.out.println(e.getMessage());
+        }
+        return null;
     }
 
     // Method to clear the previously painted cells
@@ -216,17 +281,39 @@ public class GridController {
         currentlyPaintedCells.clear(); // Clear the list after un-painting
     }
 
-    public void cellUpdated(String cellPositionInSheet, CellDto cellDto) {
-        SimpleStringProperty displayedValue = modelUi.getCellPosition2displayedValue().get(cellPositionInSheet).
+    public void cellUpdated(String cellPositionId, CellDto cellDto) {
+        CellPositionDto cellPosition = new CellPositionDto(cellPositionId);
+        SimpleStringProperty displayedValue = modelUi.getCellPosition2displayedValue().get(cellPosition).
                 displayedValueProperty();
         displayedValue.setValue(cellDto.getEffectiveValueForDisplay().toString());
         // Update the visible affected cells
         cellDto.getInfluences().forEach(influencedPosition -> {
             SimpleStringProperty visibleValue = modelUi.getCellPosition2displayedValue().get(influencedPosition).
                     displayedValueProperty();
-            CellDto influencedCell = engine.findCellInSheet(influencedPosition.getRow(), influencedPosition.getColumn(), engine.getCurrentSheetVersion());
-            visibleValue.setValue(influencedCell.getEffectiveValueForDisplay().toString());
+
+            String url = HttpUrl
+                .parse(CELL_ENDPOINT)
+                .newBuilder()
+                .addQueryParameter(CELL_POSITION, influencedPosition.toString())
+                .build()
+                .toString();
+
+            Request request = new Request.Builder()
+                    .url(url)
+                    .build();
+
+            try {
+                Response response = HttpClientUtil.HTTP_CLIENT.newCall(request).execute();
+                if (response.isSuccessful()) {
+                    String responseBody = response.body().string();
+                    CellDto influencedCell = GSON_INSTANCE.fromJson(responseBody, CellDto.class);
+                    visibleValue.setValue(influencedCell.getEffectiveValueForDisplay().toString());
+                }
+            } catch (Exception e) {
+                System.out.println(e.getMessage());
+            }
         });
+
         setClickedCellColors(cellDto);
     }
 
@@ -234,12 +321,12 @@ public class GridController {
         // Populate the GridPane with Labels in the main grid area
         for (int row = 0; row < numOfRows; row++) {
             for (int col = 0; col < numOfColumns; col++) {
-                CellPositionInSheet cellPositionInSheet = PositionFactory.createPosition(row+1, col+1);
+                CellPositionDto CellPositionDto = new CellPositionDto(row+1, col+1);
                 Label label = new Label();
                 label.getStyleClass().add(CELL_CSS_CLASS);
-                String cellDisplayedValue = sheetDto.getCell(cellPositionInSheet) == null
+                String cellDisplayedValue = sheetDto.getCell(CellPositionDto) == null
                         ? ""
-                        : sheetDto.getCell(cellPositionInSheet).getEffectiveValueForDisplay().toString();
+                        : sheetDto.getCell(CellPositionDto).getEffectiveValueForDisplay().toString();
                 label.setText(cellDisplayedValue);
                 label.setPrefWidth(defaultColumnWidth);
                 label.setMinWidth(defaultColumnWidth);
@@ -265,37 +352,59 @@ public class GridController {
         dialog.showAndWait();
     }
 
-    private boolean isPositionInSortedRow(LinkedList<RowDto> sortedRows, CellPositionInSheet cellPositionInSheet) {
+    private boolean isPositionInSortedRow(LinkedList<RowDto> sortedRows, CellPositionDto CellPositionDto) {
         for (RowDto row : sortedRows) {
-            if (row.getRowNumber() == cellPositionInSheet.getRow()) {
+            if (row.getRowNumber() == CellPositionDto.getRow()) {
                 return true;
             }
         }
         return false;
     }
 
-    public void showSortedSheet(LinkedList<RowDto> sortedRows, Range rangeToSort) {
+    public void showSortedSheet(LinkedList<RowDto> sortedRows, String fromPositionStr, String toPositionStr) {
         Dialog<String> dialog = new Dialog<>();
         dialog.setTitle("Show sorted sheet");
 
         GridPane sortedGrid = getCopiedMainGreed();
-        Iterator<CellPositionInSheet> positionInRangeIterator = rangeToSort.getIncludedPositions().iterator();
+        
+        String url = HttpUrl
+                .parse(RANGE_ENDPOINT)
+                .newBuilder()
+                .addQueryParameter(FROM_CELL_POSITION, fromPositionStr)
+                .addQueryParameter(TO_CELL_POSITION, toPositionStr)
+                .build()
+                .toString();
 
-        for (RowDto row : sortedRows) {
-            for (Map.Entry<String, CellDto> column2cell : row.getCells().entrySet()) {
-                CellPositionInSheet positionInRange = positionInRangeIterator.next();
-                while (positionInRangeIterator.hasNext() && !isPositionInSortedRow(sortedRows, positionInRange)) {
-                    positionInRange = positionInRangeIterator.next();
+        Request request = new Request.Builder()
+                .url(url)
+                .build();
+
+        try {
+            Response response = HttpClientUtil.HTTP_CLIENT.newCall(request).execute();
+            if (response.isSuccessful()) {
+                String responseBody = response.body().string();
+                RangeDto rangeDto = GSON_INSTANCE.fromJson(responseBody, RangeDto.class);
+                Iterator<CellPositionDto> positionInRangeIterator = rangeDto.getIncludedPositions().iterator();
+
+                for (RowDto row : sortedRows) {
+                    for (Map.Entry<String, CellDto> column2cell : row.getCells().entrySet()) {
+                        CellPositionDto positionInRange = positionInRangeIterator.next();
+                        while (positionInRangeIterator.hasNext() && !isPositionInSortedRow(sortedRows, positionInRange)) {
+                            positionInRange = positionInRangeIterator.next();
+                        }
+                        Label cellInOriginalGrid = (Label) mainGridPane.lookup("#" + column2cell.getKey() + row.getRowNumber());
+                        Label cellInSortedGrid = (Label) sortedGrid.lookup("#" + positionInRange + COPIED_CELL_PREFIX_CSS_CLASS);
+                        copyCellStyle(cellInOriginalGrid, cellInSortedGrid);
+                    }
                 }
-                Label cellInOriginalGrid = (Label) mainGridPane.lookup("#" + column2cell.getKey() + row.getRowNumber());
-                Label cellInSortedGrid = (Label) sortedGrid.lookup("#" + positionInRange + COPIED_CELL_PREFIX_CSS_CLASS);
-                copyCellStyle(cellInOriginalGrid, cellInSortedGrid);
+        
+                dialog.getDialogPane().setContent(sortedGrid);
+                dialog.getDialogPane().getButtonTypes().setAll(ButtonType.OK);
+                dialog.showAndWait();
             }
+        } catch (Exception e) {
+            System.out.println(e.getMessage());
         }
-
-        dialog.getDialogPane().setContent(sortedGrid);
-        dialog.getDialogPane().getButtonTypes().setAll(ButtonType.OK);
-        dialog.showAndWait();
     }
 
     private void copyCellStyle(Label originalCell, Label copiedCell) {
@@ -335,10 +444,10 @@ public class GridController {
         // Populate the GridPane with Labels (sheet cells)
         for (int row = 0; row < numOfRows; row++) {
             for (int col = 0; col < numOfColumns; col++) {
-                CellPositionInSheet cellPositionInSheet = PositionFactory.createPosition(row+1, col+1);
-                Label cellInOriginalGrid = (Label) mainGridPane.lookup("#" + CellPositionInSheet.parseColumn(cellPositionInSheet.getColumn()) + cellPositionInSheet.getRow());
+                CellPositionDto CellPositionDto = new CellPositionDto(row+1, col+1);
+                Label cellInOriginalGrid = (Label) mainGridPane.lookup("#" + CellPositionDto.parseColumn(CellPositionDto.getColumn()) + CellPositionDto.getRow());
                 Label cellInCopiedGrid = new Label();
-                cellInCopiedGrid.setId(CellPositionInSheet.parseColumn(cellPositionInSheet.getColumn()) + cellPositionInSheet.getRow() + COPIED_CELL_PREFIX_CSS_CLASS);
+                cellInCopiedGrid.setId(CellPositionDto.parseColumn(CellPositionDto.getColumn()) + CellPositionDto.getRow() + COPIED_CELL_PREFIX_CSS_CLASS);
                 cellInCopiedGrid.setText(cellInOriginalGrid.getText());
                 cellInCopiedGrid.setPrefWidth(cellInOriginalGrid.getPrefWidth());
                 cellInCopiedGrid.setMinWidth(cellInOriginalGrid.getMinWidth());
@@ -359,16 +468,16 @@ public class GridController {
         return gridPane;
     }
 
-    public void showFilteredSheet(LinkedList<RowDto> filteredRows, Range rangeToFilter) {
+    public void showFilteredSheet(LinkedList<RowDto> filteredRows, RangeDto rangeToFilter) {
         Dialog<String> dialog = new Dialog<>();
         dialog.setTitle("Show filtered sheet");
 
         GridPane filteredGrid = getCopiedMainGreed();
-        Iterator<CellPositionInSheet> positionInRangeIterator = rangeToFilter.getIncludedPositions().iterator();
+        Iterator<CellPositionDto> positionInRangeIterator = rangeToFilter.getIncludedPositions().iterator();
 
         for (RowDto row : filteredRows) {
             for (Map.Entry<String, CellDto> column2cell : row.getCells().entrySet()) {
-                CellPositionInSheet positionInRange = positionInRangeIterator.next();
+                CellPositionDto positionInRange = positionInRangeIterator.next();
                 Label cellInOriginalGrid = (Label) mainGridPane.lookup("#" + column2cell.getKey() + row.getRowNumber());
                 Label cellInSortedGrid = (Label) filteredGrid.lookup("#" + positionInRange + COPIED_CELL_PREFIX_CSS_CLASS);
                 copyCellStyle(cellInOriginalGrid, cellInSortedGrid);
@@ -377,7 +486,7 @@ public class GridController {
 
         if (positionInRangeIterator.hasNext()) {
             while (positionInRangeIterator.hasNext()) {
-                CellPositionInSheet positionInRange = positionInRangeIterator.next();
+                CellPositionDto positionInRange = positionInRangeIterator.next();
                 Label cellInSortedGrid = (Label) filteredGrid.lookup("#" + positionInRange + COPIED_CELL_PREFIX_CSS_CLASS);
                 cellInSortedGrid.setText("");
                 cellInSortedGrid.setBackground(Background.fill(Color.WHITE));
@@ -414,28 +523,28 @@ public class GridController {
     }
 
     public void changeCellBackground(String cellId, Color cellBackgroundColor) {
-        CellPositionInSheet cellPositionInSheet = PositionFactory.createPosition(cellId);
-        modelUi.getCellPosition2displayedValue().get(cellPositionInSheet).backgroundColorProperty().setValue(cellBackgroundColor);
+        CellPositionDto CellPositionDto = new CellPositionDto(cellId);
+        modelUi.getCellPosition2displayedValue().get(CellPositionDto).backgroundColorProperty().setValue(cellBackgroundColor);
     }
 
     public void changeCellTextColor(String cellId, Color cellTextColor) {
-        CellPositionInSheet cellPositionInSheet = PositionFactory.createPosition(cellId);
-        modelUi.getCellPosition2displayedValue().get(cellPositionInSheet).textColorProperty().setValue(cellTextColor);
+        CellPositionDto CellPositionDto = new CellPositionDto(cellId);
+        modelUi.getCellPosition2displayedValue().get(CellPositionDto).textColorProperty().setValue(cellTextColor);
     }
 
     public void changeColumnTextAlignment(String cellId, Pos columnTextAlignment) {
-        CellPositionInSheet cellPositionInSheet = PositionFactory.createPosition(cellId);
-        modelUi.getCellPosition2displayedValue().get(cellPositionInSheet).textAlignmentProperty().setValue(columnTextAlignment);
+        CellPositionDto CellPositionDto = new CellPositionDto(cellId);
+        modelUi.getCellPosition2displayedValue().get(CellPositionDto).textAlignmentProperty().setValue(columnTextAlignment);
     }
 
     public void changeRowHeight(String cellId, int rowHeight) {
-        CellPositionInSheet cellPositionInSheet = PositionFactory.createPosition(cellId);
-        modelUi.getCellPosition2displayedValue().get(cellPositionInSheet).rowHeightProperty().setValue(rowHeight);
+        CellPositionDto CellPositionDto = new CellPositionDto(cellId);
+        modelUi.getCellPosition2displayedValue().get(CellPositionDto).rowHeightProperty().setValue(rowHeight);
     }
 
     public void changeColumnWidth(String cellId, int columnWidth) {
-        CellPositionInSheet cellPositionInSheet = PositionFactory.createPosition(cellId);
-        modelUi.getCellPosition2displayedValue().get(cellPositionInSheet).columnWidthProperty().setValue(columnWidth);
+        CellPositionDto CellPositionDto = new CellPositionDto(cellId);
+        modelUi.getCellPosition2displayedValue().get(CellPositionDto).columnWidthProperty().setValue(columnWidth);
     }
 
     public void updateCellColors(String cellId, Color cellBackgroundColor, Color cellTextColor) {
@@ -452,10 +561,23 @@ public class GridController {
 
         for (int row = 0; row < numOfRows; row++) {
             for (int col = 0; col < numOfColumns; col++) {
-                CellPositionInSheet cellPositionInSheet = PositionFactory.createPosition(row + 1, col + 1);
-                Label cellLabel = (Label) copiedGrid.lookup("#" + CellPositionInSheet.parseColumn(cellPositionInSheet.getColumn()) + cellPositionInSheet.getRow() + COPIED_CELL_PREFIX_CSS_CLASS);
-                SheetDto sheetDto = engine.getSheet(engine.getCurrentSheetVersion());
-                modelUi.setCellLabelBindingDynamicAnalysis(cellLabel, sheetDto, cellPositionInSheet);
+                CellPositionDto cellPositionDto = new CellPositionDto(row + 1, col + 1);
+                Label cellLabel = (Label) copiedGrid.lookup("#" + CellPositionDto.parseColumn(cellPositionDto.getColumn()) + cellPositionDto.getRow() + COPIED_CELL_PREFIX_CSS_CLASS);
+
+                Request request = new Request.Builder()
+                .url(SHEET_ENDPOINT)
+                .build();
+
+                try {
+                    Response response = HttpClientUtil.HTTP_CLIENT.newCall(request).execute();
+                    if (response.isSuccessful()) {
+                        String responseBody = response.body().string();
+                        SheetDto sheetDto = GSON_INSTANCE.fromJson(responseBody, SheetDto.class);
+                        modelUi.setCellLabelBindingDynamicAnalysis(cellLabel, sheetDto, cellPositionDto);
+                    }
+                } catch (Exception e) {
+                    System.out.println(e.getMessage());
+                }
             }
         }
 
@@ -578,21 +700,42 @@ public class GridController {
 
             slider.setValue(roundedValue);
 
-            CellPositionInSheet cellPositionInSheet = PositionFactory.createPosition(cellId);
-            SheetDto newSheetDto = engine.getSheetAfterDynamicAnalysisOfCell(cellPositionInSheet, roundedValue);
-            SimpleStringProperty displayedValue = modelUi.getCellPosition2displayedValueDynamicAnalysis().get(cellPositionInSheet).
-                displayedValueProperty();
+            CellPositionDto CellPositionDto = new CellPositionDto(cellId);
 
-            CellDto cellDto = newSheetDto.getCell(cellPositionInSheet);
-            displayedValue.setValue(cellDto.getEffectiveValueForDisplay().toString());
+            String url = HttpUrl
+                    .parse(SHEET_ENDPOINT)
+                    .newBuilder()
+                    .addQueryParameter(CELL_POSITION, cellId)
+                    .addQueryParameter(CELL_ORIGINAL_VALUE, String.valueOf(roundedValue))
+                    .build()
+                    .toString();
 
-            // Update the visible affected cells
-            cellDto.getInfluences().forEach(influencedPosition -> {
-                SimpleStringProperty visibleValue = modelUi.getCellPosition2displayedValueDynamicAnalysis().get(influencedPosition).
+            Request request = new Request.Builder()
+                    .url(url)
+                    .build();
+
+            try {
+                Response response = HttpClientUtil.HTTP_CLIENT.newCall(request).execute();
+                if (response.isSuccessful()) {
+                    String responseBody = response.body().string();
+                    SheetDto newSheetDto = GSON_INSTANCE.fromJson(responseBody, SheetDto.class);
+                    SimpleStringProperty displayedValue = modelUi.getCellPosition2displayedValueDynamicAnalysis().get(CellPositionDto).
                         displayedValueProperty();
-                CellDto influencedCell = newSheetDto.getCell(influencedPosition);
-                visibleValue.setValue(influencedCell.getEffectiveValueForDisplay().toString());
-            });
+
+                    CellDto cellDto = newSheetDto.getCell(CellPositionDto);
+                    displayedValue.setValue(cellDto.getEffectiveValueForDisplay().toString());
+
+                    // Update the visible affected cells
+                    cellDto.getInfluences().forEach(influencedPosition -> {
+                        SimpleStringProperty visibleValue = modelUi.getCellPosition2displayedValueDynamicAnalysis().get(influencedPosition).
+                                displayedValueProperty();
+                        CellDto influencedCell = newSheetDto.getCell(influencedPosition);
+                        visibleValue.setValue(influencedCell.getEffectiveValueForDisplay().toString());
+                    });
+                }
+            } catch (Exception e) {
+                System.out.println(e.getMessage());
+            }
         });
     }
 }

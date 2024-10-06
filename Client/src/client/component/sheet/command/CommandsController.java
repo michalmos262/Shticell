@@ -1,12 +1,23 @@
 package client.component.sheet.command;
 
-import client.component.sheet.app.MainSheetController;
+import client.component.alert.AlertsHandler;
+import client.component.sheet.mainsheet.MainSheetController;
+import client.util.http.HttpClientUtil;
+import com.google.gson.reflect.TypeToken;
+import dto.sheet.RowDto;
 import javafx.event.ActionEvent;
 import javafx.fxml.FXML;
 import javafx.scene.control.*;
+import okhttp3.HttpUrl;
+import okhttp3.Request;
+import okhttp3.Response;
 
+import java.lang.reflect.Type;
 import java.util.*;
 import java.util.stream.Collectors;
+
+import static client.resources.CommonResourcesPaths.*;
+import static serversdk.request.parameter.RequestParameters.*;
 
 public class CommandsController {
 
@@ -29,8 +40,7 @@ public class CommandsController {
 
     @FXML
     private void initialize() {
-        List<TitledPane> titledPanes = Arrays.asList(sortSheetTitledPane, filterSheetTitledPane);
-        modelUi = new CommandsModelUI(titledPanes, sortByColumnsListView, showSortedSheetButton);
+        modelUi = new CommandsModelUI();
         sheetColumns = new LinkedHashSet<>();
     }
 
@@ -38,41 +48,34 @@ public class CommandsController {
         this.mainSheetController = mainSheetController;
     }
 
-    public void fileLoadedSuccessfully() {
-        modelUi.isSheetLoadedProperty().set(true);
-        for (int i = 0; i < engine.getNumOfSheetColumns(); i++) {
-            sheetColumns.add(CellPositionInSheet.parseColumn(i + 1));
-        }
-        List<ListView<CommandsModelUI.ListViewEntry>> listViews = new LinkedList<>();
-        listViews.add(filterByColumnsListView);
-        listViews.add(sortByColumnsListView);
-        modelUi.setColumnsSelectBoxes(sheetColumns, listViews);
-
-        filterSheetTitledPane.setExpanded(false);
-        sortSheetTitledPane.setExpanded(false);
-
-        fileIsLoading(false);
-    }
-
-    public void fileIsLoading(boolean isStarted) {
-        modelUi.isFileLoadingProperty().set(isStarted);
-    }
-
     @FXML
     void showSortedSheetButtonListener(ActionEvent event) {
-        try {
-            CellPositionInSheet fromPosition = PositionFactory.createPosition(fromPositionSortTextField.getText());
-            CellPositionInSheet toPosition = PositionFactory.createPosition(toPositionSortTextField.getText());
-            Range range = new Range(fromPosition, toPosition);
+        String fromPositionStr = fromPositionSortTextField.getText();
+        String toPositionStr = toPositionSortTextField.getText();
 
-            LinkedHashSet<String> chosenColumns = sortByColumnsListView.getItems().stream()
+        LinkedHashSet<String> chosenColumns = sortByColumnsListView.getItems().stream()
                     .filter(CommandsModelUI.ListViewEntry::isSelected)
                     .map(CommandsModelUI.ListViewEntry::getName)
                     .collect(Collectors.toCollection(LinkedHashSet::new));
 
-            LinkedList<RowDto> sortedRows = engine.getSortedRowsSheet(range, chosenColumns);
+        String url = HttpUrl
+                .parse(SORTED_SHEET_ROWS_ENDPOINT)
+                .newBuilder()
+                .addQueryParameter(FROM_CELL_POSITION, fromPositionStr)
+                .addQueryParameter(TO_CELL_POSITION, toPositionStr)
+                .addQueryParameter(SORT_FILTER_BY_COLUMNS, String.join(",", chosenColumns))
+                .build()
+                .toString();
 
-            mainSheetController.sheetIsSorted(sortedRows, range);
+        Request request = new Request.Builder()
+                .url(url)
+                .build();
+
+        try {
+            Response response = HttpClientUtil.HTTP_CLIENT.newCall(request).execute();
+            Type listType = new TypeToken<LinkedList<RowDto>>(){}.getType();
+            LinkedList<RowDto> sortedRows = GSON_INSTANCE.fromJson(response.body().string(), listType);
+            mainSheetController.sheetIsSorted(sortedRows, fromPositionStr, toPositionStr);
         } catch (Exception e) {
             AlertsHandler.HandleErrorAlert("Show sorted sheet", e.getMessage());
         }
@@ -80,57 +83,59 @@ public class CommandsController {
 
     @FXML
     void chooseFilterValuesButtonListener(ActionEvent event) {
-        try {
-            CellPositionInSheet fromPosition = PositionFactory.createPosition(fromPositionFilterTextField.getText());
-            CellPositionInSheet toPosition = PositionFactory.createPosition(toPositionFilterTextField.getText());
-            Range range = new Range(fromPosition, toPosition);
-
-            Set<String> columns = filterByColumnsListView.getItems().stream()
-                    .filter(CommandsModelUI.ListViewEntry::isSelected)
-                    .map(CommandsModelUI.ListViewEntry::getName)
-                    .collect(Collectors.toCollection(LinkedHashSet::new));
-
-            Map<String, Set<EffectiveValue>> uniqueValuesInColumns = engine.getUniqueColumnValuesByRange(range, columns);
-            modelUi.setupFilterValuesTableView(filterValuesTableView, uniqueValuesInColumns);
-        } catch (Exception e) {
-            AlertsHandler.HandleErrorAlert("Show filtered sheet", e.getMessage());
-        }
+        //todo: get unique columns for filter
+//        try {
+//            CellPositionInSheet fromPosition = PositionFactory.createPosition(fromPositionFilterTextField.getText());
+//            CellPositionInSheet toPosition = PositionFactory.createPosition(toPositionFilterTextField.getText());
+//            Range range = new Range(fromPosition, toPosition);
+//
+//            Set<String> columns = filterByColumnsListView.getItems().stream()
+//                    .filter(CommandsModelUI.ListViewEntry::isSelected)
+//                    .map(CommandsModelUI.ListViewEntry::getName)
+//                    .collect(Collectors.toCollection(LinkedHashSet::new));
+//
+//            Map<String, Set<EffectiveValue>> uniqueValuesInColumns = engine.getUniqueColumnValuesByRange(range, columns);
+//            modelUi.setupFilterValuesTableView(filterValuesTableView, uniqueValuesInColumns);
+//        } catch (Exception e) {
+//            AlertsHandler.HandleErrorAlert("Show filtered sheet", e.getMessage());
+//        }
     }
 
     @FXML
     void showFilteredSheetButtonListener(ActionEvent event) {
-        try {
-            CellPositionInSheet fromPosition = PositionFactory.createPosition(fromPositionFilterTextField.getText());
-            CellPositionInSheet toPosition = PositionFactory.createPosition(toPositionFilterTextField.getText());
-            Range range = new Range(fromPosition, toPosition);
-
-            Map<String, Set<EffectiveValue>> column2effectiveValuesFilteredBy = new HashMap<>();
-
-            // Iterate over each column in the filter TableView
-            for (TableColumn<Map<String, CommandsModelUI.EffectiveValueWrapper>, ?> column : filterValuesTableView.getColumns()) {
-                String columnName = column.getText(); // Get the column name
-                Set<EffectiveValue> selectedValues = new HashSet<>(); // Set to store selected values for the column
-
-                // Iterate over the rows in the TableView
-                for (Map<String, CommandsModelUI.EffectiveValueWrapper> row : filterValuesTableView.getItems()) {
-                    CommandsModelUI.EffectiveValueWrapper wrapper = row.get(columnName);
-
-                    if (wrapper != null && wrapper.isSelected()) {
-                        EffectiveValue value = wrapper.getEffectiveValue();
-                        selectedValues.add(value);
-                    }
-                }
-
-                // Only add the column if there are selected values
-                if (!selectedValues.isEmpty()) {
-                    column2effectiveValuesFilteredBy.put(columnName, selectedValues);
-                }
-            }
-
-            LinkedList<RowDto> filteredRows = engine.getFilteredRowsSheet(range, column2effectiveValuesFilteredBy);
-            mainSheetController.sheetIsFiltered(filteredRows, range);
-        } catch (Exception e) {
-            AlertsHandler.HandleErrorAlert("Show filtered sheet", e.getMessage());
-        }
+        //todo: filter
+//        try {
+//            CellPositionInSheet fromPosition = PositionFactory.createPosition(fromPositionFilterTextField.getText());
+//            CellPositionInSheet toPosition = PositionFactory.createPosition(toPositionFilterTextField.getText());
+//            Range range = new Range(fromPosition, toPosition);
+//
+//            Map<String, Set<EffectiveValue>> column2effectiveValuesFilteredBy = new HashMap<>();
+//
+//            // Iterate over each column in the filter TableView
+//            for (TableColumn<Map<String, CommandsModelUI.EffectiveValueWrapper>, ?> column : filterValuesTableView.getColumns()) {
+//                String columnName = column.getText(); // Get the column name
+//                Set<EffectiveValue> selectedValues = new HashSet<>(); // Set to store selected values for the column
+//
+//                // Iterate over the rows in the TableView
+//                for (Map<String, CommandsModelUI.EffectiveValueWrapper> row : filterValuesTableView.getItems()) {
+//                    CommandsModelUI.EffectiveValueWrapper wrapper = row.get(columnName);
+//
+//                    if (wrapper != null && wrapper.isSelected()) {
+//                        EffectiveValue value = wrapper.getEffectiveValue();
+//                        selectedValues.add(value);
+//                    }
+//                }
+//
+//                // Only add the column if there are selected values
+//                if (!selectedValues.isEmpty()) {
+//                    column2effectiveValuesFilteredBy.put(columnName, selectedValues);
+//                }
+//            }
+//
+//            LinkedList<RowDto> filteredRows = engine.getFilteredRowsSheet(range, column2effectiveValuesFilteredBy);
+//            mainSheetController.sheetIsFiltered(filteredRows, range);
+//        } catch (Exception e) {
+//            AlertsHandler.HandleErrorAlert("Show filtered sheet", e.getMessage());
+//        }
     }
 }

@@ -13,7 +13,7 @@ import javafx.scene.control.TextField;
 import javafx.stage.FileChooser;
 import okhttp3.*;
 import serversdk.exception.ServerException;
-import serversdk.response.FileMetadata;
+import dto.sheet.FileMetadata;
 
 import java.io.File;
 
@@ -53,7 +53,6 @@ public class LoadFileController {
         }
         String selectedFileName = selectedFile.getAbsolutePath();
         modelUi.isFileLoadingProperty().set(true);
-        dashboardController.fileIsLoading();
 
         loadFileTask = new LoadFileTask(
             selectedFileName,
@@ -94,7 +93,6 @@ public class LoadFileController {
                 Platform.runLater(() -> {
                     loadFileFailed(exception.getMessage()); // Call failure handler on the JavaFX thread
                     modelUi.isFileLoadingProperty().set(false);
-                    dashboardController.fileFailedLoading();
                 });
             }
         });

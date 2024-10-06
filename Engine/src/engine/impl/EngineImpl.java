@@ -1,8 +1,13 @@
 package engine.impl;
 
-import dto.CellDto;
-import dto.RowDto;
-import dto.SheetDto;
+import dto.cell.CellDto;
+import dto.cell.CellPositionDto;
+import dto.cell.CellTypeDto;
+import dto.cell.EffectiveValueDto;
+import dto.sheet.RangeDto;
+import dto.sheet.RowDto;
+import dto.sheet.SheetDimensionDto;
+import dto.sheet.SheetDto;
 import engine.api.Engine;
 import engine.entity.cell.*;
 import engine.entity.range.Range;
@@ -36,31 +41,31 @@ public class EngineImpl implements Engine {
     private boolean isDataLoaded = false;
 
     private SheetDto createSheetDto(Sheet sheet) {
-        Map<CellPositionInSheet, CellDto> position2cell;
+        Map<CellPositionDto, CellDto> position2cell;
         position2cell = new HashMap<>();
 
         for (Map.Entry<CellPositionInSheet, Cell> entry: sheet.getPosition2cell().entrySet()) {
             CellDto cellDto = getCellDto(entry.getValue());
-            position2cell.put(entry.getKey(), cellDto);
+            position2cell.put(new CellPositionDto(entry.getKey().getRow(), entry.getKey().getColumn()), cellDto);
         }
 
         return new SheetDto(position2cell);
     }
 
     @Override
-    public EffectiveValue getEffectiveValueForDisplay(EffectiveValue originalEffectiveValue) {
+    public EffectiveValueDto getEffectiveValueForDisplay(EffectiveValueDto originalEffectiveValue) {
         String effectiveValueStr;
-        EffectiveValue effectiveValueForDisplay = null;
+        EffectiveValueDto effectiveValueForDisplay = null;
 
         if (originalEffectiveValue != null) {
             effectiveValueStr = originalEffectiveValue.getValue().toString();
             if (effectiveValueStr.matches("-?\\d+(\\.\\d+)?")) {
                 DecimalFormat formatter = new DecimalFormat("#,###.##");
-                effectiveValueForDisplay = new EffectiveValue(CellType.NUMERIC, formatter.format(new BigDecimal(effectiveValueStr)));
+                effectiveValueForDisplay = new EffectiveValueDto(CellTypeDto.NUMERIC, formatter.format(new BigDecimal(effectiveValueStr)));
             } else if (effectiveValueStr.equalsIgnoreCase("true") || effectiveValueStr.equalsIgnoreCase("false")) {
-                effectiveValueForDisplay = new EffectiveValue(CellType.BOOLEAN, effectiveValueStr.toUpperCase());
+                effectiveValueForDisplay = new EffectiveValueDto(CellTypeDto.BOOLEAN, effectiveValueStr.toUpperCase());
             } else {
-                effectiveValueForDisplay = new EffectiveValue(CellType.STRING, effectiveValueStr);
+                effectiveValueForDisplay = new EffectiveValueDto(CellTypeDto.STRING, effectiveValueStr);
             }
         }
 
@@ -82,7 +87,7 @@ public class EngineImpl implements Engine {
         SheetDto sheetDto = getSheet(sheetName, sheetVersion);
         CellPositionInSheet cellPosition = PositionFactory.createPosition(row, column);
 
-        return sheetDto.getCell(cellPosition);
+        return sheetDto.getCell(new CellPositionDto(cellPosition.getRow(), cellPosition.getColumn()));
     }
 
     @Override
@@ -107,12 +112,12 @@ public class EngineImpl implements Engine {
     }
 
     @Override
-    public Set<CellPositionInSheet> getInfluencedBySet(String sheetName, int row, int column, int sheetVersion) {
+    public Set<CellPositionDto> getInfluencedBySet(String sheetName, int row, int column, int sheetVersion) {
         return findCellInSheet(sheetName, row, column, sheetVersion).getInfluencedBy();
     }
 
     @Override
-    public Set<CellPositionInSheet> getInfluencesSet(String sheetName, int row, int column, int sheetVersion) {
+    public Set<CellPositionDto> getInfluencesSet(String sheetName, int row, int column, int sheetVersion) {
         return findCellInSheet(sheetName, row, column, sheetVersion).getInfluences();
     }
 
@@ -316,8 +321,29 @@ public class EngineImpl implements Engine {
     }
 
     @Override
-    public Range getRangeByName(String sheetName, String rangeName) {
-        return sheetFilesManager.getSheetManager(sheetName).getRangesManager().getRangeByName(rangeName);
+    public SheetDimensionDto getSheetDimension(String sheetName) {
+        SheetDimension sheetDimension = sheetFilesManager.getSheetManager(sheetName).getSheetDimension();
+        return new SheetDimensionDto(sheetDimension.getNumOfRows(), sheetDimension.getNumOfColumns(),
+                sheetDimension.getRowHeight(), sheetDimension.getColumnWidth());
+    }
+
+    private Set<CellPositionDto> getIncludedPositionsInRange(Range range) {
+        Set<CellPositionDto> includedPositionsDto = new HashSet<>();
+
+        range.getIncludedPositions().forEach((includedPosition) ->
+                includedPositionsDto.add(new CellPositionDto(includedPosition.getRow(), includedPosition.getColumn())));
+
+        return includedPositionsDto;
+    }
+
+    @Override
+    public RangeDto getRangeByName(String sheetName, String rangeName) {
+        Range range = sheetFilesManager.getSheetManager(sheetName).getRangesManager().getRangeByName(rangeName);
+        Set<CellPositionDto> includedPositionsDto = getIncludedPositionsInRange(range);
+
+        return new RangeDto(new CellPositionDto(range.getFromPosition().getRow(), range.getFromPosition().getColumn()),
+                new CellPositionDto(range.getToPosition().getRow(), range.getToPosition().getColumn()),
+                includedPositionsDto);
     }
 
     @Override
@@ -329,8 +355,22 @@ public class EngineImpl implements Engine {
         return rangeNames;
     }
 
-    public Range createRange(String sheetName, String rangeName, CellPositionInSheet fromPosition, CellPositionInSheet toPosition) {
-        return sheetFilesManager.getSheetManager(sheetName).createRange(rangeName, fromPosition, toPosition);
+    @Override
+    public RangeDto createRange(String sheetName, String rangeName, CellPositionInSheet fromPosition, CellPositionInSheet toPosition) {
+        Range range = sheetFilesManager.getSheetManager(sheetName).createRange(rangeName, fromPosition, toPosition);
+        Set<CellPositionDto> includedPositionsDto = getIncludedPositionsInRange(range);
+
+        return new RangeDto(new CellPositionDto(range.getFromPosition().getRow(), range.getFromPosition().getColumn()),
+                new CellPositionDto(range.getToPosition().getRow(), range.getToPosition().getColumn()), includedPositionsDto);
+    }
+
+    @Override
+    public RangeDto getUnNamedRange(String sheetName, CellPositionInSheet fromPosition, CellPositionInSheet toPosition) {
+        Range range = sheetFilesManager.getSheetManager(sheetName).getRangesManager().getUnNamedRange(fromPosition, toPosition);
+        Set<CellPositionDto> includedPositionsDto = getIncludedPositionsInRange(range);
+
+        return new RangeDto(new CellPositionDto(range.getFromPosition().getRow(), range.getFromPosition().getColumn()),
+                new CellPositionDto(range.getToPosition().getRow(), range.getToPosition().getColumn()), includedPositionsDto);
     }
 
     public void deleteRange(String sheetName, String rangeName) {
@@ -395,11 +435,20 @@ public class EngineImpl implements Engine {
     private CellDto getCellDto(Cell cell) {
         CellDto cellDto;
         if (cell == null) {
-            EffectiveValue effectiveValue = new EffectiveValue(CellType.UNKNOWN, "");
-            cellDto = new CellDto("", effectiveValue, effectiveValue, new LinkedHashSet<>(), new LinkedHashSet<>());
+            EffectiveValueDto effectiveValueDto = new EffectiveValueDto(CellTypeDto.UNKNOWN, "");
+            cellDto = new CellDto("", effectiveValueDto, effectiveValueDto, new LinkedHashSet<>(), new LinkedHashSet<>(), 0);
         } else {
-            EffectiveValue effectiveValue = cell.getEffectiveValue();
-            cellDto = new CellDto(cell.getOriginalValue(), effectiveValue, getEffectiveValueForDisplay(effectiveValue), cell.getInfluencedBy(), cell.getInfluences());
+            EffectiveValueDto effectiveValue = new EffectiveValueDto(CellTypeDto.valueOf(cell.getEffectiveValue().getCellType().name()), cell.getEffectiveValue().getValue());
+            Set<CellPositionDto> influencedByDto = new HashSet<>();
+            Set<CellPositionDto> influencesDto = new HashSet<>();
+
+            cell.getInfluencedBy().forEach((influencedBy) ->
+                    influencedByDto.add(new CellPositionDto(influencedBy.getRow(), influencedBy.getColumn())));
+            cell.getInfluences().forEach((influence) ->
+                    influencesDto.add(new CellPositionDto(influence.getRow(), influence.getColumn())));
+
+            cellDto = new CellDto(cell.getOriginalValue(), effectiveValue, getEffectiveValueForDisplay(effectiveValue),
+                    influencedByDto, influencesDto, cell.getLastUpdatedInVersion());
         }
 
         return cellDto;
@@ -433,17 +482,20 @@ public class EngineImpl implements Engine {
     }
 
     @Override
-    public Map<String, Set<EffectiveValue>> getUniqueColumnValuesByRange(String sheetName, Range range, Set<String> columns) {
+    public Map<String, Set<EffectiveValueDto>> getUniqueColumnValuesByRange(String sheetName, Range range, Set<String> columns) {
         validateColumnsInRange(range, columns);
-        Map<String, Set<EffectiveValue>> column2uniqueEffectiveValues = new HashMap<>();
+        Map<String, Set<EffectiveValueDto>> column2uniqueEffectiveValues = new HashMap<>();
         columns.forEach((column) -> column2uniqueEffectiveValues.put(column, new LinkedHashSet<>()));
 
         range.getIncludedPositions().forEach((cellPosition) -> {
-            Set<EffectiveValue> uniqueColumnValues = column2uniqueEffectiveValues.get(CellPositionInSheet.parseColumn(cellPosition.getColumn()));
+            Set<EffectiveValueDto> uniqueColumnValues = column2uniqueEffectiveValues.get(CellPositionInSheet.parseColumn(cellPosition.getColumn()));
             if (uniqueColumnValues != null) {
+
                 EffectiveValue originalEffectiveValue = sheetFilesManager.getSheetManager(sheetName)
                         .getSheetByVersion(getCurrentSheetVersion(sheetName)).getCellEffectiveValue(cellPosition);
-                EffectiveValue effectiveValueForDisplay = getEffectiveValueForDisplay(originalEffectiveValue);
+
+                EffectiveValueDto originalEffectiveValueDto = new EffectiveValueDto(CellTypeDto.valueOf(originalEffectiveValue.getCellType().name()), originalEffectiveValue.getValue());
+                EffectiveValueDto effectiveValueForDisplay = getEffectiveValueForDisplay(originalEffectiveValueDto);
                 uniqueColumnValues.add(effectiveValueForDisplay);
             }
         });
@@ -470,7 +522,8 @@ public class EngineImpl implements Engine {
                     }
                     else {
                         EffectiveValue originalEffectiveValue = cellInColumn.getEffectiveValue();
-                        EffectiveValue effectiveValueForDisplay = getEffectiveValueForDisplay(originalEffectiveValue);
+                        EffectiveValueDto originalEffectiveValueDto = new EffectiveValueDto(CellTypeDto.valueOf(originalEffectiveValue.getCellType().name()), originalEffectiveValue.getValue());
+                        EffectiveValueDto effectiveValueForDisplay = getEffectiveValueForDisplay(originalEffectiveValueDto);
                         if (!entry.getValue().contains(effectiveValueForDisplay.getValue().toString())) {
                             return false;
                         }

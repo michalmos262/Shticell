@@ -1,6 +1,6 @@
 package server.servlet.sheet;
 
-import dto.CellDto;
+import dto.cell.CellDto;
 import engine.api.Engine;
 import engine.entity.cell.CellPositionInSheet;
 import engine.entity.cell.PositionFactory;

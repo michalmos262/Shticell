@@ -1,6 +1,7 @@
 package client.component.sheet.grid;
 
-import dto.SheetDto;
+import dto.cell.CellPositionDto;
+import dto.sheet.SheetDto;
 import javafx.beans.property.SimpleBooleanProperty;
 import javafx.beans.property.SimpleIntegerProperty;
 import javafx.beans.property.SimpleObjectProperty;
@@ -16,8 +17,8 @@ import java.util.Map;
 public class GridModelUI {
     private final SimpleBooleanProperty isFileLoading;
     private final GridPane gridPane;
-    private final Map<CellPositionInSheet, CellProperties> cellPosition2displayedValue;
-    private final Map<CellPositionInSheet, CellProperties> cellPosition2displayedValueDynamicAnalysis;
+    private final Map<CellPositionDto, CellProperties> cellPosition2displayedValue;
+    private final Map<CellPositionDto, CellProperties> cellPosition2displayedValueDynamicAnalysis;
 
     public GridModelUI(GridPane gridPane) {
         this.gridPane = gridPane;
@@ -26,15 +27,15 @@ public class GridModelUI {
         cellPosition2displayedValueDynamicAnalysis = new HashMap<>();
     }
 
-    public Map<CellPositionInSheet, CellProperties> getCellPosition2displayedValue() {
+    public Map<CellPositionDto, CellProperties> getCellPosition2displayedValue() {
         return cellPosition2displayedValue;
     }
 
-    public Map<CellPositionInSheet, CellProperties> getCellPosition2displayedValueDynamicAnalysis() {
+    public Map<CellPositionDto, CellProperties> getCellPosition2displayedValueDynamicAnalysis() {
         return cellPosition2displayedValueDynamicAnalysis;
     }
 
-    public void setCellLabelBinding(Label label, SheetDto sheetDto, CellPositionInSheet cellPosition) {
+    public void setCellLabelBinding(Label label, SheetDto sheetDto, CellPositionDto cellPosition) {
         SimpleStringProperty displayedValue = getDisplayedValue(sheetDto, cellPosition);
         CellProperties cellProperties = new CellProperties(displayedValue);
 
@@ -52,7 +53,7 @@ public class GridModelUI {
 
     }
 
-    public void setCellLabelBindingDynamicAnalysis(Label label, SheetDto sheetDto, CellPositionInSheet cellPosition) {
+    public void setCellLabelBindingDynamicAnalysis(Label label, SheetDto sheetDto, CellPositionDto cellPosition) {
         SimpleStringProperty displayedValue = getDisplayedValue(sheetDto, cellPosition);
         CellProperties cellProperties = new CellProperties(displayedValue);
 
@@ -60,14 +61,14 @@ public class GridModelUI {
         label.textProperty().bind(cellPosition2displayedValueDynamicAnalysis.get(cellPosition).displayedValue);
     }
 
-    public SimpleStringProperty getDisplayedValue(SheetDto sheetDto, CellPositionInSheet cellPosition) {
+    public SimpleStringProperty getDisplayedValue(SheetDto sheetDto, CellPositionDto cellPosition) {
         return sheetDto.getCell(cellPosition) == null
                 ? new SimpleStringProperty("")
                 : new SimpleStringProperty(sheetDto.getCell(cellPosition)
                     .getEffectiveValueForDisplay().toString());
     }
 
-    public void setRowsAndColumnsBindings(CellPositionInSheet primaryCellPosition) {
+    public void setRowsAndColumnsBindings(CellPositionDto primaryCellPosition) {
         cellPosition2displayedValue.get(primaryCellPosition).columnWidthProperty()
                 .addListener((observable, oldValue, newValue) -> {
                     cellPosition2displayedValue.forEach((cellPosition, properties) -> {
@@ -77,7 +78,7 @@ public class GridModelUI {
                                     ";-fx-pref-width: " + newValue + ";-fx-max-width: " + newValue + ";");
                         }
                     });
-                    Label columnLabel = (Label) gridPane.lookup("#" + CellPositionInSheet.parseColumn(primaryCellPosition.getColumn()));
+                    Label columnLabel = (Label) gridPane.lookup("#" + CellPositionDto.parseColumn(primaryCellPosition.getColumn()));
                     columnLabel.setStyle(columnLabel.getStyle() + ";-fx-min-width: " + newValue +
                             ";-fx-pref-width: " + newValue + ";-fx-max-width: " + newValue + ";");
                 });

@@ -1,21 +1,18 @@
-package dto;
-
-import engine.entity.cell.CellPositionInSheet;
-import engine.entity.cell.EffectiveValue;
+package dto.cell;
 
 import java.util.Collections;
 import java.util.Set;
 
 public class CellDto {
     private final String originalValue;
-    private final EffectiveValue effectiveValue;
-    private final EffectiveValue effectiveValueForDisplay;
-    private final Set<CellPositionInSheet> influencedBy;
-    private final Set<CellPositionInSheet> influences;
+    private final EffectiveValueDto effectiveValue;
+    private final EffectiveValueDto effectiveValueForDisplay;
+    private final Set<CellPositionDto> influencedBy;
+    private final Set<CellPositionDto> influences;
     private final int lastUpdatedInVersion;
 
-    public CellDto(String originalValue, EffectiveValue effectiveValue, EffectiveValue effectiveValueForDisplay,
-                   Set<CellPositionInSheet> influencedBy, Set<CellPositionInSheet> influences, int lastUpdatedInVersion) {
+    public CellDto(String originalValue, EffectiveValueDto effectiveValue, EffectiveValueDto effectiveValueForDisplay,
+                   Set<CellPositionDto> influencedBy, Set<CellPositionDto> influences, int lastUpdatedInVersion) {
         this.originalValue = originalValue;
         this.effectiveValue = effectiveValue;
         this.effectiveValueForDisplay = effectiveValueForDisplay;
@@ -28,19 +25,19 @@ public class CellDto {
         return originalValue;
     }
 
-    public EffectiveValue getEffectiveValue() {
+    public EffectiveValueDto getEffectiveValue() {
         return effectiveValue;
     }
 
-    public EffectiveValue getEffectiveValueForDisplay() {
+    public EffectiveValueDto getEffectiveValueForDisplay() {
         return effectiveValueForDisplay;
     }
 
-    public Set<CellPositionInSheet> getInfluencedBy() {
+    public Set<CellPositionDto> getInfluencedBy() {
         return Collections.unmodifiableSet(influencedBy);
     }
 
-    public Set<CellPositionInSheet> getInfluences() {
+    public Set<CellPositionDto> getInfluences() {
         return Collections.unmodifiableSet(influences);
     }
 

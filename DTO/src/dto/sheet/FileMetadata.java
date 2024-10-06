@@ -1,4 +1,4 @@
-package serversdk.response;
+package dto.sheet;
 
 public class FileMetadata {
     private final String sheetName;

@@ -43,8 +43,12 @@ public class DashboardModelUI {
             SheetNameData sheetNameData = change.getValueAdded();
 
             if (change.wasAdded()) {
-                //todo: need to get data from server
-                sheetsTableData.add(new SheetsTableEntry(nameProperty.get(), sheetNameData.ownerName.get(), sheetNameData.sheetSize.get(), sheetNameData.yourPermissionType.get()));
+                sheetsTableData.add(
+                        new SheetsTableEntry(
+                                nameProperty.get(), sheetNameData.ownerName.get(), sheetNameData.sheetSize.get(),
+                                sheetNameData.yourPermissionType.get()
+                        )
+                );
             }
         });
     }
@@ -54,6 +58,7 @@ public class DashboardModelUI {
                 new SheetNameData(ownerName, sheetSize, yourPermissionType));
     }
 
+    // sheet name column and other columns
     private static class SheetNameData {
         private final StringProperty ownerName;
         private final StringProperty sheetSize;

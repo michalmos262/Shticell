@@ -1,6 +1,6 @@
-package serversdk.response;
+package dto.cell;
 
-public enum CellType {
+public enum CellTypeDto {
     NUMERIC,
     STRING,
     BOOLEAN,

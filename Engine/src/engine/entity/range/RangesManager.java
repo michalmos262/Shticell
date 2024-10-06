@@ -46,6 +46,10 @@ public class RangesManager {
         name2usageCount.remove(name);
     }
 
+    public Range getUnNamedRange(CellPositionInSheet fromPosition, CellPositionInSheet toPosition) {
+        return new Range(fromPosition, toPosition);
+    }
+
     public void useRange(String name) {
         name2usageCount.putIfAbsent(name, 0);
         name2usageCount.put(name, name2usageCount.get(name) + 1);

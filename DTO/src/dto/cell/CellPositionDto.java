@@ -1,13 +1,17 @@
-package serversdk.response;
+package dto.cell;
 
-import java.io.Serializable;
-
-public class CellPositionInSheet implements Cloneable, Serializable {
+public class CellPositionDto {
     private final int row;
     private final int column;
     private final String positionInSheet;
 
-    public CellPositionInSheet(int row, int column) {
+    public CellPositionDto(String positionStr) {
+        this.row = Integer.parseInt(positionStr.substring(1));
+        this.column = positionStr.charAt(0) - 'A' + 1;
+        this.positionInSheet = positionStr;
+    }
+
+    public CellPositionDto(int row, int column) {
         this.row = row;
         this.column = column;
         this.positionInSheet = this.toString();

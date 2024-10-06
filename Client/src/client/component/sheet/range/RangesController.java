@@ -1,13 +1,21 @@
 package client.component.sheet.range;
 
+import client.component.alert.AlertsHandler;
+import client.util.http.HttpClientUtil;
+import dto.sheet.RangeDto;
 import javafx.event.ActionEvent;
 import javafx.fxml.FXML;
 import javafx.scene.control.*;
 import javafx.scene.input.MouseEvent;
-import client.component.sheet.app.MainSheetController;
+import client.component.sheet.mainsheet.MainSheetController;
+import okhttp3.*;
+import serversdk.request.body.RangeBody;
 
 import java.util.Arrays;
 import java.util.List;
+
+import static client.resources.CommonResourcesPaths.*;
+import static serversdk.request.parameter.RequestParameters.RANGE_NAME;
 
 public class RangesController {
 
@@ -29,34 +37,12 @@ public class RangesController {
 
     @FXML
     private void initialize() {
-        List<TitledPane> titledPanes = Arrays.asList(addNewRangeTitledPane, deleteRangeTitledPane, showRangesTitledPane);
         List<TextField> textFields = Arrays.asList(addFromRangeTextInput, addRangeNameTextInput, addToRangeTextInput);
-        modelUi = new RangeModelUI(showRangesTable, nameColumn, rangeColumn, deleteRangeNameChoiceBox,
-                titledPanes, textFields);
+        modelUi = new RangeModelUI(showRangesTable, nameColumn, rangeColumn, deleteRangeNameChoiceBox, textFields);
     }
 
     public void setMainController(MainSheetController mainSheetController) {
         this.mainSheetController = mainSheetController;
-    }
-
-    public void fileIsLoading(boolean isStarted) {
-        modelUi.isFileLoadingProperty().set(isStarted);
-    }
-
-    public void fileLoadedSuccessfully() {
-        modelUi.resetRanges();
-
-        List<String> rangeNames = engine.getRangeNames();
-        for (String rangeName : rangeNames) {
-            Range range = engine.getRangeByName(rangeName);
-            modelUi.addRange(rangeName, range);
-        }
-
-        addNewRangeTitledPane.setExpanded(false);
-        showRangesTitledPane.setExpanded(false);
-        deleteRangeTitledPane.setExpanded(false);
-
-        modelUi.isFileLoadingProperty().set(false);
     }
 
     @FXML
@@ -66,13 +52,28 @@ public class RangesController {
             String rangeName = addRangeNameTextInput.getText();
 
             if (!rangeName.isEmpty()) {
-                CellPositionInSheet fromPosition = PositionFactory.createPosition(addFromRangeTextInput.getText());
-                CellPositionInSheet toPosition = PositionFactory.createPosition(addToRangeTextInput.getText());
-                engine.createRange(rangeName, fromPosition, toPosition);
-                modelUi.addRange(rangeName, engine.getRangeByName(rangeName));
-                modelUi.isRangeAddedProperty().set(true);
-                modelUi.isRangeAddedProperty().set(false);
-                AlertsHandler.HandleOkAlert("Range " + rangeName + " added successfully!");
+                String fromPositionStr = addFromRangeTextInput.getText();
+                String toPositionStr = addRangeNameTextInput.getText();
+
+                // create the request body
+                String addRangeBodyJson = GSON_INSTANCE.toJson(new RangeBody(rangeName, fromPositionStr, toPositionStr));
+                MediaType mediaType = MediaType.get(JSON_MEDIA_TYPE);
+                RequestBody requestBody = RequestBody.create(addRangeBodyJson, mediaType);
+
+                Request request = new Request.Builder()
+                        .url(RANGE_ENDPOINT)
+                        .post(requestBody)
+                        .build();
+
+                Response response = HttpClientUtil.HTTP_CLIENT.newCall(request).execute();
+                if (response.isSuccessful()) {
+                    String responseBody = response.body().string();
+                    RangeDto rangeDto = GSON_INSTANCE.fromJson(responseBody, RangeDto.class);
+                    modelUi.addRange(rangeName, rangeDto);
+                    modelUi.isRangeAddedProperty().set(true);
+                    modelUi.isRangeAddedProperty().set(false);
+                    AlertsHandler.HandleOkAlert("Range " + rangeName + " added successfully!");
+                }
             } else {
                 AlertsHandler.HandleErrorAlert(alertTitle, "Range name cannot be empty");
             }
@@ -85,11 +86,24 @@ public class RangesController {
     void deleteRangeButtonListener(ActionEvent event) {
         try {
             String rangeName = deleteRangeNameChoiceBox.getValue();
-            engine.deleteRange(rangeName);
-            modelUi.removeRange(rangeName);
-            deleteRangeNameChoiceBox.setValue(null); // clean current choice
-            mainSheetController.removeCellsPaints();
-            AlertsHandler.HandleOkAlert("Range " + rangeName + " deleted successfully!");
+            String url = HttpUrl
+                .parse(RANGE_ENDPOINT)
+                .newBuilder()
+                .addQueryParameter(RANGE_NAME, rangeName)
+                .build()
+                .toString();
+
+            Request request = new Request.Builder()
+                    .url(url)
+                    .build();
+
+            Response response = HttpClientUtil.HTTP_CLIENT.newCall(request).execute();
+            if (response.isSuccessful()) {
+                modelUi.removeRange(rangeName);
+                deleteRangeNameChoiceBox.setValue(null); // clean current choice
+                mainSheetController.removeCellsPaints();
+                AlertsHandler.HandleOkAlert("Range " + rangeName + " deleted successfully!");
+            }
         } catch (Exception e) {
             AlertsHandler.HandleErrorAlert("Delete range", e.getMessage());
         }

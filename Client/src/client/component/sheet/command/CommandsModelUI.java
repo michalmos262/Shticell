@@ -1,6 +1,6 @@
 package client.component.sheet.command;
 
-import engine.entity.cell.EffectiveValue;
+import dto.cell.EffectiveValueDto;
 import javafx.beans.binding.Bindings;
 import javafx.beans.property.SimpleBooleanProperty;
 import javafx.collections.FXCollections;
@@ -10,32 +10,6 @@ import javafx.scene.control.*;
 import java.util.*;
 
 public class CommandsModelUI {
-    private final SimpleBooleanProperty isFileLoading;
-    private final SimpleBooleanProperty isSheetLoaded;
-
-    public CommandsModelUI(List<TitledPane> titledPaneList, ListView<ListViewEntry> columnsListView,
-                           Button showSortedSheetButton) {
-        isFileLoading = new SimpleBooleanProperty(false);
-        isSheetLoaded = new SimpleBooleanProperty(false);
-
-        bindTitledPanes(titledPaneList);
-    }
-
-    public SimpleBooleanProperty isFileLoadingProperty() {
-        return isFileLoading;
-    }
-
-    public SimpleBooleanProperty isSheetLoadedProperty() {
-        return isSheetLoaded;
-    }
-
-    private void bindTitledPanes(List<TitledPane> titledPanes) {
-        // bind disable property of the titled panes
-        for (TitledPane titledPane : titledPanes) {
-            titledPane.disableProperty().bind(Bindings.or(isSheetLoaded.not(), isFileLoading));
-        }
-    }
-
     public void setColumnsSelectBoxes(Set<String> sheetColumns, List<ListView<ListViewEntry>> listViews) {
         for (ListView<ListViewEntry> listView : listViews) {
             for (String column : sheetColumns) {
@@ -66,7 +40,7 @@ public class CommandsModelUI {
         }
     }
 
-    public void setupFilterValuesTableView(TableView<Map<String, EffectiveValueWrapper>> filterValuesTableView, Map<String, Set<EffectiveValue>> uniqueValuesInColumns) {
+    public void setupFilterValuesTableView(TableView<Map<String, EffectiveValueWrapper>> filterValuesTableView, Map<String, Set<EffectiveValueDto>> uniqueValuesInColumns) {
         filterValuesTableView.getColumns().clear(); // Clear existing columns
 
         // List to hold the rows
@@ -82,9 +56,9 @@ public class CommandsModelUI {
         }
 
         // Iterate over each column in the map and populate the rows
-        for (Map.Entry<String, Set<EffectiveValue>> entry : uniqueValuesInColumns.entrySet()) {
+        for (Map.Entry<String, Set<EffectiveValueDto>> entry : uniqueValuesInColumns.entrySet()) {
             String columnName = entry.getKey();
-            Set<EffectiveValue> values = entry.getValue();
+            Set<EffectiveValueDto> values = entry.getValue();
 
             TableColumn<Map<String, EffectiveValueWrapper>, Boolean> column = getFilterTableColumn(columnName);
 
@@ -93,7 +67,7 @@ public class CommandsModelUI {
 
             // Populate the rows for this column with its respective values
             int rowIndex = 0;
-            for (EffectiveValue value : values) {
+            for (EffectiveValueDto value : values) {
                 if (rowIndex < rows.size()) {
                     rows.get(rowIndex).put(columnName, new EffectiveValueWrapper(value));
                 }
@@ -174,15 +148,15 @@ public class CommandsModelUI {
     }
 
     public static class EffectiveValueWrapper {
-        private final EffectiveValue value;
+        private final EffectiveValueDto value;
         private boolean selected;
 
-        public EffectiveValueWrapper(EffectiveValue value) {
+        public EffectiveValueWrapper(EffectiveValueDto value) {
             this.value = value;
             this.selected = false;
         }
 
-        public EffectiveValue getEffectiveValue() {
+        public EffectiveValueDto getEffectiveValue() {
             return value;
         }
 

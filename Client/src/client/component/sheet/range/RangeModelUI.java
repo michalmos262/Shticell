@@ -1,6 +1,6 @@
 package client.component.sheet.range;
 
-import engine.entity.range.Range;
+import dto.sheet.RangeDto;
 import javafx.beans.binding.Bindings;
 import javafx.beans.property.SimpleBooleanProperty;
 import javafx.beans.property.SimpleStringProperty;
@@ -13,22 +13,19 @@ import javafx.collections.ObservableMap;
 import java.util.List;
 
 public class RangeModelUI {
-    private final SimpleBooleanProperty isFileLoading;
-    private final ObservableMap<SimpleStringProperty, Range> nameProperty2range;
+    private final ObservableMap<SimpleStringProperty, RangeDto> nameProperty2range;
     private final ObservableList<TableEntry> rangesTableData;
     private final SimpleBooleanProperty isRangeAdded;
 
     public RangeModelUI(TableView<TableEntry> showRangesTable, TableColumn<TableEntry, String> nameColumn,
                         TableColumn<RangeModelUI.TableEntry, String> rangeColumn, ChoiceBox<String> deleteRangeNameChoiceBox,
-                        List<TitledPane> titledPanes, List<TextField> textFields) {
+                        List<TextField> textFields) {
 
-        isFileLoading = new SimpleBooleanProperty(false);
         isRangeAdded = new SimpleBooleanProperty(false);
         nameProperty2range = FXCollections.observableHashMap();
         rangesTableData = FXCollections.observableArrayList();
 
         bindTableView(showRangesTable, nameColumn, rangeColumn, deleteRangeNameChoiceBox);
-        bindTitledPanes(titledPanes);
         bindTextFields(textFields);
     }
 
@@ -44,11 +41,11 @@ public class RangeModelUI {
         ObservableList<String> deleteRangeNameChoiceBoxData = deleteRangeNameChoiceBox.getItems();
 
         // Add a MapChangeListener to the map to listen for new entries
-        nameProperty2range.addListener((MapChangeListener<SimpleStringProperty, Range>) change -> {
+        nameProperty2range.addListener((MapChangeListener<SimpleStringProperty, RangeDto>) change -> {
             SimpleStringProperty nameProperty = change.getKey();
 
             if (change.wasAdded()) {
-                Range addedRange = change.getValueAdded();
+                RangeDto addedRange = change.getValueAdded();
                 rangesTableData.add(new TableEntry(nameProperty.get(), addedRange));
                 deleteRangeNameChoiceBoxData.add(nameProperty.get());
             }
@@ -72,22 +69,11 @@ public class RangeModelUI {
         }
     }
 
-    public SimpleBooleanProperty isFileLoadingProperty() {
-        return isFileLoading;
-    }
-
-    private void bindTitledPanes(List<TitledPane> titledPanes) {
-        // bind disable property of the titled panes
-        for (TitledPane titledPane : titledPanes) {
-            titledPane.disableProperty().bind(Bindings.or(Bindings.isEmpty(nameProperty2range), isFileLoading));
-        }
-    }
-
     public SimpleBooleanProperty isRangeAddedProperty() {
         return isRangeAdded;
     }
 
-    public void addRange(String name, Range range) {
+    public void addRange(String name, RangeDto range) {
         nameProperty2range.put(new SimpleStringProperty(name), range);
     }
 
@@ -105,15 +91,11 @@ public class RangeModelUI {
         }
     }
 
-    public void resetRanges() {
-        nameProperty2range.clear();
-    }
-
     public static class TableEntry {
         private final SimpleStringProperty name;
         private final SimpleStringProperty range;
 
-        public TableEntry(String name, Range range) {
+        public TableEntry(String name, RangeDto range) {
             this.name = new SimpleStringProperty(name);
             this.range = new SimpleStringProperty(range.toString());
         }
