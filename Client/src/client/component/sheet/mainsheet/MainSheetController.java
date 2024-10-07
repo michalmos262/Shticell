@@ -21,6 +21,7 @@ import okhttp3.HttpUrl;
 import okhttp3.Request;
 import okhttp3.Response;
 
+import java.io.IOException;
 import java.util.LinkedList;
 
 import static client.resources.CommonResourcesPaths.*;
@@ -53,8 +54,11 @@ public class MainSheetController {
         this.mainAppController = mainAppController;
     }
 
-    public void prepareResources(String sheetName) {
+    public void initComponents(String sheetName) throws IOException {
         gridComponentController.initMainGrid(sheetName);
+        actionLineComponentController.init(sheetName);
+        rangesComponentController.init();
+        commandsComponentController.init(sheetName);
     }
 
     @FXML
@@ -62,7 +66,7 @@ public class MainSheetController {
         mainAppController.switchToDashboardPage();
     }
 
-    public CellDto cellClicked(Label clickedCell) {
+    public CellDto cellClicked(Label clickedCell) throws IOException {
         return actionLineComponentController.cellClicked(clickedCell);
     }
 
@@ -118,12 +122,12 @@ public class MainSheetController {
         }
     }
 
-    public void showCellsInRange(String name) {
+    public void showCellsInRange(String name) throws IOException {
         gridComponentController.showCellsInRange(name);
         actionLineComponentController.removeCellClickFocus();
     }
 
-    public void sheetIsSorted(LinkedList<RowDto> sortedRows, String fromPositionStr, String toPositionStr) {
+    public void sheetIsSorted(LinkedList<RowDto> sortedRows, String fromPositionStr, String toPositionStr) throws IOException {
         gridComponentController.showSortedSheet(sortedRows, fromPositionStr, toPositionStr);
     }
 
@@ -135,7 +139,7 @@ public class MainSheetController {
         gridComponentController.removeCellsPaints();
     }
 
-    public void showDynamicAnalysis(String cellId) {
+    public void showDynamicAnalysis(String cellId) throws IOException {
         gridComponentController.showDynamicAnalysis(cellId);
     }
 }

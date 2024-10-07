@@ -1,6 +1,6 @@
 package server.servlet.user;
 
-import engine.user.permission.SheetNameAndPermission;
+import engine.user.permission.SheetNameAndFileMetadata;
 import engine.user.usermanager.UserManager;
 import jakarta.servlet.annotation.WebServlet;
 import jakarta.servlet.http.HttpServlet;
@@ -22,7 +22,7 @@ public class UserSheetPermissionsServlet extends HttpServlet {
         try {
             if (SessionUtils.isAuthorized(request, response)) {
                 UserManager userManager = ServletUtils.getUserManager(getServletContext());
-                SheetNameAndPermission permissions = userManager.getUserSheetPermissions(SessionUtils.getUsername(request));
+                SheetNameAndFileMetadata permissions = userManager.getUserSheetPermissions(SessionUtils.getUsername(request));
                 String json = GSON_INSTANCE.toJson(permissions);
                 response.getWriter().println(json);
             }

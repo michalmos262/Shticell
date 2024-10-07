@@ -1,5 +1,7 @@
 package dto.cell;
 
+import java.util.Objects;
+
 public class CellPositionDto {
     private final int row;
     private final int column;
@@ -37,6 +39,19 @@ public class CellPositionDto {
         }
 
         return result.toString();
+    }
+
+    @Override
+    public boolean equals(Object o) {
+        if (this == o) return true;
+        if (o == null || getClass() != o.getClass()) return false;
+        CellPositionDto that = (CellPositionDto) o;
+        return getRow() == that.getRow() && getColumn() == that.getColumn() && Objects.equals(positionInSheet, that.positionInSheet);
+    }
+
+    @Override
+    public int hashCode() {
+        return Objects.hash(getRow(), getColumn(), positionInSheet);
     }
 
     @Override

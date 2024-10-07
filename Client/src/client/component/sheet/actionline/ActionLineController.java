@@ -3,6 +3,7 @@ package client.component.sheet.actionline;
 import client.component.alert.AlertsHandler;
 import client.util.http.HttpClientUtil;
 import dto.cell.CellDto;
+import dto.sheet.SheetDimensionDto;
 import javafx.event.ActionEvent;
 import javafx.fxml.FXML;
 import javafx.geometry.Pos;
@@ -12,10 +13,12 @@ import javafx.scene.paint.Color;
 import client.component.sheet.mainsheet.MainSheetController;
 import okhttp3.*;
 import dto.cell.CellTypeDto;
+import serversdk.request.body.CellBody;
 
 import static client.resources.CommonResourcesPaths.*;
 import static serversdk.request.parameter.RequestParameters.*;
 
+import java.io.IOException;
 import java.util.LinkedList;
 import java.util.List;
 
@@ -34,7 +37,6 @@ public class ActionLineController {
     @FXML private Spinner<Integer> rowHeightSpinner;
     @FXML private ColorPicker cellBackgroundColorPicker;
     @FXML private ColorPicker cellTextColorPicker;
-    @FXML private ComboBox<String> systemSkinComboBox;
 
     private MainSheetController mainSheetController;
     private ActionLineModelUI modelUi;
@@ -61,7 +63,7 @@ public class ActionLineController {
         defaultCellTextColor = cellTextColorPicker.getValue();
 
         modelUi = new ActionLineModelUI(cellButtons, selectedCellIdLabel, originalCellValueTextField,
-                lastCellVersionLabel, showSheetVersionSelector, columnTextAlignmentChoiceBox, showSheetVersionButton,
+                lastCellVersionLabel, showSheetVersionSelector, columnTextAlignmentChoiceBox,
                 columnWidthSpinner, rowHeightSpinner, cellBackgroundColorPicker, cellTextColorPicker);
 
         rowHeightSpinner.valueProperty().addListener((obs, oldValue, newValue) -> {
@@ -99,6 +101,35 @@ public class ActionLineController {
         this.mainSheetController = mainSheetController;
     }
 
+    public void init(String sheetName) throws IOException {
+        String url = HttpUrl
+                .parse(SHEET_DIMENSION_ENDPOINT)
+                .newBuilder()
+                .addQueryParameter(SHEET_NAME, sheetName)
+                .build()
+                .toString();
+
+        Request request = new Request.Builder()
+                .url(url)
+                .build();
+
+        Response response = HttpClientUtil.HTTP_CLIENT.newCall(request).execute();
+        String responseBody = response.body().string();
+        if (response.isSuccessful()) {
+            SheetDimensionDto sheetDimensionDto = GSON_INSTANCE.fromJson(responseBody, SheetDimensionDto.class);
+            // Set an initial value
+            int rowHeight = sheetDimensionDto.getRowHeight();
+            rowHeightSpinner.getValueFactory().setValue(rowHeight);
+
+            int columnWidth = sheetDimensionDto.getColumnWidth();
+            columnWidthSpinner.getValueFactory().setValue(columnWidth);
+        } else {
+            System.out.println("Error: " + responseBody);
+        }
+
+        modelUi.currentSheetVersionProperty().set(1);
+    }
+
     public void removeCellClickFocus() {
         modelUi.isAnyCellClickedProperty().set(false);
         modelUi.selectedCellIdProperty().set("");
@@ -111,31 +142,38 @@ public class ActionLineController {
         String cellId = modelUi.selectedCellIdProperty().getValue();
         String cellNewOriginalValue = originalCellValueTextField.getText();
 
+        // create the request body
+        String updateCellBodyJson = GSON_INSTANCE.toJson(new CellBody(cellNewOriginalValue));
+        MediaType mediaType = MediaType.get(JSON_MEDIA_TYPE);
+        RequestBody requestBody = RequestBody.create(updateCellBodyJson, mediaType);
+
         String url = HttpUrl
                 .parse(CELL_ENDPOINT)
                 .newBuilder()
-                .addQueryParameter(CELL_ORIGINAL_VALUE, cellNewOriginalValue)
                 .addQueryParameter(CELL_POSITION, cellId)
                 .build()
                 .toString();
 
         Request request = new Request.Builder()
                 .url(url)
+                .put(requestBody)
                 .build();
 
         try {
             Response response = HttpClientUtil.HTTP_CLIENT.newCall(request).execute();
+            String responseBody = response.body().string();
             if (response.isSuccessful()) {
-                String responseBody = response.body().string();
                 CellDto cellDto = GSON_INSTANCE.fromJson(responseBody, CellDto.class);
                 modelUi.selectedCellOriginalValueProperty().set(cellNewOriginalValue);
                 modelUi.selectedCellLastVersionProperty().set(cellDto.getLastUpdatedInVersion());
                 modelUi.currentSheetVersionProperty().set(cellDto.getLastUpdatedInVersion());
                 mainSheetController.cellIsUpdated(cellId, cellDto);
             } else {
-                updateCellFailed(response.body().string());
+                System.out.println("Error: " + responseBody);
+                updateCellFailed(responseBody);
             }
         } catch (Exception e) {
+            System.out.println("Error: " + e.getMessage());
             updateCellFailed(e.getMessage());
         }
     }
@@ -158,7 +196,7 @@ public class ActionLineController {
         AlertsHandler.HandleOkAlert("Update succeeded!");
     }
 
-    public CellDto cellClicked(Label clickedCell) {
+    public CellDto cellClicked(Label clickedCell) throws IOException {
         this.clickedCellLabel = clickedCell;
         String cellPositionId = clickedCell.getId();
         CellDto cellDto = null;
@@ -174,50 +212,45 @@ public class ActionLineController {
                 .url(url)
                 .build();
 
-        try {
-            Response response = HttpClientUtil.HTTP_CLIENT.newCall(request).execute();
-            if (response.isSuccessful()) {
-                String responseBody = response.body().string();
-                cellDto = GSON_INSTANCE.fromJson(responseBody, CellDto.class);
-                String originalValue = cellDto == null ? "" : cellDto.getOriginalValue();
-                int lastCellVersion = cellDto == null ? 0 : cellDto.getLastUpdatedInVersion();
-                modelUi.selectedCellIdProperty().set(cellPositionId);
-                modelUi.selectedCellLastVersionProperty().set(lastCellVersion);
-                modelUi.selectedCellOriginalValueProperty().set(originalValue);
+        Response response = HttpClientUtil.HTTP_CLIENT.newCall(request).execute();
+        if (response.isSuccessful()) {
+            String responseBody = response.body().string();
+            cellDto = GSON_INSTANCE.fromJson(responseBody, CellDto.class);
+            String originalValue = cellDto == null ? "" : cellDto.getOriginalValue();
+            int lastCellVersion = cellDto == null ? 0 : cellDto.getLastUpdatedInVersion();
+            modelUi.selectedCellIdProperty().set(cellPositionId);
+            modelUi.selectedCellLastVersionProperty().set(lastCellVersion);
+            modelUi.selectedCellOriginalValueProperty().set(originalValue);
 
-                Color backgroundColor = defaultCellBackgroundColor;
+            Color backgroundColor = defaultCellBackgroundColor;
 
-                // Check if the Label has a background
-                Background background = clickedCell.getBackground();
-                if (background != null && !background.getFills().isEmpty()) {
-                    backgroundColor = (Color) background.getFills().getFirst().getFill();
-                }
-                Color textColor = (Color) clickedCell.getTextFill();
-                Pos textAlignment = clickedCell.getAlignment();
-                int rowHeight = (int) clickedCell.getHeight();
-                int columnWidth = (int) clickedCell.getWidth();
-
-                // Update the header based on the selected cell's properties (background color, text color, etc.)
-                cellBackgroundColorPicker.setValue(backgroundColor);
-                cellTextColorPicker.setValue(textColor);
-                columnTextAlignmentChoiceBox.setValue(textAlignment);
-                rowHeightSpinner.getValueFactory().setValue(rowHeight);
-                columnWidthSpinner.getValueFactory().setValue(columnWidth);
-
-                modelUi.isAnyCellClickedProperty().set(true);
-
-                return cellDto;
+            // Check if the Label has a background
+            Background background = clickedCell.getBackground();
+            if (background != null && !background.getFills().isEmpty()) {
+                backgroundColor = (Color) background.getFills().getFirst().getFill();
             }
+            Color textColor = (Color) clickedCell.getTextFill();
+            Pos textAlignment = clickedCell.getAlignment();
+            int rowHeight = (int) clickedCell.getHeight();
+            int columnWidth = (int) clickedCell.getWidth();
 
-        } catch (Exception e) {
-            System.out.println(e.getMessage());
+            // Update the header based on the selected cell's properties (background color, text color, etc.)
+            cellBackgroundColorPicker.setValue(backgroundColor);
+            cellTextColorPicker.setValue(textColor);
+            columnTextAlignmentChoiceBox.setValue(textAlignment);
+            rowHeightSpinner.getValueFactory().setValue(rowHeight);
+            columnWidthSpinner.getValueFactory().setValue(columnWidth);
+
+            modelUi.isAnyCellClickedProperty().set(true);
+
+            return cellDto;
         }
 
         return cellDto;
     }
 
     @FXML
-    void backToDefaultDesignButtonListener(ActionEvent event) {
+    void backToDefaultDesignButtonListener(ActionEvent event) throws IOException {
         String cellId = modelUi.selectedCellIdProperty().get();
 
         mainSheetController.updateCellColors(cellId, defaultCellBackgroundColor, defaultCellTextColor);
@@ -225,39 +258,44 @@ public class ActionLineController {
     }
 
     @FXML
-    void dynamicAnalysisButtonListener(ActionEvent event) {
+    void dynamicAnalysisButtonListener(ActionEvent event) throws IOException {
         String cellId = modelUi.selectedCellIdProperty().getValue();
         CellDto cellDto;
 
+        String url = HttpUrl
+                .parse(CELL_ENDPOINT)
+                .newBuilder()
+                .addQueryParameter(CELL_POSITION, cellId)
+                .build()
+                .toString();
+
         Request request = new Request.Builder()
-                .url(CELL_ENDPOINT)
+                .url(url)
                 .build();
 
-        try {
-            Response response = HttpClientUtil.HTTP_CLIENT.newCall(request).execute();
-            if (response.isSuccessful()) {
-                String responseBody = response.body().string();
-                cellDto = GSON_INSTANCE.fromJson(responseBody, CellDto.class);
-                String originalValue = "";
-                CellTypeDto cellType = CellTypeDto.UNKNOWN;
+        Response response = HttpClientUtil.HTTP_CLIENT.newCall(request).execute();
+        String responseBody = response.body().string();
+        if (response.isSuccessful()) {
+            cellDto = GSON_INSTANCE.fromJson(responseBody, CellDto.class);
+            String originalValue = "";
+            CellTypeDto cellType = CellTypeDto.UNKNOWN;
 
-                try {
-                    if (cellDto != null) {
-                        originalValue = cellDto.getOriginalValue();
-                        cellType = cellDto.getEffectiveValue().getCellType();
-                    }
-                    Double.parseDouble(originalValue);
-                    if (cellType != CellTypeDto.NUMERIC) {
-                        throw new NumberFormatException();
-                    }
-                    mainSheetController.showDynamicAnalysis(cellId);
-
-                } catch (Exception e) {
-                    AlertsHandler.HandleErrorAlert("Dynamic Analysis", "Dynamic analysis is available only for numeric and not functioned values");
+            try {
+                if (cellDto != null) {
+                    originalValue = cellDto.getOriginalValue();
+                    cellType = cellDto.getEffectiveValue().getCellType();
                 }
+                Double.parseDouble(originalValue);
+                if (cellType != CellTypeDto.NUMERIC) {
+                    throw new NumberFormatException();
+                }
+                mainSheetController.showDynamicAnalysis(cellId);
+
+            } catch (Exception e) {
+                AlertsHandler.HandleErrorAlert("Dynamic Analysis", "Dynamic analysis is available only for numeric and not functioned values");
             }
-        } catch (Exception e) {
-            System.out.println(e.getMessage());
+        } else {
+            System.out.println("Error: " + responseBody);
         }
     }
 }

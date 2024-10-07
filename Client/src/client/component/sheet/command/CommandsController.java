@@ -4,7 +4,9 @@ import client.component.alert.AlertsHandler;
 import client.component.sheet.mainsheet.MainSheetController;
 import client.util.http.HttpClientUtil;
 import com.google.gson.reflect.TypeToken;
+import dto.cell.CellPositionDto;
 import dto.sheet.RowDto;
+import dto.sheet.SheetDimensionDto;
 import javafx.event.ActionEvent;
 import javafx.fxml.FXML;
 import javafx.scene.control.*;
@@ -12,6 +14,7 @@ import okhttp3.HttpUrl;
 import okhttp3.Request;
 import okhttp3.Response;
 
+import java.io.IOException;
 import java.lang.reflect.Type;
 import java.util.*;
 import java.util.stream.Collectors;
@@ -46,6 +49,31 @@ public class CommandsController {
 
     public void setMainController(MainSheetController mainSheetController) {
         this.mainSheetController = mainSheetController;
+    }
+
+    public void init(String sheetName) throws IOException {
+        String url = HttpUrl
+                .parse(SHEET_DIMENSION_ENDPOINT)
+                .newBuilder()
+                .addQueryParameter(SHEET_NAME, sheetName)
+                .build()
+                .toString();
+
+        Request request = new Request.Builder()
+                .url(url)
+                .build();
+        Response response = HttpClientUtil.HTTP_CLIENT.newCall(request).execute();
+        String responseBody = response.body().string();
+        if (response.isSuccessful()) {
+            SheetDimensionDto sheetDimensionDto = GSON_INSTANCE.fromJson(responseBody, SheetDimensionDto.class);
+            for (int i = 0; i < sheetDimensionDto.getNumOfColumns(); i++) {
+                sheetColumns.add(CellPositionDto.parseColumn(i + 1));
+            }
+            List<ListView<CommandsModelUI.ListViewEntry>> listViews = new LinkedList<>();
+            listViews.add(filterByColumnsListView);
+            listViews.add(sortByColumnsListView);
+            modelUi.setColumnsSelectBoxes(sheetColumns, listViews);
+        }
     }
 
     @FXML

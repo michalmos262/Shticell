@@ -1,5 +1,8 @@
 package server.servlet.login;
 
+import dto.sheet.FileMetadata;
+import engine.api.Engine;
+import engine.user.permission.UserPermission;
 import engine.user.usermanager.UserManager;
 import jakarta.servlet.annotation.WebServlet;
 import jakarta.servlet.http.HttpServlet;
@@ -11,6 +14,7 @@ import server.util.SessionUtils;
 import serversdk.request.body.LoginBody;
 
 import java.io.IOException;
+import java.util.List;
 
 import static server.constant.Constants.*;
 import static serversdk.request.parameter.RequestParameters.*;
@@ -41,6 +45,13 @@ public class LoginServlet extends HttpServlet {
                         userManager.addUser(username);
                         request.getSession(true).setAttribute(USERNAME, username);
                         response.setStatus(HttpServletResponse.SC_OK);
+
+                        Engine engine = ServletUtils.getEngineInstance(getServletContext());
+                        List<FileMetadata> fileMetadataList = engine.getSheetFilesMetadata();
+
+                        for (FileMetadata fileMetadata : fileMetadataList) {
+                            userManager.getUserSheetPermissions(username).setSheetNameAndFileMetadata(fileMetadata);
+                        }
                     }
                 }
             } else {

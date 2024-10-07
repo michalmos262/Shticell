@@ -91,7 +91,7 @@ public class MainAppController implements Closeable {
             MainSheetController sheetController = fxmlLoader.getController();
             sheetName2Controller.put(sheetName, sheetController);
             sheetController.setMainAppController(this);
-            sheetController.prepareResources(sheetName);
+            sheetController.initComponents(sheetName);
         } catch (IOException e) {
             System.out.println(e.getMessage());
         }

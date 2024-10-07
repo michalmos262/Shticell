@@ -1,6 +1,10 @@
 package client.resources;
 
 import com.google.gson.Gson;
+import com.google.gson.GsonBuilder;
+import dto.cell.CellPositionDto;
+import dto.cell.CellPositionDtoDeserializer;
+import dto.cell.CellPositionDtoSerializer;
 import serversdk.exception.ServerException;
 
 public class CommonResourcesPaths {
@@ -29,10 +33,14 @@ public class CommonResourcesPaths {
     public final static String SORTED_SHEET_ROWS_ENDPOINT = SHEET_ENDPOINT + "/sorted-rows";
     public final static String CELL_ENDPOINT = SHEET_ENDPOINT + "/cell";
     public final static String RANGE_ENDPOINT = SHEET_ENDPOINT + "/range";
+    public final static String RANGE_NAMES_ENDPOINT = SHEET_ENDPOINT + "/range-names";
     public final static String SHEET_DIMENSION_ENDPOINT = SHEET_ENDPOINT + "/dimension";
 
     // GSON instance
-    public final static Gson GSON_INSTANCE = new Gson();
+    public final static Gson GSON_INSTANCE = new GsonBuilder().
+            registerTypeAdapter(CellPositionDto.class, new CellPositionDtoSerializer())
+            .registerTypeAdapter(CellPositionDto.class, new CellPositionDtoDeserializer())
+            .create();
 
     // constants
     public final static String SUPPORTED_FILE_TYPE = "xml";
@@ -40,4 +48,5 @@ public class CommonResourcesPaths {
             new ServerException.ErrorResponse("General error occurred")
     );
     public final static String JSON_MEDIA_TYPE = "application/json; charset=utf-8";
+    public final static int REFRESH_RATE = 2000;
 }

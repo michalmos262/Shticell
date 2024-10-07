@@ -3,11 +3,7 @@ package engine.api;
 import dto.cell.CellDto;
 import dto.cell.CellPositionDto;
 import dto.cell.EffectiveValueDto;
-import dto.sheet.RangeDto;
-import dto.sheet.RowDto;
-import dto.sheet.SheetDimensionDto;
-import dto.sheet.SheetDto;
-import engine.entity.cell.EffectiveValue;
+import dto.sheet.*;
 import engine.entity.cell.CellPositionInSheet;
 import engine.entity.range.Range;
 
@@ -20,7 +16,6 @@ import java.util.Set;
 public interface Engine {
     String SUPPORTED_FILE_TYPE = "xml";
 
-    boolean isDataLoaded();
     int getCurrentSheetVersion(String sheetName);
     CellDto findCellInSheet(String sheetName, int row, int column, int sheetVersion);
     SheetDto getSheet(String sheetName, int sheetVersion);
@@ -30,9 +25,8 @@ public interface Engine {
     CellDto updateSheetCell(String sheetName, int row, int column, String newValue);
     CellPositionInSheet getCellPositionInSheet(String sheetName, int row, int column);
     CellPositionInSheet getCellPositionInSheet(String sheetName, String position);
-    String loadFile(String fileName) throws Exception;
-    String loadFile(InputStream fileInputStream) throws Exception;
-    int getFilesAmount();
+    FileMetadata loadFile(InputStream fileInputStream, String owner) throws Exception;
+    List<FileMetadata> getSheetFilesMetadata();
     int getNumOfSheetRows(String sheetName);
     int getNumOfSheetColumns(String sheetName);
     int getSheetRowHeight(String sheetName);

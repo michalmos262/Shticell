@@ -16,7 +16,7 @@ public class ActionLineModelUI {
 
     public ActionLineModelUI(List<Button> cellButtons, Label selectedCellIdLabel, TextField originalCellValueTextField,
                              Label lastCellVersionLabel, ChoiceBox<Integer> showSheetVersionSelector,
-                             ChoiceBox<Pos> columnTextAlignmentChoiceBox, Button showSheetVersionButton,
+                             ChoiceBox<Pos> columnTextAlignmentChoiceBox,
                              Spinner<Integer> columnWidthSpinner, Spinner<Integer> rowHeightSpinner,
                              ColorPicker cellBackgroundColorPicker, ColorPicker cellTextColorPicker) {
 
@@ -30,9 +30,6 @@ public class ActionLineModelUI {
             button.disableProperty().bind(isAnyCellClicked.not());
         }
 
-        showSheetVersionButton.disableProperty().bind(currentSheetVersion.isEqualTo(0));
-        showSheetVersionSelector.disableProperty().bind(currentSheetVersion.isEqualTo(0));
-
         originalCellValueTextField.disableProperty().bind(isAnyCellClicked.not());
         columnTextAlignmentChoiceBox.disableProperty().bind(isAnyCellClicked.not());
         columnWidthSpinner.disableProperty().bind(isAnyCellClicked.not());
@@ -44,12 +41,8 @@ public class ActionLineModelUI {
         originalCellValueTextField.textProperty().bindBidirectional(selectedCellOriginalValue);
         lastCellVersionLabel.textProperty().bind(Bindings.concat("Last Cell Version: ", selectedCellLastVersion));
 
-        currentSheetVersion.addListener((obs, oldValue, newValue) -> {
-            if (newValue.equals(1)) {
-                showSheetVersionSelector.getItems().clear();
-            }
-            showSheetVersionSelector.getItems().add(newValue.intValue());
-        });
+        currentSheetVersion.addListener((obs, oldValue, newValue) ->
+                showSheetVersionSelector.getItems().add(newValue.intValue()));
     }
 
     public BooleanProperty isAnyCellClickedProperty() {

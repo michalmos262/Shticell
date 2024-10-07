@@ -24,6 +24,7 @@ import okhttp3.HttpUrl;
 import okhttp3.Request;
 import okhttp3.Response;
 
+import java.io.IOException;
 import java.lang.reflect.Type;
 import java.util.*;
 
@@ -62,7 +63,7 @@ public class GridController {
         this.mainSheetController = mainSheetController;
     }
 
-    public void initMainGrid(String sheetName) {
+    public void initMainGrid(String sheetName) throws IOException {
         String url = HttpUrl
                 .parse(SHEET_DIMENSION_ENDPOINT)
                 .newBuilder()
@@ -73,28 +74,24 @@ public class GridController {
         Request request = new Request.Builder()
                 .url(url)
                 .build();
-        try {
-            Response response = HttpClientUtil.HTTP_CLIENT.newCall(request).execute();
-            String responseBody = response.body().string();
-            if (response.isSuccessful()) {
-                SheetDimensionDto sheetDimensionDto = GSON_INSTANCE.fromJson(responseBody, SheetDimensionDto.class);
+        Response response = HttpClientUtil.HTTP_CLIENT.newCall(request).execute();
+        String responseBody = response.body().string();
+        if (response.isSuccessful()) {
+            SheetDimensionDto sheetDimensionDto = GSON_INSTANCE.fromJson(responseBody, SheetDimensionDto.class);
 
-                numOfRows = sheetDimensionDto.getNumOfRows();
-                numOfColumns = sheetDimensionDto.getNumOfColumns();
-                defaultRowHeight = sheetDimensionDto.getRowHeight();
-                defaultColumnWidth = sheetDimensionDto.getColumnWidth();
+            numOfRows = sheetDimensionDto.getNumOfRows();
+            numOfColumns = sheetDimensionDto.getNumOfColumns();
+            defaultRowHeight = sheetDimensionDto.getRowHeight();
+            defaultColumnWidth = sheetDimensionDto.getColumnWidth();
 
-                 // Clear the existing content in the gridContainer
-                mainGridPane.getChildren().clear();
+             // Clear the existing content in the gridContainer
+            mainGridPane.getChildren().clear();
 
-                setGridColumnsHeaders(mainGridPane, numOfColumns);
-                setGridRowsHeaders(mainGridPane);
-                setMainGridCells(sheetName);
-            } else {
-                System.out.println("Error: " + responseBody);
-            }
-        } catch (Exception e) {
-            System.out.println(e.getMessage());
+            setGridColumnsHeaders(mainGridPane, numOfColumns);
+            setGridRowsHeaders(mainGridPane);
+            setMainGridCells(sheetName);
+        } else {
+            System.out.println("Error: " + responseBody);
         }
     }
 
@@ -127,8 +124,7 @@ public class GridController {
         }
     }
 
-    private void setMainGridCells(String sheetName) {
-        // todo: getting java.lang.IllegalStateException: Expected BEGIN_OBJECT but was STRING at line 1 column 23
+    private void setMainGridCells(String sheetName) throws IOException {
         String url = HttpUrl
                 .parse(SHEET_ENDPOINT)
                 .newBuilder()
@@ -139,52 +135,55 @@ public class GridController {
         Request request = new Request.Builder()
                 .url(url)
                 .build();
-        try {
-            Response response = HttpClientUtil.HTTP_CLIENT.newCall(request).execute();
-            if (response.isSuccessful()) {
-                String responseBody = response.body().string();
-                SheetDto sheetDto = GSON_INSTANCE.fromJson(responseBody, SheetDto.class);
-                // Populate the GridPane with Labels in the main grid area
-                for (int row = 0; row < numOfRows; row++) {
-                    for (int col = 0; col < numOfColumns; col++) {
-                        CellPositionDto cellPosition = new CellPositionDto(row+1, col+1);
-                        Label label = new Label();
-                        label.getStyleClass().add(CELL_CSS_CLASS);
-                        label.setId((char) ('A' + col) + String.valueOf(row + 1));
-                        modelUi.setCellLabelBinding(label, sheetDto, cellPosition);
 
-                        label.setMinHeight(defaultRowHeight);
-                        label.setPrefHeight(defaultRowHeight);
-                        label.setMaxHeight(defaultRowHeight);
+        Response response = HttpClientUtil.HTTP_CLIENT.newCall(request).execute();
+        String responseBody = response.body().string();
+        if (response.isSuccessful()) {
+            SheetDto sheetDto = GSON_INSTANCE.fromJson(responseBody, SheetDto.class);
+            // Populate the GridPane with Labels in the main grid area
+            for (int row = 0; row < numOfRows; row++) {
+                for (int col = 0; col < numOfColumns; col++) {
+                    CellPositionDto cellPosition = new CellPositionDto(row+1, col+1);
+                    Label label = new Label();
+                    label.getStyleClass().add(CELL_CSS_CLASS);
+                    label.setId((char) ('A' + col) + String.valueOf(row + 1));
+                    modelUi.setCellLabelBinding(label, sheetDto, cellPosition);
 
-                        label.setMinWidth(defaultColumnWidth);
-                        label.setPrefWidth(defaultColumnWidth);
-                        label.setMaxWidth(defaultColumnWidth);
+                    label.setMinHeight(defaultRowHeight);
+                    label.setPrefHeight(defaultRowHeight);
+                    label.setMaxHeight(defaultRowHeight);
 
-                        // Attach the click event handler
-                        label.setOnMouseClicked(this::handleCellClick);
+                    label.setMinWidth(defaultColumnWidth);
+                    label.setPrefWidth(defaultColumnWidth);
+                    label.setMaxWidth(defaultColumnWidth);
 
-                        mainGridPane.add(label, col + 1, row + 1);  // Offset by 1 to leave space for headers
-                    }
-                }
+                    // Attach the click event handler
+                    label.setOnMouseClicked(this::handleCellClick);
 
-                for (int row = 0; row < numOfRows; row++) {
-                    for (int col = 0; col < numOfColumns; col++) {
-                        CellPositionDto CellPositionDto = new CellPositionDto(row + 1, col + 1);
-                        modelUi.setRowsAndColumnsBindings(CellPositionDto);
-                    }
+                    mainGridPane.add(label, col + 1, row + 1);  // Offset by 1 to leave space for headers
                 }
             }
-        } catch (Exception e) {
-            System.out.println(e.getMessage());
+
+            for (int row = 0; row < numOfRows; row++) {
+                for (int col = 0; col < numOfColumns; col++) {
+                    CellPositionDto CellPositionDto = new CellPositionDto(row + 1, col + 1);
+                    modelUi.setRowsAndColumnsBindings(CellPositionDto);
+                }
+            }
+        } else {
+            System.out.println("Error: " + responseBody);
         }
     }
 
     @FXML
     private void handleCellClick(MouseEvent event) {
         clickedLabel = (Label) event.getSource();
-        CellDto cellDto = mainSheetController.cellClicked(clickedLabel);
-        setClickedCellColors(cellDto);
+        try {
+            CellDto cellDto = mainSheetController.cellClicked(clickedLabel);
+            setClickedCellColors(cellDto);
+        } catch (Exception e) {
+            System.out.println("Error: " + e.getMessage());
+        }
     }
 
     private void setClickedCellColors(CellDto cellDto) {
@@ -209,15 +208,17 @@ public class GridController {
         }
     }
 
-    private void setRangeCellsColors(String rangeName) {
+    private void setRangeCellsColors(String rangeName) throws IOException {
         // Clear the previously painted cells
         clearPaintedCells();
 
         // get cell positions
         List<Label> cellsToPainter = getRangeCellsToPaint(rangeName);
-        for (Label cellLabel : cellsToPainter) {
-            cellLabel.getStyleClass().add(OF_RANGE_CSS_CLASS);
-            currentlyPaintedCells.add(cellLabel);
+        if (cellsToPainter != null) {
+            for (Label cellLabel : cellsToPainter) {
+                cellLabel.getStyleClass().add(OF_RANGE_CSS_CLASS);
+                currentlyPaintedCells.add(cellLabel);
+            }
         }
     }
 
@@ -243,7 +244,7 @@ public class GridController {
         return influencedByCellsLabels;
     }
 
-    private List<Label> getRangeCellsToPaint(String rangeName) {
+    private List<Label> getRangeCellsToPaint(String rangeName) throws IOException {
         String url = HttpUrl
                 .parse(RANGE_ENDPOINT)
                 .newBuilder()
@@ -254,20 +255,18 @@ public class GridController {
         Request request = new Request.Builder()
                 .url(url)
                 .build();
-        try {
-            Response response = HttpClientUtil.HTTP_CLIENT.newCall(request).execute();
-            if (response.isSuccessful()) {
-                List<Label> rangeCellsLabels = new ArrayList<>();
-                String responseBody = response.body().string();
-                Type setType = new TypeToken<Set<CellPositionDto>>(){}.getType();
-                Set<CellPositionDto> rangeCellPositions = GSON_INSTANCE.fromJson(responseBody, setType);
-                rangeCellPositions.forEach(position ->
-                    rangeCellsLabels.add((Label) mainGridPane.lookup("#" + position))
-                );
-                return rangeCellsLabels;
-            }
-        } catch (Exception e) {
-            System.out.println(e.getMessage());
+        Response response = HttpClientUtil.HTTP_CLIENT.newCall(request).execute();
+        String responseBody = response.body().string();
+        if (response.isSuccessful()) {
+            List<Label> rangeCellsLabels = new ArrayList<>();
+            Type setType = new TypeToken<Set<CellPositionDto>>(){}.getType();
+            Set<CellPositionDto> rangeCellPositions = GSON_INSTANCE.fromJson(responseBody, setType);
+            rangeCellPositions.forEach(position ->
+                rangeCellsLabels.add((Label) mainGridPane.lookup("#" + position))
+            );
+            return rangeCellsLabels;
+        } else {
+            System.out.println("Error: " + responseBody);
         }
         return null;
     }
@@ -310,10 +309,13 @@ public class GridController {
                     visibleValue.setValue(influencedCell.getEffectiveValueForDisplay().toString());
                 }
             } catch (Exception e) {
-                System.out.println(e.getMessage());
+                try {
+                    throw e;
+                } catch (IOException ex) {
+                    throw new RuntimeException(ex);
+                }
             }
         });
-
         setClickedCellColors(cellDto);
     }
 
@@ -345,9 +347,9 @@ public class GridController {
         dialog.setTitle("Show sheet on specific version");
         dialog.setHeaderText("Sheet version: " + version);
 
-        GridPane gridPane = getUnStyledGrid(sheetDto);
+        ScrollPane scrollPane = getUnStyledGrid(sheetDto);
 
-        dialog.getDialogPane().setContent(gridPane);
+        dialog.getDialogPane().setContent(scrollPane);
         dialog.getDialogPane().getButtonTypes().setAll(ButtonType.OK);
         dialog.showAndWait();
     }
@@ -361,11 +363,12 @@ public class GridController {
         return false;
     }
 
-    public void showSortedSheet(LinkedList<RowDto> sortedRows, String fromPositionStr, String toPositionStr) {
+    public void showSortedSheet(LinkedList<RowDto> sortedRows, String fromPositionStr, String toPositionStr) throws IOException {
         Dialog<String> dialog = new Dialog<>();
         dialog.setTitle("Show sorted sheet");
 
-        GridPane sortedGrid = getCopiedMainGreed();
+        ScrollPane scrollPane = getCopiedMainGreed();
+        GridPane sortedGrid = (GridPane) scrollPane.getContent();
         
         String url = HttpUrl
                 .parse(RANGE_ENDPOINT)
@@ -379,31 +382,27 @@ public class GridController {
                 .url(url)
                 .build();
 
-        try {
-            Response response = HttpClientUtil.HTTP_CLIENT.newCall(request).execute();
-            if (response.isSuccessful()) {
-                String responseBody = response.body().string();
-                RangeDto rangeDto = GSON_INSTANCE.fromJson(responseBody, RangeDto.class);
-                Iterator<CellPositionDto> positionInRangeIterator = rangeDto.getIncludedPositions().iterator();
+        Response response = HttpClientUtil.HTTP_CLIENT.newCall(request).execute();
+        if (response.isSuccessful()) {
+            String responseBody = response.body().string();
+            RangeDto rangeDto = GSON_INSTANCE.fromJson(responseBody, RangeDto.class);
+            Iterator<CellPositionDto> positionInRangeIterator = rangeDto.getIncludedPositions().iterator();
 
-                for (RowDto row : sortedRows) {
-                    for (Map.Entry<String, CellDto> column2cell : row.getCells().entrySet()) {
-                        CellPositionDto positionInRange = positionInRangeIterator.next();
-                        while (positionInRangeIterator.hasNext() && !isPositionInSortedRow(sortedRows, positionInRange)) {
-                            positionInRange = positionInRangeIterator.next();
-                        }
-                        Label cellInOriginalGrid = (Label) mainGridPane.lookup("#" + column2cell.getKey() + row.getRowNumber());
-                        Label cellInSortedGrid = (Label) sortedGrid.lookup("#" + positionInRange + COPIED_CELL_PREFIX_CSS_CLASS);
-                        copyCellStyle(cellInOriginalGrid, cellInSortedGrid);
+            for (RowDto row : sortedRows) {
+                for (Map.Entry<String, CellDto> column2cell : row.getCells().entrySet()) {
+                    CellPositionDto positionInRange = positionInRangeIterator.next();
+                    while (positionInRangeIterator.hasNext() && !isPositionInSortedRow(sortedRows, positionInRange)) {
+                        positionInRange = positionInRangeIterator.next();
                     }
+                    Label cellInOriginalGrid = (Label) mainGridPane.lookup("#" + column2cell.getKey() + row.getRowNumber());
+                    Label cellInSortedGrid = (Label) sortedGrid.lookup("#" + positionInRange + COPIED_CELL_PREFIX_CSS_CLASS);
+                    copyCellStyle(cellInOriginalGrid, cellInSortedGrid);
                 }
-        
-                dialog.getDialogPane().setContent(sortedGrid);
-                dialog.getDialogPane().getButtonTypes().setAll(ButtonType.OK);
-                dialog.showAndWait();
             }
-        } catch (Exception e) {
-            System.out.println(e.getMessage());
+
+            dialog.getDialogPane().setContent(scrollPane);
+            dialog.getDialogPane().getButtonTypes().setAll(ButtonType.OK);
+            dialog.showAndWait();
         }
     }
 
@@ -413,9 +412,9 @@ public class GridController {
         copiedCell.setBackground(originalCell.getBackground());
     }
 
-    private GridPane getCopiedMainGreed() {
-        GridPane gridPane = new GridPane();
-        gridPane.setPrefWidth(700);
+    private ScrollPane getCopiedMainGreed() {
+        ScrollPane scrollPane = getSizedScrollPaneWithGrid();
+        GridPane copiedGridPane = (GridPane) scrollPane.getContent();
 
         // Add the row headers (1, 2, 3, ...)
         for (int row = 0; row < numOfRows; row++) {
@@ -426,7 +425,7 @@ public class GridController {
             rowHeaderInCopiedGrid.setMinSize(rowHeaderInOriginalGrid.getMinWidth(), rowHeaderInOriginalGrid.getMinHeight());
             rowHeaderInCopiedGrid.setMaxHeight(rowHeaderInOriginalGrid.getMaxHeight());
             rowHeaderInCopiedGrid.setBorder(rowHeaderInOriginalGrid.getBorder());
-            gridPane.add(rowHeaderInCopiedGrid, 0, row + 1);  // Place the row header in the first column
+            copiedGridPane.add(rowHeaderInCopiedGrid, 0, row + 1);  // Place the row header in the first column
         }
 
         // Add the column headers (A, B, C, ...)
@@ -438,16 +437,16 @@ public class GridController {
             columnHeaderInCopiedGrid.setPrefWidth(columnHeaderInOriginalGrid.getPrefWidth());
             columnHeaderInCopiedGrid.setMaxWidth(columnHeaderInOriginalGrid.getMaxWidth());
             columnHeaderInCopiedGrid.setBorder(columnHeaderInOriginalGrid.getBorder());
-            gridPane.add(columnHeaderInCopiedGrid, col + 1, 0);  // Place the column header in the first row
+            copiedGridPane.add(columnHeaderInCopiedGrid, col + 1, 0);  // Place the column header in the first row
         }
 
         // Populate the GridPane with Labels (sheet cells)
         for (int row = 0; row < numOfRows; row++) {
             for (int col = 0; col < numOfColumns; col++) {
-                CellPositionDto CellPositionDto = new CellPositionDto(row+1, col+1);
-                Label cellInOriginalGrid = (Label) mainGridPane.lookup("#" + CellPositionDto.parseColumn(CellPositionDto.getColumn()) + CellPositionDto.getRow());
+                CellPositionDto cellPosition = new CellPositionDto(row+1, col+1);
+                Label cellInOriginalGrid = (Label) mainGridPane.lookup("#" + CellPositionDto.parseColumn(cellPosition.getColumn()) + cellPosition.getRow());
                 Label cellInCopiedGrid = new Label();
-                cellInCopiedGrid.setId(CellPositionDto.parseColumn(CellPositionDto.getColumn()) + CellPositionDto.getRow() + COPIED_CELL_PREFIX_CSS_CLASS);
+                cellInCopiedGrid.setId(CellPositionDto.parseColumn(cellPosition.getColumn()) + cellPosition.getRow() + COPIED_CELL_PREFIX_CSS_CLASS);
                 cellInCopiedGrid.setText(cellInOriginalGrid.getText());
                 cellInCopiedGrid.setPrefWidth(cellInOriginalGrid.getPrefWidth());
                 cellInCopiedGrid.setMinWidth(cellInOriginalGrid.getMinWidth());
@@ -461,18 +460,19 @@ public class GridController {
                 cellInCopiedGrid.setTextFill(cellInOriginalGrid.getTextFill());
                 cellInCopiedGrid.setAlignment(cellInOriginalGrid.getAlignment());
 
-                gridPane.add(cellInCopiedGrid, col + 1, row + 1);  // Offset by 1 to leave space for headers
+                copiedGridPane.add(cellInCopiedGrid, col + 1, row + 1);  // Offset by 1 to leave space for headers
             }
         }
 
-        return gridPane;
+        return scrollPane;
     }
 
     public void showFilteredSheet(LinkedList<RowDto> filteredRows, RangeDto rangeToFilter) {
         Dialog<String> dialog = new Dialog<>();
         dialog.setTitle("Show filtered sheet");
 
-        GridPane filteredGrid = getCopiedMainGreed();
+        ScrollPane scrollPane = getCopiedMainGreed();
+        GridPane filteredGrid = (GridPane) scrollPane.getContent();
         Iterator<CellPositionDto> positionInRangeIterator = rangeToFilter.getIncludedPositions().iterator();
 
         for (RowDto row : filteredRows) {
@@ -493,14 +493,14 @@ public class GridController {
             }
         }
 
-        dialog.getDialogPane().setContent(filteredGrid);
+        dialog.getDialogPane().setContent(scrollPane);
         dialog.getDialogPane().getButtonTypes().setAll(ButtonType.OK);
         dialog.showAndWait();
     }
 
-    private GridPane getUnStyledGrid(SheetDto sheetDto) {
-        GridPane gridPane = new GridPane();
-        gridPane.setPrefWidth(700);
+    private ScrollPane getUnStyledGrid(SheetDto sheetDto) {
+        ScrollPane scrollPane = getSizedScrollPaneWithGrid();
+        GridPane gridPane = (GridPane) scrollPane.getContent();
 
         setGridColumnsHeaders(gridPane, numOfColumns);
         setGridRowsHeaders(gridPane);
@@ -511,10 +511,27 @@ public class GridController {
                 label.setStyle("-fx-border-color: black; -fx-alignment: center;");
             }
         }
-        return gridPane;
+
+        return scrollPane;
     }
 
-    public void showCellsInRange(String name) {
+    private ScrollPane getSizedScrollPaneWithGrid() {
+        ScrollPane scrollPane = new ScrollPane();
+        GridPane gridPane = new GridPane();
+
+        scrollPane.setMinHeight(600);
+        scrollPane.setMinWidth(900);
+        scrollPane.setPrefHeight(600);
+        scrollPane.setPrefWidth(900);
+        scrollPane.setMaxHeight(600);
+        scrollPane.setMaxWidth(900);
+
+        scrollPane.setContent(gridPane);
+
+        return scrollPane;
+    }
+
+    public void showCellsInRange(String name) throws IOException {
         setRangeCellsColors(name);
     }
 
@@ -552,12 +569,13 @@ public class GridController {
         changeCellTextColor(cellId, cellTextColor);
     }
 
-    public void showDynamicAnalysis(String cellId) {
+    public void showDynamicAnalysis(String cellId) throws IOException {
         Dialog<String> dialog = new Dialog<>();
         dialog.setTitle("Dynamic analysis");
         dialog.setHeaderText("Dynamic analysis of cell in position: " + cellId);
 
-        GridPane copiedGrid = getCopiedMainGreed();
+        ScrollPane scrollPane = getCopiedMainGreed();
+        GridPane copiedGrid = (GridPane) scrollPane.getContent();
 
         for (int row = 0; row < numOfRows; row++) {
             for (int col = 0; col < numOfColumns; col++) {
@@ -568,15 +586,11 @@ public class GridController {
                 .url(SHEET_ENDPOINT)
                 .build();
 
-                try {
-                    Response response = HttpClientUtil.HTTP_CLIENT.newCall(request).execute();
-                    if (response.isSuccessful()) {
-                        String responseBody = response.body().string();
-                        SheetDto sheetDto = GSON_INSTANCE.fromJson(responseBody, SheetDto.class);
-                        modelUi.setCellLabelBindingDynamicAnalysis(cellLabel, sheetDto, cellPositionDto);
-                    }
-                } catch (Exception e) {
-                    System.out.println(e.getMessage());
+                Response response = HttpClientUtil.HTTP_CLIENT.newCall(request).execute();
+                if (response.isSuccessful()) {
+                    String responseBody = response.body().string();
+                    SheetDto sheetDto = GSON_INSTANCE.fromJson(responseBody, SheetDto.class);
+                    modelUi.setCellLabelBindingDynamicAnalysis(cellLabel, sheetDto, cellPositionDto);
                 }
             }
         }
@@ -613,7 +627,7 @@ public class GridController {
         textFieldsGridPane.add(slider, 1, 3);
 
         dialogGridPane.add(textFieldsGridPane, 0, 0);
-        dialogGridPane.add(copiedGrid, 1, 0);
+        dialogGridPane.add(scrollPane, 1, 0);
 
         setDynamicAnalysisListeners(cellId, fromRangeTextField, toRangeTextField, stepSizeTextField, slider);
 
@@ -734,7 +748,11 @@ public class GridController {
                     });
                 }
             } catch (Exception e) {
-                System.out.println(e.getMessage());
+                try {
+                    throw e;
+                } catch (IOException ex) {
+                    throw new RuntimeException(ex);
+                }
             }
         });
     }

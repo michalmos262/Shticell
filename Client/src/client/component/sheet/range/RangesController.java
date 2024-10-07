@@ -2,7 +2,9 @@ package client.component.sheet.range;
 
 import client.component.alert.AlertsHandler;
 import client.util.http.HttpClientUtil;
+import com.google.gson.reflect.TypeToken;
 import dto.sheet.RangeDto;
+import dto.sheet.RowDto;
 import javafx.event.ActionEvent;
 import javafx.fxml.FXML;
 import javafx.scene.control.*;
@@ -11,11 +13,14 @@ import client.component.sheet.mainsheet.MainSheetController;
 import okhttp3.*;
 import serversdk.request.body.RangeBody;
 
+import java.io.IOException;
+import java.lang.reflect.Type;
 import java.util.Arrays;
+import java.util.LinkedList;
 import java.util.List;
 
 import static client.resources.CommonResourcesPaths.*;
-import static serversdk.request.parameter.RequestParameters.RANGE_NAME;
+import static serversdk.request.parameter.RequestParameters.*;
 
 public class RangesController {
 
@@ -43,6 +48,44 @@ public class RangesController {
 
     public void setMainController(MainSheetController mainSheetController) {
         this.mainSheetController = mainSheetController;
+    }
+
+    public void init() throws IOException {
+        Request sheetNamesRequest = new Request.Builder()
+                .url(RANGE_NAMES_ENDPOINT)
+                .build();
+
+        Response sheetNamesResponse = HttpClientUtil.HTTP_CLIENT.newCall(sheetNamesRequest).execute();
+        String responseBody = sheetNamesResponse.body().string();
+
+        if (sheetNamesResponse.isSuccessful()) {
+            Type listType = new TypeToken<List<String>>(){}.getType();
+            List<String> rangeNames = GSON_INSTANCE.fromJson(responseBody, listType);
+
+            for (String rangeName : rangeNames) {
+                String url = HttpUrl
+                        .parse(RANGE_ENDPOINT)
+                        .newBuilder()
+                        .addQueryParameter(RANGE_NAME, rangeName)
+                        .build()
+                        .toString();
+
+                Request rangeRequest = new Request.Builder()
+                        .url(url)
+                        .build();
+
+                Response rangeResponse = HttpClientUtil.HTTP_CLIENT.newCall(rangeRequest).execute();
+                responseBody = rangeResponse.body().string();
+                if (sheetNamesResponse.isSuccessful()) {
+                    RangeDto range = GSON_INSTANCE.fromJson(responseBody, RangeDto.class);
+                    modelUi.addRange(rangeName, range);
+                } else {
+                    System.out.println("Error: " + responseBody);
+                }
+            }
+        } else {
+            System.out.println("Error: " + responseBody);
+        }
     }
 
     @FXML
@@ -110,7 +153,7 @@ public class RangesController {
     }
 
     @FXML
-    void tableViewOnMouseClickedListener(MouseEvent event) {
+    void tableViewOnMouseClickedListener(MouseEvent event) throws IOException {
         RangeModelUI.TableEntry selectedRow = showRangesTable.getSelectionModel().getSelectedItem();
         if (selectedRow != null) {
             mainSheetController.showCellsInRange(selectedRow.nameProperty().getValue());

@@ -3,6 +3,8 @@ package client.component.dashboard;
 import client.component.dashboard.loadfile.LoadFileController;
 import client.component.mainapp.MainAppController;
 import dto.user.UserPermissionDto;
+import javafx.application.Platform;
+import javafx.collections.ObservableList;
 import javafx.event.ActionEvent;
 import javafx.fxml.FXML;
 import javafx.scene.control.Button;
@@ -11,6 +13,12 @@ import javafx.scene.control.TableView;
 import javafx.scene.input.MouseEvent;
 import javafx.scene.layout.GridPane;
 import dto.sheet.FileMetadata;
+
+import java.util.List;
+import java.util.Timer;
+import java.util.TimerTask;
+
+import static client.resources.CommonResourcesPaths.REFRESH_RATE;
 
 public class DashboardController {
     @FXML private Button viewSheetButton;
@@ -30,6 +38,8 @@ public class DashboardController {
 
     private DashboardModelUI modelUi;
     private MainAppController mainAppController;
+    private TimerTask sheetsTableRefresher;
+    private Timer timer;
 
     @FXML
     public void initialize() {
@@ -70,5 +80,21 @@ public class DashboardController {
     @FXML
     public void RequestPermissionButtonListener(ActionEvent actionEvent) {
 
+    }
+
+    private void updateSheetsTable(List<DashboardModelUI.SheetsTableEntry> sheetsTableEntries) {
+        Platform.runLater(() -> {
+            ObservableList<DashboardModelUI.SheetsTableEntry> items = availableSheetsTableView.getItems();
+            items.clear();
+            items.addAll(sheetsTableEntries);
+        });
+    }
+
+    public void startListRefresher() {
+        sheetsTableRefresher = new DashboardRefresher(
+                modelUi.autoUpdatesProperty(),
+                this::updateSheetsTable);
+        timer = new Timer();
+        timer.schedule(sheetsTableRefresher, REFRESH_RATE, REFRESH_RATE);
     }
 }

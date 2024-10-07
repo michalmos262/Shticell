@@ -15,14 +15,12 @@ import java.util.HashMap;
 import java.util.Map;
 
 public class GridModelUI {
-    private final SimpleBooleanProperty isFileLoading;
     private final GridPane gridPane;
     private final Map<CellPositionDto, CellProperties> cellPosition2displayedValue;
     private final Map<CellPositionDto, CellProperties> cellPosition2displayedValueDynamicAnalysis;
 
     public GridModelUI(GridPane gridPane) {
         this.gridPane = gridPane;
-        isFileLoading = new SimpleBooleanProperty(false);
         cellPosition2displayedValue = new HashMap<>();
         cellPosition2displayedValueDynamicAnalysis = new HashMap<>();
     }
@@ -41,7 +39,6 @@ public class GridModelUI {
 
         cellPosition2displayedValue.put(cellPosition, cellProperties);
         label.textProperty().bind(cellPosition2displayedValue.get(cellPosition).displayedValue);
-        label.disableProperty().bind(isFileLoading);
 
         cellPosition2displayedValue.get(cellPosition).backgroundColorProperty()
                 .addListener((observable, oldValue, newValue) -> label.setStyle(label.getStyle() + "-fx-background-color: " +
@@ -107,10 +104,6 @@ public class GridModelUI {
                             }
                         })
                 );
-    }
-
-    public SimpleBooleanProperty isFileLoadingProperty() {
-        return isFileLoading;
     }
 
     public static class CellProperties {

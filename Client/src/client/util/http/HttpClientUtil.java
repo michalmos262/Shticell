@@ -31,7 +31,7 @@ public class HttpClientUtil {
         call.enqueue(callback);
     }
 
-    public static void runPost(String finalUrl, RequestBody body, Callback callback) {
+    public static void runAsyncPost(String finalUrl, RequestBody body, Callback callback) {
         Request request = new Request.Builder()
                 .url(finalUrl)
                 .post(body)

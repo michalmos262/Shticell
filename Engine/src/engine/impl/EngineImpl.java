@@ -4,10 +4,7 @@ import dto.cell.CellDto;
 import dto.cell.CellPositionDto;
 import dto.cell.CellTypeDto;
 import dto.cell.EffectiveValueDto;
-import dto.sheet.RangeDto;
-import dto.sheet.RowDto;
-import dto.sheet.SheetDimensionDto;
-import dto.sheet.SheetDto;
+import dto.sheet.*;
 import engine.api.Engine;
 import engine.entity.cell.*;
 import engine.entity.range.Range;
@@ -25,6 +22,7 @@ import engine.jaxb.schema.generated.STLCell;
 import engine.jaxb.schema.generated.STLCells;
 import engine.jaxb.schema.generated.STLRange;
 import engine.jaxb.schema.generated.STLSheet;
+import engine.user.permission.UserPermission;
 import jakarta.xml.bind.JAXBContext;
 import jakarta.xml.bind.Unmarshaller;
 
@@ -38,7 +36,6 @@ import static engine.expression.impl.ExpressionEvaluator.evaluateArgument;
 
 public class EngineImpl implements Engine {
     private final SheetFilesManager sheetFilesManager = new SheetFilesManager();
-    private boolean isDataLoaded = false;
 
     private SheetDto createSheetDto(Sheet sheet) {
         Map<CellPositionDto, CellDto> position2cell;
@@ -70,11 +67,6 @@ public class EngineImpl implements Engine {
         }
 
         return effectiveValueForDisplay;
-    }
-
-    @Override
-    public boolean isDataLoaded() {
-        return isDataLoaded;
     }
 
     @Override
@@ -222,38 +214,20 @@ public class EngineImpl implements Engine {
     }
 
     @Override
-    public String loadFile(String filePath) throws Exception {
-        File file = new File(filePath);
-
-        if (!(file.exists() && file.isFile())) {
-            throw new FileNotExistException(filePath);
-        }
-        else if (!file.getName().endsWith("." + SUPPORTED_FILE_TYPE)) {
-            throw new InvalidFileTypeException(filePath, SUPPORTED_FILE_TYPE.toUpperCase());
-        }
-
-        JAXBContext jaxbContext = JAXBContext.newInstance(STLSheet.class);
-        Unmarshaller jaxbUnmarshaller = jaxbContext.createUnmarshaller();
-        STLSheet jaxbSheet = (STLSheet) jaxbUnmarshaller.unmarshal(file);
-
-        return addNewSheetManagerFromJaxbSheet(jaxbSheet);
-    }
-
-    @Override
-    public String loadFile(InputStream fileInputStream) throws Exception {
+    public FileMetadata loadFile(InputStream fileInputStream, String owner) throws Exception {
         JAXBContext jaxbContext = JAXBContext.newInstance(STLSheet.class);
         Unmarshaller jaxbUnmarshaller = jaxbContext.createUnmarshaller();
         STLSheet jaxbSheet = (STLSheet) jaxbUnmarshaller.unmarshal(fileInputStream);
 
-        return addNewSheetManagerFromJaxbSheet(jaxbSheet);
+        return addNewSheetManagerFromJaxbSheet(jaxbSheet, owner);
     }
 
     @Override
-    public int getFilesAmount() {
-        return sheetFilesManager.getSheetManagersCount();
+    public List<FileMetadata> getSheetFilesMetadata() {
+        return sheetFilesManager.getFileMetadataList();
     }
 
-    private String addNewSheetManagerFromJaxbSheet(STLSheet jaxbSheet) {
+    private FileMetadata addNewSheetManagerFromJaxbSheet(STLSheet jaxbSheet, String owner) {
         List<STLRange> ranges = jaxbSheet.getSTLRanges().getSTLRange();
 
         // Creating sheet manager
@@ -270,8 +244,14 @@ public class EngineImpl implements Engine {
         sheet.setUpdatedCellsCount(cellsUpdatedCounter);
         sheetManager.addNewSheet(sheet);
         sheetFilesManager.addSheetManager(jaxbSheet.getName(), sheetManager);
-        isDataLoaded = true;
-        return jaxbSheet.getName();
+        SheetDimension sheetDimension = sheetManager.getSheetDimension();
+        String sheetSize = sheetDimension.getNumOfRows() + "X" + sheetDimension.getNumOfColumns();
+
+        FileMetadata fileMetadata = new FileMetadata(jaxbSheet.getName(), owner, sheetSize,
+                UserPermission.NONE.toString());
+        sheetFilesManager.addFileMetadata(fileMetadata);
+
+        return fileMetadata;
     }
 
     private SheetManager getNewSheetManager(STLSheet jaxbSheet) {
@@ -539,6 +519,7 @@ public class EngineImpl implements Engine {
 
     @Override
     public SheetDto getSheetAfterDynamicAnalysisOfCell(String sheetName, CellPositionInSheet cellPosition, double cellOriginalValue) {
+        // todo: someone else can change the sheet during the analysis, need to pass a sheet and not name.
         SheetDto dynamicAnalysedSheetDto;
         Sheet inWorkSheet = sheetFilesManager.getSheetManager(sheetName)
                 .getSheetByVersion(getCurrentSheetVersion(sheetName)).clone();

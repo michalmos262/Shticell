@@ -47,7 +47,7 @@ public class LoginController {
         MediaType mediaType = MediaType.get(JSON_MEDIA_TYPE);
         RequestBody requestBody = RequestBody.create(loginBodyJson, mediaType);
 
-        HttpClientUtil.runPost(LOGIN_PAGE, requestBody, new Callback() {
+        HttpClientUtil.runAsyncPost(LOGIN_PAGE, requestBody, new Callback() {
             @Override
             public void onFailure(@NotNull Call call, @NotNull IOException e) {
                 Platform.runLater(() -> modelUi.errorMessageProperty().set(e.getMessage()));
