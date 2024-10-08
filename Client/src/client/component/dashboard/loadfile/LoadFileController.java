@@ -83,7 +83,6 @@ public class LoadFileController {
             },
             onFinish -> {
                 modelUi.isFileLoadingProperty().set(false);
-                dashboardController.fileLoadedSuccessfully(currentFileMetadata);
         });
 
         // Handle task failure

@@ -1,6 +1,6 @@
 package server.servlet.user;
 
-import engine.user.permission.SheetNameAndFileMetadata;
+import dto.user.SheetNameAndFileMetadataDto;
 import engine.user.usermanager.UserManager;
 import jakarta.servlet.annotation.WebServlet;
 import jakarta.servlet.http.HttpServlet;
@@ -15,14 +15,16 @@ import java.io.IOException;
 import static server.constant.Constants.*;
 import static server.constant.Constants.GSON_INSTANCE;
 
-@WebServlet(name = "UserSheetPermissionsServlet", urlPatterns = "/sheet-permissions")
+@WebServlet(name = "UserSheetPermissionsServlet", urlPatterns = "/user/sheet-permissions")
 public class UserSheetPermissionsServlet extends HttpServlet {
     protected void doGet(HttpServletRequest request, HttpServletResponse response) throws IOException {
         response.setContentType(APPLICATION_JSON);
         try {
             if (SessionUtils.isAuthorized(request, response)) {
                 UserManager userManager = ServletUtils.getUserManager(getServletContext());
-                SheetNameAndFileMetadata permissions = userManager.getUserSheetPermissions(SessionUtils.getUsername(request));
+                SheetNameAndFileMetadataDto permissions = userManager.getUserSheetPermissionsDto(
+                        SessionUtils.getUsername(request)
+                );
                 String json = GSON_INSTANCE.toJson(permissions);
                 response.getWriter().println(json);
             }

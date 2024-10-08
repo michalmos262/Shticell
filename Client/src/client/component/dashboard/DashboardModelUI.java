@@ -1,8 +1,5 @@
 package client.component.dashboard;
 
-import javafx.application.Platform;
-import javafx.beans.property.BooleanProperty;
-import javafx.beans.property.SimpleBooleanProperty;
 import javafx.beans.property.SimpleStringProperty;
 import javafx.beans.property.StringProperty;
 import javafx.collections.FXCollections;
@@ -12,12 +9,9 @@ import javafx.collections.ObservableMap;
 import javafx.scene.control.TableColumn;
 import javafx.scene.control.TableView;
 
-import java.util.List;
-
 public class DashboardModelUI {
     ObservableMap<SimpleStringProperty, SheetNameData> sheetNameProperty2itsData;
     private final ObservableList<SheetsTableEntry> sheetsTableData;
-    private final BooleanProperty autoUpdate;
 
     public DashboardModelUI(TableView<SheetsTableEntry> showSheetsTable,
                             TableColumn<SheetsTableEntry, String> sheetNameColumn,
@@ -25,7 +19,6 @@ public class DashboardModelUI {
                             TableColumn<SheetsTableEntry, String> sheetSizeColumn,
                             TableColumn<SheetsTableEntry, String> yourPermissionTypeColumn) {
 
-        autoUpdate = new SimpleBooleanProperty();
         sheetNameProperty2itsData = FXCollections.observableHashMap();
         sheetsTableData = FXCollections.observableArrayList();
         bindSheetsTableView(showSheetsTable, ownerUsernameColumn, sheetNameColumn, sheetSizeColumn,
@@ -111,9 +104,5 @@ public class DashboardModelUI {
 
     public static class PermissionsTableEntry {
 
-    }
-
-    public BooleanProperty autoUpdatesProperty() {
-        return autoUpdate;
     }
 }

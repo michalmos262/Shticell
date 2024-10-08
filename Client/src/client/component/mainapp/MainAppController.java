@@ -81,25 +81,28 @@ public class MainAppController implements Closeable {
         }
     }
 
-    public void loadSheetPage(String sheetName) {
-        URL sheetPageUrl = getClass().getResource(MAIN_SHEET_PAGE_FXML_RESOURCE_LOCATION);
-        try {
-            FXMLLoader fxmlLoader = new FXMLLoader();
-            fxmlLoader.setLocation(sheetPageUrl);
-            sheetName2Component.put(sheetName, fxmlLoader.load());
+    private void loadSheetPage(String sheetName) {
+        // if the sheet has not loaded yet
+        if (!sheetName2Component.containsKey(sheetName)) {
+            URL sheetPageUrl = getClass().getResource(MAIN_SHEET_PAGE_FXML_RESOURCE_LOCATION);
+            try {
+                FXMLLoader fxmlLoader = new FXMLLoader();
+                fxmlLoader.setLocation(sheetPageUrl);
+                sheetName2Component.put(sheetName, fxmlLoader.load());
 
-            MainSheetController sheetController = fxmlLoader.getController();
-            sheetName2Controller.put(sheetName, sheetController);
-            sheetController.setMainAppController(this);
-            sheetController.initComponents(sheetName);
-        } catch (IOException e) {
-            System.out.println(e.getMessage());
+                MainSheetController sheetController = fxmlLoader.getController();
+                sheetName2Controller.put(sheetName, sheetController);
+                sheetController.setMainAppController(this);
+                sheetController.initComponents(sheetName);
+            } catch (IOException e) {
+                System.out.println(e.getMessage());
+            }
         }
     }
 
     @Override
-    public void close() throws IOException {
-        //todo
+    public void close() {
+        dashboardComponentController.close();
     }
 
     public void loggedIn(String username) {
@@ -109,9 +112,11 @@ public class MainAppController implements Closeable {
     public void switchToDashboardPage() {
         modelUi.pageHeadingProperty().set("Management Dashboard");
         setMainPanelTo(dashboardComponent);
+        dashboardComponentController.setActive();
     }
 
     public void switchToSheet(String sheetName) {
+        loadSheetPage(sheetName);
         modelUi.pageHeadingProperty().set("In sheet: " + sheetName);
         setMainPanelTo(sheetName2Component.get(sheetName));
     }

@@ -2,7 +2,7 @@ package client.component.dashboard;
 
 import client.component.dashboard.loadfile.LoadFileController;
 import client.component.mainapp.MainAppController;
-import dto.user.UserPermissionDto;
+import dto.user.SheetNameAndFileMetadataDto;
 import javafx.application.Platform;
 import javafx.collections.ObservableList;
 import javafx.event.ActionEvent;
@@ -14,13 +14,14 @@ import javafx.scene.input.MouseEvent;
 import javafx.scene.layout.GridPane;
 import dto.sheet.FileMetadata;
 
-import java.util.List;
+import java.io.Closeable;
+import java.util.Map;
 import java.util.Timer;
 import java.util.TimerTask;
 
 import static client.resources.CommonResourcesPaths.REFRESH_RATE;
 
-public class DashboardController {
+public class DashboardController implements Closeable {
     @FXML private Button viewSheetButton;
     @FXML private Button requestPermissionButton;
     @FXML private Button accDenyPermReqButton;
@@ -54,11 +55,6 @@ public class DashboardController {
         this.mainAppController = mainAppController;
     }
 
-    public void fileLoadedSuccessfully(FileMetadata fileMetadata) {
-        modelUi.addSheet(fileMetadata.getSheetName(), fileMetadata.getOwner(), fileMetadata.getSheetSize(), UserPermissionDto.OWNER.toString());
-        mainAppController.loadSheetPage(fileMetadata.getSheetName());
-    }
-
     @FXML
     void availableSheetOnMouseClickedListener(MouseEvent event) {
 
@@ -68,12 +64,13 @@ public class DashboardController {
     public void ViewSheetButtonListener(ActionEvent actionEvent) {
         DashboardModelUI.SheetsTableEntry selectedRow = availableSheetsTableView.getSelectionModel().getSelectedItem();
         if (selectedRow != null) {
-            mainAppController.switchToSheet(selectedRow.sheetNameProperty().getValue());
+            String sheetName = selectedRow.sheetNameProperty().getValue();
+            mainAppController.switchToSheet(sheetName);
         }
     }
 
     @FXML
-    public void AccDenyPermReqButtonListener(ActionEvent actionEvent) {
+    public void AccDenyPermissionRequestButtonListener(ActionEvent actionEvent) {
 
     }
 
@@ -82,19 +79,33 @@ public class DashboardController {
 
     }
 
-    private void updateSheetsTable(List<DashboardModelUI.SheetsTableEntry> sheetsTableEntries) {
+    private void updateSheetsTable(SheetNameAndFileMetadataDto sheetNameAndFileMetadataDto) {
         Platform.runLater(() -> {
             ObservableList<DashboardModelUI.SheetsTableEntry> items = availableSheetsTableView.getItems();
             items.clear();
-            items.addAll(sheetsTableEntries);
+            for (Map.Entry<String, FileMetadata> username2fileMetadataEntry: sheetNameAndFileMetadataDto.getSheetName2fileMetadata().entrySet()) {
+                FileMetadata fileMetadata = username2fileMetadataEntry.getValue();
+                modelUi.addSheet(fileMetadata.getSheetName(), fileMetadata.getOwner(), fileMetadata.getSheetSize(), fileMetadata.getYourPermission());
+            }
         });
     }
 
-    public void startListRefresher() {
+    public void startSheetsTableRefresher() {
         sheetsTableRefresher = new DashboardRefresher(
-                modelUi.autoUpdatesProperty(),
                 this::updateSheetsTable);
         timer = new Timer();
         timer.schedule(sheetsTableRefresher, REFRESH_RATE, REFRESH_RATE);
+    }
+
+    public void setActive() {
+        startSheetsTableRefresher();
+    }
+
+    @Override
+    public void close() {
+        if (sheetsTableRefresher != null && timer != null) {
+            sheetsTableRefresher.cancel();
+            timer.cancel();
+        }
     }
 }

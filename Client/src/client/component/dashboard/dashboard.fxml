@@ -65,7 +65,7 @@
            <Label prefWidth="76.0" style="-fx-font-size: 14;" text="Commands" />
            <Button fx:id="viewSheetButton" alignment="BASELINE_LEFT" mnemonicParsing="false" onAction="#ViewSheetButtonListener" prefHeight="45.0" prefWidth="118.0" text="View sheet" />
            <Button fx:id="requestPermissionButton" alignment="BASELINE_LEFT" contentDisplay="TOP" mnemonicParsing="false" onAction="#RequestPermissionButtonListener" prefHeight="45.0" prefWidth="118.0" text="Request permission" wrapText="true" />
-           <Button fx:id="accDenyPermReqButton" alignment="BASELINE_LEFT" mnemonicParsing="false" onAction="#AccDenyPermReqButtonListener" prefHeight="45.0" prefWidth="118.0" text="Accept\deny permission request" wrapText="true" />
+           <Button fx:id="accDenyPermReqButton" alignment="BASELINE_LEFT" mnemonicParsing="false" onAction="#AccDenyPermissionRequestButtonListener" prefHeight="45.0" prefWidth="118.0" text="Accept\deny permission request" wrapText="true" />
        </VBox>
    </right>
    <top>

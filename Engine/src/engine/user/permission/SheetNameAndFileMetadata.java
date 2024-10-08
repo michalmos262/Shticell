@@ -2,6 +2,7 @@ package engine.user.permission;
 
 import dto.sheet.FileMetadata;
 
+import java.util.Collections;
 import java.util.HashMap;
 import java.util.Map;
 
@@ -16,7 +17,7 @@ public class SheetNameAndFileMetadata {
         sheetName2fileMetadata.put(fileMetadata.getSheetName(), fileMetadata);
     }
 
-    public FileMetadata getFileMetadata(String sheetName) {
-        return sheetName2fileMetadata.get(sheetName);
+    public Map<String, FileMetadata> getSheetName2fileMetadata() {
+        return Collections.unmodifiableMap(sheetName2fileMetadata);
     }
 }

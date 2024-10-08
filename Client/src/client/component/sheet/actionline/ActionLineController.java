@@ -13,6 +13,7 @@ import javafx.scene.paint.Color;
 import client.component.sheet.mainsheet.MainSheetController;
 import okhttp3.*;
 import dto.cell.CellTypeDto;
+import serversdk.exception.ServerException;
 import serversdk.request.body.CellBody;
 
 import static client.resources.CommonResourcesPaths.*;
@@ -169,8 +170,8 @@ public class ActionLineController {
                 modelUi.currentSheetVersionProperty().set(cellDto.getLastUpdatedInVersion());
                 mainSheetController.cellIsUpdated(cellId, cellDto);
             } else {
-                System.out.println("Error: " + responseBody);
-                updateCellFailed(responseBody);
+                ServerException.ErrorResponse errorResponse = GSON_INSTANCE.fromJson(responseBody, ServerException.ErrorResponse.class);
+                updateCellFailed(errorResponse.getMessage());
             }
         } catch (Exception e) {
             System.out.println("Error: " + e.getMessage());

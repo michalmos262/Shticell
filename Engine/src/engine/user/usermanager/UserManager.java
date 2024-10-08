@@ -1,5 +1,6 @@
 package engine.user.usermanager;
 
+import dto.user.SheetNameAndFileMetadataDto;
 import engine.exception.user.UserAlreadyExistsException;
 import engine.exception.user.UserDoesNotExistException;
 import engine.user.permission.SheetNameAndFileMetadata;
@@ -29,6 +30,11 @@ public class UserManager {
             throw new UserDoesNotExistException(username);
         }
         return userName2sheetPermissions.get(username);
+    }
+
+    public synchronized SheetNameAndFileMetadataDto getUserSheetPermissionsDto(String username) {
+        SheetNameAndFileMetadata sheetPermissions = getUserSheetPermissions(username);
+        return new SheetNameAndFileMetadataDto(sheetPermissions.getSheetName2fileMetadata());
     }
 
     public synchronized Map<String, SheetNameAndFileMetadata> getUserName2sheetPermissions() {

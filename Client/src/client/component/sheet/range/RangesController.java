@@ -4,19 +4,18 @@ import client.component.alert.AlertsHandler;
 import client.util.http.HttpClientUtil;
 import com.google.gson.reflect.TypeToken;
 import dto.sheet.RangeDto;
-import dto.sheet.RowDto;
 import javafx.event.ActionEvent;
 import javafx.fxml.FXML;
 import javafx.scene.control.*;
 import javafx.scene.input.MouseEvent;
 import client.component.sheet.mainsheet.MainSheetController;
 import okhttp3.*;
+import serversdk.exception.ServerException;
 import serversdk.request.body.RangeBody;
 
 import java.io.IOException;
 import java.lang.reflect.Type;
 import java.util.Arrays;
-import java.util.LinkedList;
 import java.util.List;
 
 import static client.resources.CommonResourcesPaths.*;
@@ -138,6 +137,7 @@ public class RangesController {
 
             Request request = new Request.Builder()
                     .url(url)
+                    .delete()
                     .build();
 
             Response response = HttpClientUtil.HTTP_CLIENT.newCall(request).execute();
@@ -146,6 +146,9 @@ public class RangesController {
                 deleteRangeNameChoiceBox.setValue(null); // clean current choice
                 mainSheetController.removeCellsPaints();
                 AlertsHandler.HandleOkAlert("Range " + rangeName + " deleted successfully!");
+            } else {
+                ServerException.ErrorResponse errorResponse = GSON_INSTANCE.fromJson(response.body().string(), ServerException.ErrorResponse.class);
+                AlertsHandler.HandleErrorAlert("Delete range", errorResponse.getMessage());
             }
         } catch (Exception e) {
             AlertsHandler.HandleErrorAlert("Delete range", e.getMessage());

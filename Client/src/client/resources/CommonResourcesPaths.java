@@ -14,10 +14,6 @@ public class CommonResourcesPaths {
     public final static String MAIN_SHEET_PAGE_FXML_RESOURCE_LOCATION = "/client/component/sheet/mainsheet/mainSheet.fxml";
     public final static String MAIN_APP_FXML_RESOURCE_LOCATION = "/client/component/mainapp/mainApp.fxml";
 
-    // css locations
-    public final static String MAIN_APP_LIGHT_CSS_RESOURCE = "/client/component/sheet/mainsheet/css/lightApp.css";
-    public final static String MAIN_APP_DARK_CSS_RESOURCE = "/client/component/sheet/mainsheet/css/darkApp.css";
-
     // Server resources locations
     public final static String BASE_DOMAIN = "localhost";
     private final static String BASE_URL = "http://" + BASE_DOMAIN + ":8080";
@@ -28,6 +24,8 @@ public class CommonResourcesPaths {
     public final static String LOGOUT = FULL_SERVER_PATH + "/logout";
 
     public final static String DASHBOARD_ENDPOINT = FULL_SERVER_PATH + "/dashboard";
+    public final static String USER_ENDPOINT = FULL_SERVER_PATH + "/user";
+    public final static String USER_SHEET_PERMISSIONS_ENDPOINT = USER_ENDPOINT + "/sheet-permissions";
 
     public final static String SHEET_ENDPOINT = FULL_SERVER_PATH + "/sheet";
     public final static String SORTED_SHEET_ROWS_ENDPOINT = SHEET_ENDPOINT + "/sorted-rows";
@@ -48,5 +46,5 @@ public class CommonResourcesPaths {
             new ServerException.ErrorResponse("General error occurred")
     );
     public final static String JSON_MEDIA_TYPE = "application/json; charset=utf-8";
-    public final static int REFRESH_RATE = 2000;
+    public final static int REFRESH_RATE = 1000;
 }

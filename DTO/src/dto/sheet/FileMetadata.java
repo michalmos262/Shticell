@@ -1,5 +1,7 @@
 package dto.sheet;
 
+import java.util.Objects;
+
 public class FileMetadata {
     private final String sheetName;
     private final String owner;
@@ -27,5 +29,18 @@ public class FileMetadata {
 
     public String getYourPermission() {
         return yourPermission;
+    }
+
+    @Override
+    public boolean equals(Object o) {
+        if (this == o) return true;
+        if (o == null || getClass() != o.getClass()) return false;
+        FileMetadata that = (FileMetadata) o;
+        return Objects.equals(getSheetName(), that.getSheetName()) && Objects.equals(getOwner(), that.getOwner()) && Objects.equals(getSheetSize(), that.getSheetSize()) && Objects.equals(getYourPermission(), that.getYourPermission());
+    }
+
+    @Override
+    public int hashCode() {
+        return Objects.hash(getSheetName(), getOwner(), getSheetSize(), getYourPermission());
     }
 }

@@ -3,7 +3,6 @@ package client.component.sheet.grid;
 import client.component.alert.AlertsHandler;
 import client.component.sheet.mainsheet.MainSheetController;
 import client.util.http.HttpClientUtil;
-import com.google.gson.reflect.TypeToken;
 import dto.cell.CellDto;
 import dto.cell.CellPositionDto;
 import dto.sheet.RangeDto;
@@ -25,7 +24,6 @@ import okhttp3.Request;
 import okhttp3.Response;
 
 import java.io.IOException;
-import java.lang.reflect.Type;
 import java.util.*;
 
 import static client.resources.CommonResourcesPaths.*;
@@ -259,8 +257,8 @@ public class GridController {
         String responseBody = response.body().string();
         if (response.isSuccessful()) {
             List<Label> rangeCellsLabels = new ArrayList<>();
-            Type setType = new TypeToken<Set<CellPositionDto>>(){}.getType();
-            Set<CellPositionDto> rangeCellPositions = GSON_INSTANCE.fromJson(responseBody, setType);
+             RangeDto rangeDto = GSON_INSTANCE.fromJson(responseBody, RangeDto.class);
+             Set<CellPositionDto> rangeCellPositions = rangeDto.getIncludedPositions();
             rangeCellPositions.forEach(position ->
                 rangeCellsLabels.add((Label) mainGridPane.lookup("#" + position))
             );
@@ -638,6 +636,7 @@ public class GridController {
 
     private void setDynamicAnalysisListeners(String cellId, TextField fromRangeTextField, TextField toRangeTextField,
                                              TextField stepSizeTextField, Slider slider ) {
+
         fromRangeTextField.textProperty().addListener((observable, oldValue, newValue) -> {
             try {
                 if (!newValue.isEmpty()) {
