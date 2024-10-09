@@ -69,7 +69,7 @@ public class CellServlet extends HttpServlet {
                     String sheetName = SessionUtils.getCurrentSheetName(request);
                     CellPositionInSheet cellPositionInSheet = PositionFactory.createPosition(cellPositionStr);
                     cellDto = engine.updateSheetCell(sheetName, cellPositionInSheet.getRow(),
-                            cellPositionInSheet.getColumn(), originalValue);
+                            cellPositionInSheet.getColumn(), originalValue, SessionUtils.getUsername(request));
                 }
 
                 String json = GSON_INSTANCE.toJson(cellDto);

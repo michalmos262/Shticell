@@ -56,9 +56,9 @@ public class MainSheetController {
 
     public void initComponents(String sheetName) throws IOException {
         gridComponentController.initMainGrid(sheetName);
-        actionLineComponentController.init(sheetName);
-        rangesComponentController.init();
-        commandsComponentController.init(sheetName);
+        actionLineComponentController.initComponent(sheetName);
+        rangesComponentController.initComponent();
+        commandsComponentController.initComponent(sheetName);
     }
 
     @FXML

@@ -49,7 +49,7 @@ public class RangesController {
         this.mainSheetController = mainSheetController;
     }
 
-    public void init() throws IOException {
+    public void initComponent() throws IOException {
         Request sheetNamesRequest = new Request.Builder()
                 .url(RANGE_NAMES_ENDPOINT)
                 .build();

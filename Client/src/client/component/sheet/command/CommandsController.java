@@ -51,7 +51,7 @@ public class CommandsController {
         this.mainSheetController = mainSheetController;
     }
 
-    public void init(String sheetName) throws IOException {
+    public void initComponent(String sheetName) throws IOException {
         String url = HttpUrl
                 .parse(SHEET_DIMENSION_ENDPOINT)
                 .newBuilder()

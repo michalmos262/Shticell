@@ -26,8 +26,9 @@ import java.util.List;
 public class ActionLineController {
 
     @FXML private Label lastCellVersionLabel;
-    @FXML private TextField originalCellValueTextField;
     @FXML private Label selectedCellIdLabel;
+    @FXML private TextField originalCellValueTextField;
+    @FXML private Label updatedByLabel;
     @FXML private Button updateValueButton;
     @FXML private Button showSheetVersionButton;
     @FXML private Button backToDefaultDesignButton;
@@ -63,8 +64,8 @@ public class ActionLineController {
         defaultCellBackgroundColor = cellBackgroundColorPicker.getValue();
         defaultCellTextColor = cellTextColorPicker.getValue();
 
-        modelUi = new ActionLineModelUI(cellButtons, selectedCellIdLabel, originalCellValueTextField,
-                lastCellVersionLabel, showSheetVersionSelector, columnTextAlignmentChoiceBox,
+        modelUi = new ActionLineModelUI(cellButtons, originalCellValueTextField, selectedCellIdLabel,
+                lastCellVersionLabel, updatedByLabel, showSheetVersionSelector, columnTextAlignmentChoiceBox,
                 columnWidthSpinner, rowHeightSpinner, cellBackgroundColorPicker, cellTextColorPicker);
 
         rowHeightSpinner.valueProperty().addListener((obs, oldValue, newValue) -> {
@@ -102,7 +103,7 @@ public class ActionLineController {
         this.mainSheetController = mainSheetController;
     }
 
-    public void init(String sheetName) throws IOException {
+    public void initComponent(String sheetName) throws IOException {
         String url = HttpUrl
                 .parse(SHEET_DIMENSION_ENDPOINT)
                 .newBuilder()
@@ -167,6 +168,7 @@ public class ActionLineController {
                 CellDto cellDto = GSON_INSTANCE.fromJson(responseBody, CellDto.class);
                 modelUi.selectedCellOriginalValueProperty().set(cellNewOriginalValue);
                 modelUi.selectedCellLastVersionProperty().set(cellDto.getLastUpdatedInVersion());
+                modelUi.selectedUpdatedByNameProperty().set(cellDto.getUpdatedByName());
                 modelUi.currentSheetVersionProperty().set(cellDto.getLastUpdatedInVersion());
                 mainSheetController.cellIsUpdated(cellId, cellDto);
             } else {
@@ -219,9 +221,11 @@ public class ActionLineController {
             cellDto = GSON_INSTANCE.fromJson(responseBody, CellDto.class);
             String originalValue = cellDto == null ? "" : cellDto.getOriginalValue();
             int lastCellVersion = cellDto == null ? 0 : cellDto.getLastUpdatedInVersion();
+            String updatedByName = cellDto == null ? "" : cellDto.getUpdatedByName();
             modelUi.selectedCellIdProperty().set(cellPositionId);
             modelUi.selectedCellLastVersionProperty().set(lastCellVersion);
             modelUi.selectedCellOriginalValueProperty().set(originalValue);
+            modelUi.selectedUpdatedByNameProperty().set(updatedByName);
 
             Color backgroundColor = defaultCellBackgroundColor;
 

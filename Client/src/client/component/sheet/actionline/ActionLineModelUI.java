@@ -8,15 +8,16 @@ import javafx.scene.control.*;
 import java.util.List;
 
 public class ActionLineModelUI {
-    private final SimpleBooleanProperty isAnyCellClicked;
-    private final SimpleStringProperty selectedCellId;
-    private final SimpleStringProperty selectedCellOriginalValue;
-    private final SimpleIntegerProperty selectedCellLastVersion;
-    private final SimpleIntegerProperty currentSheetVersion;
+    private final BooleanProperty isAnyCellClicked;
+    private final StringProperty selectedCellId;
+    private final StringProperty selectedCellOriginalValue;
+    private final IntegerProperty selectedCellLastVersion;
+    private final StringProperty selectedUpdatedByName;
+    private final IntegerProperty currentSheetVersion;
 
-    public ActionLineModelUI(List<Button> cellButtons, Label selectedCellIdLabel, TextField originalCellValueTextField,
-                             Label lastCellVersionLabel, ChoiceBox<Integer> showSheetVersionSelector,
-                             ChoiceBox<Pos> columnTextAlignmentChoiceBox,
+    public ActionLineModelUI(List<Button> cellButtons, TextField originalCellValueTextField,
+                             Label selectedCellIdLabel, Label lastCellVersionLabel, Label updatedByLabel,
+                             ChoiceBox<Integer> showSheetVersionSelector, ChoiceBox<Pos> columnTextAlignmentChoiceBox,
                              Spinner<Integer> columnWidthSpinner, Spinner<Integer> rowHeightSpinner,
                              ColorPicker cellBackgroundColorPicker, ColorPicker cellTextColorPicker) {
 
@@ -24,6 +25,7 @@ public class ActionLineModelUI {
         selectedCellId = new SimpleStringProperty("");
         selectedCellOriginalValue = new SimpleStringProperty("");
         selectedCellLastVersion = new SimpleIntegerProperty();
+        selectedUpdatedByName = new SimpleStringProperty("");
         currentSheetVersion = new SimpleIntegerProperty(0);
 
         for (Button button : cellButtons) {
@@ -40,6 +42,7 @@ public class ActionLineModelUI {
         selectedCellIdLabel.textProperty().bind(selectedCellId);
         originalCellValueTextField.textProperty().bindBidirectional(selectedCellOriginalValue);
         lastCellVersionLabel.textProperty().bind(Bindings.concat("Last Cell Version: ", selectedCellLastVersion));
+        updatedByLabel.textProperty().bind(Bindings.concat("Updated by: ", selectedUpdatedByName));
 
         currentSheetVersion.addListener((obs, oldValue, newValue) ->
                 showSheetVersionSelector.getItems().add(newValue.intValue()));
@@ -49,19 +52,23 @@ public class ActionLineModelUI {
         return isAnyCellClicked;
     }
 
-    public SimpleStringProperty selectedCellIdProperty() {
+    public StringProperty selectedCellIdProperty() {
         return selectedCellId;
     }
 
-    public SimpleStringProperty selectedCellOriginalValueProperty() {
+    public StringProperty selectedCellOriginalValueProperty() {
         return selectedCellOriginalValue;
     }
 
-    public SimpleIntegerProperty selectedCellLastVersionProperty() {
+    public IntegerProperty selectedCellLastVersionProperty() {
         return selectedCellLastVersion;
     }
 
-    public SimpleIntegerProperty currentSheetVersionProperty() {
+    public StringProperty selectedUpdatedByNameProperty() {
+        return selectedUpdatedByName;
+    }
+
+    public IntegerProperty currentSheetVersionProperty() {
         return currentSheetVersion;
     }
 }

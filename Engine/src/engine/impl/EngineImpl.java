@@ -37,12 +37,12 @@ import static engine.expression.impl.ExpressionEvaluator.evaluateArgument;
 public class EngineImpl implements Engine {
     private final SheetFilesManager sheetFilesManager = new SheetFilesManager();
 
-    private SheetDto createSheetDto(Sheet sheet) {
+    private SheetDto createSheetDto(Sheet sheet, String owner) {
         Map<CellPositionDto, CellDto> position2cell;
         position2cell = new HashMap<>();
 
         for (Map.Entry<CellPositionInSheet, Cell> entry: sheet.getPosition2cell().entrySet()) {
-            CellDto cellDto = getCellDto(entry.getValue());
+            CellDto cellDto = getCellDto(entry.getValue(), owner);
             position2cell.put(new CellPositionDto(entry.getKey().getRow(), entry.getKey().getColumn()), cellDto);
         }
 
@@ -86,7 +86,7 @@ public class EngineImpl implements Engine {
     public SheetDto getSheet(String sheetName, int sheetVersion) {
         Sheet sheet = sheetFilesManager.getSheetManager(sheetName).getSheetByVersion(sheetVersion);
 
-        return createSheetDto(sheet);
+        return createSheetDto(sheet, sheetFilesManager.getSheetManager(sheetName).getOwnerName());
     }
 
     @Override
@@ -113,14 +113,14 @@ public class EngineImpl implements Engine {
         return findCellInSheet(sheetName, row, column, sheetVersion).getInfluences();
     }
 
-    public EffectiveValue handleEffectiveValue(Sheet sheet, CellPositionInSheet cellPosition, String originalValue) {
+    private EffectiveValue handleEffectiveValue(Sheet sheet, CellPositionInSheet cellPosition, String originalValue, String updatedByName) {
         EffectiveValue effectiveValue;
         Set<CellPositionInSheet> influencingCellPositions = new LinkedHashSet<>();
         Set<String> usingRangeNames = new LinkedHashSet<>();
         effectiveValue = evaluateArgument(sheet, originalValue, influencingCellPositions, usingRangeNames);
 
         for (CellPositionInSheet influencingPosition : influencingCellPositions) {
-            sheet.addCellConnection(influencingPosition, cellPosition);
+            sheet.addCellConnection(influencingPosition, cellPosition, updatedByName);
         }
         for (String rangeName: usingRangeNames) {
             sheet.useRange(rangeName);
@@ -131,30 +131,30 @@ public class EngineImpl implements Engine {
     }
 
     //RECURSIVE UPDATE
-    private void updateInfluencedByCell(Sheet sheet, CellPositionInSheet InfluencerCellPosition, Set<CellPositionInSheet> visited) {
+    private void updateInfluencedByCell(Sheet sheet, CellPositionInSheet InfluencerCellPosition, Set<CellPositionInSheet> visited, String updatedByName) {
         Cell cell = sheet.getCell(InfluencerCellPosition);
         List<CellPositionInSheet> influencedCellPositions = new LinkedList<>(cell.getInfluences());
 
         for (CellPositionInSheet influencedByCellPosition : influencedCellPositions) {
             Cell influencedByCell = sheet.getCell(influencedByCellPosition);
             String originalValue = influencedByCell.getOriginalValue();
-            EffectiveValue effectiveValue = handleEffectiveValue(sheet, influencedByCellPosition, originalValue);
+            EffectiveValue effectiveValue = handleEffectiveValue(sheet, influencedByCellPosition, originalValue, updatedByName);
             sheet.updateCell(influencedByCellPosition, originalValue, effectiveValue);
             visited.add(influencedByCellPosition);
-            updateInfluencedByCell(sheet, influencedByCellPosition, visited);
+            updateInfluencedByCell(sheet, influencedByCellPosition, visited, updatedByName);
         }
     }
 
     @Override //THE FIRST UPDATE
-    public CellDto updateSheetCell(String sheetName, int row, int column, String newOriginalValue) {
+    public CellDto updateSheetCell(String sheetName, int row, int column, String newOriginalValue, String updatedByName) {
         Sheet clonedSheet = sheetFilesManager.getSheetManager(sheetName)
                 .getSheetByVersion(sheetFilesManager.getSheetManager(sheetName).getCurrentVersion()).clone();
         Set<CellPositionInSheet> visitedCellPositions = new HashSet<>();
         CellPositionInSheet cellPosition = PositionFactory.createPosition(row, column);
         int cellsUpdatedCounter = 1;
 
-        setCellInfo(clonedSheet, cellPosition, newOriginalValue);
-        updateInfluencedByCell(clonedSheet, cellPosition, visitedCellPositions);
+        setCellInfo(clonedSheet, cellPosition, newOriginalValue, updatedByName);
+        updateInfluencedByCell(clonedSheet, cellPosition, visitedCellPositions, updatedByName);
         cellsUpdatedCounter += visitedCellPositions.size();
         clonedSheet.setUpdatedCellsCount(cellsUpdatedCounter);
         sheetFilesManager.getSheetManager(sheetName).addNewSheet(clonedSheet);
@@ -162,13 +162,13 @@ public class EngineImpl implements Engine {
         return findCellInSheet(sheetName, row, column, getCurrentSheetVersion(sheetName));
     }
 
-    private void setCellInfo(Sheet sheet, CellPositionInSheet cellPosition, String originalValue) {
+    private void setCellInfo(Sheet sheet, CellPositionInSheet cellPosition, String originalValue, String updatedByName) {
         try {
             Cell cellInUpdate = sheet.getCell(cellPosition);
             EffectiveValue effectiveValue;
 
             if (cellInUpdate == null) { // need to create new cell
-                sheet.createNewCell(cellPosition, originalValue);
+                sheet.createNewCell(cellPosition, originalValue, updatedByName);
             } else {
                 // had to move the set to linked list for keeping on order
                 Set<CellPositionInSheet> influencedByCellPositions = new LinkedHashSet<>(cellInUpdate.getInfluencedBy());
@@ -179,15 +179,16 @@ public class EngineImpl implements Engine {
                     cellInUpdate.removeRangeNameUsed(rangeName);
                     sheet.unUseRange(rangeName);
                 }
+                cellInUpdate.setUpdatedByName(updatedByName);
             }
-            effectiveValue = handleEffectiveValue(sheet, cellPosition, originalValue);
+            effectiveValue = handleEffectiveValue(sheet, cellPosition, originalValue, updatedByName);
             sheet.updateCell(cellPosition, originalValue, effectiveValue);
         } catch (Exception e) {
             throw new IllegalArgumentException("Error occurred on update position " + cellPosition + ": " + e.getMessage());
         }
     }
 
-    private int createCellsFromFile(Sheet sheet, STLCells jaxbCells, SheetManager sheetManager) {
+    private int createCellsFromFile(Sheet sheet, STLCells jaxbCells, SheetManager sheetManager, String updatedByName) {
         int cellsUpdatedCounter = 0;
 
         // Create a graph of REF connections
@@ -206,7 +207,7 @@ public class EngineImpl implements Engine {
         // Create the real cells by the topological sort
         for (CellPositionInSheet cellPositionInSheet : topologicalSortedGraph) {
             String originalValue = jaxbCellsMap.get(cellPositionInSheet).getSTLOriginalValue();
-            setCellInfo(sheet, cellPositionInSheet, originalValue);
+            setCellInfo(sheet, cellPositionInSheet, originalValue, updatedByName);
             cellsUpdatedCounter++;
         }
 
@@ -231,7 +232,7 @@ public class EngineImpl implements Engine {
         List<STLRange> ranges = jaxbSheet.getSTLRanges().getSTLRange();
 
         // Creating sheet manager
-        SheetManager sheetManager = getNewSheetManager(jaxbSheet);
+        SheetManager sheetManager = getNewSheetManager(jaxbSheet, owner);
         // Creating ranges
         for (STLRange range: ranges) {
             CellPositionInSheet fromPosition = PositionFactory.createPosition(range.getSTLBoundaries().getFrom());
@@ -240,7 +241,7 @@ public class EngineImpl implements Engine {
         }
         // Creating a sheet entity
         Sheet sheet = new SheetImpl(sheetManager);
-        int cellsUpdatedCounter = createCellsFromFile(sheet, jaxbSheet.getSTLCells(), sheetManager);
+        int cellsUpdatedCounter = createCellsFromFile(sheet, jaxbSheet.getSTLCells(), sheetManager, owner);
         sheet.setUpdatedCellsCount(cellsUpdatedCounter);
         sheetManager.addNewSheet(sheet);
         sheetFilesManager.addSheetManager(jaxbSheet.getName(), sheetManager);
@@ -254,7 +255,7 @@ public class EngineImpl implements Engine {
         return fileMetadata;
     }
 
-    private SheetManager getNewSheetManager(STLSheet jaxbSheet) {
+    private SheetManager getNewSheetManager(STLSheet jaxbSheet, String ownerName) {
         int numOfRows = jaxbSheet.getSTLLayout().getRows();
         int numOfColumns = jaxbSheet.getSTLLayout().getColumns();
         int rowHeight = jaxbSheet.getSTLLayout().getSTLSize().getRowsHeightUnits();
@@ -262,7 +263,7 @@ public class EngineImpl implements Engine {
 
         SheetDimension sheetDimension = new SheetDimension(numOfRows, numOfColumns, rowHeight, columnWidth);
 
-        return new SheetManager(sheetDimension);
+        return new SheetManager(sheetDimension, ownerName);
     }
 
     @Override
@@ -403,7 +404,7 @@ public class EngineImpl implements Engine {
         for (Row row : rows) {
             RowDto rowDto = new RowDto(row.getRowNumber(), new HashMap<>());
             for (Map.Entry<String, Cell> column2cell : row.getCells().entrySet()) {
-                CellDto cellDto = getCellDto(column2cell.getValue());
+                CellDto cellDto = getCellDto(column2cell.getValue(), column2cell.getValue().getUpdatedByName());
                 rowDto.getCells().put(column2cell.getKey(), cellDto);
             }
             rowsDto.add(rowDto);
@@ -412,13 +413,16 @@ public class EngineImpl implements Engine {
         return rowsDto;
     }
 
-    private CellDto getCellDto(Cell cell) {
+    private CellDto getCellDto(Cell cell, String updateByName) {
         CellDto cellDto;
         if (cell == null) {
             EffectiveValueDto effectiveValueDto = new EffectiveValueDto(CellTypeDto.UNKNOWN, "");
-            cellDto = new CellDto("", effectiveValueDto, effectiveValueDto, new LinkedHashSet<>(), new LinkedHashSet<>(), 0);
+            cellDto = new CellDto("", effectiveValueDto, effectiveValueDto, new LinkedHashSet<>(),
+                    new LinkedHashSet<>(), 0, updateByName);
         } else {
-            EffectiveValueDto effectiveValue = new EffectiveValueDto(CellTypeDto.valueOf(cell.getEffectiveValue().getCellType().name()), cell.getEffectiveValue().getValue());
+            EffectiveValueDto effectiveValue = new EffectiveValueDto(CellTypeDto.valueOf(
+                    cell.getEffectiveValue().getCellType().name()), cell.getEffectiveValue().getValue()
+            );
             Set<CellPositionDto> influencedByDto = new HashSet<>();
             Set<CellPositionDto> influencesDto = new HashSet<>();
 
@@ -428,7 +432,7 @@ public class EngineImpl implements Engine {
                     influencesDto.add(new CellPositionDto(influence.getRow(), influence.getColumn())));
 
             cellDto = new CellDto(cell.getOriginalValue(), effectiveValue, getEffectiveValueForDisplay(effectiveValue),
-                    influencedByDto, influencesDto, cell.getLastUpdatedInVersion());
+                    influencedByDto, influencesDto, cell.getLastUpdatedInVersion(), cell.getUpdatedByName());
         }
 
         return cellDto;
@@ -484,7 +488,9 @@ public class EngineImpl implements Engine {
     }
 
     @Override
-    public LinkedList<RowDto> getFilteredRowsSheet(String sheetName, Range rangeToFilter, Map<String, Set<String>> column2effectiveValuesFilteredBy) {
+    public LinkedList<RowDto> getFilteredRowsSheet(String sheetName, Range rangeToFilter,
+                                                   Map<String, Set<String>> column2effectiveValuesFilteredBy) {
+
         List<Row> rowsToFilter = extractRowsInRange(sheetFilesManager.getSheetManager(sheetName)
                 .getSheetByVersion(getCurrentSheetVersion(sheetName)), rangeToFilter);
 
@@ -526,10 +532,10 @@ public class EngineImpl implements Engine {
         Set<CellPositionInSheet> visitedCellPositions = new HashSet<>();
 
         String originalValueStr = String.valueOf(cellOriginalValue);
-        setCellInfo(inWorkSheet, cellPosition, originalValueStr);
-        updateInfluencedByCell(inWorkSheet, cellPosition, visitedCellPositions);
+        setCellInfo(inWorkSheet, cellPosition, originalValueStr, "");
+        updateInfluencedByCell(inWorkSheet, cellPosition, visitedCellPositions, "");
 
-        dynamicAnalysedSheetDto = createSheetDto(inWorkSheet);
+        dynamicAnalysedSheetDto = createSheetDto(inWorkSheet, sheetFilesManager.getSheetManager(sheetName).getOwnerName());
         return dynamicAnalysedSheetDto;
     }
 }

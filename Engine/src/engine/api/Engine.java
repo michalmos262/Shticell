@@ -22,7 +22,7 @@ public interface Engine {
     int getLastCellVersion(String sheetName, int row, int column);
     Set<CellPositionDto> getInfluencedBySet(String sheetName, int row, int column, int sheetVersion);
     Set<CellPositionDto> getInfluencesSet(String sheetName, int row, int column, int sheetVersion);
-    CellDto updateSheetCell(String sheetName, int row, int column, String newValue);
+    CellDto updateSheetCell(String sheetName, int row, int column, String newValue, String updatedByName);
     CellPositionInSheet getCellPositionInSheet(String sheetName, int row, int column);
     CellPositionInSheet getCellPositionInSheet(String sheetName, String position);
     FileMetadata loadFile(InputStream fileInputStream, String owner) throws Exception;

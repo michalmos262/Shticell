@@ -10,14 +10,16 @@ public class Cell implements Cloneable, Serializable {
     private final Set<CellPositionInSheet> influences;
     private final Set<String> rangeNamesUsed;
     private int lastUpdatedInVersion;
+    private String updatedByName;
 
-    public Cell(String originalValue, EffectiveValue effectiveValue, int lastUpdatedInVersion) {
+    public Cell(String originalValue, EffectiveValue effectiveValue, int lastUpdatedInVersion, String updatedByName) {
         this.originalValue = originalValue;
         this.effectiveValue = effectiveValue;
-        influencedBy = new LinkedHashSet<>();
-        influences = new LinkedHashSet<>();
+        this.influencedBy = new LinkedHashSet<>();
+        this.influences = new LinkedHashSet<>();
         this.lastUpdatedInVersion = lastUpdatedInVersion;
-        rangeNamesUsed = new HashSet<>();
+        this.rangeNamesUsed = new HashSet<>();
+        this.updatedByName = updatedByName;
     }
 
     public String getOriginalValue() {
@@ -44,6 +46,10 @@ public class Cell implements Cloneable, Serializable {
         return lastUpdatedInVersion;
     }
 
+    public String getUpdatedByName() {
+        return updatedByName;
+    }
+
     public void setEffectiveValue(EffectiveValue effectiveValue) {
         this.effectiveValue = effectiveValue;
     }
@@ -54,6 +60,10 @@ public class Cell implements Cloneable, Serializable {
 
     public void setLastUpdatedInVersion(int lastUpdatedInVersion) {
         this.lastUpdatedInVersion = lastUpdatedInVersion;
+    }
+
+    public void setUpdatedByName(String updatedByName) {
+        this.updatedByName = updatedByName;
     }
 
     public void addInfluence(CellPositionInSheet influencedCellPosition) {
@@ -85,12 +95,13 @@ public class Cell implements Cloneable, Serializable {
         if (this == o) return true;
         if (o == null || getClass() != o.getClass()) return false;
         Cell cell = (Cell) o;
-        return lastUpdatedInVersion == cell.lastUpdatedInVersion && Objects.equals(originalValue, cell.originalValue);
+        return lastUpdatedInVersion == cell.lastUpdatedInVersion && Objects.equals(originalValue, cell.originalValue)
+                && Objects.equals(updatedByName, cell.updatedByName);
     }
 
     @Override
     public int hashCode() {
-        return Objects.hash(originalValue, lastUpdatedInVersion);
+        return Objects.hash(originalValue, lastUpdatedInVersion, updatedByName);
     }
 
     @Override
@@ -100,6 +111,7 @@ public class Cell implements Cloneable, Serializable {
             cloned.originalValue = originalValue;
             cloned.effectiveValue = effectiveValue;
             cloned.lastUpdatedInVersion = lastUpdatedInVersion;
+            cloned.updatedByName = updatedByName;
             return cloned;
         } catch (CloneNotSupportedException e) {
             throw new AssertionError();
