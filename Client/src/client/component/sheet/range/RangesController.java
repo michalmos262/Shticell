@@ -2,7 +2,6 @@ package client.component.sheet.range;
 
 import client.component.alert.AlertsHandler;
 import client.util.http.HttpClientUtil;
-import com.google.gson.reflect.TypeToken;
 import dto.sheet.RangeDto;
 import javafx.application.Platform;
 import javafx.collections.ObservableList;
@@ -17,7 +16,6 @@ import serversdk.request.body.RangeBody;
 
 import java.io.Closeable;
 import java.io.IOException;
-import java.lang.reflect.Type;
 import java.util.Arrays;
 import java.util.List;
 import java.util.Timer;
@@ -53,44 +51,6 @@ public class RangesController implements Closeable {
 
     public void setMainController(MainSheetController mainSheetController) {
         this.mainSheetController = mainSheetController;
-    }
-
-    public void initComponent() throws IOException {
-        Request sheetNamesRequest = new Request.Builder()
-                .url(RANGE_NAMES_ENDPOINT)
-                .build();
-
-        Response sheetNamesResponse = HttpClientUtil.HTTP_CLIENT.newCall(sheetNamesRequest).execute();
-        String responseBody = sheetNamesResponse.body().string();
-
-        if (sheetNamesResponse.isSuccessful()) {
-            Type listType = new TypeToken<List<String>>(){}.getType();
-            List<String> rangeNames = GSON_INSTANCE.fromJson(responseBody, listType);
-
-            for (String rangeName : rangeNames) {
-                String url = HttpUrl
-                        .parse(RANGE_ENDPOINT)
-                        .newBuilder()
-                        .addQueryParameter(RANGE_NAME, rangeName)
-                        .build()
-                        .toString();
-
-                Request rangeRequest = new Request.Builder()
-                        .url(url)
-                        .build();
-
-                Response rangeResponse = HttpClientUtil.HTTP_CLIENT.newCall(rangeRequest).execute();
-                responseBody = rangeResponse.body().string();
-                if (sheetNamesResponse.isSuccessful()) {
-                    RangeDto range = GSON_INSTANCE.fromJson(responseBody, RangeDto.class);
-                    modelUi.addRange(rangeName, range);
-                } else {
-                    System.out.println("Error: " + responseBody);
-                }
-            }
-        } else {
-            System.out.println("Error: " + responseBody);
-        }
     }
 
     @FXML
