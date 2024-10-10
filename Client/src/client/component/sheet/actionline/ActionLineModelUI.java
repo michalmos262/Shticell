@@ -44,8 +44,18 @@ public class ActionLineModelUI {
         lastCellVersionLabel.textProperty().bind(Bindings.concat("Last Cell Version: ", selectedCellLastVersion));
         updatedByLabel.textProperty().bind(Bindings.concat("Updated by: ", selectedUpdatedByName));
 
-        currentSheetVersion.addListener((obs, oldValue, newValue) ->
-                showSheetVersionSelector.getItems().add(newValue.intValue()));
+        currentSheetVersion.addListener((obs, oldValue, newValue) -> {
+            int oldVersion = oldValue.intValue();
+            int newVersion = newValue.intValue();
+
+            // maybe there is a big gap between last version to the newest version
+            while (oldVersion != newVersion) {
+                oldVersion++;
+                showSheetVersionSelector.getItems().add(oldVersion);
+            }
+
+            currentSheetVersion.set(newVersion);
+        });
     }
 
     public BooleanProperty isAnyCellClickedProperty() {

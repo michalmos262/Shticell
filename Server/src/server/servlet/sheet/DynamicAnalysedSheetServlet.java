@@ -25,12 +25,17 @@ public class DynamicAnalysedSheetServlet extends HttpServlet {
         response.setContentType(APPLICATION_JSON);
         try {
             if (SessionUtils.isAuthorized(request, response) && SessionUtils.isInSheet(request, response)) {
-                Engine engine = ServletUtils.getEngineInstance(getServletContext());
-                String sheetName = SessionUtils.getCurrentSheetName(request);
-                String cellPositionParameter = request.getParameter(CELL_POSITION);
-                CellPositionInSheet cellPositionInSheet = PositionFactory.createPosition(cellPositionParameter);
-                double originalValue = Double.parseDouble(request.getParameter(CELL_ORIGINAL_VALUE));
-                SheetDto sheetDto = engine.getSheetAfterDynamicAnalysisOfCell(sheetName, cellPositionInSheet, originalValue);
+                SheetDto sheetDto;
+                synchronized (getServletContext()) {
+                    Engine engine = ServletUtils.getEngineInstance(getServletContext());
+                    String sheetName = SessionUtils.getCurrentSheetName(request);
+                    int sheetVersion = Integer.parseInt(request.getParameter(SHEET_VERSION));
+                    String cellPositionParameter = request.getParameter(CELL_POSITION);
+                    CellPositionInSheet cellPositionInSheet = PositionFactory.createPosition(cellPositionParameter);
+                    double originalValue = Double.parseDouble(request.getParameter(CELL_ORIGINAL_VALUE));
+
+                    sheetDto = engine.getSheetAfterDynamicAnalysisOfCell(sheetName, sheetVersion, cellPositionInSheet, originalValue);
+                }
                 String json = GSON_INSTANCE.toJson(sheetDto);
                 response.getWriter().println(json);
             }

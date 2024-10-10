@@ -29,7 +29,7 @@ public class Client extends Application {
             Parent root = fxmlLoader.load();
             mainAppController = fxmlLoader.getController();
 
-            Scene scene = new Scene(root, 1005, 770);
+            Scene scene = new Scene(root, 1162, 770);
             primaryStage.setScene(scene);
             primaryStage.show();
         } catch (IOException e) {
@@ -38,7 +38,7 @@ public class Client extends Application {
     }
 
     @Override
-    public void stop() throws Exception {
+    public void stop() {
         HttpClientUtil.shutdown();
         mainAppController.close();
     }

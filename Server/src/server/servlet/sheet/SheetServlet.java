@@ -94,7 +94,7 @@ public class SheetServlet extends HttpServlet {
                     users.forEach((username, permission) -> {
                         if (!username.equals(currentUsername)) {
                             permission.setSheetNameAndFileMetadata(
-                                    new FileMetadata(fileMetadata.getSheetName(), username,
+                                    new FileMetadata(fileMetadata.getSheetName(), fileMetadata.getOwner(),
                                             fileMetadata.getSheetSize(), UserPermission.NONE.toString())
                             );
                         }

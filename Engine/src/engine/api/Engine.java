@@ -14,8 +14,6 @@ import java.util.Map;
 import java.util.Set;
 
 public interface Engine {
-    String SUPPORTED_FILE_TYPE = "xml";
-
     int getCurrentSheetVersion(String sheetName);
     CellDto findCellInSheet(String sheetName, int row, int column, int sheetVersion);
     SheetDto getSheet(String sheetName, int sheetVersion);
@@ -38,8 +36,12 @@ public interface Engine {
     List<String> getRangeNames(String sheetName);
     RangeDto createRange(String sheetName, String rangeName, CellPositionInSheet fromPosition, CellPositionInSheet toPosition);
     void deleteRange(String sheetName, String rangeName);
-    LinkedList<RowDto> getSortedRowsSheet(String sheetName, Range rangeToSort, Set<String> columnsSortedBy);
-    Map<String, Set<EffectiveValueDto>> getUniqueColumnValuesByRange(String sheetName, Range range, Set<String> columns);
-    LinkedList<RowDto> getFilteredRowsSheet(String sheetName, Range rangeToFilter, Map<String, Set<String>> column2effectiveValuesFilteredBy);
-    SheetDto getSheetAfterDynamicAnalysisOfCell(String sheetName, CellPositionInSheet cellPosition, double cellOriginalValue);
+    LinkedList<RowDto> getSortedRowsSheet(String sheetName, int sheetVersion, Range rangeToSort,
+                                          Set<String> columnsSortedBy);
+    Map<String, Set<EffectiveValueDto>> getUniqueColumnValuesByRange(String sheetName, int sheetVersion,
+                                                                     Range range, Set<String> columns);
+    LinkedList<RowDto> getFilteredRowsSheet(String sheetName, int sheetVersion, Range rangeToFilter,
+                                            Map<String, Set<String>> column2effectiveValuesFilteredBy);
+    SheetDto getSheetAfterDynamicAnalysisOfCell(String sheetName, int sheetVersion, CellPositionInSheet cellPosition,
+                                                double cellOriginalValue);
 }

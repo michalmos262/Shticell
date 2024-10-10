@@ -67,6 +67,7 @@ public class CellServlet extends HttpServlet {
                 synchronized (getServletContext()) {
                     Engine engine = ServletUtils.getEngineInstance(getServletContext());
                     String sheetName = SessionUtils.getCurrentSheetName(request);
+
                     CellPositionInSheet cellPositionInSheet = PositionFactory.createPosition(cellPositionStr);
                     cellDto = engine.updateSheetCell(sheetName, cellPositionInSheet.getRow(),
                             cellPositionInSheet.getColumn(), originalValue, SessionUtils.getUsername(request));

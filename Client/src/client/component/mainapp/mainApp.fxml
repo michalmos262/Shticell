@@ -6,14 +6,14 @@
 <?import javafx.scene.control.SplitPane?>
 <?import javafx.scene.layout.AnchorPane?>
 
-<ScrollPane maxHeight="-Infinity" maxWidth="-Infinity" minHeight="-Infinity" minWidth="-Infinity" prefHeight="770.0" prefWidth="1005.0" xmlns="http://javafx.com/javafx/22" xmlns:fx="http://javafx.com/fxml/1" fx:controller="client.component.mainapp.MainAppController">
+<ScrollPane maxHeight="-Infinity" maxWidth="-Infinity" minHeight="-Infinity" minWidth="-Infinity" prefHeight="770.0" prefWidth="1162.0" xmlns="http://javafx.com/javafx/22" xmlns:fx="http://javafx.com/fxml/1" fx:controller="client.component.mainapp.MainAppController">
    <content>
-      <SplitPane fx:id="mainSplitPane" dividerPositions="0.04564072557050908" orientation="VERTICAL" prefHeight="767.0" prefWidth="1002.0">
+      <SplitPane fx:id="mainSplitPane" dividerPositions="0.04564072557050908" orientation="VERTICAL" prefHeight="767.0" prefWidth="1158.0">
         <items>
           <AnchorPane minHeight="0.0" minWidth="0.0" prefHeight="518.0" prefWidth="781.0">
                <children>
                   <Label fx:id="loggedInAsLabel" layoutX="7.0" layoutY="7.0" text="Logged in as: Michal" />
-                  <Label fx:id="headingLabel" layoutX="365.0" layoutY="-1.0" style="-fx-font-size: 20; -fx-font-weight: bold;" text="Welcome to Shticell!" />
+                  <Label fx:id="headingLabel" layoutX="467.0" layoutY="-1.0" style="-fx-font-size: 20; -fx-font-weight: bold;" text="Welcome to Shticell!" />
                </children>
             </AnchorPane>
           <AnchorPane fx:id="contentAnchorPane" minHeight="0.0" minWidth="0.0" prefHeight="644.0" prefWidth="781.0" />

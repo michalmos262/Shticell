@@ -77,9 +77,10 @@ public class CommandsController {
     }
 
     @FXML
-    void showSortedSheetButtonListener(ActionEvent event) {
+    void showSortedSheetButtonListener(ActionEvent event) throws IOException {
         String fromPositionStr = fromPositionSortTextField.getText();
         String toPositionStr = toPositionSortTextField.getText();
+        int sheetVersion = mainSheetController.getLastSheetVersion();
 
         LinkedHashSet<String> chosenColumns = sortByColumnsListView.getItems().stream()
                     .filter(CommandsModelUI.ListViewEntry::isSelected)
@@ -89,6 +90,7 @@ public class CommandsController {
         String url = HttpUrl
                 .parse(SORTED_SHEET_ROWS_ENDPOINT)
                 .newBuilder()
+                .addQueryParameter(SHEET_VERSION, String.valueOf(sheetVersion))
                 .addQueryParameter(FROM_CELL_POSITION, fromPositionStr)
                 .addQueryParameter(TO_CELL_POSITION, toPositionStr)
                 .addQueryParameter(SORT_FILTER_BY_COLUMNS, String.join(",", chosenColumns))

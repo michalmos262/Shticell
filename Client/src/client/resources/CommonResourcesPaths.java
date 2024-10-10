@@ -28,6 +28,7 @@ public class CommonResourcesPaths {
     public final static String USER_SHEET_PERMISSIONS_ENDPOINT = USER_ENDPOINT + "/sheet-permissions";
 
     public final static String SHEET_ENDPOINT = FULL_SERVER_PATH + "/sheet";
+    public final static String DYNAMIC_ANALYSED_ENDPOINT = SHEET_ENDPOINT + "/dynamic-analysed";
     public final static String SORTED_SHEET_ROWS_ENDPOINT = SHEET_ENDPOINT + "/sorted-rows";
     public final static String CELL_ENDPOINT = SHEET_ENDPOINT + "/cell";
     public final static String RANGE_ENDPOINT = SHEET_ENDPOINT + "/range";

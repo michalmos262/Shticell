@@ -185,6 +185,9 @@ public class GridController {
     }
 
     private void setClickedCellColors(CellDto cellDto) {
+        if (clickedLabel == null) {
+            return;
+        }
         // Clear the previously painted cells
         clearPaintedCells();
 
@@ -283,6 +286,7 @@ public class GridController {
         SimpleStringProperty displayedValue = modelUi.getCellPosition2displayedValue().get(cellPosition).
                 displayedValueProperty();
         displayedValue.setValue(cellDto.getEffectiveValueForDisplay().toString());
+
         // Update the visible affected cells
         cellDto.getInfluences().forEach(influencedPosition -> {
             SimpleStringProperty visibleValue = modelUi.getCellPosition2displayedValue().get(influencedPosition).
@@ -301,10 +305,12 @@ public class GridController {
 
             try {
                 Response response = HttpClientUtil.HTTP_CLIENT.newCall(request).execute();
+                String responseBody = response.body().string();
                 if (response.isSuccessful()) {
-                    String responseBody = response.body().string();
                     CellDto influencedCell = GSON_INSTANCE.fromJson(responseBody, CellDto.class);
                     visibleValue.setValue(influencedCell.getEffectiveValueForDisplay().toString());
+                } else {
+                    System.out.println("Error: " + responseBody);
                 }
             } catch (Exception e) {
                 try {
@@ -314,6 +320,7 @@ public class GridController {
                 }
             }
         });
+
         setClickedCellColors(cellDto);
     }
 
@@ -439,9 +446,9 @@ public class GridController {
         }
 
         // Populate the GridPane with Labels (sheet cells)
-        for (int row = 0; row < numOfRows; row++) {
-            for (int col = 0; col < numOfColumns; col++) {
-                CellPositionDto cellPosition = new CellPositionDto(row+1, col+1);
+        for (int row = 1; row <= numOfRows; row++) {
+            for (int col = 1; col <= numOfColumns; col++) {
+                CellPositionDto cellPosition = new CellPositionDto(row, col);
                 Label cellInOriginalGrid = (Label) mainGridPane.lookup("#" + CellPositionDto.parseColumn(cellPosition.getColumn()) + cellPosition.getRow());
                 Label cellInCopiedGrid = new Label();
                 cellInCopiedGrid.setId(CellPositionDto.parseColumn(cellPosition.getColumn()) + cellPosition.getRow() + COPIED_CELL_PREFIX_CSS_CLASS);
@@ -458,7 +465,7 @@ public class GridController {
                 cellInCopiedGrid.setTextFill(cellInOriginalGrid.getTextFill());
                 cellInCopiedGrid.setAlignment(cellInOriginalGrid.getAlignment());
 
-                copiedGridPane.add(cellInCopiedGrid, col + 1, row + 1);  // Offset by 1 to leave space for headers
+                copiedGridPane.add(cellInCopiedGrid, col, row);  // Offset by 1 to leave space for headers
             }
         }
 
@@ -579,14 +586,22 @@ public class GridController {
             for (int col = 0; col < numOfColumns; col++) {
                 CellPositionDto cellPositionDto = new CellPositionDto(row + 1, col + 1);
                 Label cellLabel = (Label) copiedGrid.lookup("#" + CellPositionDto.parseColumn(cellPositionDto.getColumn()) + cellPositionDto.getRow() + COPIED_CELL_PREFIX_CSS_CLASS);
+                int sheetVersion = mainSheetController.getCurrentSheetVersion();
+
+                String url = HttpUrl
+                        .parse(SHEET_ENDPOINT)
+                        .newBuilder()
+                        .addQueryParameter(SHEET_VERSION, String.valueOf(sheetVersion))
+                        .build()
+                        .toString();
 
                 Request request = new Request.Builder()
-                .url(SHEET_ENDPOINT)
-                .build();
+                        .url(url)
+                        .build();
 
                 Response response = HttpClientUtil.HTTP_CLIENT.newCall(request).execute();
+                String responseBody = response.body().string();
                 if (response.isSuccessful()) {
-                    String responseBody = response.body().string();
                     SheetDto sheetDto = GSON_INSTANCE.fromJson(responseBody, SheetDto.class);
                     modelUi.setCellLabelBindingDynamicAnalysis(cellLabel, sheetDto, cellPositionDto);
                 }
@@ -714,12 +729,13 @@ public class GridController {
             slider.setValue(roundedValue);
 
             CellPositionDto CellPositionDto = new CellPositionDto(cellId);
-
-            String url = HttpUrl
-                    .parse(SHEET_ENDPOINT)
+            String url;
+            url = HttpUrl
+                    .parse(DYNAMIC_ANALYSED_ENDPOINT)
                     .newBuilder()
                     .addQueryParameter(CELL_POSITION, cellId)
                     .addQueryParameter(CELL_ORIGINAL_VALUE, String.valueOf(roundedValue))
+                    .addQueryParameter(SHEET_VERSION, String.valueOf(mainSheetController.getCurrentSheetVersion()))
                     .build()
                     .toString();
 
@@ -729,22 +745,26 @@ public class GridController {
 
             try {
                 Response response = HttpClientUtil.HTTP_CLIENT.newCall(request).execute();
+                String responseBody = response.body().string();
                 if (response.isSuccessful()) {
-                    String responseBody = response.body().string();
                     SheetDto newSheetDto = GSON_INSTANCE.fromJson(responseBody, SheetDto.class);
                     SimpleStringProperty displayedValue = modelUi.getCellPosition2displayedValueDynamicAnalysis().get(CellPositionDto).
                         displayedValueProperty();
 
                     CellDto cellDto = newSheetDto.getCell(CellPositionDto);
-                    displayedValue.setValue(cellDto.getEffectiveValueForDisplay().toString());
+                    if (cellDto != null) {
+                        displayedValue.setValue(cellDto.getEffectiveValueForDisplay().toString());
 
-                    // Update the visible affected cells
-                    cellDto.getInfluences().forEach(influencedPosition -> {
-                        SimpleStringProperty visibleValue = modelUi.getCellPosition2displayedValueDynamicAnalysis().get(influencedPosition).
-                                displayedValueProperty();
-                        CellDto influencedCell = newSheetDto.getCell(influencedPosition);
-                        visibleValue.setValue(influencedCell.getEffectiveValueForDisplay().toString());
-                    });
+                        // Update the visible affected cells
+                        cellDto.getInfluences().forEach(influencedPosition -> {
+                            SimpleStringProperty visibleValue = modelUi.getCellPosition2displayedValueDynamicAnalysis().get(influencedPosition).
+                                    displayedValueProperty();
+                            CellDto influencedCell = newSheetDto.getCell(influencedPosition);
+                            visibleValue.setValue(influencedCell.getEffectiveValueForDisplay().toString());
+                        });
+                    }
+                } else {
+                    System.out.println("Error: " + responseBody);
                 }
             } catch (Exception e) {
                 try {
@@ -754,5 +774,28 @@ public class GridController {
                 }
             }
         });
+    }
+
+    public void moveToNewestSheetVersion() throws IOException {
+        Request request = new Request.Builder()
+                .url(SHEET_ENDPOINT)
+                .build();
+
+        Response response = HttpClientUtil.HTTP_CLIENT.newCall(request).execute();
+        if (response.isSuccessful()) {
+            String responseBody = response.body().string();
+            SheetDto newSheetDto = GSON_INSTANCE.fromJson(responseBody, SheetDto.class);
+            for (int row = 1; row <= numOfRows; row++) {
+                for (int col = 1; col <= numOfColumns; col++) {
+                    CellPositionDto cellPosition = new CellPositionDto(row, col);
+                    CellDto cellDto = newSheetDto.getCell(cellPosition);
+                    if (cellDto != null) {
+                        cellUpdated(cellPosition.toString(), cellDto);
+                    }
+                }
+            }
+        }
+
+        removeCellsPaints();
     }
 }

@@ -127,6 +127,11 @@ public class SheetImpl implements Cloneable, Sheet {
     }
 
     @Override
+    public int getVersion() {
+        return version;
+    }
+
+    @Override
     public Range getRangeByName(String name) {
         return sheetManager.getRangesManager().getRangeByName(name);
     }

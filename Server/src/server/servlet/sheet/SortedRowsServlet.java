@@ -43,7 +43,9 @@ public class SortedRowsServlet extends HttpServlet {
                                 .toList()
                 );
 
-                LinkedList<RowDto> sortedRows = engine.getSortedRowsSheet(sheetName, range, chosenColumns);
+                int sheetVersion = Integer.parseInt(request.getParameter(SHEET_VERSION));
+
+                LinkedList<RowDto> sortedRows = engine.getSortedRowsSheet(sheetName, sheetVersion, range, chosenColumns);
                 String json = GSON_INSTANCE.toJson(sortedRows);
                 response.getWriter().println(json);
             }

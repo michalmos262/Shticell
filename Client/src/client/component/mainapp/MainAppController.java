@@ -20,14 +20,22 @@ import java.util.Map;
 import static client.resources.CommonResourcesPaths.*;
 
 public class MainAppController implements Closeable {
-    @FXML private Label headingLabel;
-    @FXML private Label loggedInAsLabel;
-    @FXML private SplitPane mainSplitPane;
-    @FXML private AnchorPane contentAnchorPane;
-    @FXML private AnchorPane loginComponent;
-    @FXML private LoginController loginComponentController;
-    @FXML private BorderPane dashboardComponent;
-    @FXML private DashboardController dashboardComponentController;
+    @FXML
+    private Label headingLabel;
+    @FXML
+    private Label loggedInAsLabel;
+    @FXML
+    private SplitPane mainSplitPane;
+    @FXML
+    private AnchorPane contentAnchorPane;
+    @FXML
+    private AnchorPane loginComponent;
+    @FXML
+    private LoginController loginComponentController;
+    @FXML
+    private BorderPane dashboardComponent;
+    @FXML
+    private DashboardController dashboardComponentController;
 
     private MainModelUI modelUi;
     private Map<String, BorderPane> sheetName2Component;
@@ -119,5 +127,6 @@ public class MainAppController implements Closeable {
         loadSheetPage(sheetName);
         modelUi.pageHeadingProperty().set("In sheet: " + sheetName);
         setMainPanelTo(sheetName2Component.get(sheetName));
+        sheetName2Controller.get(sheetName).setActive();
     }
 }

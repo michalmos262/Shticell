@@ -8,8 +8,7 @@
 <?import javafx.scene.layout.GridPane?>
 <?import javafx.scene.layout.RowConstraints?>
 
-
- <BorderPane fx:id="singleSheetComponent" maxHeight="800.0" maxWidth="1010.0" minHeight="700.0" minWidth="1000.0" prefHeight="765.0" prefWidth="1233.0" xmlns="http://javafx.com/javafx/22" xmlns:fx="http://javafx.com/fxml/1" fx:controller="client.component.sheet.mainsheet.MainSheetController">
+<BorderPane fx:id="singleSheetComponent" maxHeight="800.0" maxWidth="1162.0" minHeight="700.0" minWidth="1000.0" prefHeight="765.0" prefWidth="1162.0" xmlns="http://javafx.com/javafx/22" xmlns:fx="http://javafx.com/fxml/1" fx:controller="client.component.sheet.mainsheet.MainSheetController">
      <left>
          <GridPane alignment="CENTER" prefHeight="689.0" prefWidth="259.0" BorderPane.alignment="CENTER">
              <columnConstraints>

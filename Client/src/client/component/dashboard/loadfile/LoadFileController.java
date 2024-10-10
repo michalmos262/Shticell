@@ -13,7 +13,6 @@ import javafx.scene.control.TextField;
 import javafx.stage.FileChooser;
 import okhttp3.*;
 import serversdk.exception.ServerException;
-import dto.sheet.FileMetadata;
 
 import java.io.File;
 
@@ -29,7 +28,6 @@ public class LoadFileController {
     private DashboardController dashboardController;
     private LoadFileModelUI modelUi;
     private LoadFileTask loadFileTask;
-    private FileMetadata currentFileMetadata;
 
     @FXML
     private void initialize() {
@@ -73,17 +71,13 @@ public class LoadFileController {
                     if (!response.isSuccessful()) {
                         ServerException.ErrorResponse errorResponse = GSON_INSTANCE.fromJson(response.body().string(), ServerException.ErrorResponse.class);
                         throw new RuntimeException(errorResponse.getMessage());
-                    } else {
-                        currentFileMetadata = GSON_INSTANCE.fromJson(response.body().string(), FileMetadata.class);
                     }
 
                 } catch (Exception e) {
                     throw new RuntimeException(e.getMessage()); // Pass the exception
                 }
             },
-            onFinish -> {
-                modelUi.isFileLoadingProperty().set(false);
-        });
+            onFinish -> modelUi.isFileLoadingProperty().set(false));
 
         // Handle task failure
         loadFileTask.setOnFailed(eventFailed -> {

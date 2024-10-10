@@ -9,6 +9,7 @@ import dto.sheet.RowDto;
 import dto.sheet.SheetDto;
 import javafx.fxml.FXML;
 import javafx.geometry.Pos;
+import javafx.scene.control.Button;
 import javafx.scene.control.Label;
 import javafx.scene.control.ScrollPane;
 import javafx.scene.layout.BorderPane;
@@ -28,6 +29,8 @@ import static client.resources.CommonResourcesPaths.*;
 import static serversdk.request.parameter.RequestParameters.SHEET_VERSION;
 
 public class MainSheetController {
+    @FXML public BorderPane singleSheetComponent;
+    @FXML public Button backToDashboardButton;
     @FXML private GridPane actionLineComponent;
     @FXML private ActionLineController actionLineComponentController;
     @FXML private BorderPane commandsComponent;
@@ -141,5 +144,33 @@ public class MainSheetController {
 
     public void showDynamicAnalysis(String cellId) throws IOException {
         gridComponentController.showDynamicAnalysis(cellId);
+    }
+
+    public void moveToNewestSheetVersion() throws IOException {
+        removeCellsPaints();
+        gridComponentController.moveToNewestSheetVersion();
+    }
+
+    public void setActive() {
+        actionLineComponentController.setActive();
+    }
+
+    public int getLastSheetVersion() throws IOException {
+        Request request = HttpClientUtil.getCurrentSheet();
+        Response response = HttpClientUtil.HTTP_CLIENT.newCall(request).execute();
+        String responseBody = response.body().string();
+
+        if (response.isSuccessful()) {
+            SheetDto sheetDto = GSON_INSTANCE.fromJson(responseBody, SheetDto.class);
+            return sheetDto.getVersion();
+        } else {
+            System.out.println("Error: " + responseBody);
+        }
+
+        return 0;
+    }
+
+    public int getCurrentSheetVersion() {
+        return actionLineComponentController.getCurrentSheetVersion();
     }
 }

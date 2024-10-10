@@ -1,8 +1,12 @@
 package client.util.http;
 
 import okhttp3.*;
+import serversdk.request.body.CellBody;
 
 import java.util.function.Consumer;
+
+import static client.resources.CommonResourcesPaths.*;
+import static serversdk.request.parameter.RequestParameters.CELL_POSITION;
 
 public class HttpClientUtil {
 
@@ -40,6 +44,44 @@ public class HttpClientUtil {
         Call call = HttpClientUtil.HTTP_CLIENT.newCall(request);
 
         call.enqueue(callback);
+    }
+
+    public static Request getCell(String cellPositionId) {
+        String url = HttpUrl
+                .parse(CELL_ENDPOINT)
+                .newBuilder()
+                .addQueryParameter(CELL_POSITION, cellPositionId)
+                .build()
+                .toString();
+
+        return new Request.Builder()
+                .url(url)
+                .build();
+    }
+
+    public static Request putCell(String cellPositionId, String originalValue) {
+        // create the request body
+        String updateCellBodyJson = GSON_INSTANCE.toJson(new CellBody(originalValue));
+        MediaType mediaType = MediaType.get(JSON_MEDIA_TYPE);
+        RequestBody requestBody = RequestBody.create(updateCellBodyJson, mediaType);
+
+        String url = HttpUrl
+                .parse(CELL_ENDPOINT)
+                .newBuilder()
+                .addQueryParameter(CELL_POSITION, cellPositionId)
+                .build()
+                .toString();
+
+        return new Request.Builder()
+                .url(url)
+                .put(requestBody)
+                .build();
+    }
+
+    public static Request getCurrentSheet() {
+        return new Request.Builder()
+                .url(SHEET_ENDPOINT)
+                .build();
     }
 
     public static void shutdown() {

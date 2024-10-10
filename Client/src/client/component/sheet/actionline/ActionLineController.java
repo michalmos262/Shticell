@@ -8,22 +8,24 @@ import javafx.event.ActionEvent;
 import javafx.fxml.FXML;
 import javafx.geometry.Pos;
 import javafx.scene.control.*;
-import javafx.scene.layout.Background;
+import javafx.scene.effect.DropShadow;
+import javafx.scene.layout.*;
 import javafx.scene.paint.Color;
 import client.component.sheet.mainsheet.MainSheetController;
 import okhttp3.*;
 import dto.cell.CellTypeDto;
 import serversdk.exception.ServerException;
-import serversdk.request.body.CellBody;
 
 import static client.resources.CommonResourcesPaths.*;
 import static serversdk.request.parameter.RequestParameters.*;
 
+import java.io.Closeable;
 import java.io.IOException;
 import java.util.LinkedList;
 import java.util.List;
+import java.util.Timer;
 
-public class ActionLineController {
+public class ActionLineController implements Closeable {
 
     @FXML private Label lastCellVersionLabel;
     @FXML private Label selectedCellIdLabel;
@@ -33,6 +35,7 @@ public class ActionLineController {
     @FXML private Button showSheetVersionButton;
     @FXML private Button backToDefaultDesignButton;
     @FXML private Button dynamicAnalysisButton;
+    @FXML private Button moveToNewestVersionButton;
     @FXML private ChoiceBox<Pos> columnTextAlignmentChoiceBox;
     @FXML private ChoiceBox<Integer> showSheetVersionSelector;
     @FXML private Spinner<Integer> columnWidthSpinner;
@@ -45,6 +48,8 @@ public class ActionLineController {
     private Color defaultCellBackgroundColor;
     private Color defaultCellTextColor;
     private Label clickedCellLabel;
+    private ActionLineRefresher actionLineRefresher;
+    private Timer timer;
 
     @FXML
     private void initialize() {
@@ -129,55 +134,50 @@ public class ActionLineController {
             System.out.println("Error: " + responseBody);
         }
 
-        modelUi.currentSheetVersionProperty().set(1);
+        // navigates to moveToNewestVersionButtonListener function
+        moveToNewestVersionButton.fire();
+    }
+
+    public int getCurrentSheetVersion() {
+        return modelUi.currentSheetVersionProperty().getValue();
     }
 
     public void removeCellClickFocus() {
         modelUi.isAnyCellClickedProperty().set(false);
         modelUi.selectedCellIdProperty().set("");
         modelUi.selectedCellOriginalValueProperty().set("");
+        modelUi.selectedUpdatedByNameProperty().set("");
         modelUi.selectedCellLastVersionProperty().set(0);
     }
 
     @FXML
-    void UpdateValueButtonListener(ActionEvent event) {
-        String cellId = modelUi.selectedCellIdProperty().getValue();
-        String cellNewOriginalValue = originalCellValueTextField.getText();
+    void updateValueButtonListener(ActionEvent event) throws IOException {
+        if (modelUi.currentSheetVersionProperty().getValue() == mainSheetController.getLastSheetVersion()) {
+            String cellId = modelUi.selectedCellIdProperty().getValue();
+            String cellNewOriginalValue = originalCellValueTextField.getText();
 
-        // create the request body
-        String updateCellBodyJson = GSON_INSTANCE.toJson(new CellBody(cellNewOriginalValue));
-        MediaType mediaType = MediaType.get(JSON_MEDIA_TYPE);
-        RequestBody requestBody = RequestBody.create(updateCellBodyJson, mediaType);
+            Request request = HttpClientUtil.putCell(cellId, cellNewOriginalValue);
 
-        String url = HttpUrl
-                .parse(CELL_ENDPOINT)
-                .newBuilder()
-                .addQueryParameter(CELL_POSITION, cellId)
-                .build()
-                .toString();
-
-        Request request = new Request.Builder()
-                .url(url)
-                .put(requestBody)
-                .build();
-
-        try {
-            Response response = HttpClientUtil.HTTP_CLIENT.newCall(request).execute();
-            String responseBody = response.body().string();
-            if (response.isSuccessful()) {
-                CellDto cellDto = GSON_INSTANCE.fromJson(responseBody, CellDto.class);
-                modelUi.selectedCellOriginalValueProperty().set(cellNewOriginalValue);
-                modelUi.selectedCellLastVersionProperty().set(cellDto.getLastUpdatedInVersion());
-                modelUi.selectedUpdatedByNameProperty().set(cellDto.getUpdatedByName());
-                modelUi.currentSheetVersionProperty().set(cellDto.getLastUpdatedInVersion());
-                mainSheetController.cellIsUpdated(cellId, cellDto);
-            } else {
-                ServerException.ErrorResponse errorResponse = GSON_INSTANCE.fromJson(responseBody, ServerException.ErrorResponse.class);
-                updateCellFailed(errorResponse.getMessage());
+            try {
+                Response response = HttpClientUtil.HTTP_CLIENT.newCall(request).execute();
+                String responseBody = response.body().string();
+                if (response.isSuccessful()) {
+                    CellDto cellDto = GSON_INSTANCE.fromJson(responseBody, CellDto.class);
+                    modelUi.selectedCellOriginalValueProperty().set(cellNewOriginalValue);
+                    modelUi.selectedCellLastVersionProperty().set(cellDto.getLastUpdatedInVersion());
+                    modelUi.selectedUpdatedByNameProperty().set(cellDto.getUpdatedByName());
+                    modelUi.currentSheetVersionProperty().set(cellDto.getLastUpdatedInVersion());
+                    mainSheetController.cellIsUpdated(cellId, cellDto);
+                } else {
+                    ServerException.ErrorResponse errorResponse = GSON_INSTANCE.fromJson(responseBody, ServerException.ErrorResponse.class);
+                    updateCellFailed(errorResponse.getMessage());
+                }
+            } catch (Exception e) {
+                System.out.println("Error: " + e.getMessage());
+                updateCellFailed(e.getMessage());
             }
-        } catch (Exception e) {
-            System.out.println("Error: " + e.getMessage());
-            updateCellFailed(e.getMessage());
+        } else {
+            updateCellFailed("Sheet has a newer version, please move to it first");
         }
     }
 
@@ -201,6 +201,9 @@ public class ActionLineController {
 
     public CellDto cellClicked(Label clickedCell) throws IOException {
         this.clickedCellLabel = clickedCell;
+        if (clickedCell == null) {
+            return null;
+        }
         String cellPositionId = clickedCell.getId();
         CellDto cellDto = null;
 
@@ -208,6 +211,7 @@ public class ActionLineController {
                 .parse(CELL_ENDPOINT)
                 .newBuilder()
                 .addQueryParameter(CELL_POSITION, cellPositionId)
+                .addQueryParameter(SHEET_VERSION, String.valueOf(modelUi.currentSheetVersionProperty().getValue()))
                 .build()
                 .toString();
 
@@ -265,12 +269,14 @@ public class ActionLineController {
     @FXML
     void dynamicAnalysisButtonListener(ActionEvent event) throws IOException {
         String cellId = modelUi.selectedCellIdProperty().getValue();
+        int sheetVersion = mainSheetController.getLastSheetVersion();
         CellDto cellDto;
 
         String url = HttpUrl
                 .parse(CELL_ENDPOINT)
                 .newBuilder()
                 .addQueryParameter(CELL_POSITION, cellId)
+                .addQueryParameter(SHEET_VERSION, String.valueOf(sheetVersion))
                 .build()
                 .toString();
 
@@ -301,6 +307,49 @@ public class ActionLineController {
             }
         } else {
             System.out.println("Error: " + responseBody);
+        }
+    }
+
+    @FXML
+    void moveToNewestVersionButtonListener(ActionEvent event) throws IOException {
+        this.moveToNewestVersionButton.setEffect(null);
+        removeCellClickFocus();
+        int newestVersion = mainSheetController.getLastSheetVersion();
+        modelUi.currentSheetVersionProperty().set(newestVersion);
+        mainSheetController.moveToNewestSheetVersion();
+    }
+
+    private void indicateMoveToNewestVersionButton() {
+        DropShadow shadowEffect = new DropShadow();
+        shadowEffect.setColor(Color.BLUE);
+        shadowEffect.setRadius(10);
+        shadowEffect.setSpread(0.3);
+
+        this.moveToNewestVersionButton.setEffect(shadowEffect);
+
+        this.moveToNewestVersionButton.setBorder(new Border(new BorderStroke(
+                Color.TRANSPARENT,
+                BorderStrokeStyle.SOLID, new CornerRadii(5), new BorderWidths(3)
+        )));
+    }
+
+    public void startMoveToNewestVersionButtonRefresher() {
+        actionLineRefresher = new ActionLineRefresher(
+                this::indicateMoveToNewestVersionButton,
+                modelUi.currentSheetVersionProperty());
+        timer = new Timer();
+        timer.schedule(actionLineRefresher, 2000, 2000);
+    }
+
+    public void setActive() {
+        startMoveToNewestVersionButtonRefresher();
+    }
+
+    @Override
+    public void close() {
+        if (actionLineRefresher != null && timer != null) {
+            actionLineRefresher.cancel();
+            timer.cancel();
         }
     }
 }
