@@ -56,11 +56,13 @@ public class RangeServlet extends HttpServlet {
                 String requestBody = ServletUtils.extractRequestBody(request);
                 RangeBody rangeBody = GSON_INSTANCE.fromJson(requestBody, RangeBody.class);
                 String rangeName = rangeBody.getName();
-                String fromCellPositionStr = rangeBody.getFromPosition();
 
+                String fromCellPositionStr = rangeBody.getFromPosition();
                 CellPositionInSheet fromCellPosition = PositionFactory.createPosition(fromCellPositionStr);
+
                 String toCellPositionStr = rangeBody.getToPosition();
                 CellPositionInSheet toCellPosition = PositionFactory.createPosition(toCellPositionStr);
+
                 RangeDto range = engine.createRange(sheetName, rangeName, fromCellPosition, toCellPosition);
 
                 String json = GSON_INSTANCE.toJson(range);

@@ -55,16 +55,16 @@ public class LoginController {
 
             @Override
             public void onResponse(@NotNull Call call, @NotNull Response response) throws IOException {
-                if (!response.isSuccessful()) {
+                if (response.isSuccessful()) {
+                    Platform.runLater(() -> {
+                        mainAppController.loggedIn(username);
+                        mainAppController.switchToDashboardPage();
+                    });
+                } else {
                     String responseBody = response.body() != null ? response.body().string() : GENERAL_ERROR_JSON;
                     Platform.runLater(() -> {
                         ServerException.ErrorResponse errorResponse = GSON_INSTANCE.fromJson(responseBody, ServerException.ErrorResponse.class);
                         modelUi.errorMessageProperty().set(errorResponse.getMessage());
-                    });
-                } else {
-                    Platform.runLater(() -> {
-                        mainAppController.loggedIn(username);
-                        mainAppController.switchToDashboardPage();
                     });
                 }
             }

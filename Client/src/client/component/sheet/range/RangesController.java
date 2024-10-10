@@ -4,6 +4,8 @@ import client.component.alert.AlertsHandler;
 import client.util.http.HttpClientUtil;
 import com.google.gson.reflect.TypeToken;
 import dto.sheet.RangeDto;
+import javafx.application.Platform;
+import javafx.collections.ObservableList;
 import javafx.event.ActionEvent;
 import javafx.fxml.FXML;
 import javafx.scene.control.*;
@@ -13,15 +15,17 @@ import okhttp3.*;
 import serversdk.exception.ServerException;
 import serversdk.request.body.RangeBody;
 
+import java.io.Closeable;
 import java.io.IOException;
 import java.lang.reflect.Type;
 import java.util.Arrays;
 import java.util.List;
+import java.util.Timer;
 
 import static client.resources.CommonResourcesPaths.*;
 import static serversdk.request.parameter.RequestParameters.*;
 
-public class RangesController {
+public class RangesController implements Closeable {
 
     @FXML private TextField addFromRangeTextInput;
     @FXML private TitledPane addNewRangeTitledPane;
@@ -31,13 +35,15 @@ public class RangesController {
     @FXML private Button deleteRangeButton;
     @FXML private ChoiceBox<String> deleteRangeNameChoiceBox;
     @FXML private TitledPane deleteRangeTitledPane;
-    @FXML private TableView<RangeModelUI.TableEntry> showRangesTable;
-    @FXML private TableColumn<RangeModelUI.TableEntry, String> nameColumn;
-    @FXML private TableColumn<RangeModelUI.TableEntry, String> rangeColumn;
+    @FXML private TableView<RangeModelUI.RangeTableEntry> showRangesTable;
+    @FXML private TableColumn<RangeModelUI.RangeTableEntry, String> nameColumn;
+    @FXML private TableColumn<RangeModelUI.RangeTableEntry, String> rangeColumn;
     @FXML private TitledPane showRangesTitledPane;
 
     private MainSheetController mainSheetController;
     private RangeModelUI modelUi;
+    private RangesRefresher rangesRefresher;
+    private Timer timer;
 
     @FXML
     private void initialize() {
@@ -95,7 +101,7 @@ public class RangesController {
 
             if (!rangeName.isEmpty()) {
                 String fromPositionStr = addFromRangeTextInput.getText();
-                String toPositionStr = addRangeNameTextInput.getText();
+                String toPositionStr = addToRangeTextInput.getText();
 
                 // create the request body
                 String addRangeBodyJson = GSON_INSTANCE.toJson(new RangeBody(rangeName, fromPositionStr, toPositionStr));
@@ -109,12 +115,12 @@ public class RangesController {
 
                 Response response = HttpClientUtil.HTTP_CLIENT.newCall(request).execute();
                 if (response.isSuccessful()) {
-                    String responseBody = response.body().string();
-                    RangeDto rangeDto = GSON_INSTANCE.fromJson(responseBody, RangeDto.class);
-                    modelUi.addRange(rangeName, rangeDto);
                     modelUi.isRangeAddedProperty().set(true);
                     modelUi.isRangeAddedProperty().set(false);
                     AlertsHandler.HandleOkAlert("Range " + rangeName + " added successfully!");
+                } else {
+                    ServerException.ErrorResponse errorResponse = GSON_INSTANCE.fromJson(response.body().string(), ServerException.ErrorResponse.class);
+                    AlertsHandler.HandleErrorAlert(alertTitle, errorResponse.getMessage());
                 }
             } else {
                 AlertsHandler.HandleErrorAlert(alertTitle, "Range name cannot be empty");
@@ -157,9 +163,66 @@ public class RangesController {
 
     @FXML
     void tableViewOnMouseClickedListener(MouseEvent event) throws IOException {
-        RangeModelUI.TableEntry selectedRow = showRangesTable.getSelectionModel().getSelectedItem();
+        RangeModelUI.RangeTableEntry selectedRow = showRangesTable.getSelectionModel().getSelectedItem();
         if (selectedRow != null) {
             mainSheetController.showCellsInRange(selectedRow.nameProperty().getValue());
+        }
+    }
+
+    private void updateRangesTableAndDeleteRangeChoiceBox(List<String> rangeNames) {
+        Platform.runLater(() -> {
+            ObservableList<RangeModelUI.RangeTableEntry> tableItems = showRangesTable.getItems();
+            ObservableList<String> choiceBoxItems = deleteRangeNameChoiceBox.getItems();
+
+            tableItems.clear();
+            choiceBoxItems.clear();
+
+            for (String rangeName: rangeNames) {
+                String url = HttpUrl
+                    .parse(RANGE_ENDPOINT)
+                    .newBuilder()
+                    .addQueryParameter(RANGE_NAME, rangeName)
+                    .build()
+                    .toString();
+
+                Request request = new Request.Builder()
+                        .url(url)
+                        .build();
+
+                Response response;
+                try {
+                    response = HttpClientUtil.HTTP_CLIENT.newCall(request).execute();
+                    String responseBody = response.body().string();
+                    if (response.isSuccessful()) {
+                        RangeDto rangeDto = GSON_INSTANCE.fromJson(responseBody, RangeDto.class);
+                        modelUi.addRange(rangeName, rangeDto);
+                    } else {
+                        System.out.println("Error: " + responseBody);
+                    }
+                } catch (IOException e) {
+                    throw new RuntimeException(e);
+                }
+            }
+            mainSheetController.removeCellsPaints();
+        });
+    }
+
+    public void startRangesRefresher() {
+        rangesRefresher = new RangesRefresher(
+                this::updateRangesTableAndDeleteRangeChoiceBox);
+        timer = new Timer();
+        timer.schedule(rangesRefresher, REFRESH_RATE, REFRESH_RATE);
+    }
+
+    public void setActive() {
+        startRangesRefresher();
+    }
+
+    @Override
+    public void close() {
+        if (rangesRefresher != null && timer != null) {
+            rangesRefresher.cancel();
+            timer.cancel();
         }
     }
 }

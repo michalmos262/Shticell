@@ -111,6 +111,9 @@ public class MainAppController implements Closeable {
     @Override
     public void close() {
         dashboardComponentController.close();
+        for (MainSheetController sheetController : sheetName2Controller.values()) {
+            sheetController.close();
+        }
     }
 
     public void loggedIn(String username) {

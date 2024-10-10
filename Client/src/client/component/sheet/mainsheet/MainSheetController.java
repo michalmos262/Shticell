@@ -22,13 +22,14 @@ import okhttp3.HttpUrl;
 import okhttp3.Request;
 import okhttp3.Response;
 
+import java.io.Closeable;
 import java.io.IOException;
 import java.util.LinkedList;
 
 import static client.resources.CommonResourcesPaths.*;
 import static serversdk.request.parameter.RequestParameters.SHEET_VERSION;
 
-public class MainSheetController {
+public class MainSheetController implements Closeable {
     @FXML public BorderPane singleSheetComponent;
     @FXML public Button backToDashboardButton;
     @FXML private GridPane actionLineComponent;
@@ -60,7 +61,6 @@ public class MainSheetController {
     public void initComponents(String sheetName) throws IOException {
         gridComponentController.initMainGrid(sheetName);
         actionLineComponentController.initComponent(sheetName);
-        rangesComponentController.initComponent();
         commandsComponentController.initComponent(sheetName);
     }
 
@@ -153,6 +153,7 @@ public class MainSheetController {
 
     public void setActive() {
         actionLineComponentController.setActive();
+        rangesComponentController.setActive();
     }
 
     public int getLastSheetVersion() throws IOException {
@@ -172,5 +173,12 @@ public class MainSheetController {
 
     public int getCurrentSheetVersion() {
         return actionLineComponentController.getCurrentSheetVersion();
+    }
+
+
+    @Override
+    public void close() {
+        actionLineComponentController.close();
+        rangesComponentController.close();
     }
 }

@@ -1,7 +1,6 @@
 package client.component.sheet.range;
 
 import dto.sheet.RangeDto;
-import javafx.beans.binding.Bindings;
 import javafx.beans.property.SimpleBooleanProperty;
 import javafx.beans.property.SimpleStringProperty;
 import javafx.collections.FXCollections;
@@ -14,11 +13,11 @@ import java.util.List;
 
 public class RangeModelUI {
     private final ObservableMap<SimpleStringProperty, RangeDto> nameProperty2range;
-    private final ObservableList<TableEntry> rangesTableData;
+    private final ObservableList<RangeTableEntry> rangesTableData;
     private final SimpleBooleanProperty isRangeAdded;
 
-    public RangeModelUI(TableView<TableEntry> showRangesTable, TableColumn<TableEntry, String> nameColumn,
-                        TableColumn<RangeModelUI.TableEntry, String> rangeColumn, ChoiceBox<String> deleteRangeNameChoiceBox,
+    public RangeModelUI(TableView<RangeTableEntry> showRangesTable, TableColumn<RangeTableEntry, String> nameColumn,
+                        TableColumn<RangeTableEntry, String> rangeColumn, ChoiceBox<String> deleteRangeNameChoiceBox,
                         List<TextField> textFields) {
 
         isRangeAdded = new SimpleBooleanProperty(false);
@@ -29,8 +28,8 @@ public class RangeModelUI {
         bindTextFields(textFields);
     }
 
-    private void bindTableView(TableView<TableEntry> showRangesTable, TableColumn<TableEntry, String> nameColumn,
-                        TableColumn<TableEntry, String> rangeColumn, ChoiceBox<String> deleteRangeNameChoiceBox) {
+    private void bindTableView(TableView<RangeTableEntry> showRangesTable, TableColumn<RangeTableEntry, String> nameColumn,
+                               TableColumn<RangeTableEntry, String> rangeColumn, ChoiceBox<String> deleteRangeNameChoiceBox) {
         // Initialize the columns in the TableView
         nameColumn.setCellValueFactory(cellData -> cellData.getValue().nameProperty());
         rangeColumn.setCellValueFactory(cellData -> cellData.getValue().rangeProperty());
@@ -46,7 +45,7 @@ public class RangeModelUI {
 
             if (change.wasAdded()) {
                 RangeDto addedRange = change.getValueAdded();
-                rangesTableData.add(new TableEntry(nameProperty.get(), addedRange));
+                rangesTableData.add(new RangeTableEntry(nameProperty.get(), addedRange));
                 deleteRangeNameChoiceBoxData.add(nameProperty.get());
             }
             if (change.wasRemoved()) {
@@ -91,11 +90,11 @@ public class RangeModelUI {
         }
     }
 
-    public static class TableEntry {
+    public static class RangeTableEntry {
         private final SimpleStringProperty name;
         private final SimpleStringProperty range;
 
-        public TableEntry(String name, RangeDto range) {
+        public RangeTableEntry(String name, RangeDto range) {
             this.name = new SimpleStringProperty(name);
             this.range = new SimpleStringProperty(range.toString());
         }
