@@ -414,7 +414,7 @@ public class EngineImpl implements Engine {
 
     private CellDto getCellDto(Cell cell, String updateByName) {
         CellDto cellDto;
-        if (cell == null) {
+        if (cell == null || cell.getEffectiveValue() == null) {
             EffectiveValueDto effectiveValueDto = new EffectiveValueDto(CellTypeDto.UNKNOWN, "");
             cellDto = new CellDto("", effectiveValueDto, effectiveValueDto, new LinkedHashSet<>(),
                     new LinkedHashSet<>(), 0, updateByName);
