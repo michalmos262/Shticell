@@ -203,7 +203,6 @@ public class RangesController implements Closeable {
                     throw new RuntimeException(e);
                 }
             }
-            mainSheetController.removeCellsPaints();
         });
     }
 
