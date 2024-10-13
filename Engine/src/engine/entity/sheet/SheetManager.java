@@ -20,13 +20,15 @@ public class SheetManager implements Serializable {
     private int currentVersion;
     private final SheetDimension sheetDimension;
     private final RangesManager rangesManager;
+    private final String ownerName;
 
-    public SheetManager(SheetDimension sheetDimension) {
+    public SheetManager(SheetDimension sheetDimension, String ownerName) {
         currentVersion = 0;
         version2sheet = new LinkedHashMap<>();
         version2sheet.put(1, new SheetImpl(this));
         this.sheetDimension = sheetDimension;
         rangesManager = new RangesManager();
+        this.ownerName = ownerName;
     }
 
     public int getCurrentVersion() {
@@ -35,6 +37,10 @@ public class SheetManager implements Serializable {
 
     public SheetDimension getSheetDimension() {
         return sheetDimension;
+    }
+
+    public String getOwnerName() {
+        return ownerName;
     }
 
     public void addNewSheet(Sheet sheet) {

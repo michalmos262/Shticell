@@ -1,9 +1,9 @@
 package server.servlet.sheet;
 
+import dto.sheet.RowDto;
 import engine.api.Engine;
 import engine.entity.cell.CellPositionInSheet;
 import engine.entity.cell.PositionFactory;
-import engine.entity.dto.RowDto;
 import engine.entity.range.Range;
 import jakarta.servlet.annotation.WebServlet;
 import jakarta.servlet.http.HttpServlet;
@@ -17,7 +17,7 @@ import java.io.IOException;
 import java.util.*;
 
 import static server.constant.Constants.*;
-import static server.constant.Constants.TO_CELL_POSITION;
+import static serversdk.request.parameter.RequestParameters.*;
 
 @WebServlet(name = "SortedRowsServlet", urlPatterns = "/sheet/sorted-rows")
 public class SortedRowsServlet extends HttpServlet {
@@ -35,7 +35,7 @@ public class SortedRowsServlet extends HttpServlet {
                 CellPositionInSheet toCellPosition = PositionFactory.createPosition(toCellPositionStr);
                 Range range = new Range(fromCellPosition, toCellPosition);
 
-                String columns = request.getParameter(SORT_FILTER_BY_COLUMNS);
+                String columns = request.getParameter(SORT_OR_FILTER_BY_COLUMNS);
 
                 Set<String> chosenColumns = new LinkedHashSet<>(
                         Arrays.stream(columns.split(","))
@@ -43,7 +43,15 @@ public class SortedRowsServlet extends HttpServlet {
                                 .toList()
                 );
 
-                LinkedList<RowDto> sortedRows = engine.getSortedRowsSheet(sheetName, range, chosenColumns);
+                String sheetVersionParameter = request.getParameter(SHEET_VERSION);
+                int sheetVersion;
+                if (sheetVersionParameter != null) {
+                    sheetVersion = Integer.parseInt(sheetVersionParameter.trim());
+                } else {
+                    sheetVersion = engine.getCurrentSheetVersion(sheetName);
+                }
+
+                LinkedList<RowDto> sortedRows = engine.getSortedRowsSheet(sheetName, sheetVersion, range, chosenColumns);
                 String json = GSON_INSTANCE.toJson(sortedRows);
                 response.getWriter().println(json);
             }

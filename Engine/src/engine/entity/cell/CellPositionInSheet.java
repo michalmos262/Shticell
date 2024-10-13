@@ -6,12 +6,10 @@ import java.util.Objects;
 public class CellPositionInSheet implements Cloneable, Serializable {
     private int row;
     private int column;
-    private String positionInSheet;
 
     public CellPositionInSheet(int row, int column) {
         this.row = row;
         this.column = column;
-        this.positionInSheet = this.toString();
     }
 
     public int getRow() {
@@ -46,12 +44,12 @@ public class CellPositionInSheet implements Cloneable, Serializable {
         if (this == o) return true;
         if (o == null || getClass() != o.getClass()) return false;
         CellPositionInSheet that = (CellPositionInSheet) o;
-        return getRow() == that.getRow() && getColumn() == that.getColumn() && Objects.equals(positionInSheet, that.positionInSheet);
+        return getRow() == that.getRow() && getColumn() == that.getColumn();
     }
 
     @Override
     public int hashCode() {
-        return Objects.hash(getRow(), getColumn(), positionInSheet);
+        return Objects.hash(getRow(), getColumn());
     }
 
     @Override
@@ -60,7 +58,6 @@ public class CellPositionInSheet implements Cloneable, Serializable {
             CellPositionInSheet cloned = (CellPositionInSheet) super.clone();
             cloned.row = row;
             cloned.column = column;
-            cloned.positionInSheet = positionInSheet;
             return cloned;
         } catch (CloneNotSupportedException e) {
             throw new AssertionError();

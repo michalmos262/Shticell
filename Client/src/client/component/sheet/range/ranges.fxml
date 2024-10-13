@@ -1,0 +1,57 @@
+<?xml version="1.0" encoding="UTF-8"?>
+
+<?import javafx.geometry.Insets?>
+<?import javafx.scene.control.Accordion?>
+<?import javafx.scene.control.Button?>
+<?import javafx.scene.control.ChoiceBox?>
+<?import javafx.scene.control.Label?>
+<?import javafx.scene.control.TableColumn?>
+<?import javafx.scene.control.TableView?>
+<?import javafx.scene.control.TextField?>
+<?import javafx.scene.control.TitledPane?>
+<?import javafx.scene.layout.AnchorPane?>
+<?import javafx.scene.layout.BorderPane?>
+
+<BorderPane maxHeight="-Infinity" maxWidth="-Infinity" minHeight="-Infinity" minWidth="-Infinity" prefHeight="273.0" prefWidth="240.0" xmlns="http://javafx.com/javafx/22" xmlns:fx="http://javafx.com/fxml/1" fx:controller="client.component.sheet.range.RangesController">
+   <top>
+      <Label id="renges-label" alignment="TOP_LEFT" contentDisplay="TOP" prefHeight="21.0" prefWidth="243.0" style="-fx-alignment: center;" text="Ranges" textFill="#050000">
+         <BorderPane.margin>
+            <Insets />
+         </BorderPane.margin>
+      </Label>
+   </top>
+   <center>
+      <Accordion prefHeight="247.0" prefWidth="242.0">
+         <panes>
+            <TitledPane fx:id="showRangesTitledPane" animated="false" expanded="false" text="Show ranges">
+               <AnchorPane minHeight="0.0" minWidth="0.0" prefHeight="180.0" prefWidth="200.0">
+                  <TableView fx:id="showRangesTable" layoutY="-1.0" onMouseClicked="#tableViewOnMouseClickedListener" prefHeight="166.0" prefWidth="240.0">
+                     <columns>
+                        <TableColumn fx:id="nameColumn" prefWidth="155.59997248649597" resizable="false" text="Name" />
+                        <TableColumn fx:id="rangeColumn" editable="false" prefWidth="84.4000244140625" resizable="false" text="Range" />
+                     </columns>
+                  </TableView>
+               </AnchorPane>
+            </TitledPane>
+            <TitledPane fx:id="addNewRangeTitledPane" animated="false" expanded="false" text="Add new range">
+               <AnchorPane minHeight="0.0" minWidth="0.0" prefHeight="180.0" prefWidth="200.0">
+                  <Label layoutX="19.0" layoutY="28.0" text="Name:" />
+                  <Label layoutX="120.0" layoutY="70.0" text=".." />
+                  <Label layoutX="18.0" layoutY="64.0" text="Range:" />
+                  <TextField fx:id="addFromRangeTextInput" layoutX="62.0" layoutY="59.0" prefHeight="25.0" prefWidth="50.0" promptText="from" />
+                  <TextField fx:id="addToRangeTextInput" layoutX="135.0" layoutY="60.0" prefHeight="25.0" prefWidth="50.0" promptText="to" />
+                  <TextField fx:id="addRangeNameTextInput" layoutX="62.0" layoutY="19.0" prefHeight="25.0" prefWidth="124.0" />
+                  <Button fx:id="addRangeButton" layoutX="186.0" layoutY="136.0" mnemonicParsing="false" onAction="#addRangeButtonListener" text="Add" />
+               </AnchorPane>
+            </TitledPane>
+            <TitledPane fx:id="deleteRangeTitledPane" animated="false" expanded="false" text="Delete range">
+               <AnchorPane minHeight="0.0" minWidth="0.0" prefHeight="180.0" prefWidth="200.0">
+                  <Label layoutX="14.0" layoutY="22.0" text="Choose a range name:" />
+                  <Button fx:id="deleteRangeButton" layoutX="173.0" layoutY="136.0" mnemonicParsing="false" onAction="#deleteRangeButtonListener" text="Delete" />
+                  <ChoiceBox fx:id="deleteRangeNameChoiceBox" layoutX="12.0" layoutY="46.0" prefHeight="25.0" prefWidth="126.0" />
+               </AnchorPane>
+            </TitledPane>
+         </panes>
+      </Accordion>
+   </center>
+</BorderPane>

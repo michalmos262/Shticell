@@ -1,0 +1,35 @@
+<?xml version="1.0" encoding="UTF-8"?>
+
+<?import javafx.geometry.Insets?>
+<?import javafx.scene.control.Button?>
+<?import javafx.scene.control.Label?>
+<?import javafx.scene.control.ProgressBar?>
+<?import javafx.scene.layout.ColumnConstraints?>
+<?import javafx.scene.layout.GridPane?>
+<?import javafx.scene.layout.RowConstraints?>
+
+<GridPane maxHeight="-Infinity" maxWidth="-Infinity" minHeight="-Infinity" minWidth="-Infinity" prefHeight="38.0" prefWidth="838.0" xmlns="http://javafx.com/javafx/22" xmlns:fx="http://javafx.com/fxml/1" fx:controller="client.component.dashboard.loadfile.LoadFileController">
+    <columnConstraints>
+        <ColumnConstraints hgrow="SOMETIMES" maxWidth="295.20001220703125" minWidth="10.0" prefWidth="90.19999999999999" />
+      <ColumnConstraints hgrow="SOMETIMES" maxWidth="909.6000030517578" minWidth="10.0" prefWidth="284.4000122070313" />
+      <ColumnConstraints hgrow="SOMETIMES" maxWidth="909.6000030517578" minWidth="10.0" prefWidth="458.79998779296875" />
+    </columnConstraints>
+    <rowConstraints>
+        <RowConstraints minHeight="10.0" prefHeight="30.0" vgrow="SOMETIMES" />
+    </rowConstraints>
+    <Button fx:id="loadFileButton" mnemonicParsing="false" onAction="#loadFileButtonListener" prefHeight="25.0" prefWidth="88.0" text="Load File">
+        <GridPane.margin>
+          <Insets left="10.0" />
+        </GridPane.margin>
+    </Button>
+   <ProgressBar fx:id="progressBar" prefHeight="18.0" prefWidth="280.0" progress="0.0" GridPane.columnIndex="1">
+      <GridPane.margin>
+         <Insets left="10.0" />
+      </GridPane.margin>
+   </ProgressBar>
+   <Label fx:id="loadingProcessLabel" prefHeight="17.0" prefWidth="363.0" GridPane.columnIndex="2">
+      <GridPane.margin>
+         <Insets left="10.0" />
+      </GridPane.margin>
+   </Label>
+</GridPane>

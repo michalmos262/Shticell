@@ -8,4 +8,5 @@ public interface ReadOnlySheet {
     int getUpdatedCellsCount();
     EffectiveValue getCellEffectiveValue(CellPositionInSheet cellPosition);
     Range getRangeByName(String name);
+    int getVersion();
 }

@@ -2,36 +2,61 @@ package client.component.mainapp;
 
 import client.component.dashboard.DashboardController;
 import client.component.login.LoginController;
+import client.component.sheet.mainsheet.MainSheetController;
 import javafx.fxml.FXML;
 import javafx.fxml.FXMLLoader;
 import javafx.scene.Parent;
+import javafx.scene.control.Label;
+import javafx.scene.control.SplitPane;
 import javafx.scene.layout.AnchorPane;
 import javafx.scene.layout.BorderPane;
 
 import java.io.Closeable;
 import java.io.IOException;
 import java.net.URL;
+import java.util.HashMap;
+import java.util.Map;
 
-import static client.resources.CommonResourcesPaths.DASHBOARD_PAGE_FXML_RESOURCE_LOCATION;
-import static client.resources.CommonResourcesPaths.LOGIN_PAGE_FXML_RESOURCE_LOCATION;
+import static client.resources.CommonResourcesPaths.*;
 
 public class MainAppController implements Closeable {
-    @FXML private AnchorPane mainPanel;
-    @FXML private AnchorPane loginComponent;
-    @FXML private LoginController loginComponentController;
-    @FXML private BorderPane dashboardComponent;
-    @FXML private DashboardController dashboardComponentController;
+    @FXML
+    private Label headingLabel;
+    @FXML
+    private Label loggedInAsLabel;
+    @FXML
+    private SplitPane mainSplitPane;
+    @FXML
+    private AnchorPane contentAnchorPane;
+    @FXML
+    private AnchorPane loginComponent;
+    @FXML
+    private LoginController loginComponentController;
+    @FXML
+    private BorderPane dashboardComponent;
+    @FXML
+    private DashboardController dashboardComponentController;
+
+    private MainModelUI modelUi;
+    private Map<String, BorderPane> sheetName2Component;
+    private Map<String, MainSheetController> sheetName2Controller;
 
     @FXML
     public void initialize() {
+        modelUi = new MainModelUI(mainSplitPane, headingLabel, loggedInAsLabel);
+        sheetName2Component = new HashMap<>();
+        sheetName2Controller = new HashMap<>();
+
         // prepare components
         loadLoginPage();
         loadDashboardPage();
+
+        setMainPanelTo(loginComponent);
     }
 
     private void setMainPanelTo(Parent pane) {
-        mainPanel.getChildren().clear();
-        mainPanel.getChildren().add(pane);
+        contentAnchorPane.getChildren().clear();
+        contentAnchorPane.getChildren().add(pane);
         AnchorPane.setBottomAnchor(pane, 1.0);
         AnchorPane.setTopAnchor(pane, 1.0);
         AnchorPane.setLeftAnchor(pane, 1.0);
@@ -46,40 +71,65 @@ public class MainAppController implements Closeable {
             loginComponent = fxmlLoader.load();
             loginComponentController = fxmlLoader.getController();
             loginComponentController.setMainAppController(this);
-            setMainPanelTo(loginComponent);
         } catch (IOException e) {
-            e.printStackTrace();
+            System.out.println(e.getMessage());
         }
     }
 
     private void loadDashboardPage() {
-        URL loginPageUrl = getClass().getResource(DASHBOARD_PAGE_FXML_RESOURCE_LOCATION);
+        URL dashboardPageUrl = getClass().getResource(DASHBOARD_PAGE_FXML_RESOURCE_LOCATION);
         try {
             FXMLLoader fxmlLoader = new FXMLLoader();
-            fxmlLoader.setLocation(loginPageUrl);
+            fxmlLoader.setLocation(dashboardPageUrl);
             dashboardComponent = fxmlLoader.load();
             dashboardComponentController = fxmlLoader.getController();
             dashboardComponentController.setMainAppController(this);
-            setMainPanelTo(loginComponent);
         } catch (IOException e) {
-            e.printStackTrace();
+            System.out.println(e.getMessage());
         }
     }
 
-    private void loadSheetPage() {
-        //todo
+    private void loadSheetPage(String sheetName) {
+        // if the sheet has not loaded yet
+        if (!sheetName2Component.containsKey(sheetName)) {
+            URL sheetPageUrl = getClass().getResource(MAIN_SHEET_PAGE_FXML_RESOURCE_LOCATION);
+            try {
+                FXMLLoader fxmlLoader = new FXMLLoader();
+                fxmlLoader.setLocation(sheetPageUrl);
+                sheetName2Component.put(sheetName, fxmlLoader.load());
+
+                MainSheetController sheetController = fxmlLoader.getController();
+                sheetName2Controller.put(sheetName, sheetController);
+                sheetController.setMainAppController(this);
+                sheetController.initComponents(sheetName);
+            } catch (IOException e) {
+                System.out.println(e.getMessage());
+            }
+        }
     }
 
     @Override
-    public void close() throws IOException {
-        //todo
+    public void close() {
+        dashboardComponentController.close();
+        for (MainSheetController sheetController : sheetName2Controller.values()) {
+            sheetController.close();
+        }
     }
 
-    public void updateUserName(String userName) {
-
+    public void loggedIn(String username) {
+        modelUi.usernameProperty().set(username);
     }
 
     public void switchToDashboardPage() {
+        modelUi.pageHeadingProperty().set("Management Dashboard");
         setMainPanelTo(dashboardComponent);
+        dashboardComponentController.setActive();
+    }
+
+    public void switchToSheet(String sheetName) {
+        loadSheetPage(sheetName);
+        modelUi.pageHeadingProperty().set("In sheet: " + sheetName);
+        setMainPanelTo(sheetName2Component.get(sheetName));
+        sheetName2Controller.get(sheetName).setActive();
     }
 }

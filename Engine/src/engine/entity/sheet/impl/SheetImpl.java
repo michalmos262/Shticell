@@ -53,7 +53,7 @@ public class SheetImpl implements Cloneable, Sheet {
     }
 
     @Override
-    public void addCellConnection(CellPositionInSheet from, CellPositionInSheet to) {
+    public void addCellConnection(CellPositionInSheet from, CellPositionInSheet to, String updatedByName) {
         sheetManager.validatePositionInSheetBounds(from);
         sheetManager.validatePositionInSheetBounds(to);
 
@@ -61,7 +61,7 @@ public class SheetImpl implements Cloneable, Sheet {
         Cell influencedCell = position2cell.get(to);
 
         if (influencingCell == null) {
-            Cell cell = createNewCell(from, "");
+            Cell cell = createNewCell(from, "", updatedByName);
             cell.setLastUpdatedInVersion(0);
             influencingCell = position2cell.get(from);
         }
@@ -113,9 +113,9 @@ public class SheetImpl implements Cloneable, Sheet {
     }
 
     @Override
-    public Cell createNewCell(CellPositionInSheet cellPosition, String originalValue) {
+    public Cell createNewCell(CellPositionInSheet cellPosition, String originalValue, String updatedByName) {
         sheetManager.validatePositionInSheetBounds(cellPosition);
-        Cell newCell = new Cell(originalValue, null, version);
+        Cell newCell = new Cell(originalValue, null, version, updatedByName);
         position2cell.put(cellPosition, newCell);
         return newCell;
     }
@@ -124,6 +124,11 @@ public class SheetImpl implements Cloneable, Sheet {
     public Cell getCell(CellPositionInSheet cellPosition) {
         sheetManager.validatePositionInSheetBounds(cellPosition);
         return position2cell.get(cellPosition);
+    }
+
+    @Override
+    public int getVersion() {
+        return version;
     }
 
     @Override

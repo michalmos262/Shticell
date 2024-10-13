@@ -1,9 +1,9 @@
 package server.servlet.sheet;
 
+import dto.cell.CellDto;
 import engine.api.Engine;
 import engine.entity.cell.CellPositionInSheet;
 import engine.entity.cell.PositionFactory;
-import engine.entity.dto.CellDto;
 import jakarta.servlet.annotation.WebServlet;
 import jakarta.servlet.http.HttpServlet;
 import jakarta.servlet.http.HttpServletRequest;
@@ -11,10 +11,12 @@ import jakarta.servlet.http.HttpServletResponse;
 import server.util.ExceptionUtil;
 import server.util.ServletUtils;
 import server.util.SessionUtils;
+import serversdk.request.body.CellBody;
 
 import java.io.IOException;
 
 import static server.constant.Constants.*;
+import static serversdk.request.parameter.RequestParameters.*;
 
 @WebServlet(name = "CellServlet", urlPatterns = "/sheet/cell")
 public class CellServlet extends HttpServlet {
@@ -23,13 +25,26 @@ public class CellServlet extends HttpServlet {
         response.setContentType(APPLICATION_JSON);
         try {
             if (SessionUtils.isAuthorized(request, response) && SessionUtils.isInSheet(request, response)) {
-                Engine engine = ServletUtils.getEngineInstance(getServletContext());
-                String sheetName = SessionUtils.getCurrentSheetName(request);
-                int sheetVersion = Integer.parseInt(request.getParameter(SHEET_VERSION));
-                String cellPositionStr = request.getParameter(CELL_POSITION);
-                CellPositionInSheet cellPositionInSheet = PositionFactory.createPosition(cellPositionStr);
-                CellDto cellDto = engine.findCellInSheet(sheetName, cellPositionInSheet.getRow(),
-                        cellPositionInSheet.getColumn(), sheetVersion);
+                CellDto cellDto;
+
+                synchronized (getServletContext()) {
+                    Engine engine = ServletUtils.getEngineInstance(getServletContext());
+                    String sheetName = SessionUtils.getCurrentSheetName(request);
+                    String sheetVersionParameter = request.getParameter(SHEET_VERSION);
+                    int sheetVersion;
+
+                    if (sheetVersionParameter == null) {
+                        sheetVersion = engine.getCurrentSheetVersion(sheetName);
+                    } else {
+                        sheetVersion = Integer.parseInt(sheetVersionParameter);
+                    }
+
+                    String cellPositionStr = request.getParameter(CELL_POSITION);
+                    CellPositionInSheet cellPositionInSheet = PositionFactory.createPosition(cellPositionStr);
+                    cellDto = engine.findCellInSheet(sheetName, cellPositionInSheet.getRow(),
+                            cellPositionInSheet.getColumn(), sheetVersion);
+                }
+
                 String json = GSON_INSTANCE.toJson(cellDto);
                 response.getWriter().println(json);
             }
@@ -43,13 +58,21 @@ public class CellServlet extends HttpServlet {
         response.setContentType(APPLICATION_JSON);
         try {
             if (SessionUtils.isAuthorized(request, response) && SessionUtils.isInSheet(request, response)) {
-                Engine engine = ServletUtils.getEngineInstance(getServletContext());
-                String sheetName = SessionUtils.getCurrentSheetName(request);
-                String originalValue = request.getParameter(CELL_ORIGINAL_VALUE);
+                CellDto cellDto;
                 String cellPositionStr = request.getParameter(CELL_POSITION);
-                CellPositionInSheet cellPositionInSheet = PositionFactory.createPosition(cellPositionStr);
-                CellDto cellDto = engine.updateSheetCell(sheetName, cellPositionInSheet.getRow(),
-                        cellPositionInSheet.getColumn(), originalValue);
+                String requestBody = ServletUtils.extractRequestBody(request);
+                CellBody cellBody = GSON_INSTANCE.fromJson(requestBody, CellBody.class);
+                String originalValue = cellBody.getOriginalValue();
+
+                synchronized (getServletContext()) {
+                    Engine engine = ServletUtils.getEngineInstance(getServletContext());
+                    String sheetName = SessionUtils.getCurrentSheetName(request);
+
+                    CellPositionInSheet cellPositionInSheet = PositionFactory.createPosition(cellPositionStr);
+                    cellDto = engine.updateSheetCell(sheetName, cellPositionInSheet.getRow(),
+                            cellPositionInSheet.getColumn(), originalValue, SessionUtils.getUsername(request));
+                }
+
                 String json = GSON_INSTANCE.toJson(cellDto);
                 response.getWriter().println(json);
             }
