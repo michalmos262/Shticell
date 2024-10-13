@@ -13,6 +13,7 @@ import javafx.scene.control.*;
 import okhttp3.HttpUrl;
 import okhttp3.Request;
 import okhttp3.Response;
+import serversdk.exception.ServerException;
 
 import java.io.IOException;
 import java.lang.reflect.Type;
@@ -101,13 +102,15 @@ public class CommandsController {
                 .url(url)
                 .build();
 
-        try {
-            Response response = HttpClientUtil.HTTP_CLIENT.newCall(request).execute();
+        Response response = HttpClientUtil.HTTP_CLIENT.newCall(request).execute();
+        String responseBody = response.body().string();
+        if (response.isSuccessful()) {
             Type listType = new TypeToken<LinkedList<RowDto>>(){}.getType();
-            LinkedList<RowDto> sortedRows = GSON_INSTANCE.fromJson(response.body().string(), listType);
+            LinkedList<RowDto> sortedRows = GSON_INSTANCE.fromJson(responseBody, listType);
             mainSheetController.sheetIsSorted(sortedRows, fromPositionStr, toPositionStr);
-        } catch (Exception e) {
-            AlertsHandler.HandleErrorAlert("Show sorted sheet", e.getMessage());
+        } else {
+            ServerException.ErrorResponse errorResponse = GSON_INSTANCE.fromJson(responseBody, ServerException.ErrorResponse.class);
+            AlertsHandler.HandleErrorAlert("Show sorted sheet", errorResponse.getMessage());
         }
     }
 

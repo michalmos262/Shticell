@@ -390,8 +390,8 @@ public class GridController {
         Response response = HttpClientUtil.HTTP_CLIENT.newCall(request).execute();
         if (response.isSuccessful()) {
             String responseBody = response.body().string();
-            RangeDto rangeDto = GSON_INSTANCE.fromJson(responseBody, RangeDto.class);
-            Iterator<CellPositionDto> positionInRangeIterator = rangeDto.getIncludedPositions().iterator();
+            RangeDto rangeToSort = GSON_INSTANCE.fromJson(responseBody, RangeDto.class);
+            Iterator<CellPositionDto> positionInRangeIterator = rangeToSort.getIncludedPositions().iterator();
 
             for (RowDto row : sortedRows) {
                 for (Map.Entry<String, CellDto> column2cell : row.getCells().entrySet()) {

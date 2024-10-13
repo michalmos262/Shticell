@@ -308,7 +308,7 @@ public class EngineImpl implements Engine {
     }
 
     private Set<CellPositionDto> getIncludedPositionsInRange(Range range) {
-        Set<CellPositionDto> includedPositionsDto = new HashSet<>();
+        Set<CellPositionDto> includedPositionsDto = new LinkedHashSet<>();
 
         range.getIncludedPositions().forEach((includedPosition) ->
                 includedPositionsDto.add(new CellPositionDto(includedPosition.getRow(), includedPosition.getColumn())));
@@ -394,16 +394,21 @@ public class EngineImpl implements Engine {
         // Update the map with sorted rows
         updateSheetWithSortedRows(inWorkSheet, rangeToSort, sortedNumericRows);
 
-        return getRowDto(sortedNumericRows);
+        return getRowsDto(sortedNumericRows);
     }
 
-    private LinkedList<RowDto> getRowDto(List<Row> rows) {
+    private LinkedList<RowDto> getRowsDto(List<Row> rows) {
         LinkedList<RowDto> rowsDto = new LinkedList<>();
 
         for (Row row : rows) {
             RowDto rowDto = new RowDto(row.getRowNumber(), new HashMap<>());
             for (Map.Entry<String, Cell> column2cell : row.getCells().entrySet()) {
-                CellDto cellDto = getCellDto(column2cell.getValue(), column2cell.getValue().getUpdatedByName());
+                CellDto cellDto;
+                if (column2cell.getValue() != null) {
+                    cellDto = getCellDto(column2cell.getValue(), column2cell.getValue().getUpdatedByName());
+                } else {
+                    cellDto = getCellDto(null, "");
+                }
                 rowDto.getCells().put(column2cell.getKey(), cellDto);
             }
             rowsDto.add(rowDto);
@@ -523,7 +528,7 @@ public class EngineImpl implements Engine {
                 return true;
             }).collect(Collectors.toCollection(LinkedList::new));
 
-        return getRowDto(filteredRows);
+        return getRowsDto(filteredRows);
     }
 
 
