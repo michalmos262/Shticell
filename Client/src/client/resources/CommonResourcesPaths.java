@@ -30,6 +30,8 @@ public class CommonResourcesPaths {
     public final static String SHEET_ENDPOINT = FULL_SERVER_PATH + "/sheet";
     public final static String DYNAMIC_ANALYSED_ENDPOINT = SHEET_ENDPOINT + "/dynamic-analysed";
     public final static String SORTED_SHEET_ROWS_ENDPOINT = SHEET_ENDPOINT + "/sorted-rows";
+    public final static String UNIQUE_COLUMN_VALUES_ENDPOINT = SHEET_ENDPOINT + "/unique-column-values";
+    public final static String FILTERED_SHEET_ROWS_ENDPOINT = SHEET_ENDPOINT + "/filtered-rows";
     public final static String CELL_ENDPOINT = SHEET_ENDPOINT + "/cell";
     public final static String RANGE_ENDPOINT = SHEET_ENDPOINT + "/range";
     public final static String RANGE_NAMES_ENDPOINT = SHEET_ENDPOINT + "/range-names";

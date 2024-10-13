@@ -134,8 +134,8 @@ public class MainSheetController implements Closeable {
         gridComponentController.showSortedSheet(sortedRows, fromPositionStr, toPositionStr);
     }
 
-    public void sheetIsFiltered(LinkedList<RowDto> filteredRows, RangeDto rangeToFilter) {
-        gridComponentController.showFilteredSheet(filteredRows, rangeToFilter);
+    public void sheetIsFiltered(LinkedList<RowDto> filteredRows, String fromPositionStr, String toPositionStr) throws IOException {
+        gridComponentController.showFilteredSheet(filteredRows, fromPositionStr, toPositionStr);
     }
 
     public void removeCellsPaints() {

@@ -48,7 +48,7 @@ public class EngineImpl implements Engine {
     }
 
     @Override
-    public EffectiveValueDto getEffectiveValueForDisplay(EffectiveValueDto originalEffectiveValue) {
+    public EffectiveValueDto getEffectiveValueDtoForDisplay(EffectiveValueDto originalEffectiveValue) {
         String effectiveValueStr;
         EffectiveValueDto effectiveValueForDisplay = null;
 
@@ -61,6 +61,25 @@ public class EngineImpl implements Engine {
                 effectiveValueForDisplay = new EffectiveValueDto(CellTypeDto.BOOLEAN, effectiveValueStr.toUpperCase());
             } else {
                 effectiveValueForDisplay = new EffectiveValueDto(CellTypeDto.STRING, effectiveValueStr);
+            }
+        }
+
+        return effectiveValueForDisplay;
+    }
+
+    private EffectiveValue getEffectiveValueForDisplay(EffectiveValue originalEffectiveValue) {
+        String effectiveValueStr;
+        EffectiveValue effectiveValueForDisplay = null;
+
+        if (originalEffectiveValue != null) {
+            effectiveValueStr = originalEffectiveValue.getValue().toString();
+            if (effectiveValueStr.matches("-?\\d+(\\.\\d+)?")) {
+                DecimalFormat formatter = new DecimalFormat("#,###.##");
+                effectiveValueForDisplay = new EffectiveValue(CellType.NUMERIC, formatter.format(new BigDecimal(effectiveValueStr)));
+            } else if (effectiveValueStr.equalsIgnoreCase("true") || effectiveValueStr.equalsIgnoreCase("false")) {
+                effectiveValueForDisplay = new EffectiveValue(CellType.BOOLEAN, effectiveValueStr.toUpperCase());
+            } else {
+                effectiveValueForDisplay = new EffectiveValue(CellType.STRING, effectiveValueStr);
             }
         }
 
@@ -435,7 +454,7 @@ public class EngineImpl implements Engine {
             cell.getInfluences().forEach((influence) ->
                     influencesDto.add(new CellPositionDto(influence.getRow(), influence.getColumn())));
 
-            cellDto = new CellDto(cell.getOriginalValue(), effectiveValue, getEffectiveValueForDisplay(effectiveValue),
+            cellDto = new CellDto(cell.getOriginalValue(), effectiveValue, getEffectiveValueDtoForDisplay(effectiveValue),
                     influencedByDto, influencesDto, cell.getLastUpdatedInVersion(), cell.getUpdatedByName());
         }
 
@@ -473,23 +492,34 @@ public class EngineImpl implements Engine {
     public Map<String, Set<EffectiveValueDto>> getUniqueColumnValuesByRange(String sheetName, int sheetVersion,
                                                                             Range range, Set<String> columns) {
         validateColumnsInRange(range, columns);
-        Map<String, Set<EffectiveValueDto>> column2uniqueEffectiveValues = new HashMap<>();
+        Map<String, Set<EffectiveValue>> column2uniqueEffectiveValues = new HashMap<>();
         columns.forEach((column) -> column2uniqueEffectiveValues.put(column, new LinkedHashSet<>()));
 
         range.getIncludedPositions().forEach((cellPosition) -> {
-            Set<EffectiveValueDto> uniqueColumnValues = column2uniqueEffectiveValues.get(CellPositionInSheet.parseColumn(cellPosition.getColumn()));
+            Set<EffectiveValue> uniqueColumnValues = column2uniqueEffectiveValues.get(CellPositionInSheet.parseColumn(cellPosition.getColumn()));
             if (uniqueColumnValues != null) {
-
                 EffectiveValue originalEffectiveValue = sheetFilesManager.getSheetManager(sheetName)
                         .getSheetByVersion(sheetVersion).getCellEffectiveValue(cellPosition);
-
-                EffectiveValueDto originalEffectiveValueDto = new EffectiveValueDto(CellTypeDto.valueOf(originalEffectiveValue.getCellType().name()), originalEffectiveValue.getValue());
-                EffectiveValueDto effectiveValueForDisplay = getEffectiveValueForDisplay(originalEffectiveValueDto);
+                EffectiveValue effectiveValueForDisplay = getEffectiveValueForDisplay(originalEffectiveValue);
                 uniqueColumnValues.add(effectiveValueForDisplay);
             }
         });
 
-        return column2uniqueEffectiveValues;
+        Map<String, Set<EffectiveValueDto>> column2uniqueEffectiveValuesDto = new HashMap<>();
+        column2uniqueEffectiveValues.forEach((column, uniqueEffectiveValue) -> {
+            column2uniqueEffectiveValuesDto.put(column, new LinkedHashSet<>());
+            uniqueEffectiveValue.forEach((effectiveValue) -> {
+                EffectiveValueDto effectiveValueDto;
+                if (effectiveValue != null) {
+                    effectiveValueDto = new EffectiveValueDto(CellTypeDto.valueOf(effectiveValue.getCellType().name()), effectiveValue.getValue());
+                } else {
+                    effectiveValueDto = new EffectiveValueDto(CellTypeDto.UNKNOWN, "");
+                }
+                column2uniqueEffectiveValuesDto.get(column).add(effectiveValueDto);
+            });
+        });
+
+        return column2uniqueEffectiveValuesDto;
     }
 
     @Override
@@ -517,7 +547,7 @@ public class EngineImpl implements Engine {
                                 CellTypeDto.valueOf(originalEffectiveValue.getCellType().name()),
                                 originalEffectiveValue.getValue()
                         );
-                        EffectiveValueDto effectiveValueForDisplay = getEffectiveValueForDisplay(
+                        EffectiveValueDto effectiveValueForDisplay = getEffectiveValueDtoForDisplay(
                                 originalEffectiveValueDto
                         );
                         if (!entry.getValue().contains(effectiveValueForDisplay.getValue().toString())) {

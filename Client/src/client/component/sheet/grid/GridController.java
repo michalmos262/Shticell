@@ -472,35 +472,52 @@ public class GridController {
         return scrollPane;
     }
 
-    public void showFilteredSheet(LinkedList<RowDto> filteredRows, RangeDto rangeToFilter) {
+    public void showFilteredSheet(LinkedList<RowDto> filteredRows, String fromPositionStr, String toPositionStr) throws IOException {
         Dialog<String> dialog = new Dialog<>();
         dialog.setTitle("Show filtered sheet");
 
         ScrollPane scrollPane = getCopiedMainGreed();
         GridPane filteredGrid = (GridPane) scrollPane.getContent();
-        Iterator<CellPositionDto> positionInRangeIterator = rangeToFilter.getIncludedPositions().iterator();
+        String url = HttpUrl
+                .parse(RANGE_ENDPOINT)
+                .newBuilder()
+                .addQueryParameter(FROM_CELL_POSITION, fromPositionStr)
+                .addQueryParameter(TO_CELL_POSITION, toPositionStr)
+                .build()
+                .toString();
 
-        for (RowDto row : filteredRows) {
-            for (Map.Entry<String, CellDto> column2cell : row.getCells().entrySet()) {
-                CellPositionDto positionInRange = positionInRangeIterator.next();
-                Label cellInOriginalGrid = (Label) mainGridPane.lookup("#" + column2cell.getKey() + row.getRowNumber());
-                Label cellInSortedGrid = (Label) filteredGrid.lookup("#" + positionInRange + COPIED_CELL_PREFIX_CSS_CLASS);
-                copyCellStyle(cellInOriginalGrid, cellInSortedGrid);
+        Request request = new Request.Builder()
+                .url(url)
+                .build();
+
+        Response response = HttpClientUtil.HTTP_CLIENT.newCall(request).execute();
+        if (response.isSuccessful()) {
+            String responseBody = response.body().string();
+            RangeDto rangeToSort = GSON_INSTANCE.fromJson(responseBody, RangeDto.class);
+            Iterator<CellPositionDto> positionInRangeIterator = rangeToSort.getIncludedPositions().iterator();
+
+            for (RowDto row : filteredRows) {
+                for (Map.Entry<String, CellDto> column2cell : row.getCells().entrySet()) {
+                    CellPositionDto positionInRange = positionInRangeIterator.next();
+                    Label cellInOriginalGrid = (Label) mainGridPane.lookup("#" + column2cell.getKey() + row.getRowNumber());
+                    Label cellInSortedGrid = (Label) filteredGrid.lookup("#" + positionInRange + COPIED_CELL_PREFIX_CSS_CLASS);
+                    copyCellStyle(cellInOriginalGrid, cellInSortedGrid);
+                }
             }
-        }
 
-        if (positionInRangeIterator.hasNext()) {
-            while (positionInRangeIterator.hasNext()) {
-                CellPositionDto positionInRange = positionInRangeIterator.next();
-                Label cellInSortedGrid = (Label) filteredGrid.lookup("#" + positionInRange + COPIED_CELL_PREFIX_CSS_CLASS);
-                cellInSortedGrid.setText("");
-                cellInSortedGrid.setBackground(Background.fill(Color.WHITE));
+            if (positionInRangeIterator.hasNext()) {
+                while (positionInRangeIterator.hasNext()) {
+                    CellPositionDto positionInRange = positionInRangeIterator.next();
+                    Label cellInSortedGrid = (Label) filteredGrid.lookup("#" + positionInRange + COPIED_CELL_PREFIX_CSS_CLASS);
+                    cellInSortedGrid.setText("");
+                    cellInSortedGrid.setBackground(Background.fill(Color.WHITE));
+                }
             }
-        }
 
-        dialog.getDialogPane().setContent(scrollPane);
-        dialog.getDialogPane().getButtonTypes().setAll(ButtonType.OK);
-        dialog.showAndWait();
+            dialog.getDialogPane().setContent(scrollPane);
+            dialog.getDialogPane().getButtonTypes().setAll(ButtonType.OK);
+            dialog.showAndWait();
+        }
     }
 
     private ScrollPane getUnStyledGrid(SheetDto sheetDto) {

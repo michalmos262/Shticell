@@ -54,7 +54,7 @@
             <Label layoutX="513.0" layoutY="5.0" text="Column width (in px)" />
             <Spinner fx:id="columnWidthSpinner" editable="true" layoutX="513.0" layoutY="21.0" prefHeight="25.0" prefWidth="113.0" />
          <Button fx:id="backToDefaultDesignButton" defaultButton="true" layoutX="635.0" layoutY="21.0" mnemonicParsing="false" onAction="#backToDefaultDesignButtonListener" text="Set cell default style" />
-         <Button fx:id="dynamicAnalysisButton" layoutX="855.0" layoutY="22.0" mnemonicParsing="false" onAction="#dynamicAnalysisButtonListener" text="Dynamic Analysis" />
+         <Button fx:id="dynamicAnalysisButton" layoutX="771.0" layoutY="21.0" mnemonicParsing="false" onAction="#dynamicAnalysisButtonListener" text="Dynamic Analysis" />
         </AnchorPane>
    </children>
 </GridPane>

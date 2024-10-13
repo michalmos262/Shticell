@@ -5,6 +5,7 @@ import client.component.sheet.mainsheet.MainSheetController;
 import client.util.http.HttpClientUtil;
 import com.google.gson.reflect.TypeToken;
 import dto.cell.CellPositionDto;
+import dto.cell.EffectiveValueDto;
 import dto.sheet.RowDto;
 import dto.sheet.SheetDimensionDto;
 import javafx.event.ActionEvent;
@@ -81,9 +82,9 @@ public class CommandsController {
     void showSortedSheetButtonListener(ActionEvent event) throws IOException {
         String fromPositionStr = fromPositionSortTextField.getText();
         String toPositionStr = toPositionSortTextField.getText();
-        int sheetVersion = mainSheetController.getLastSheetVersion();
+        int sheetVersion = mainSheetController.getCurrentSheetVersion();
 
-        LinkedHashSet<String> chosenColumns = sortByColumnsListView.getItems().stream()
+        Set<String> chosenColumns = sortByColumnsListView.getItems().stream()
                     .filter(CommandsModelUI.ListViewEntry::isSelected)
                     .map(CommandsModelUI.ListViewEntry::getName)
                     .collect(Collectors.toCollection(LinkedHashSet::new));
@@ -94,7 +95,7 @@ public class CommandsController {
                 .addQueryParameter(SHEET_VERSION, String.valueOf(sheetVersion))
                 .addQueryParameter(FROM_CELL_POSITION, fromPositionStr)
                 .addQueryParameter(TO_CELL_POSITION, toPositionStr)
-                .addQueryParameter(SORT_FILTER_BY_COLUMNS, String.join(",", chosenColumns))
+                .addQueryParameter(SORT_OR_FILTER_BY_COLUMNS, String.join(",", chosenColumns))
                 .build()
                 .toString();
 
@@ -116,59 +117,113 @@ public class CommandsController {
 
     @FXML
     void chooseFilterValuesButtonListener(ActionEvent event) {
-        //todo: get unique columns for filter
-//        try {
-//            CellPositionInSheet fromPosition = PositionFactory.createPosition(fromPositionFilterTextField.getText());
-//            CellPositionInSheet toPosition = PositionFactory.createPosition(toPositionFilterTextField.getText());
-//            Range range = new Range(fromPosition, toPosition);
-//
-//            Set<String> columns = filterByColumnsListView.getItems().stream()
-//                    .filter(CommandsModelUI.ListViewEntry::isSelected)
-//                    .map(CommandsModelUI.ListViewEntry::getName)
-//                    .collect(Collectors.toCollection(LinkedHashSet::new));
-//
-//            Map<String, Set<EffectiveValue>> uniqueValuesInColumns = engine.getUniqueColumnValuesByRange(range, columns);
-//            modelUi.setupFilterValuesTableView(filterValuesTableView, uniqueValuesInColumns);
-//        } catch (Exception e) {
-//            AlertsHandler.HandleErrorAlert("Show filtered sheet", e.getMessage());
-//        }
+        try {
+            String fromPositionStr = fromPositionFilterTextField.getText();
+            String toPositionStr = toPositionFilterTextField.getText();
+            int sheetVersion = mainSheetController.getCurrentSheetVersion();
+
+            Set<String> columns = filterByColumnsListView.getItems().stream()
+                    .filter(CommandsModelUI.ListViewEntry::isSelected)
+                    .map(CommandsModelUI.ListViewEntry::getName)
+                    .collect(Collectors.toCollection(LinkedHashSet::new));
+
+            String url = HttpUrl
+                    .parse(UNIQUE_COLUMN_VALUES_ENDPOINT)
+                    .newBuilder()
+                    .addQueryParameter(SHEET_VERSION, String.valueOf(sheetVersion))
+                    .addQueryParameter(FROM_CELL_POSITION, fromPositionStr)
+                    .addQueryParameter(TO_CELL_POSITION, toPositionStr)
+                    .addQueryParameter(SORT_OR_FILTER_BY_COLUMNS, String.join(",", columns))
+                    .build()
+                    .toString();
+
+            Request request = new Request.Builder()
+                    .url(url)
+                    .build();
+
+            Response response = HttpClientUtil.HTTP_CLIENT.newCall(request).execute();
+            String responseBody = response.body().string();
+            if (response.isSuccessful()) {
+                Type type = new TypeToken<Map<String, Set<EffectiveValueDto>>>() {}.getType();
+                Map<String, Set<EffectiveValueDto>> uniqueValuesInColumns = GSON_INSTANCE.fromJson(responseBody, type);
+                modelUi.setupFilterValuesTableView(filterValuesTableView, uniqueValuesInColumns);
+            } else {
+                ServerException.ErrorResponse errorResponse = GSON_INSTANCE.fromJson(responseBody, ServerException.ErrorResponse.class);
+                AlertsHandler.HandleErrorAlert("Show filtered sheet", errorResponse.getMessage());
+            }
+        } catch (Exception e) {
+            AlertsHandler.HandleErrorAlert("Show filtered sheet", e.getMessage());
+        }
     }
 
     @FXML
-    void showFilteredSheetButtonListener(ActionEvent event) {
-        //todo: filter
-//        try {
-//            CellPositionInSheet fromPosition = PositionFactory.createPosition(fromPositionFilterTextField.getText());
-//            CellPositionInSheet toPosition = PositionFactory.createPosition(toPositionFilterTextField.getText());
-//            Range range = new Range(fromPosition, toPosition);
-//
-//            Map<String, Set<EffectiveValue>> column2effectiveValuesFilteredBy = new HashMap<>();
-//
-//            // Iterate over each column in the filter TableView
-//            for (TableColumn<Map<String, CommandsModelUI.EffectiveValueWrapper>, ?> column : filterValuesTableView.getColumns()) {
-//                String columnName = column.getText(); // Get the column name
-//                Set<EffectiveValue> selectedValues = new HashSet<>(); // Set to store selected values for the column
-//
-//                // Iterate over the rows in the TableView
-//                for (Map<String, CommandsModelUI.EffectiveValueWrapper> row : filterValuesTableView.getItems()) {
-//                    CommandsModelUI.EffectiveValueWrapper wrapper = row.get(columnName);
-//
-//                    if (wrapper != null && wrapper.isSelected()) {
-//                        EffectiveValue value = wrapper.getEffectiveValue();
-//                        selectedValues.add(value);
-//                    }
-//                }
-//
-//                // Only add the column if there are selected values
-//                if (!selectedValues.isEmpty()) {
-//                    column2effectiveValuesFilteredBy.put(columnName, selectedValues);
-//                }
-//            }
-//
-//            LinkedList<RowDto> filteredRows = engine.getFilteredRowsSheet(range, column2effectiveValuesFilteredBy);
-//            mainSheetController.sheetIsFiltered(filteredRows, range);
-//        } catch (Exception e) {
-//            AlertsHandler.HandleErrorAlert("Show filtered sheet", e.getMessage());
-//        }
+    void showFilteredSheetButtonListener(ActionEvent event) throws IOException {
+        String fromPositionStr = fromPositionFilterTextField.getText();
+        String toPositionStr = toPositionFilterTextField.getText();
+        int sheetVersion = mainSheetController.getCurrentSheetVersion();
+
+        Map<String, Set<EffectiveValueDto>> column2effectiveValuesFilteredBy = new HashMap<>();
+
+        // Iterate over each column in the filter TableView
+        for (TableColumn<Map<String, CommandsModelUI.EffectiveValueWrapper>, ?> column : filterValuesTableView.getColumns()) {
+            String columnName = column.getText(); // Get the column name
+            Set<EffectiveValueDto> selectedValues = new HashSet<>(); // Set to store selected values for the column
+
+            // Iterate over the rows in the TableView
+            for (Map<String, CommandsModelUI.EffectiveValueWrapper> row : filterValuesTableView.getItems()) {
+                CommandsModelUI.EffectiveValueWrapper wrapper = row.get(columnName);
+
+                if (wrapper != null && wrapper.isSelected()) {
+                    EffectiveValueDto value = wrapper.getEffectiveValue();
+                    selectedValues.add(value);
+                }
+            }
+
+            // Only add the column if there are selected values
+            if (!selectedValues.isEmpty()) {
+                column2effectiveValuesFilteredBy.put(columnName, selectedValues);
+            }
+        }
+
+        HttpUrl.Builder urlBuilder = HttpUrl
+                .parse(FILTERED_SHEET_ROWS_ENDPOINT)
+                .newBuilder()
+                .addQueryParameter(SHEET_VERSION, String.valueOf(sheetVersion))
+                .addQueryParameter(FROM_CELL_POSITION, fromPositionStr)
+                .addQueryParameter(TO_CELL_POSITION, toPositionStr);
+
+        // Iterate through the map and add query parameters
+        for (Map.Entry<String, Set<EffectiveValueDto>> entry : column2effectiveValuesFilteredBy.entrySet()) {
+            String columnName = entry.getKey();
+            Set<EffectiveValueDto> values = entry.getValue();
+
+            // Join the EffectiveValueDto values into a comma-separated string
+            String joinedValues = values.stream()
+                    .map(EffectiveValueDto::toString) // Convert each EffectiveValueDto to a String
+                    .collect(Collectors.joining(",")); // Join with commas
+
+            // Add the column name and joined values as a query parameter
+            urlBuilder.addQueryParameter(columnName, joinedValues);
+        }
+
+        String url = urlBuilder
+                .build()
+                .toString();
+
+        Request request = new Request.Builder()
+                .url(url)
+                .build();
+
+        Response response = HttpClientUtil.HTTP_CLIENT.newCall(request).execute();
+        String responseBody = response.body().string();
+        if (response.isSuccessful()) {
+            Type listType = new TypeToken<LinkedList<RowDto>>(){}.getType();
+            LinkedList<RowDto> filteredRows = GSON_INSTANCE.fromJson(responseBody, listType);
+            mainSheetController.sheetIsFiltered(filteredRows, fromPositionStr, toPositionStr);
+
+        } else {
+            ServerException.ErrorResponse errorResponse = GSON_INSTANCE.fromJson(responseBody, ServerException.ErrorResponse.class);
+            AlertsHandler.HandleErrorAlert("Show filtered sheet", errorResponse.getMessage());
+        }
     }
 }

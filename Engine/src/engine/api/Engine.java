@@ -30,7 +30,7 @@ public interface Engine {
     int getSheetRowHeight(String sheetName);
     int getSheetColumnWidth(String sheetName);
     SheetDimensionDto getSheetDimension(String sheetName);
-    EffectiveValueDto getEffectiveValueForDisplay(EffectiveValueDto originalEffectiveValue);
+    EffectiveValueDto getEffectiveValueDtoForDisplay(EffectiveValueDto originalEffectiveValue);
     RangeDto getRangeByName(String sheetName, String rangeName);
     RangeDto getUnNamedRange(String sheetName, CellPositionInSheet fromPosition, CellPositionInSheet toPosition);
     List<String> getRangeNames(String sheetName);
