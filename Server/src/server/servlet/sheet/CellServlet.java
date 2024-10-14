@@ -11,7 +11,7 @@ import jakarta.servlet.http.HttpServletResponse;
 import server.util.ExceptionUtil;
 import server.util.ServletUtils;
 import server.util.SessionUtils;
-import serversdk.request.body.CellBody;
+import serversdk.request.body.EditCellBody;
 
 import java.io.IOException;
 
@@ -61,8 +61,8 @@ public class CellServlet extends HttpServlet {
                 CellDto cellDto;
                 String cellPositionStr = request.getParameter(CELL_POSITION);
                 String requestBody = ServletUtils.extractRequestBody(request);
-                CellBody cellBody = GSON_INSTANCE.fromJson(requestBody, CellBody.class);
-                String originalValue = cellBody.getOriginalValue();
+                EditCellBody editCellBody = GSON_INSTANCE.fromJson(requestBody, EditCellBody.class);
+                String originalValue = editCellBody.getOriginalValue();
 
                 synchronized (getServletContext()) {
                     Engine engine = ServletUtils.getEngineInstance(getServletContext());

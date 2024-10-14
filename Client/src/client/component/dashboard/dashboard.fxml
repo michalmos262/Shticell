@@ -11,7 +11,7 @@
 <?import javafx.scene.layout.RowConstraints?>
 <?import javafx.scene.layout.VBox?>
 
-<BorderPane maxHeight="-Infinity" maxWidth="-Infinity" minHeight="-Infinity" minWidth="-Infinity" prefHeight="632.0" prefWidth="845.0" xmlns="http://javafx.com/javafx/22" xmlns:fx="http://javafx.com/fxml/1" fx:controller="client.component.dashboard.DashboardController">
+<BorderPane maxHeight="-Infinity" maxWidth="-Infinity" minHeight="-Infinity" minWidth="-Infinity" prefHeight="770.0" prefWidth="1162.0" xmlns="http://javafx.com/javafx/22" xmlns:fx="http://javafx.com/fxml/1" fx:controller="client.component.dashboard.DashboardController">
    <center>
        <GridPane prefHeight="482.0" prefWidth="597.0" BorderPane.alignment="CENTER">
            <columnConstraints>
@@ -31,10 +31,10 @@
            </padding>
            <TableView fx:id="availableSheetsTableView" onMouseClicked="#availableSheetOnMouseClickedListener" prefHeight="278.0" prefWidth="577.0" GridPane.rowIndex="1">
                <columns>
-                   <TableColumn fx:id="sheetNameColumn" prefWidth="195.9999542236328" text="Sheet Name" />
-                   <TableColumn fx:id="ownerUsernameColumn" minWidth="0.0" prefWidth="195.0" text="Owner Username" />
-               <TableColumn fx:id="sheetSizeColumn" prefWidth="99.5999755859375" text="Sheet Size" />
-               <TableColumn fx:id="yourPermissionTypeColumn" prefWidth="171.20000000000005" text="Your Permission Type" />
+                   <TableColumn fx:id="sheetNameColumn" prefWidth="368.8000240325928" text="Sheet Name" />
+                   <TableColumn fx:id="ownerUsernameColumn" minWidth="0.0" prefWidth="311.9999694824219" text="Owner Username" />
+               <TableColumn fx:id="sheetSizeColumn" prefWidth="136.0" text="Sheet Size" />
+               <TableColumn fx:id="yourPermissionTypeColumn" prefWidth="164.0" text="Your Permission Type" />
                </columns>
               <GridPane.margin>
                   <Insets />
@@ -42,9 +42,9 @@
            </TableView>
            <TableView fx:id="permissionsTableView" prefHeight="283.0" prefWidth="577.0" GridPane.rowIndex="3">
                <columns>
-                   <TableColumn fx:id="usernameColumn" prefWidth="240.0" text="Username" />
-                   <TableColumn fx:id="permissionTypeColumn" minWidth="1.600006103515625" prefWidth="240.0" text="Permission Type" />
-               <TableColumn fx:id="isPermissionApprovedColumn" prefWidth="181.9999877929688" text="Is permission approved" />
+                   <TableColumn fx:id="usernameColumn" prefWidth="357.1999816894531" text="Username" />
+                   <TableColumn fx:id="permissionTypeColumn" minWidth="1.600006103515625" prefWidth="399.1999206542969" text="Permission Type" />
+               <TableColumn fx:id="isPermissionApprovedColumn" prefWidth="222.4000244140625" text="Is permission approved" />
                </columns>
               <GridPane.margin>
                   <Insets bottom="10.0" />
@@ -63,7 +63,7 @@
                <Insets />
            </opaqueInsets>
            <Label prefWidth="76.0" style="-fx-font-size: 14;" text="Commands" />
-           <Button fx:id="viewSheetButton" alignment="BASELINE_LEFT" mnemonicParsing="false" onAction="#ViewSheetButtonListener" prefHeight="45.0" prefWidth="118.0" text="View sheet" />
+           <Button fx:id="viewSheetButton" alignment="BASELINE_LEFT" mnemonicParsing="false" onAction="#viewSheetButtonListener" prefHeight="45.0" prefWidth="118.0" text="View sheet" />
            <Button fx:id="requestPermissionButton" alignment="BASELINE_LEFT" contentDisplay="TOP" mnemonicParsing="false" onAction="#RequestPermissionButtonListener" prefHeight="45.0" prefWidth="118.0" text="Request permission" wrapText="true" />
            <Button fx:id="accDenyPermReqButton" alignment="BASELINE_LEFT" mnemonicParsing="false" onAction="#AccDenyPermissionRequestButtonListener" prefHeight="45.0" prefWidth="118.0" text="Accept\deny permission request" wrapText="true" />
        </VBox>

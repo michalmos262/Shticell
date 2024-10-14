@@ -6,10 +6,10 @@ import java.util.Collections;
 import java.util.HashMap;
 import java.util.Map;
 
-public class SheetNameAndFileMetadata {
+public class SheetNamesAndFileMetadatas {
     private final Map<String, FileMetadata> sheetName2fileMetadata;
 
-    public SheetNameAndFileMetadata() {
+    public SheetNamesAndFileMetadatas() {
         sheetName2fileMetadata = new HashMap<>();
     }
 

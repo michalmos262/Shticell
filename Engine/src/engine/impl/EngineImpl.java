@@ -5,6 +5,9 @@ import dto.cell.CellPositionDto;
 import dto.cell.CellTypeDto;
 import dto.cell.EffectiveValueDto;
 import dto.sheet.*;
+import dto.user.ApprovalStatusDto;
+import dto.user.PermissionAndApprovalStatusDto;
+import dto.user.UserPermissionDto;
 import engine.api.Engine;
 import engine.entity.cell.*;
 import engine.entity.range.Range;
@@ -20,6 +23,8 @@ import engine.jaxb.schema.generated.STLCell;
 import engine.jaxb.schema.generated.STLCells;
 import engine.jaxb.schema.generated.STLRange;
 import engine.jaxb.schema.generated.STLSheet;
+import engine.user.permission.ApprovalStatus;
+import engine.entity.sheet.SheetPermissions;
 import engine.user.permission.UserPermission;
 import jakarta.xml.bind.JAXBContext;
 import jakarta.xml.bind.Unmarshaller;
@@ -104,30 +109,6 @@ public class EngineImpl implements Engine {
         Sheet sheet = sheetFilesManager.getSheetManager(sheetName).getSheetByVersion(sheetVersion);
 
         return createSheetDto(sheet, sheetFilesManager.getSheetManager(sheetName).getOwnerName());
-    }
-
-    @Override
-    public int getLastCellVersion(String sheetName, int row, int column) {
-        Sheet sheet = sheetFilesManager.getSheetManager(sheetName)
-                .getSheetByVersion(sheetFilesManager.getSheetManager(sheetName).getCurrentVersion());
-        CellPositionInSheet cellPosition = PositionFactory.createPosition(row, column);
-        Cell cell = sheet.getCell(cellPosition);
-
-        if (cell == null) {
-            return 0;
-        }
-
-        return cell.getLastUpdatedInVersion();
-    }
-
-    @Override
-    public Set<CellPositionDto> getInfluencedBySet(String sheetName, int row, int column, int sheetVersion) {
-        return findCellInSheet(sheetName, row, column, sheetVersion).getInfluencedBy();
-    }
-
-    @Override
-    public Set<CellPositionDto> getInfluencesSet(String sheetName, int row, int column, int sheetVersion) {
-        return findCellInSheet(sheetName, row, column, sheetVersion).getInfluences();
     }
 
     private EffectiveValue handleEffectiveValue(Sheet sheet, CellPositionInSheet cellPosition, String originalValue, String updatedByName) {
@@ -282,41 +263,6 @@ public class EngineImpl implements Engine {
         SheetDimension sheetDimension = new SheetDimension(numOfRows, numOfColumns, rowHeight, columnWidth);
 
         return new SheetManager(sheetDimension, ownerName);
-    }
-
-    @Override
-    public CellPositionInSheet getCellPositionInSheet(String sheetName, int row, int column) {
-        CellPositionInSheet cellPosition = PositionFactory.createPosition(row, column);
-        sheetFilesManager.getSheetManager(sheetName).validatePositionInSheetBounds(cellPosition);
-
-        return cellPosition;
-    }
-
-    @Override
-    public CellPositionInSheet getCellPositionInSheet(String sheetName, String position) {
-        CellPositionInSheet cellPosition = PositionFactory.createPosition(position);
-
-        return getCellPositionInSheet(sheetName, cellPosition.getRow(), cellPosition.getColumn());
-    }
-
-    @Override
-    public int getNumOfSheetRows(String sheetName) {
-        return sheetFilesManager.getSheetManager(sheetName).getSheetDimension().getNumOfRows();
-    }
-
-    @Override
-    public int getNumOfSheetColumns(String sheetName) {
-        return sheetFilesManager.getSheetManager(sheetName).getSheetDimension().getNumOfColumns();
-    }
-
-    @Override
-    public int getSheetRowHeight(String sheetName) {
-        return sheetFilesManager.getSheetManager(sheetName).getSheetDimension().getRowHeight();
-    }
-
-    @Override
-    public int getSheetColumnWidth(String sheetName) {
-        return sheetFilesManager.getSheetManager(sheetName).getSheetDimension().getColumnWidth();
     }
 
     @Override
@@ -496,7 +442,9 @@ public class EngineImpl implements Engine {
         columns.forEach((column) -> column2uniqueEffectiveValues.put(column, new LinkedHashSet<>()));
 
         range.getIncludedPositions().forEach((cellPosition) -> {
-            Set<EffectiveValue> uniqueColumnValues = column2uniqueEffectiveValues.get(CellPositionInSheet.parseColumn(cellPosition.getColumn()));
+            Set<EffectiveValue> uniqueColumnValues = column2uniqueEffectiveValues.get(
+                    CellPositionInSheet.parseColumn(cellPosition.getColumn())
+            );
             if (uniqueColumnValues != null) {
                 EffectiveValue originalEffectiveValue = sheetFilesManager.getSheetManager(sheetName)
                         .getSheetByVersion(sheetVersion).getCellEffectiveValue(cellPosition);
@@ -511,7 +459,8 @@ public class EngineImpl implements Engine {
             uniqueEffectiveValue.forEach((effectiveValue) -> {
                 EffectiveValueDto effectiveValueDto;
                 if (effectiveValue != null) {
-                    effectiveValueDto = new EffectiveValueDto(CellTypeDto.valueOf(effectiveValue.getCellType().name()), effectiveValue.getValue());
+                    effectiveValueDto = new EffectiveValueDto(CellTypeDto.valueOf(effectiveValue.getCellType().name()),
+                            effectiveValue.getValue());
                 } else {
                     effectiveValueDto = new EffectiveValueDto(CellTypeDto.UNKNOWN, "");
                 }
@@ -561,8 +510,6 @@ public class EngineImpl implements Engine {
         return getRowsDto(filteredRows);
     }
 
-
-
     @Override
     public SheetDto getSheetAfterDynamicAnalysisOfCell(String sheetName, int sheetVersion,
                                                        CellPositionInSheet cellPosition, double cellOriginalValue) {
@@ -577,5 +524,33 @@ public class EngineImpl implements Engine {
 
         dynamicAnalysedSheetDto = createSheetDto(inWorkSheet, sheetFilesManager.getSheetManager(sheetName).getOwnerName());
         return dynamicAnalysedSheetDto;
+    }
+
+    @Override
+    public SheetPermissionsDto getSheetPermissions(String sheetName) {
+        SheetPermissions sheetPermissions = sheetFilesManager.getSheetManager(sheetName).getSheetPermissions();
+        Map<String, PermissionAndApprovalStatusDto> permission2approvalStatusDto = new HashMap<>();
+
+        sheetPermissions.getUsername2permissionAndApprovalStatus().forEach((username, permissionAndApprovalStatus) ->
+                permission2approvalStatusDto.put(username, new PermissionAndApprovalStatusDto(
+                    UserPermissionDto.valueOf(permissionAndApprovalStatus.getPermission().name()),
+                    ApprovalStatusDto.valueOf(permissionAndApprovalStatus.getApprovalStatus().name()))
+                )
+        );
+
+        return new SheetPermissionsDto(permission2approvalStatusDto);
+    }
+
+    @Override
+    public void addUserPermissionToSheet(String sheetName, String username, UserPermissionDto permission) {
+        sheetFilesManager.getSheetManager(sheetName).addUserPermission(username,
+                UserPermission.valueOf(permission.name())
+        );
+    }
+
+    @Override
+    public void setUserApprovalStatusInSheet(String sheetName, String username, ApprovalStatusDto approvalStatus) {
+        sheetFilesManager.getSheetManager(sheetName).setUserApprovalStatus(username,
+                ApprovalStatus.valueOf(approvalStatus.name()));
     }
 }

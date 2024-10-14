@@ -1,9 +1,10 @@
 package engine.api;
 
 import dto.cell.CellDto;
-import dto.cell.CellPositionDto;
 import dto.cell.EffectiveValueDto;
 import dto.sheet.*;
+import dto.user.ApprovalStatusDto;
+import dto.user.UserPermissionDto;
 import engine.entity.cell.CellPositionInSheet;
 import engine.entity.range.Range;
 
@@ -17,18 +18,9 @@ public interface Engine {
     int getCurrentSheetVersion(String sheetName);
     CellDto findCellInSheet(String sheetName, int row, int column, int sheetVersion);
     SheetDto getSheet(String sheetName, int sheetVersion);
-    int getLastCellVersion(String sheetName, int row, int column);
-    Set<CellPositionDto> getInfluencedBySet(String sheetName, int row, int column, int sheetVersion);
-    Set<CellPositionDto> getInfluencesSet(String sheetName, int row, int column, int sheetVersion);
     CellDto updateSheetCell(String sheetName, int row, int column, String newValue, String updatedByName);
-    CellPositionInSheet getCellPositionInSheet(String sheetName, int row, int column);
-    CellPositionInSheet getCellPositionInSheet(String sheetName, String position);
     FileMetadata loadFile(InputStream fileInputStream, String owner) throws Exception;
     List<FileMetadata> getSheetFilesMetadata();
-    int getNumOfSheetRows(String sheetName);
-    int getNumOfSheetColumns(String sheetName);
-    int getSheetRowHeight(String sheetName);
-    int getSheetColumnWidth(String sheetName);
     SheetDimensionDto getSheetDimension(String sheetName);
     EffectiveValueDto getEffectiveValueDtoForDisplay(EffectiveValueDto originalEffectiveValue);
     RangeDto getRangeByName(String sheetName, String rangeName);
@@ -44,4 +36,7 @@ public interface Engine {
                                             Map<String, Set<String>> column2effectiveValuesFilteredBy);
     SheetDto getSheetAfterDynamicAnalysisOfCell(String sheetName, int sheetVersion, CellPositionInSheet cellPosition,
                                                 double cellOriginalValue);
+    SheetPermissionsDto getSheetPermissions(String sheetName);
+    void addUserPermissionToSheet(String sheetName, String username, UserPermissionDto permission);
+    void setUserApprovalStatusInSheet(String sheetName, String username, ApprovalStatusDto approvalStatus);
 }

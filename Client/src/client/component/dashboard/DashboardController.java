@@ -2,7 +2,7 @@ package client.component.dashboard;
 
 import client.component.dashboard.loadfile.LoadFileController;
 import client.component.mainapp.MainAppController;
-import dto.user.SheetNameAndFileMetadataDto;
+import dto.user.SheetNamesAndFileMetadatasDto;
 import javafx.application.Platform;
 import javafx.collections.ObservableList;
 import javafx.event.ActionEvent;
@@ -57,11 +57,14 @@ public class DashboardController implements Closeable {
 
     @FXML
     void availableSheetOnMouseClickedListener(MouseEvent event) {
+        DashboardModelUI.SheetsTableEntry selectedRow = availableSheetsTableView.getSelectionModel().getSelectedItem();
+        if (selectedRow != null) {
 
+        }
     }
 
     @FXML
-    public void ViewSheetButtonListener(ActionEvent actionEvent) {
+    public void viewSheetButtonListener(ActionEvent actionEvent) {
         DashboardModelUI.SheetsTableEntry selectedRow = availableSheetsTableView.getSelectionModel().getSelectedItem();
         if (selectedRow != null) {
             String sheetName = selectedRow.sheetNameProperty().getValue();
@@ -79,11 +82,11 @@ public class DashboardController implements Closeable {
 
     }
 
-    private void updateSheetsTable(SheetNameAndFileMetadataDto sheetNameAndFileMetadataDto) {
+    private void updateSheetsTable(SheetNamesAndFileMetadatasDto sheetNamesAndFileMetadatasDto) {
         Platform.runLater(() -> {
             ObservableList<DashboardModelUI.SheetsTableEntry> items = availableSheetsTableView.getItems();
             items.clear();
-            for (Map.Entry<String, FileMetadata> username2fileMetadataEntry: sheetNameAndFileMetadataDto.getSheetName2fileMetadata().entrySet()) {
+            for (Map.Entry<String, FileMetadata> username2fileMetadataEntry: sheetNamesAndFileMetadatasDto.getSheetName2fileMetadata().entrySet()) {
                 FileMetadata fileMetadata = username2fileMetadataEntry.getValue();
                 modelUi.addSheet(fileMetadata.getSheetName(), fileMetadata.getOwner(), fileMetadata.getSheetSize(), fileMetadata.getYourPermission());
             }

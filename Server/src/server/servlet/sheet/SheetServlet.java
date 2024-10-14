@@ -1,8 +1,10 @@
 package server.servlet.sheet;
 
 import dto.sheet.SheetDto;
+import dto.user.ApprovalStatusDto;
+import dto.user.UserPermissionDto;
 import engine.api.Engine;
-import engine.user.permission.SheetNameAndFileMetadata;
+import engine.user.permission.SheetNamesAndFileMetadatas;
 import engine.user.usermanager.UserManager;
 import engine.user.permission.UserPermission;
 import jakarta.servlet.annotation.MultipartConfig;
@@ -90,7 +92,7 @@ public class SheetServlet extends HttpServlet {
 
                     userManager.getUserSheetPermissions(currentUsername).setSheetNameAndFileMetadata(ownerFileMetadata);
 
-                    Map<String, SheetNameAndFileMetadata> users = userManager.getUserName2sheetPermissions();
+                    Map<String, SheetNamesAndFileMetadatas> users = userManager.getUserName2sheetPermissions();
                     users.forEach((username, permission) -> {
                         if (!username.equals(currentUsername)) {
                             permission.setSheetNameAndFileMetadata(
@@ -99,6 +101,9 @@ public class SheetServlet extends HttpServlet {
                             );
                         }
                     });
+
+                    engine.addUserPermissionToSheet(fileMetadata.getSheetName(), currentUsername, UserPermissionDto.OWNER);
+                    engine.setUserApprovalStatusInSheet(fileMetadata.getSheetName(), currentUsername, ApprovalStatusDto.APPROVED);
                 }
                 response.setStatus(HttpServletResponse.SC_OK);
                 String json = GSON_INSTANCE.toJson(ownerFileMetadata);

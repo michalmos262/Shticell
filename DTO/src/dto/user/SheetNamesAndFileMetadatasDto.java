@@ -5,10 +5,10 @@ import dto.sheet.FileMetadata;
 import java.util.Map;
 import java.util.Objects;
 
-public class SheetNameAndFileMetadataDto {
+public class SheetNamesAndFileMetadatasDto {
     private final Map<String, FileMetadata> sheetName2fileMetadata;
 
-    public SheetNameAndFileMetadataDto(Map<String, FileMetadata> sheetName2fileMetadata) {
+    public SheetNamesAndFileMetadatasDto(Map<String, FileMetadata> sheetName2fileMetadata) {
         this.sheetName2fileMetadata = sheetName2fileMetadata;
     }
 
@@ -20,7 +20,7 @@ public class SheetNameAndFileMetadataDto {
     public boolean equals(Object o) {
         if (this == o) return true;
         if (o == null || getClass() != o.getClass()) return false;
-        SheetNameAndFileMetadataDto that = (SheetNameAndFileMetadataDto) o;
+        SheetNamesAndFileMetadatasDto that = (SheetNamesAndFileMetadatasDto) o;
         return Objects.equals(getSheetName2fileMetadata(), that.getSheetName2fileMetadata());
     }
 

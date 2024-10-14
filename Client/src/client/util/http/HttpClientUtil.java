@@ -1,7 +1,7 @@
 package client.util.http;
 
 import okhttp3.*;
-import serversdk.request.body.CellBody;
+import serversdk.request.body.EditCellBody;
 
 import java.util.function.Consumer;
 
@@ -61,7 +61,7 @@ public class HttpClientUtil {
 
     public static Request putCell(String cellPositionId, String originalValue) {
         // create the request body
-        String updateCellBodyJson = GSON_INSTANCE.toJson(new CellBody(originalValue));
+        String updateCellBodyJson = GSON_INSTANCE.toJson(new EditCellBody(originalValue));
         MediaType mediaType = MediaType.get(JSON_MEDIA_TYPE);
         RequestBody requestBody = RequestBody.create(updateCellBodyJson, mediaType);
 
