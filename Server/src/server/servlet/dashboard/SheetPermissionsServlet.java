@@ -1,6 +1,5 @@
 package server.servlet.dashboard;
 
-import dto.sheet.FileMetadata;
 import dto.sheet.SheetPermissionsDto;
 import dto.user.ApprovalStatusDto;
 import dto.user.UserPermissionDto;
@@ -81,16 +80,9 @@ public class SheetPermissionsServlet extends HttpServlet {
                     engine.setUserApprovalStatusInSheet(sheetName, username, approvalStatusDto);
 
                     if (approvalStatusDto == ApprovalStatusDto.APPROVED) {
-                        FileMetadata fileMetadata = userManager.getUserSheetPermissions(username)
-                                .getSheetName2fileMetadata().get(sheetName);
-
                         String userPermissionStr = engine.getSheetPermissions(sheetName)
                                 .getUsername2permissionAndApprovalStatus().get(username).getPermission().toString();
-
-                        FileMetadata updatedFileMetadata = new FileMetadata(sheetName, fileMetadata.getOwner(),
-                                fileMetadata.getSheetSize(), userPermissionStr);
-
-                        userManager.getUserSheetPermissions(username).setSheetNameAndFileMetadata(updatedFileMetadata);
+                        userManager.setUserSheetPermission(username, sheetName, userPermissionStr);
                     }
                 }
             }

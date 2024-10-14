@@ -1,5 +1,6 @@
 package engine.user.usermanager;
 
+import dto.sheet.FileMetadata;
 import dto.user.SheetNamesAndFileMetadatasDto;
 import engine.exception.user.UserAlreadyExistsException;
 import engine.exception.user.UserDoesNotExistException;
@@ -8,28 +9,28 @@ import engine.user.permission.SheetNamesAndFileMetadatas;
 import java.util.*;
 
 public class UserManager {
-    private final Map<String, SheetNamesAndFileMetadatas> userName2sheetPermissions;
+    private final Map<String, SheetNamesAndFileMetadatas> username2sheetNamesAndFileMetadatas;
 
     public UserManager() {
-        userName2sheetPermissions = new HashMap<>();
+        username2sheetNamesAndFileMetadatas = new HashMap<>();
     }
 
     public synchronized void addUser(String username) {
         if (isUserExists(username)) {
             throw new UserAlreadyExistsException(username);
         }
-        userName2sheetPermissions.put(username, new SheetNamesAndFileMetadatas());
+        username2sheetNamesAndFileMetadatas.put(username, new SheetNamesAndFileMetadatas());
     }
 
     public synchronized void removeUser(String username) {
-        userName2sheetPermissions.remove(username);
+        username2sheetNamesAndFileMetadatas.remove(username);
     }
 
     public synchronized SheetNamesAndFileMetadatas getUserSheetPermissions(String username) {
         if (!isUserExists(username)) {
             throw new UserDoesNotExistException(username);
         }
-        return userName2sheetPermissions.get(username);
+        return username2sheetNamesAndFileMetadatas.get(username);
     }
 
     public synchronized SheetNamesAndFileMetadatasDto getUserSheetPermissionsDto(String username) {
@@ -37,13 +38,22 @@ public class UserManager {
         return new SheetNamesAndFileMetadatasDto(sheetPermissions.getSheetName2fileMetadata());
     }
 
-    public synchronized Map<String, SheetNamesAndFileMetadatas> getUserName2sheetPermissions() {
-        return Collections.unmodifiableMap(userName2sheetPermissions);
+    public synchronized Map<String, SheetNamesAndFileMetadatas> getUsername2sheetNamesAndFileMetadatas() {
+        return Collections.unmodifiableMap(username2sheetNamesAndFileMetadatas);
+    }
+
+    public synchronized void setUserSheetPermission(String username, String sheetName, String newPermission) {
+        FileMetadata fileMetadata = getUserSheetPermissions(username).getSheetName2fileMetadata().get(sheetName);
+
+        FileMetadata updatedFileMetadata = new FileMetadata(sheetName, fileMetadata.getOwner(),
+                fileMetadata.getSheetSize(), newPermission);
+
+        getUserSheetPermissions(username).setSheetNameAndFileMetadata(updatedFileMetadata);
     }
 
     public boolean isUserExists(String username) {
         boolean usernameExists = false;
-        for (String key : userName2sheetPermissions.keySet()) {
+        for (String key : username2sheetNamesAndFileMetadatas.keySet()) {
             if (key.equalsIgnoreCase(username)) {
                 usernameExists = true;
                 break;

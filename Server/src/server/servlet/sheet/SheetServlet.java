@@ -92,7 +92,7 @@ public class SheetServlet extends HttpServlet {
 
                     userManager.getUserSheetPermissions(currentUsername).setSheetNameAndFileMetadata(ownerFileMetadata);
 
-                    Map<String, SheetNamesAndFileMetadatas> users = userManager.getUserName2sheetPermissions();
+                    Map<String, SheetNamesAndFileMetadatas> users = userManager.getUsername2sheetNamesAndFileMetadatas();
                     users.forEach((username, permission) -> {
                         if (!username.equals(currentUsername)) {
                             permission.setSheetNameAndFileMetadata(
