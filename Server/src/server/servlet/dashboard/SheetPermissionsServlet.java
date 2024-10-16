@@ -1,9 +1,10 @@
 package server.servlet.dashboard;
 
 import dto.sheet.SheetPermissionsDto;
-import dto.user.ApprovalStatusDto;
-import dto.user.UserPermissionDto;
 import engine.api.Engine;
+import engine.user.permission.ApprovalStatus;
+import engine.user.permission.PermissionAndApprovalStatus;
+import engine.user.permission.UserPermission;
 import engine.user.usermanager.UserManager;
 import jakarta.servlet.annotation.WebServlet;
 import jakarta.servlet.http.HttpServlet;
@@ -54,7 +55,7 @@ public class SheetPermissionsServlet extends HttpServlet {
                 synchronized (getServletContext()) {
                     Engine engine = ServletUtils.getEngineInstance(getServletContext());
                     engine.addUserPermissionToSheet(sheetPermissionBody.getSheetName(), sheetPermissionBody.getUsername(),
-                            UserPermissionDto.valueOf(sheetPermissionBody.getPermission().toUpperCase()));
+                            UserPermission.valueOf(sheetPermissionBody.getPermission().toUpperCase()));
                 }
             }
         } catch (Exception e) {
@@ -62,6 +63,7 @@ public class SheetPermissionsServlet extends HttpServlet {
         }
     }
 
+    //todo: delete doPut???
     @Override
     protected void doPut(HttpServletRequest request, HttpServletResponse response) throws IOException {
         response.setContentType(APPLICATION_JSON);
@@ -74,12 +76,15 @@ public class SheetPermissionsServlet extends HttpServlet {
                     UserManager userManager = ServletUtils.getUserManager(getServletContext());
 
                     String sheetName = sheetPermissionBody.getSheetName();
-                    ApprovalStatusDto approvalStatusDto = ApprovalStatusDto.valueOf(sheetPermissionBody.getApprovalStatus().toUpperCase());
+                    UserPermission permission = UserPermission.valueOf(sheetPermissionBody.getPermission());
+                    ApprovalStatus approvalStatusDto = ApprovalStatus.valueOf(sheetPermissionBody.getApprovalStatus().toUpperCase());
+                    PermissionAndApprovalStatus permissionAndApprovalStatus =
+                            new PermissionAndApprovalStatus(permission, approvalStatusDto);
                     String username = sheetPermissionBody.getUsername();
 
-                    engine.setUserApprovalStatusInSheet(sheetName, username, approvalStatusDto);
+                    engine.setUserApprovalStatusInSheet(sheetName, username, permissionAndApprovalStatus);
 
-                    if (approvalStatusDto == ApprovalStatusDto.APPROVED) {
+                    if (approvalStatusDto == ApprovalStatus.APPROVED) {
                         String userPermissionStr = engine.getSheetPermissions(sheetName)
                                 .getUsername2permissionAndApprovalStatus().get(username).getPermission().toString();
                         userManager.setUserSheetPermission(username, sheetName, userPermissionStr);

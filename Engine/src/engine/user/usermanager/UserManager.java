@@ -4,15 +4,31 @@ import dto.sheet.FileMetadata;
 import dto.user.SheetNamesAndFileMetadatasDto;
 import engine.exception.user.UserAlreadyExistsException;
 import engine.exception.user.UserDoesNotExistException;
+import engine.user.permission.ApprovalStatus;
+import engine.user.permission.PermissionRequest;
+import engine.user.permission.SheetNameAndPermissionRequests;
 import engine.user.permission.SheetNamesAndFileMetadatas;
 
 import java.util.*;
 
 public class UserManager {
     private final Map<String, SheetNamesAndFileMetadatas> username2sheetNamesAndFileMetadatas;
+    private final Map<String, SheetNameAndPermissionRequests> owner2sheetNameAndPermissionRequests;
 
     public UserManager() {
         username2sheetNamesAndFileMetadatas = new HashMap<>();
+        owner2sheetNameAndPermissionRequests = new HashMap<>();
+    }
+
+    public boolean isUserExists(String username) {
+        boolean usernameExists = false;
+        for (String key : username2sheetNamesAndFileMetadatas.keySet()) {
+            if (key.equalsIgnoreCase(username)) {
+                usernameExists = true;
+                break;
+            }
+        }
+        return usernameExists;
     }
 
     public synchronized void addUser(String username) {
@@ -51,14 +67,33 @@ public class UserManager {
         getUserSheetPermissions(username).setSheetNameAndFileMetadata(updatedFileMetadata);
     }
 
-    public boolean isUserExists(String username) {
-        boolean usernameExists = false;
-        for (String key : username2sheetNamesAndFileMetadatas.keySet()) {
-            if (key.equalsIgnoreCase(username)) {
-                usernameExists = true;
-                break;
-            }
+    public synchronized void addPermissionRequestToOwner(String owner, String sheetName, PermissionRequest permissionRequest) {
+        if (!owner2sheetNameAndPermissionRequests.containsKey(owner)) {
+            owner2sheetNameAndPermissionRequests.put(owner, new SheetNameAndPermissionRequests());
         }
-        return usernameExists;
+        owner2sheetNameAndPermissionRequests.get(owner).addPermissionRequest(sheetName, permissionRequest);
+    }
+
+    public synchronized PermissionRequest setPermissionRequestApprovalStatus(String owner, String requestSendDate, String requestAsker, String sheetName, ApprovalStatus newApprovalStatus) {
+        if (!owner2sheetNameAndPermissionRequests.containsKey(owner)) {
+            throw new UserDoesNotExistException(owner);
+        }
+
+        Optional<PermissionRequest> result = owner2sheetNameAndPermissionRequests.get(owner).getPermissionRequests(sheetName).stream()
+                .filter(permissionRequest -> permissionRequest.getAsker().equals(requestAsker)
+                        && permissionRequest.getSendDate().equals(requestSendDate))
+                .findFirst();
+
+        result.ifPresent(permissionRequest -> permissionRequest.setCurrentApprovalStatus(newApprovalStatus));
+
+        return result.orElse(null);
+    }
+
+    public synchronized List<PermissionRequest> getPermissionRequestsFromOwner(String owner, String sheetName) {
+        SheetNameAndPermissionRequests sheetNameAndPermissionRequests = owner2sheetNameAndPermissionRequests.get(owner);
+        if (sheetNameAndPermissionRequests != null) {
+            return sheetNameAndPermissionRequests.getPermissionRequests(sheetName);
+        }
+        return null;
     }
 }

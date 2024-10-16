@@ -3,10 +3,10 @@ package engine.api;
 import dto.cell.CellDto;
 import dto.cell.EffectiveValueDto;
 import dto.sheet.*;
-import dto.user.ApprovalStatusDto;
-import dto.user.UserPermissionDto;
 import engine.entity.cell.CellPositionInSheet;
 import engine.entity.range.Range;
+import engine.user.permission.PermissionAndApprovalStatus;
+import engine.user.permission.UserPermission;
 
 import java.io.InputStream;
 import java.util.LinkedList;
@@ -18,6 +18,7 @@ public interface Engine {
     int getCurrentSheetVersion(String sheetName);
     CellDto findCellInSheet(String sheetName, int row, int column, int sheetVersion);
     SheetDto getSheet(String sheetName, int sheetVersion);
+    String getSheetOwner(String sheetName);
     CellDto updateSheetCell(String sheetName, int row, int column, String newValue, String updatedByName);
     FileMetadata loadFile(InputStream fileInputStream, String owner) throws Exception;
     List<FileMetadata> getSheetFilesMetadata();
@@ -37,6 +38,7 @@ public interface Engine {
     SheetDto getSheetAfterDynamicAnalysisOfCell(String sheetName, int sheetVersion, CellPositionInSheet cellPosition,
                                                 double cellOriginalValue);
     SheetPermissionsDto getSheetPermissions(String sheetName);
-    void addUserPermissionToSheet(String sheetName, String username, UserPermissionDto permission);
-    void setUserApprovalStatusInSheet(String sheetName, String username, ApprovalStatusDto approvalStatus);
+    void addUserPermissionToSheet(String sheetName, String username, UserPermission permission);
+    void setUserApprovalStatusInSheet(String sheetName, String username,
+                                      PermissionAndApprovalStatus permissionAndApprovalStatus);
 }

@@ -1,6 +1,5 @@
 package engine.entity.sheet;
 
-import engine.user.permission.ApprovalStatus;
 import engine.user.permission.PermissionAndApprovalStatus;
 
 import java.util.Collections;
@@ -18,8 +17,9 @@ public class SheetPermissions {
         username2permissionAndApprovalStatus.put(username, permissionAndApprovalStatus);
     }
     
-    public void setUserApprovalStatus(String username, ApprovalStatus approvalStatus) {
-        username2permissionAndApprovalStatus.get(username).setApprovalStatus(approvalStatus);
+    public void setUserApprovalStatus(String username, PermissionAndApprovalStatus permissionAndApprovalStatus) {
+        username2permissionAndApprovalStatus.get(username).setPermissionAndApprovalStatus(
+                permissionAndApprovalStatus.getPermission(), permissionAndApprovalStatus.getApprovalStatus());
     }
 
     public Map<String, PermissionAndApprovalStatus> getUsername2permissionAndApprovalStatus() {

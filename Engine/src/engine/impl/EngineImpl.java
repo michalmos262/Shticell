@@ -23,8 +23,8 @@ import engine.jaxb.schema.generated.STLCell;
 import engine.jaxb.schema.generated.STLCells;
 import engine.jaxb.schema.generated.STLRange;
 import engine.jaxb.schema.generated.STLSheet;
-import engine.user.permission.ApprovalStatus;
 import engine.entity.sheet.SheetPermissions;
+import engine.user.permission.PermissionAndApprovalStatus;
 import engine.user.permission.UserPermission;
 import jakarta.xml.bind.JAXBContext;
 import jakarta.xml.bind.Unmarshaller;
@@ -109,6 +109,11 @@ public class EngineImpl implements Engine {
         Sheet sheet = sheetFilesManager.getSheetManager(sheetName).getSheetByVersion(sheetVersion);
 
         return createSheetDto(sheet, sheetFilesManager.getSheetManager(sheetName).getOwnerName());
+    }
+
+    @Override
+    public String getSheetOwner(String sheetName) {
+        return sheetFilesManager.getSheetManager(sheetName).getOwnerName();
     }
 
     private EffectiveValue handleEffectiveValue(Sheet sheet, CellPositionInSheet cellPosition, String originalValue, String updatedByName) {
@@ -542,15 +547,12 @@ public class EngineImpl implements Engine {
     }
 
     @Override
-    public void addUserPermissionToSheet(String sheetName, String username, UserPermissionDto permission) {
-        sheetFilesManager.getSheetManager(sheetName).addUserPermission(username,
-                UserPermission.valueOf(permission.name())
-        );
+    public void addUserPermissionToSheet(String sheetName, String username, UserPermission permission) {
+        sheetFilesManager.getSheetManager(sheetName).addUserPermission(username, permission);
     }
 
     @Override
-    public void setUserApprovalStatusInSheet(String sheetName, String username, ApprovalStatusDto approvalStatus) {
-        sheetFilesManager.getSheetManager(sheetName).setUserApprovalStatus(username,
-                ApprovalStatus.valueOf(approvalStatus.name()));
+    public void setUserApprovalStatusInSheet(String sheetName, String username, PermissionAndApprovalStatus permissionAndApprovalStatus) {
+        sheetFilesManager.getSheetManager(sheetName).setUserPermissionApprovalStatus(username, permissionAndApprovalStatus);
     }
 }

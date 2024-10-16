@@ -86,8 +86,8 @@ public class SheetManager implements Serializable {
         sheetPermissions.addUserPermission(username, new PermissionAndApprovalStatus(permission, ApprovalStatus.PENDING));
     }
 
-    public void setUserApprovalStatus(String username, ApprovalStatus approvalStatus) {
-        sheetPermissions.setUserApprovalStatus(username, approvalStatus);
+    public void setUserPermissionApprovalStatus(String username, PermissionAndApprovalStatus permissionAndApprovalStatus) {
+        sheetPermissions.setUserApprovalStatus(username, permissionAndApprovalStatus);
     }
 
     public SheetPermissions getSheetPermissions() {

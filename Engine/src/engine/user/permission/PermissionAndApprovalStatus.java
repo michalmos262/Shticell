@@ -5,23 +5,19 @@ public class PermissionAndApprovalStatus {
     ApprovalStatus approvalStatus;
 
     public PermissionAndApprovalStatus(UserPermission permission, ApprovalStatus approvalStatus) {
-        this.permission = permission;
-        this.approvalStatus = approvalStatus;
+        setPermissionAndApprovalStatus(permission, approvalStatus);
     }
 
     public UserPermission getPermission() {
         return permission;
     }
 
-    public void setPermission(UserPermission permission) {
-        this.permission = permission;
-    }
-
     public ApprovalStatus getApprovalStatus() {
         return approvalStatus;
     }
 
-    public void setApprovalStatus(ApprovalStatus approvalStatus) {
+    public void setPermissionAndApprovalStatus(UserPermission permission, ApprovalStatus approvalStatus) {
+        this.permission = permission;
         this.approvalStatus = approvalStatus;
     }
 }

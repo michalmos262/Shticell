@@ -9,7 +9,6 @@ import javafx.fxml.FXML;
 import javafx.scene.control.Button;
 import javafx.scene.control.Label;
 import javafx.scene.control.ProgressBar;
-import javafx.scene.control.TextField;
 import javafx.stage.FileChooser;
 import okhttp3.*;
 import serversdk.exception.ServerException;
@@ -20,7 +19,6 @@ import static client.resources.CommonResourcesPaths.*;
 import static client.util.http.HttpClientUtil.HTTP_CLIENT;
 
 public class LoadFileController {
-    @FXML private TextField filePathTextField;
     @FXML private Button loadFileButton;
     @FXML private Label loadingProcessLabel;
     @FXML private ProgressBar progressBar;
@@ -31,11 +29,11 @@ public class LoadFileController {
 
     @FXML
     private void initialize() {
-        modelUi = new LoadFileModelUI(filePathTextField, loadFileButton);
+        modelUi = new LoadFileModelUI(loadFileButton);
     }
 
-    public void setDashboardController(DashboardController mainAppController) {
-        this.dashboardController = mainAppController;
+    public void setDashboardController(DashboardController dashboardController) {
+        this.dashboardController = dashboardController;
     }
 
     @FXML

@@ -1,9 +1,9 @@
 package server.servlet.sheet;
 
 import dto.sheet.SheetDto;
-import dto.user.ApprovalStatusDto;
-import dto.user.UserPermissionDto;
 import engine.api.Engine;
+import engine.user.permission.ApprovalStatus;
+import engine.user.permission.PermissionAndApprovalStatus;
 import engine.user.permission.SheetNamesAndFileMetadatas;
 import engine.user.usermanager.UserManager;
 import engine.user.permission.UserPermission;
@@ -101,9 +101,9 @@ public class SheetServlet extends HttpServlet {
                             );
                         }
                     });
-
-                    engine.addUserPermissionToSheet(fileMetadata.getSheetName(), currentUsername, UserPermissionDto.OWNER);
-                    engine.setUserApprovalStatusInSheet(fileMetadata.getSheetName(), currentUsername, ApprovalStatusDto.APPROVED);
+                    PermissionAndApprovalStatus permissionAndApprovalStatus = new PermissionAndApprovalStatus(UserPermission.OWNER, ApprovalStatus.APPROVED);
+                    engine.addUserPermissionToSheet(fileMetadata.getSheetName(), currentUsername, permissionAndApprovalStatus.getPermission());
+                    engine.setUserApprovalStatusInSheet(fileMetadata.getSheetName(), currentUsername,  permissionAndApprovalStatus);
                 }
                 response.setStatus(HttpServletResponse.SC_OK);
                 String json = GSON_INSTANCE.toJson(ownerFileMetadata);
