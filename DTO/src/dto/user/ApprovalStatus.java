@@ -1,4 +1,4 @@
-package engine.user.permission;
+package dto.user;
 
 public enum ApprovalStatus {
     APPROVED,

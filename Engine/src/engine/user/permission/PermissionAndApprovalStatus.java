@@ -1,5 +1,8 @@
 package engine.user.permission;
 
+import dto.user.ApprovalStatus;
+import dto.user.UserPermission;
+
 public class PermissionAndApprovalStatus {
     UserPermission permission;
     ApprovalStatus approvalStatus;

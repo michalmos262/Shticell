@@ -1,8 +1,8 @@
-package engine.user.permission;
+package dto.user;
 
 public enum UserPermission {
     OWNER,
     READER,
     WRITER,
-    NONE;
+    NONE
 }

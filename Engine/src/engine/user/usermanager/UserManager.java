@@ -1,10 +1,11 @@
 package engine.user.usermanager;
 
 import dto.sheet.FileMetadata;
+import dto.user.PermissionRequestDto;
 import dto.user.SheetNamesAndFileMetadatasDto;
 import engine.exception.user.UserAlreadyExistsException;
 import engine.exception.user.UserDoesNotExistException;
-import engine.user.permission.ApprovalStatus;
+import dto.user.ApprovalStatus;
 import engine.user.permission.PermissionRequest;
 import engine.user.permission.SheetNameAndPermissionRequests;
 import engine.user.permission.SheetNamesAndFileMetadatas;
@@ -74,14 +75,13 @@ public class UserManager {
         owner2sheetNameAndPermissionRequests.get(owner).addPermissionRequest(sheetName, permissionRequest);
     }
 
-    public synchronized PermissionRequest setPermissionRequestApprovalStatus(String owner, String requestSendDate, String requestAsker, String sheetName, ApprovalStatus newApprovalStatus) {
+    public synchronized PermissionRequest setPermissionRequestApprovalStatus(String owner, String requestUid, String sheetName, ApprovalStatus newApprovalStatus) {
         if (!owner2sheetNameAndPermissionRequests.containsKey(owner)) {
             throw new UserDoesNotExistException(owner);
         }
 
         Optional<PermissionRequest> result = owner2sheetNameAndPermissionRequests.get(owner).getPermissionRequests(sheetName).stream()
-                .filter(permissionRequest -> permissionRequest.getAsker().equals(requestAsker)
-                        && permissionRequest.getSendDate().equals(requestSendDate))
+                .filter(permissionRequest -> permissionRequest.getRequestUid().equals(requestUid))
                 .findFirst();
 
         result.ifPresent(permissionRequest -> permissionRequest.setCurrentApprovalStatus(newApprovalStatus));
@@ -89,10 +89,18 @@ public class UserManager {
         return result.orElse(null);
     }
 
-    public synchronized List<PermissionRequest> getPermissionRequestsFromOwner(String owner, String sheetName) {
+    public synchronized List<PermissionRequestDto> getPermissionRequestsFromOwner(String owner, String sheetName) {
         SheetNameAndPermissionRequests sheetNameAndPermissionRequests = owner2sheetNameAndPermissionRequests.get(owner);
         if (sheetNameAndPermissionRequests != null) {
-            return sheetNameAndPermissionRequests.getPermissionRequests(sheetName);
+            List<PermissionRequest> permissionRequests = sheetNameAndPermissionRequests.getPermissionRequests(sheetName);
+            List<PermissionRequestDto> permissionRequestsDto = new LinkedList<>();
+            for (PermissionRequest permissionRequest : permissionRequests) {
+                permissionRequestsDto.add(new PermissionRequestDto(permissionRequest.getRequestUsername(),
+                        permissionRequest.getPermission(), permissionRequest.getCurrentApprovalStatus(),
+                        permissionRequest.getRequestUid()
+                ));
+            }
+            return permissionRequestsDto;
         }
         return null;
     }

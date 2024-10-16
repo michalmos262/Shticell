@@ -44,7 +44,7 @@
                <columns>
                    <TableColumn fx:id="usernameColumn" prefWidth="357.1999816894531" text="Username" />
                    <TableColumn fx:id="permissionTypeColumn" minWidth="1.600006103515625" prefWidth="399.1999206542969" text="Permission Type" />
-               <TableColumn fx:id="isPermissionApprovedColumn" prefWidth="222.4000244140625" text="Is permission approved" />
+               <TableColumn fx:id="approvalStateColumn" prefWidth="222.4000244140625" text="Approval State" />
                </columns>
               <GridPane.margin>
                   <Insets bottom="10.0" />
@@ -55,17 +55,23 @@
        </GridPane>
    </center>
    <right>
-       <VBox alignment="TOP_CENTER" maxHeight="510.0" prefHeight="510.0" prefWidth="142.0" spacing="20.0" BorderPane.alignment="CENTER">
+       <VBox alignment="TOP_CENTER" maxHeight="589.0" prefHeight="384.0" prefWidth="142.0" spacing="20.0" BorderPane.alignment="CENTER">
            <BorderPane.margin>
                <Insets right="10.0" />
            </BorderPane.margin>
            <opaqueInsets>
                <Insets />
            </opaqueInsets>
-           <Label prefWidth="76.0" style="-fx-font-size: 14;" text="Commands" />
-           <Button fx:id="viewSheetButton" alignment="BASELINE_LEFT" mnemonicParsing="false" onAction="#viewSheetButtonListener" prefHeight="45.0" prefWidth="118.0" text="View sheet" />
-           <Button fx:id="requestPermissionButton" alignment="BASELINE_LEFT" contentDisplay="TOP" mnemonicParsing="false" onAction="#RequestPermissionButtonListener" prefHeight="45.0" prefWidth="118.0" text="Request permission" wrapText="true" />
-           <Button fx:id="accDenyPermReqButton" alignment="BASELINE_LEFT" mnemonicParsing="false" onAction="#AccDenyPermissionRequestButtonListener" prefHeight="45.0" prefWidth="118.0" text="Accept\deny permission request" wrapText="true" />
+           <Button fx:id="viewSheetButton" alignment="BASELINE_LEFT" mnemonicParsing="false" onAction="#viewSheetButtonListener" prefHeight="45.0" prefWidth="118.0" text="View sheet">
+            <VBox.margin>
+               <Insets top="50.0" />
+            </VBox.margin></Button>
+           <Button fx:id="requestPermissionButton" alignment="BASELINE_LEFT" contentDisplay="TOP" mnemonicParsing="false" onAction="#requestPermissionButtonListener" prefHeight="45.0" prefWidth="118.0" text="Request permission" wrapText="true" />
+           <Button fx:id="acceptPermissionRequestButton" alignment="BASELINE_LEFT" mnemonicParsing="false" onAction="#acceptPermissionRequestButtonListener" prefHeight="45.0" prefWidth="118.0" text="Accept permission request" wrapText="true">
+            <VBox.margin>
+               <Insets top="220.0" />
+            </VBox.margin></Button>
+         <Button fx:id="rejectPermissionRequestButton" alignment="BASELINE_LEFT" layoutX="22.0" layoutY="180.0" mnemonicParsing="false" onAction="#rejectPermissionRequestButtonListener" prefHeight="45.0" prefWidth="118.0" text="Reject permission request" wrapText="true" />
        </VBox>
    </right>
    <top>

@@ -112,6 +112,10 @@ public class MainAppController implements Closeable {
         modelUi.usernameProperty().set(username);
     }
 
+    public String getLoggedInUsername() {
+        return modelUi.usernameProperty().getValue();
+    }
+
     public void switchToDashboardPage() {
         modelUi.pageHeadingProperty().set("Management Dashboard");
         setMainPanelTo(dashboardComponent);

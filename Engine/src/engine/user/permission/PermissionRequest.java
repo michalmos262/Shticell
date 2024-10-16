@@ -1,26 +1,26 @@
 package engine.user.permission;
 
+import dto.user.ApprovalStatus;
+import dto.user.UserPermission;
+
 import java.util.Objects;
+import java.util.UUID;
 
 public class PermissionRequest {
-    private final String sendDate;
-    private final String asker;
+    private final String requestUsername;
     private final UserPermission permission;
     private ApprovalStatus currentApprovalStatus;
+    private final String requestUid;
 
-    public PermissionRequest(String sendDate, String asker, UserPermission permission, ApprovalStatus currentApprovalStatus) {
-        this.sendDate = sendDate;
-        this.asker = asker;
+    public PermissionRequest(String requestUsername, UserPermission permission, ApprovalStatus currentApprovalStatus) {
+        this.requestUsername = requestUsername;
         this.permission = permission;
         this.currentApprovalStatus = currentApprovalStatus;
+        this.requestUid = UUID.randomUUID().toString();
     }
 
-    public String getSendDate() {
-        return sendDate;
-    }
-
-    public String getAsker() {
-        return asker;
+    public String getRequestUsername() {
+        return requestUsername;
     }
 
     public UserPermission getPermission() {
@@ -29,6 +29,10 @@ public class PermissionRequest {
 
     public ApprovalStatus getCurrentApprovalStatus() {
         return currentApprovalStatus;
+    }
+
+    public String getRequestUid() {
+        return requestUid;
     }
 
     public void setCurrentApprovalStatus(ApprovalStatus currentApprovalStatus) {
@@ -40,11 +44,11 @@ public class PermissionRequest {
         if (this == o) return true;
         if (o == null || getClass() != o.getClass()) return false;
         PermissionRequest that = (PermissionRequest) o;
-        return Objects.equals(getSendDate(), that.getSendDate()) && Objects.equals(getAsker(), that.getAsker()) && getPermission() == that.getPermission() && getCurrentApprovalStatus() == that.getCurrentApprovalStatus();
+        return Objects.equals(requestUsername, that.requestUsername) && getPermission() == that.getPermission() && getCurrentApprovalStatus() == that.getCurrentApprovalStatus();
     }
 
     @Override
     public int hashCode() {
-        return Objects.hash(getSendDate(), getAsker(), getPermission(), getCurrentApprovalStatus());
+        return Objects.hash(requestUsername, getPermission(), getCurrentApprovalStatus());
     }
 }

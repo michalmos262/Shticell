@@ -6,7 +6,7 @@ import dto.sheet.*;
 import engine.entity.cell.CellPositionInSheet;
 import engine.entity.range.Range;
 import engine.user.permission.PermissionAndApprovalStatus;
-import engine.user.permission.UserPermission;
+import dto.user.UserPermission;
 
 import java.io.InputStream;
 import java.util.LinkedList;

@@ -1,19 +1,34 @@
 package dto.user;
 
-public class PermissionAndApprovalStatusDto {
-    UserPermissionDto permission;
-    ApprovalStatusDto approvalStatus;
+import java.util.Objects;
 
-    public PermissionAndApprovalStatusDto(UserPermissionDto permission, ApprovalStatusDto approvalStatus) {
+public class PermissionAndApprovalStatusDto {
+    UserPermission permission;
+    ApprovalStatus approvalStatus;
+
+    public PermissionAndApprovalStatusDto(UserPermission permission, ApprovalStatus approvalStatus) {
         this.permission = permission;
         this.approvalStatus = approvalStatus;
     }
 
-    public UserPermissionDto getPermission() {
+    public UserPermission getPermission() {
         return permission;
     }
 
-    public ApprovalStatusDto getApprovalStatus() {
+    public ApprovalStatus getApprovalStatus() {
         return approvalStatus;
+    }
+
+    @Override
+    public boolean equals(Object o) {
+        if (this == o) return true;
+        if (o == null || getClass() != o.getClass()) return false;
+        PermissionAndApprovalStatusDto that = (PermissionAndApprovalStatusDto) o;
+        return getPermission() == that.getPermission() && getApprovalStatus() == that.getApprovalStatus();
+    }
+
+    @Override
+    public int hashCode() {
+        return Objects.hash(getPermission(), getApprovalStatus());
     }
 }

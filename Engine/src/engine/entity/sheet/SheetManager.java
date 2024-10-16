@@ -7,9 +7,9 @@ import engine.entity.sheet.api.Sheet;
 import engine.entity.sheet.impl.SheetImpl;
 import engine.exception.cell.CellPositionOutOfSheetBoundsException;
 import engine.exception.sheet.SheetVersionDoesNotExistException;
-import engine.user.permission.ApprovalStatus;
+import dto.user.ApprovalStatus;
 import engine.user.permission.PermissionAndApprovalStatus;
-import engine.user.permission.UserPermission;
+import dto.user.UserPermission;
 
 import java.io.Serializable;
 import java.util.LinkedHashMap;

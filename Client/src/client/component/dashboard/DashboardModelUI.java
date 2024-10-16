@@ -10,24 +10,42 @@ import javafx.scene.control.TableColumn;
 import javafx.scene.control.TableView;
 
 public class DashboardModelUI {
-    ObservableMap<SimpleStringProperty, SheetNameData> sheetNameProperty2itsData;
+    private final ObservableMap<SimpleStringProperty, SheetNameData> sheetNameProperty2itsData;
     private final ObservableList<SheetsTableEntry> sheetsTableData;
+
+    private final ObservableMap<SimpleStringProperty, PermissionUsernameData> permissionUsernameProperty2itsData;
+    private final ObservableList<PermissionsTableEntry> permissionsTableData;
+
+    private final StringProperty selectedSheetName;
 
     public DashboardModelUI(TableView<SheetsTableEntry> showSheetsTable,
                             TableColumn<SheetsTableEntry, String> sheetNameColumn,
                             TableColumn<SheetsTableEntry, String> ownerUsernameColumn,
                             TableColumn<SheetsTableEntry, String> sheetSizeColumn,
-                            TableColumn<SheetsTableEntry, String> yourPermissionTypeColumn) {
+                            TableColumn<SheetsTableEntry, String> yourPermissionTypeColumn,
+
+                            TableView<PermissionsTableEntry> showPermissionsTable,
+                            TableColumn<PermissionsTableEntry, String> usernameColumn,
+                            TableColumn<PermissionsTableEntry, String> permissionTypeColumn,
+                            TableColumn<PermissionsTableEntry, String> approvalStateColumn) {
+
+        selectedSheetName = new SimpleStringProperty();
 
         sheetNameProperty2itsData = FXCollections.observableHashMap();
         sheetsTableData = FXCollections.observableArrayList();
-        bindSheetsTableView(showSheetsTable, ownerUsernameColumn, sheetNameColumn, sheetSizeColumn,
-                yourPermissionTypeColumn);
+
+        permissionUsernameProperty2itsData = FXCollections.observableHashMap();
+        permissionsTableData = FXCollections.observableArrayList();
+
+        bindSheetsTableView(showSheetsTable, ownerUsernameColumn, sheetNameColumn, sheetSizeColumn, yourPermissionTypeColumn);
+        bindPermissionsTableView(showPermissionsTable, usernameColumn, permissionTypeColumn, approvalStateColumn);
     }
 
-    private void bindSheetsTableView(TableView<SheetsTableEntry> showSheetsTable, TableColumn<SheetsTableEntry, String> ownerUsernameColumn,
-                                     TableColumn<SheetsTableEntry, String> sheetNameColumn, TableColumn<SheetsTableEntry,
-            String> sheetSizeColumn, TableColumn<SheetsTableEntry, String> yourPermissionTypeColumn) {
+    private void bindSheetsTableView(TableView<SheetsTableEntry> showSheetsTable,
+                                     TableColumn<SheetsTableEntry, String> ownerUsernameColumn,
+                                     TableColumn<SheetsTableEntry, String> sheetNameColumn,
+                                     TableColumn<SheetsTableEntry, String> sheetSizeColumn,
+                                     TableColumn<SheetsTableEntry, String> yourPermissionTypeColumn) {
 
         // Initialize the columns in the TableView
         sheetNameColumn.setCellValueFactory(cellData -> cellData.getValue().sheetNameProperty());
@@ -46,7 +64,9 @@ public class DashboardModelUI {
             if (change.wasAdded()) {
                 sheetsTableData.add(
                         new SheetsTableEntry(
-                                nameProperty.get(), sheetNameData.ownerName.get(), sheetNameData.sheetSize.get(),
+                                nameProperty.get(),
+                                sheetNameData.ownerName.get(),
+                                sheetNameData.sheetSize.get(),
                                 sheetNameData.yourPermissionType.get()
                         )
                 );
@@ -102,7 +122,77 @@ public class DashboardModelUI {
         }
     }
 
-    public static class PermissionsTableEntry {
+    private void bindPermissionsTableView(TableView<PermissionsTableEntry> showPermissionsTable,
+                            TableColumn<PermissionsTableEntry, String> usernameColumn,
+                            TableColumn<PermissionsTableEntry, String> permissionTypeColumn,
+                            TableColumn<PermissionsTableEntry, String> approvalStateColumn) {
 
+        // Initialize the columns in the TableView
+        usernameColumn.setCellValueFactory(cellData -> cellData.getValue().usernameProperty());
+        permissionTypeColumn.setCellValueFactory(cellData -> cellData.getValue().permissionTypeProperty());
+        approvalStateColumn.setCellValueFactory(cellData -> cellData.getValue().approvalStateProperty());
+
+        // bind the sheets data to the table
+        showPermissionsTable.setItems(permissionsTableData);
+
+        // Add a MapChangeListener to the map to listen for new entries
+        permissionUsernameProperty2itsData.addListener((MapChangeListener<SimpleStringProperty, PermissionUsernameData>) change -> {
+            SimpleStringProperty usernameProperty = change.getKey();
+            PermissionUsernameData permissionUsernameData = change.getValueAdded();
+
+            if (change.wasAdded()) {
+                permissionsTableData.add(
+                        new PermissionsTableEntry(
+                                usernameProperty.get(),
+                                permissionUsernameData.permissionType.get(),
+                                permissionUsernameData.approvalState.get()
+                        )
+                );
+            }
+        });
+    }
+
+    // permission username column and other columns
+    public static class PermissionUsernameData {
+        private final StringProperty permissionType;
+        private final StringProperty approvalState;
+
+        public PermissionUsernameData(String permissionType, String approvalState) {
+            this.permissionType = new SimpleStringProperty(permissionType);
+            this.approvalState = new SimpleStringProperty(approvalState);
+        }
+    }
+
+    public static class PermissionsTableEntry {
+        private final StringProperty username;
+        private final StringProperty permissionType;
+        private final StringProperty approvalState;
+
+        public PermissionsTableEntry(String username, String permissionType, String approvalState) {
+            this.username = new SimpleStringProperty(username);
+            this.permissionType = new SimpleStringProperty(permissionType);
+            this.approvalState = new SimpleStringProperty(approvalState);
+        }
+
+        public StringProperty usernameProperty() {
+            return username;
+        }
+
+        public StringProperty permissionTypeProperty() {
+            return permissionType;
+        }
+
+        public StringProperty approvalStateProperty() {
+            return approvalState;
+        }
+    }
+
+    public StringProperty selectedSheetNameProperty() {
+        return selectedSheetName;
+    }
+
+    public void addSheetUserPermission(String username, String permissionType, String approvalState) {
+        permissionUsernameProperty2itsData.put(new SimpleStringProperty(username),
+                new PermissionUsernameData(permissionType, approvalState));
     }
 }

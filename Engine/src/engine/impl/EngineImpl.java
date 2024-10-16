@@ -5,9 +5,7 @@ import dto.cell.CellPositionDto;
 import dto.cell.CellTypeDto;
 import dto.cell.EffectiveValueDto;
 import dto.sheet.*;
-import dto.user.ApprovalStatusDto;
 import dto.user.PermissionAndApprovalStatusDto;
-import dto.user.UserPermissionDto;
 import engine.api.Engine;
 import engine.entity.cell.*;
 import engine.entity.range.Range;
@@ -25,7 +23,7 @@ import engine.jaxb.schema.generated.STLRange;
 import engine.jaxb.schema.generated.STLSheet;
 import engine.entity.sheet.SheetPermissions;
 import engine.user.permission.PermissionAndApprovalStatus;
-import engine.user.permission.UserPermission;
+import dto.user.UserPermission;
 import jakarta.xml.bind.JAXBContext;
 import jakarta.xml.bind.Unmarshaller;
 
@@ -538,8 +536,7 @@ public class EngineImpl implements Engine {
 
         sheetPermissions.getUsername2permissionAndApprovalStatus().forEach((username, permissionAndApprovalStatus) ->
                 permission2approvalStatusDto.put(username, new PermissionAndApprovalStatusDto(
-                    UserPermissionDto.valueOf(permissionAndApprovalStatus.getPermission().name()),
-                    ApprovalStatusDto.valueOf(permissionAndApprovalStatus.getApprovalStatus().name()))
+                    permissionAndApprovalStatus.getPermission(), permissionAndApprovalStatus.getApprovalStatus())
                 )
         );
 

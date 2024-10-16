@@ -1,10 +1,11 @@
-package server.servlet.user;
+package server.servlet.dashboard;
 
+import dto.user.PermissionRequestDto;
 import engine.api.Engine;
-import engine.user.permission.ApprovalStatus;
+import dto.user.ApprovalStatus;
 import engine.user.permission.PermissionAndApprovalStatus;
 import engine.user.permission.PermissionRequest;
-import engine.user.permission.UserPermission;
+import dto.user.UserPermission;
 import engine.user.usermanager.UserManager;
 import jakarta.servlet.annotation.WebServlet;
 import jakarta.servlet.http.HttpServlet;
@@ -17,14 +18,35 @@ import serversdk.request.body.CreatePermissionRequestBody;
 import serversdk.request.body.UpdatePermissionRequestBody;
 
 import java.io.IOException;
-import java.util.Date;
 import java.util.List;
 
 import static server.constant.Constants.*;
 import static serversdk.request.parameter.RequestParameters.SHEET_NAME;
 
-@WebServlet(name = "PermissionRequestServlet", urlPatterns = "/user/permission-request")
+@WebServlet(name = "PermissionRequestServlet", urlPatterns = "/dashboard/permission-request")
 public class PermissionRequestServlet extends HttpServlet {
+    @Override
+    protected void doGet(HttpServletRequest request, HttpServletResponse response) throws IOException {
+        response.setContentType(APPLICATION_JSON);
+        try {
+            if (SessionUtils.isAuthorized(request, response)) {
+                String sheetName = request.getParameter(SHEET_NAME);
+                List<PermissionRequestDto> permissionRequests;
+
+                synchronized (getServletContext()) {
+                    UserManager userManager = ServletUtils.getUserManager(getServletContext());
+                    Engine engine = ServletUtils.getEngineInstance(getServletContext());
+                    String owner = engine.getSheetOwner(sheetName);
+                    permissionRequests = userManager.getPermissionRequestsFromOwner(owner, sheetName);
+                }
+                String json = GSON_INSTANCE.toJson(permissionRequests);
+                response.getWriter().println(json);
+            }
+        } catch (Exception e) {
+            ExceptionUtil.handleException(response, e);
+        }
+    }
+
     protected void doPost(HttpServletRequest request, HttpServletResponse response) throws IOException {
         response.setContentType(APPLICATION_JSON);
         try {
@@ -41,10 +63,8 @@ public class PermissionRequestServlet extends HttpServlet {
                     String currentUsername = SessionUtils.getUsername(request);
                     UserPermission userPermission = UserPermission.valueOf(permissionRequestBody.getPermission());
 
-                    String formattedDate = DATE_FORMAT.format(new Date());
-
                     userManager.addPermissionRequestToOwner(sheetOwner, sheetName,
-                            new PermissionRequest(formattedDate, currentUsername, userPermission, ApprovalStatus.PENDING));
+                            new PermissionRequest(currentUsername, userPermission, ApprovalStatus.PENDING));
 
                     engine.addUserPermissionToSheet(sheetName, currentUsername, userPermission);
                 }
@@ -68,47 +88,26 @@ public class PermissionRequestServlet extends HttpServlet {
                     Engine engine = ServletUtils.getEngineInstance(getServletContext());
                     String owner = SessionUtils.getUsername(request);
 
-                    String sendDate = updatePermissionRequestBody.getRequestSendDate();
-                    String requestAsker = updatePermissionRequestBody.getRequestAsker();
+                    String requestUid = updatePermissionRequestBody.getRequestUid();
                     String sheetName = updatePermissionRequestBody.getSheetName();
                     String newApprovalStatus = updatePermissionRequestBody.getNewApprovalStatus();
 
-                    PermissionRequest updatedPermissionRequest = userManager.setPermissionRequestApprovalStatus(owner, sendDate, requestAsker, sheetName,
+                    PermissionRequest updatedPermissionRequest = userManager.setPermissionRequestApprovalStatus(owner, requestUid, sheetName,
                             ApprovalStatus.valueOf(newApprovalStatus));
 
                     PermissionAndApprovalStatus permissionAndApprovalStatus =
                             new PermissionAndApprovalStatus(updatedPermissionRequest.getPermission(),
                                     ApprovalStatus.valueOf(newApprovalStatus));
 
-                    engine.setUserApprovalStatusInSheet(sheetName, requestAsker, permissionAndApprovalStatus);
+                    engine.setUserApprovalStatusInSheet(sheetName, updatedPermissionRequest.getRequestUsername(), permissionAndApprovalStatus);
 
                     if (ApprovalStatus.valueOf(newApprovalStatus) == ApprovalStatus.APPROVED) {
+                        String requestUsername = updatedPermissionRequest.getRequestUsername();
                         String userPermissionStr = engine.getSheetPermissions(sheetName)
-                                .getUsername2permissionAndApprovalStatus().get(requestAsker).getPermission().toString();
-                        userManager.setUserSheetPermission(requestAsker, sheetName, userPermissionStr);
+                                .getUsername2permissionAndApprovalStatus().get(requestUsername).getPermission().toString();
+                        userManager.setUserSheetPermission(requestUsername, sheetName, userPermissionStr);
                     }
                 }
-            }
-        } catch (Exception e) {
-            ExceptionUtil.handleException(response, e);
-        }
-    }
-
-    @Override
-    protected void doGet(HttpServletRequest request, HttpServletResponse response) throws IOException {
-        response.setContentType(APPLICATION_JSON);
-        try {
-            if (SessionUtils.isAuthorized(request, response)) {
-                String sheetName = request.getParameter(SHEET_NAME);
-                String owner = SessionUtils.getUsername(request);
-                List<PermissionRequest> permissionRequests;
-
-                synchronized (getServletContext()) {
-                    UserManager userManager = ServletUtils.getUserManager(getServletContext());
-                    permissionRequests = userManager.getPermissionRequestsFromOwner(owner, sheetName);
-                }
-                String json = GSON_INSTANCE.toJson(permissionRequests);
-                response.getWriter().println(json);
             }
         } catch (Exception e) {
             ExceptionUtil.handleException(response, e);

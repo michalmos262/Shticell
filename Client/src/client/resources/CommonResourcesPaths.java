@@ -25,11 +25,10 @@ public class CommonResourcesPaths {
     public final static String LOGOUT = FULL_SERVER_PATH + "/logout";
 
     public final static String DASHBOARD_ENDPOINT = FULL_SERVER_PATH + "/dashboard";
-    public final static String SHEET_PERMISSIONS_ENDPOINT = DASHBOARD_ENDPOINT + "/sheet-permissions";
+    public final static String PERMISSION_REQUEST_ENDPOINT = DASHBOARD_ENDPOINT + "/permission-request";
 
     public final static String USER_ENDPOINT = FULL_SERVER_PATH + "/user";
     public final static String USER_SHEETS_ENDPOINT = USER_ENDPOINT + "/sheets";
-    public final static String PERMISSION_REQUEST_ENDPOINT = USER_ENDPOINT + "/permission-request";
 
     public final static String SHEET_ENDPOINT = FULL_SERVER_PATH + "/sheet";
     public final static String DYNAMIC_ANALYSED_ENDPOINT = SHEET_ENDPOINT + "/dynamic-analysed";
