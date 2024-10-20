@@ -123,7 +123,7 @@ public class DashboardController implements Closeable {
     }
 
     @FXML
-    public void viewSheetButtonListener(ActionEvent actionEvent) {
+    public void viewSheetButtonListener(ActionEvent actionEvent) throws IOException {
         if (selectedSheetTableEntry != null) {
             mainAppController.switchToSheet(selectedSheetTableEntry.sheetNameProperty().getValue());
         }

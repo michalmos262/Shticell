@@ -17,7 +17,6 @@ import javafx.scene.layout.GridPane;
 import javafx.scene.paint.Color;
 import client.component.sheet.command.CommandsController;
 import client.component.sheet.grid.GridController;
-import dto.sheet.RangeDto;
 import okhttp3.HttpUrl;
 import okhttp3.Request;
 import okhttp3.Response;
@@ -149,6 +148,10 @@ public class MainSheetController implements Closeable {
     public void moveToNewestSheetVersion() throws IOException {
         removeCellsPaints();
         gridComponentController.moveToNewestSheetVersion();
+    }
+
+    public void clickOnMoveToNewestVersionButton() {
+        actionLineComponentController.clickOnMoveToNewestVersionButton();
     }
 
     public void setActive() {

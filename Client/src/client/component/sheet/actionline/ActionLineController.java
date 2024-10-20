@@ -134,8 +134,7 @@ public class ActionLineController implements Closeable {
             System.out.println("Error: " + responseBody);
         }
 
-        // navigates to moveToNewestVersionButtonListener function
-        moveToNewestVersionButton.fire();
+        clickOnMoveToNewestVersionButton();
     }
 
     public int getCurrentSheetVersion() {
@@ -312,11 +311,16 @@ public class ActionLineController implements Closeable {
 
     @FXML
     void moveToNewestVersionButtonListener(ActionEvent event) throws IOException {
-        this.moveToNewestVersionButton.setEffect(null);
+        moveToNewestVersionButton.setEffect(null);
         removeCellClickFocus();
         int newestVersion = mainSheetController.getLastSheetVersion();
         modelUi.currentSheetVersionProperty().set(newestVersion);
         mainSheetController.moveToNewestSheetVersion();
+    }
+
+    public void clickOnMoveToNewestVersionButton() {
+        // navigates to moveToNewestVersionButtonListener function
+        moveToNewestVersionButton.fire();
     }
 
     private void indicateMoveToNewestVersionButton() {

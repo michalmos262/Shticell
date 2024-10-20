@@ -126,6 +126,7 @@ public class MainAppController implements Closeable {
         loadSheetPage(sheetName);
         modelUi.pageHeadingProperty().set("In sheet: " + sheetName);
         setMainPanelTo(sheetName2Component.get(sheetName));
+        sheetName2Controller.get(sheetName).clickOnMoveToNewestVersionButton();
         sheetName2Controller.get(sheetName).setActive();
     }
 }
