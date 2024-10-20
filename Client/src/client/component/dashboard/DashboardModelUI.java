@@ -23,6 +23,7 @@ public class DashboardModelUI {
     private final StringProperty selectedSheetName;
     private final BooleanProperty isOwner;
     private final BooleanProperty isAllowedToViewSheet;
+    private final BooleanProperty isPermissionPending;
 
     public DashboardModelUI(Button viewSheetButton, Button requestPermissionButton, List<Button> ownerOnlyButtons,
                             TableView<SheetsTableEntry> showSheetsTable,
@@ -41,6 +42,7 @@ public class DashboardModelUI {
         selectedSheetName = new SimpleStringProperty();
         isOwner = new SimpleBooleanProperty(false);
         isAllowedToViewSheet = new SimpleBooleanProperty(false);
+        isPermissionPending = new SimpleBooleanProperty(false);
 
         // view sheet when click on sheet entry and has a view sheet permission (write/reader)
         viewSheetButton.disableProperty().bind(isSheetClicked.not().or(isAllowedToViewSheet.not()));
@@ -50,7 +52,10 @@ public class DashboardModelUI {
 
         // can accept/reject permissions only if you are the owner of the sheet you selected
         for (Button button : ownerOnlyButtons) {
-            button.disableProperty().bind(isOwner.not().or(isPermissionClicked.not()));
+            button.disableProperty().bind(
+                    isOwner.not()
+                    .or(isPermissionClicked.not())
+                    .or(isPermissionPending.not()));
         }
 
         sheetNameProperty2itsData = FXCollections.observableHashMap();
@@ -236,6 +241,10 @@ public class DashboardModelUI {
 
     public BooleanProperty isAllowedToViewSheetProperty() {
         return isAllowedToViewSheet;
+    }
+
+    public BooleanProperty isPermissionPendingProperty() {
+        return isPermissionPending;
     }
 
     public void addSheetUserPermission(String username, String permissionType, String approvalState, String requestUid) {

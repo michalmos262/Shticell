@@ -113,6 +113,11 @@ public class DashboardController implements Closeable {
             selectedPermissionsTableEntry = permissionsTableView.getSelectionModel().getSelectedItem();
             if (selectedPermissionsTableEntry != null) {
                 modelUi.isPermissionClicked().set(true);
+
+                boolean isPermissionPending = selectedPermissionsTableEntry.approvalStateProperty().getValue()
+                                .equals(ApprovalStatus.PENDING.name());
+
+                modelUi.isPermissionPendingProperty().set(isPermissionPending);
             }
         }
     }
@@ -208,23 +213,31 @@ public class DashboardController implements Closeable {
 
     private void updateSheetsTable(SheetNamesAndFileMetadatasDto sheetNamesAndFileMetadatasDto) {
         Platform.runLater(() -> {
-            int rowIndex = availableSheetsTableView.getItems().indexOf(selectedSheetTableEntry);
             ObservableList<DashboardModelUI.SheetsTableEntry> items = availableSheetsTableView.getItems();
             items.clear();
             for (Map.Entry<String, FileMetadata> username2fileMetadataEntry: sheetNamesAndFileMetadatasDto.getSheetName2fileMetadata().entrySet()) {
                 FileMetadata fileMetadata = username2fileMetadataEntry.getValue();
                 modelUi.addSheet(fileMetadata.getSheetName(), fileMetadata.getOwner(), fileMetadata.getSheetSize(), fileMetadata.getYourPermission());
             }
-            clickOnLastClickedSheet(rowIndex);
+            clickOnLastClickedSheet();
         });
     }
 
-    private void clickOnLastClickedSheet(int rowIndex) {
-        if (rowIndex >= 0) {
-            availableSheetsTableView.getSelectionModel().select(rowIndex);
-            selectedSheetTableEntry = availableSheetsTableView.getItems().get(rowIndex);
+    private void clickOnLastClickedSheet() {
+        if (selectedSheetTableEntry != null) {
+            int rowIndex = availableSheetsTableView.getItems().indexOf(availableSheetsTableView.getItems()
+                    .stream().filter((entry) ->
+                            entry.sheetNameProperty().getValue()
+                                    .equals(selectedSheetTableEntry.sheetNameProperty().getValue())
+                    ).findFirst().orElse(null)
+            );
+
+            if (rowIndex >= 0) {
+                availableSheetsTableView.getSelectionModel().select(rowIndex);
+                selectedSheetTableEntry = availableSheetsTableView.getItems().get(rowIndex);
+            }
+            changeSheetButtonsDisability();
         }
-        changeSheetButtonsDisability();
     }
 
     private void updateSheetPermissionsTable(List<PermissionRequestDto> permissionRequests) {
