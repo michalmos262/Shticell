@@ -122,11 +122,12 @@ public class MainAppController implements Closeable {
         dashboardComponentController.setActive();
     }
 
-    public void switchToSheet(String sheetName) {
+    public void switchToSheet(String sheetName, boolean isUserWriter) {
         loadSheetPage(sheetName);
         modelUi.pageHeadingProperty().set("In sheet: " + sheetName);
         setMainPanelTo(sheetName2Component.get(sheetName));
         sheetName2Controller.get(sheetName).clickOnMoveToNewestVersionButton();
+        sheetName2Controller.get(sheetName).setIsUserWriter(isUserWriter);
         sheetName2Controller.get(sheetName).setActive();
     }
 }

@@ -123,9 +123,14 @@ public class DashboardController implements Closeable {
     }
 
     @FXML
-    public void viewSheetButtonListener(ActionEvent actionEvent) throws IOException {
+    public void viewSheetButtonListener(ActionEvent actionEvent) {
         if (selectedSheetTableEntry != null) {
-            mainAppController.switchToSheet(selectedSheetTableEntry.sheetNameProperty().getValue());
+            String yourPermission = selectedSheetTableEntry.yourPermissionTypeProperty().getValue();
+
+            boolean isUserWriter = yourPermission.equals(UserPermission.WRITER.name()) ||
+                    yourPermission.equals(UserPermission.OWNER.name());
+
+            mainAppController.switchToSheet(selectedSheetTableEntry.sheetNameProperty().getValue(), isUserWriter);
         }
     }
 
@@ -277,9 +282,12 @@ public class DashboardController implements Closeable {
 
     @Override
     public void close() {
-        if (sheetsTableRefresher != null && showAvailableSheetsTimer != null) {
+        if (sheetsTableRefresher != null && showAvailableSheetsTimer != null &&
+                sheetUserPermissionsRefresher != null && showPermissionsTimer != null) {
             sheetsTableRefresher.cancel();
+            sheetUserPermissionsRefresher.cancel();
             showAvailableSheetsTimer.cancel();
+            showPermissionsTimer.cancel();
         }
     }
 }

@@ -12,18 +12,18 @@ import javafx.scene.control.TableView;
 import java.util.List;
 
 public class DashboardModelUI {
-    private final ObservableMap<SimpleStringProperty, SheetNameData> sheetNameProperty2itsData;
-    private final ObservableList<SheetsTableEntry> sheetsTableData;
-
-    private final ObservableMap<SimpleStringProperty, PermissionUsernameData> permissionUsernameProperty2itsData;
-    private final ObservableList<PermissionsTableEntry> permissionsTableData;
-
     private final BooleanProperty isSheetClicked;
     private final BooleanProperty isPermissionClicked;
     private final StringProperty selectedSheetName;
     private final BooleanProperty isOwner;
     private final BooleanProperty isAllowedToViewSheet;
     private final BooleanProperty isPermissionPending;
+
+    private final ObservableMap<SimpleStringProperty, SheetNameData> sheetNameProperty2itsData;
+    private final ObservableList<SheetsTableEntry> sheetsTableData;
+
+    private final ObservableMap<SimpleStringProperty, PermissionUsernameData> permissionUsernameProperty2itsData;
+    private final ObservableList<PermissionsTableEntry> permissionsTableData;
 
     public DashboardModelUI(Button viewSheetButton, Button requestPermissionButton, List<Button> ownerOnlyButtons,
                             TableView<SheetsTableEntry> showSheetsTable,

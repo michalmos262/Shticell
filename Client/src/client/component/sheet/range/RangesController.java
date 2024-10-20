@@ -46,7 +46,10 @@ public class RangesController implements Closeable {
     @FXML
     private void initialize() {
         List<TextField> textFields = Arrays.asList(addFromRangeTextInput, addRangeNameTextInput, addToRangeTextInput);
-        modelUi = new RangeModelUI(showRangesTable, nameColumn, rangeColumn, deleteRangeNameChoiceBox, textFields);
+        List<TitledPane> writeOnlyTitledPanes = Arrays.asList(addNewRangeTitledPane, deleteRangeTitledPane);
+
+        modelUi = new RangeModelUI(showRangesTable, nameColumn, rangeColumn, deleteRangeNameChoiceBox, textFields,
+                writeOnlyTitledPanes);
     }
 
     public void setMainController(MainSheetController mainSheetController) {
@@ -175,6 +178,10 @@ public class RangesController implements Closeable {
 
     public void setActive() {
         startRangesRefresher();
+    }
+
+    public void setIsUserWriter(boolean isWriter) {
+        modelUi.isUserWriterProperty().set(isWriter);
     }
 
     @Override

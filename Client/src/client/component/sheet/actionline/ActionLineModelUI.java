@@ -14,8 +14,10 @@ public class ActionLineModelUI {
     private final IntegerProperty selectedCellLastVersion;
     private final StringProperty selectedUpdatedByName;
     private final IntegerProperty currentSheetVersion;
+    private final BooleanProperty isUserWriter;
 
-    public ActionLineModelUI(List<Button> cellButtons, TextField originalCellValueTextField,
+    public ActionLineModelUI(Button dynamicAnalysisButton, List<Button> writerOnlyButtons,
+                             TextField originalCellValueTextField,
                              Label selectedCellIdLabel, Label lastCellVersionLabel, Label updatedByLabel,
                              ChoiceBox<Integer> showSheetVersionSelector, ChoiceBox<Pos> columnTextAlignmentChoiceBox,
                              Spinner<Integer> columnWidthSpinner, Spinner<Integer> rowHeightSpinner,
@@ -27,20 +29,24 @@ public class ActionLineModelUI {
         selectedCellLastVersion = new SimpleIntegerProperty();
         selectedUpdatedByName = new SimpleStringProperty("");
         currentSheetVersion = new SimpleIntegerProperty(0);
+        isUserWriter = new SimpleBooleanProperty(false);
 
-        for (Button button : cellButtons) {
-            button.disableProperty().bind(isAnyCellClicked.not());
+        dynamicAnalysisButton.disableProperty().bind(isAnyCellClicked.not());
+
+        for (Button button : writerOnlyButtons) {
+            button.disableProperty().bind(isUserWriter.not().or(isAnyCellClicked.not()));
         }
 
-        originalCellValueTextField.disableProperty().bind(isAnyCellClicked.not());
-        columnTextAlignmentChoiceBox.disableProperty().bind(isAnyCellClicked.not());
-        columnWidthSpinner.disableProperty().bind(isAnyCellClicked.not());
-        rowHeightSpinner.disableProperty().bind(isAnyCellClicked.not());
-        cellBackgroundColorPicker.disableProperty().bind(isAnyCellClicked.not());
-        cellTextColorPicker.disableProperty().bind(isAnyCellClicked.not());
+        originalCellValueTextField.disableProperty().bind(isAnyCellClicked.not().or(isUserWriter.not()));
+        columnTextAlignmentChoiceBox.disableProperty().bind(isAnyCellClicked.not().or(isUserWriter.not()));
+        columnWidthSpinner.disableProperty().bind(isAnyCellClicked.not().or(isUserWriter.not()));
+        rowHeightSpinner.disableProperty().bind(isAnyCellClicked.not().or(isUserWriter.not()));
+        cellBackgroundColorPicker.disableProperty().bind(isAnyCellClicked.not().or(isUserWriter.not()));
+        cellTextColorPicker.disableProperty().bind(isAnyCellClicked.not().or(isUserWriter.not()));
 
         selectedCellIdLabel.textProperty().bind(selectedCellId);
         originalCellValueTextField.textProperty().bindBidirectional(selectedCellOriginalValue);
+        originalCellValueTextField.disableProperty().bind(isUserWriter.not());
         lastCellVersionLabel.textProperty().bind(Bindings.concat("Last Cell Version: ", selectedCellLastVersion));
         updatedByLabel.textProperty().bind(Bindings.concat("Updated by: ", selectedUpdatedByName));
 
@@ -80,5 +86,9 @@ public class ActionLineModelUI {
 
     public IntegerProperty currentSheetVersionProperty() {
         return currentSheetVersion;
+    }
+
+    public BooleanProperty isUserWriterProperty() {
+        return isUserWriter;
     }
 }
