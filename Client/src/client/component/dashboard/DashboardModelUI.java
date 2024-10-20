@@ -1,13 +1,15 @@
 package client.component.dashboard;
 
-import javafx.beans.property.SimpleStringProperty;
-import javafx.beans.property.StringProperty;
+import javafx.beans.property.*;
 import javafx.collections.FXCollections;
 import javafx.collections.MapChangeListener;
 import javafx.collections.ObservableList;
 import javafx.collections.ObservableMap;
+import javafx.scene.control.Button;
 import javafx.scene.control.TableColumn;
 import javafx.scene.control.TableView;
+
+import java.util.List;
 
 public class DashboardModelUI {
     private final ObservableMap<SimpleStringProperty, SheetNameData> sheetNameProperty2itsData;
@@ -16,9 +18,14 @@ public class DashboardModelUI {
     private final ObservableMap<SimpleStringProperty, PermissionUsernameData> permissionUsernameProperty2itsData;
     private final ObservableList<PermissionsTableEntry> permissionsTableData;
 
+    private final BooleanProperty isSheetClicked;
+    private final BooleanProperty isPermissionClicked;
     private final StringProperty selectedSheetName;
+    private final BooleanProperty isOwner;
+    private final BooleanProperty isAllowedToViewSheet;
 
-    public DashboardModelUI(TableView<SheetsTableEntry> showSheetsTable,
+    public DashboardModelUI(Button viewSheetButton, Button requestPermissionButton, List<Button> ownerOnlyButtons,
+                            TableView<SheetsTableEntry> showSheetsTable,
                             TableColumn<SheetsTableEntry, String> sheetNameColumn,
                             TableColumn<SheetsTableEntry, String> ownerUsernameColumn,
                             TableColumn<SheetsTableEntry, String> sheetSizeColumn,
@@ -29,7 +36,22 @@ public class DashboardModelUI {
                             TableColumn<PermissionsTableEntry, String> permissionTypeColumn,
                             TableColumn<PermissionsTableEntry, String> approvalStateColumn) {
 
+        isSheetClicked = new SimpleBooleanProperty(false);
+        isPermissionClicked = new SimpleBooleanProperty(false);
         selectedSheetName = new SimpleStringProperty();
+        isOwner = new SimpleBooleanProperty(false);
+        isAllowedToViewSheet = new SimpleBooleanProperty(false);
+
+        // view sheet when click on sheet entry and has a view sheet permission (write/reader)
+        viewSheetButton.disableProperty().bind(isSheetClicked.not().or(isAllowedToViewSheet.not()));
+
+        // can request a permission only when a sheet entry is selected
+        requestPermissionButton.disableProperty().bind(isSheetClicked.not().or(isOwner));
+
+        // can accept/reject permissions only if you are the owner of the sheet you selected
+        for (Button button : ownerOnlyButtons) {
+            button.disableProperty().bind(isOwner.not().or(isPermissionClicked.not()));
+        }
 
         sheetNameProperty2itsData = FXCollections.observableHashMap();
         sheetsTableData = FXCollections.observableArrayList();
@@ -145,7 +167,8 @@ public class DashboardModelUI {
                         new PermissionsTableEntry(
                                 usernameProperty.get(),
                                 permissionUsernameData.permissionType.get(),
-                                permissionUsernameData.approvalState.get()
+                                permissionUsernameData.approvalState.get(),
+                                permissionUsernameData.requestUid.get()
                         )
                 );
             }
@@ -156,10 +179,12 @@ public class DashboardModelUI {
     public static class PermissionUsernameData {
         private final StringProperty permissionType;
         private final StringProperty approvalState;
+        private final StringProperty requestUid;
 
-        public PermissionUsernameData(String permissionType, String approvalState) {
+        public PermissionUsernameData(String permissionType, String approvalState, String requestUid) {
             this.permissionType = new SimpleStringProperty(permissionType);
             this.approvalState = new SimpleStringProperty(approvalState);
+            this.requestUid = new SimpleStringProperty(requestUid);
         }
     }
 
@@ -167,11 +192,13 @@ public class DashboardModelUI {
         private final StringProperty username;
         private final StringProperty permissionType;
         private final StringProperty approvalState;
+        private final StringProperty requestUid;
 
-        public PermissionsTableEntry(String username, String permissionType, String approvalState) {
+        public PermissionsTableEntry(String username, String permissionType, String approvalState, String requestUid) {
             this.username = new SimpleStringProperty(username);
             this.permissionType = new SimpleStringProperty(permissionType);
             this.approvalState = new SimpleStringProperty(approvalState);
+            this.requestUid = new SimpleStringProperty(requestUid);
         }
 
         public StringProperty usernameProperty() {
@@ -185,14 +212,34 @@ public class DashboardModelUI {
         public StringProperty approvalStateProperty() {
             return approvalState;
         }
+
+        public StringProperty requestUidProperty() {
+            return requestUid;
+        }
+    }
+
+    public BooleanProperty isSheetClickedProperty() {
+        return isSheetClicked;
+    }
+
+    public BooleanProperty isPermissionClicked() {
+        return isPermissionClicked;
     }
 
     public StringProperty selectedSheetNameProperty() {
         return selectedSheetName;
     }
 
-    public void addSheetUserPermission(String username, String permissionType, String approvalState) {
+    public BooleanProperty isOwnerProperty() {
+        return isOwner;
+    }
+
+    public BooleanProperty isAllowedToViewSheetProperty() {
+        return isAllowedToViewSheet;
+    }
+
+    public void addSheetUserPermission(String username, String permissionType, String approvalState, String requestUid) {
         permissionUsernameProperty2itsData.put(new SimpleStringProperty(username),
-                new PermissionUsernameData(permissionType, approvalState));
+                new PermissionUsernameData(permissionType, approvalState, requestUid));
     }
 }

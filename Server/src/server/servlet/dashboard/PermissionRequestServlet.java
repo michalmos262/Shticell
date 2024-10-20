@@ -92,14 +92,16 @@ public class PermissionRequestServlet extends HttpServlet {
                     String sheetName = updatePermissionRequestBody.getSheetName();
                     String newApprovalStatus = updatePermissionRequestBody.getNewApprovalStatus();
 
-                    PermissionRequest updatedPermissionRequest = userManager.setPermissionRequestApprovalStatus(owner, requestUid, sheetName,
-                            ApprovalStatus.valueOf(newApprovalStatus));
+                    PermissionRequest updatedPermissionRequest = userManager
+                            .setPermissionRequestApprovalStatus(owner, requestUid, sheetName,
+                                    ApprovalStatus.valueOf(newApprovalStatus));
 
                     PermissionAndApprovalStatus permissionAndApprovalStatus =
                             new PermissionAndApprovalStatus(updatedPermissionRequest.getPermission(),
                                     ApprovalStatus.valueOf(newApprovalStatus));
 
-                    engine.setUserApprovalStatusInSheet(sheetName, updatedPermissionRequest.getRequestUsername(), permissionAndApprovalStatus);
+                    engine.setUserApprovalStatusInSheet(sheetName, updatedPermissionRequest.getRequestUsername(),
+                            permissionAndApprovalStatus);
 
                     if (ApprovalStatus.valueOf(newApprovalStatus) == ApprovalStatus.APPROVED) {
                         String requestUsername = updatedPermissionRequest.getRequestUsername();

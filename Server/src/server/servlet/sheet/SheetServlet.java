@@ -104,6 +104,8 @@ public class SheetServlet extends HttpServlet {
 
                     userManager.addPermissionRequestToOwner(currentUsername, fileMetadata.getSheetName(),
                             new PermissionRequest(currentUsername, UserPermission.OWNER, ApprovalStatus.APPROVED));
+
+                    engine.addUserPermissionToSheet(fileMetadata.getSheetName(), currentUsername, UserPermission.OWNER);
                 }
                 response.setStatus(HttpServletResponse.SC_OK);
                 String json = GSON_INSTANCE.toJson(ownerFileMetadata);

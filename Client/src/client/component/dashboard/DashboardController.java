@@ -1,10 +1,15 @@
 package client.component.dashboard;
 
+import client.component.alert.AlertsHandler;
 import client.component.dashboard.loadfile.LoadFileController;
 import client.component.dashboard.requestpermission.RequestPermissionController;
 import client.component.mainapp.MainAppController;
+import client.util.http.HttpClientUtil;
+import com.google.gson.reflect.TypeToken;
+import dto.user.ApprovalStatus;
 import dto.user.PermissionRequestDto;
 import dto.user.SheetNamesAndFileMetadatasDto;
+import dto.user.UserPermission;
 import javafx.application.Platform;
 import javafx.collections.ObservableList;
 import javafx.event.ActionEvent;
@@ -20,13 +25,13 @@ import javafx.scene.layout.GridPane;
 import dto.sheet.FileMetadata;
 import javafx.stage.Modality;
 import javafx.stage.Stage;
+import okhttp3.*;
+import serversdk.request.body.UpdatePermissionRequestBody;
 
 import java.io.Closeable;
 import java.io.IOException;
-import java.util.List;
-import java.util.Map;
-import java.util.Timer;
-import java.util.TimerTask;
+import java.lang.reflect.Type;
+import java.util.*;
 
 import static client.resources.CommonResourcesPaths.*;
 
@@ -53,6 +58,7 @@ public class DashboardController implements Closeable {
     private DashboardModelUI modelUi;
     private MainAppController mainAppController;
     private DashboardModelUI.SheetsTableEntry selectedSheetTableEntry;
+    private DashboardModelUI.PermissionsTableEntry selectedPermissionsTableEntry;
     private TimerTask sheetsTableRefresher;
     private TimerTask sheetUserPermissionsRefresher;
     private Timer showAvailableSheetsTimer;
@@ -63,7 +69,13 @@ public class DashboardController implements Closeable {
         if (loadFileComponent != null) {
             loadFileComponentController.setDashboardController(this);
         }
-        modelUi = new DashboardModelUI(availableSheetsTableView,
+
+        List<Button> ownerOnlyButtons = new LinkedList<>();
+        ownerOnlyButtons.add(acceptPermissionRequestButton);
+        ownerOnlyButtons.add(rejectPermissionRequestButton);
+
+        modelUi = new DashboardModelUI(viewSheetButton, requestPermissionButton, ownerOnlyButtons,
+                availableSheetsTableView,
                 sheetNameColumn, ownerUsernameColumn, sheetSizeColumn, yourPermissionTypeColumn,
                 permissionsTableView, usernameColumn, permissionTypeColumn, approvalStateColumn);
     }
@@ -75,7 +87,34 @@ public class DashboardController implements Closeable {
     @FXML
     void availableSheetOnMouseClickedListener(MouseEvent event) {
         selectedSheetTableEntry = availableSheetsTableView.getSelectionModel().getSelectedItem();
-        modelUi.selectedSheetNameProperty().set(selectedSheetTableEntry.sheetNameProperty().getValue());
+        changeSheetButtonsDisability();
+    }
+
+    private void changeSheetButtonsDisability() {
+        if (selectedSheetTableEntry != null) {
+            modelUi.isSheetClickedProperty().set(true);
+            modelUi.isPermissionClicked().set(false);
+
+            boolean isSheetOwner = selectedSheetTableEntry.ownerNameProperty().getValue()
+                    .equals(mainAppController.getLoggedInUsername());
+
+            boolean isAllowedToViewSheet = !selectedSheetTableEntry.yourPermissionTypeProperty().getValue()
+                    .equals(UserPermission.NONE.name());
+
+            modelUi.isOwnerProperty().set(isSheetOwner);
+            modelUi.isAllowedToViewSheetProperty().set(isAllowedToViewSheet);
+            modelUi.selectedSheetNameProperty().set(selectedSheetTableEntry.sheetNameProperty().getValue());
+        }
+    }
+
+    @FXML
+    void permissionsTableViewOnMouseClicked(MouseEvent event) {
+        if (selectedSheetTableEntry != null) {
+            selectedPermissionsTableEntry = permissionsTableView.getSelectionModel().getSelectedItem();
+            if (selectedPermissionsTableEntry != null) {
+                modelUi.isPermissionClicked().set(true);
+            }
+        }
     }
 
     @FXML
@@ -86,21 +125,60 @@ public class DashboardController implements Closeable {
     }
 
     @FXML
-    public void acceptPermissionRequestButtonListener(ActionEvent actionEvent) {
-        // disable from accepting a permission request if the sheet owner is not me
-        if (selectedSheetTableEntry != null && selectedSheetTableEntry.ownerNameProperty().getValue()
-                .equals(mainAppController.getLoggedInUsername())) {
-
-
-        }
+    public void acceptPermissionRequestButtonListener(ActionEvent actionEvent) throws IOException {
+        changePermissionRequestStatus(ApprovalStatus.APPROVED);
     }
 
     @FXML
-    public void rejectPermissionRequestButtonListener(ActionEvent actionEvent) {
-        // disable from rejecting a permission request if the sheet owner is not me
-        if (selectedSheetTableEntry != null && selectedSheetTableEntry.ownerNameProperty().getValue()
+    public void rejectPermissionRequestButtonListener(ActionEvent actionEvent) throws IOException {
+        changePermissionRequestStatus(ApprovalStatus.REJECTED);
+    }
+
+    private void changePermissionRequestStatus(ApprovalStatus approvalStatus) throws IOException {
+        // disable from accepting a permission request if the sheet owner is not me
+        if (selectedPermissionsTableEntry != null && selectedSheetTableEntry.ownerNameProperty().getValue()
                 .equals(mainAppController.getLoggedInUsername())) {
 
+            Request sheetPermissionRequest = HttpClientUtil.getSheetPermissionRequest(
+                    selectedSheetTableEntry.sheetNameProperty().getValue()
+            );
+
+            Response sheetPermissionResponse = HttpClientUtil.HTTP_CLIENT.newCall(sheetPermissionRequest).execute();
+            String responseBody = sheetPermissionResponse.body().string();
+            if (sheetPermissionResponse.isSuccessful()) {
+                Type listType = new TypeToken<List<PermissionRequestDto>>(){}.getType();
+                List<PermissionRequestDto> permissionRequests = GSON_INSTANCE.fromJson(responseBody, listType);
+
+                PermissionRequestDto permissionRequest = permissionRequests.stream().filter((req) ->
+                        req.getRequestUid().equals(selectedPermissionsTableEntry.requestUidProperty().getValue()))
+                        .findFirst().orElse(null);
+
+                if (permissionRequest != null) {
+                    String acceptRejectPermissionRequestBodyJson = GSON_INSTANCE.toJson(new UpdatePermissionRequestBody(
+                            permissionRequest.getRequestUid(), selectedSheetTableEntry.sheetNameProperty().getValue(),
+                            approvalStatus.name()
+                    ));
+
+                    MediaType mediaType = MediaType.get(JSON_MEDIA_TYPE);
+                    RequestBody acceptPermissionRequestBody = RequestBody.create(acceptRejectPermissionRequestBodyJson, mediaType);
+
+                    Request acceptRejectPermissionRequest = new Request.Builder()
+                            .url(PERMISSION_REQUEST_ENDPOINT)
+                            .put(acceptPermissionRequestBody)
+                            .build();
+
+                    Response approvePermissionResponse = HttpClientUtil.HTTP_CLIENT.newCall(acceptRejectPermissionRequest).execute();
+                    if (approvePermissionResponse.isSuccessful()) {
+                        AlertsHandler.HandleOkAlert("Permission request " +
+                                approvalStatus.name().toLowerCase() + " successfully!");
+                        modelUi.isPermissionClicked().set(false);
+                    } else {
+                        System.out.println("Error: " + approvePermissionResponse.body().string());
+                    }
+                }
+            } else {
+                System.out.println("Error: " + responseBody);
+            }
         }
     }
 
@@ -130,22 +208,23 @@ public class DashboardController implements Closeable {
 
     private void updateSheetsTable(SheetNamesAndFileMetadatasDto sheetNamesAndFileMetadatasDto) {
         Platform.runLater(() -> {
+            int rowIndex = availableSheetsTableView.getItems().indexOf(selectedSheetTableEntry);
             ObservableList<DashboardModelUI.SheetsTableEntry> items = availableSheetsTableView.getItems();
             items.clear();
             for (Map.Entry<String, FileMetadata> username2fileMetadataEntry: sheetNamesAndFileMetadatasDto.getSheetName2fileMetadata().entrySet()) {
                 FileMetadata fileMetadata = username2fileMetadataEntry.getValue();
                 modelUi.addSheet(fileMetadata.getSheetName(), fileMetadata.getOwner(), fileMetadata.getSheetSize(), fileMetadata.getYourPermission());
             }
+            clickOnLastClickedSheet(rowIndex);
         });
     }
 
-    private void clickOnLastClickedSheet() {
-        Platform.runLater(() -> {
-            int rowIndex = availableSheetsTableView.getItems().indexOf(selectedSheetTableEntry);
-            if (rowIndex >= 0) {
-                availableSheetsTableView.getSelectionModel().select(rowIndex);
-            }
-        });
+    private void clickOnLastClickedSheet(int rowIndex) {
+        if (rowIndex >= 0) {
+            availableSheetsTableView.getSelectionModel().select(rowIndex);
+            selectedSheetTableEntry = availableSheetsTableView.getItems().get(rowIndex);
+        }
+        changeSheetButtonsDisability();
     }
 
     private void updateSheetPermissionsTable(List<PermissionRequestDto> permissionRequests) {
@@ -155,15 +234,15 @@ public class DashboardController implements Closeable {
             for (PermissionRequestDto permissionRequest: permissionRequests) {
                 modelUi.addSheetUserPermission(permissionRequest.getRequestUsername(),
                         permissionRequest.getPermission().name(),
-                        permissionRequest.getCurrentApprovalStatus().name());
+                        permissionRequest.getCurrentApprovalStatus().name(),
+                        permissionRequest.getRequestUid());
             }
         });
     }
 
     private void startSheetsTableRefresher() {
         sheetsTableRefresher = new AvailableSheetsTableRefresher(
-                this::updateSheetsTable,
-                this::clickOnLastClickedSheet
+                this::updateSheetsTable
         );
         showAvailableSheetsTimer = new Timer();
         showAvailableSheetsTimer.schedule(sheetsTableRefresher, REFRESH_RATE, REFRESH_RATE);

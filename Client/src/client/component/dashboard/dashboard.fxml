@@ -40,7 +40,7 @@
                   <Insets />
               </GridPane.margin>
            </TableView>
-           <TableView fx:id="permissionsTableView" prefHeight="283.0" prefWidth="577.0" GridPane.rowIndex="3">
+           <TableView fx:id="permissionsTableView" onMouseClicked="#permissionsTableViewOnMouseClicked" prefHeight="283.0" prefWidth="577.0" GridPane.rowIndex="3">
                <columns>
                    <TableColumn fx:id="usernameColumn" prefWidth="357.1999816894531" text="Username" />
                    <TableColumn fx:id="permissionTypeColumn" minWidth="1.600006103515625" prefWidth="399.1999206542969" text="Permission Type" />

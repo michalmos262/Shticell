@@ -7,6 +7,7 @@ import java.util.function.Consumer;
 
 import static client.resources.CommonResourcesPaths.*;
 import static serversdk.request.parameter.RequestParameters.CELL_POSITION;
+import static serversdk.request.parameter.RequestParameters.SHEET_NAME;
 
 public class HttpClientUtil {
 
@@ -81,6 +82,19 @@ public class HttpClientUtil {
     public static Request getCurrentSheet() {
         return new Request.Builder()
                 .url(SHEET_ENDPOINT)
+                .build();
+    }
+
+    public static Request getSheetPermissionRequest(String sheetName) {
+        String url = HttpUrl
+                .parse(PERMISSION_REQUEST_ENDPOINT)
+                .newBuilder()
+                .addQueryParameter(SHEET_NAME, sheetName)
+                .build()
+                .toString();
+
+        return new Request.Builder()
+                .url(url)
                 .build();
     }
 
