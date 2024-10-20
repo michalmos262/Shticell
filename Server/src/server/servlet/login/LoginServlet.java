@@ -41,15 +41,21 @@ public class LoginServlet extends HttpServlet {
                     username = username.trim();
                     synchronized (this) {
                         //add the new user to the users list
-                        userManager.addUser(username);
-                        request.getSession(true).setAttribute(USERNAME, username);
-                        response.setStatus(HttpServletResponse.SC_OK);
+                        if (!userManager.isUserExists(username)) {
+                            userManager.addUser(username);
+                            request.getSession(true).setAttribute(USERNAME, username);
+                            response.setStatus(HttpServletResponse.SC_OK);
 
-                        Engine engine = ServletUtils.getEngineInstance(getServletContext());
-                        List<FileMetadata> fileMetadataList = engine.getSheetFilesMetadata();
+                            Engine engine = ServletUtils.getEngineInstance(getServletContext());
+                            List<FileMetadata> fileMetadataList = engine.getSheetFilesMetadata();
 
-                        for (FileMetadata fileMetadata : fileMetadataList) {
-                            userManager.getUserSheetPermissions(username).setSheetNameAndFileMetadata(fileMetadata);
+                            for (FileMetadata fileMetadata : fileMetadataList) {
+                                userManager.getUserSheetPermissions(username).setSheetNameAndFileMetadata(fileMetadata);
+                            }
+                        } else {
+                            userManager.loginUser(username);
+                            request.getSession(true).setAttribute(USERNAME, username);
+                            response.setStatus(HttpServletResponse.SC_OK);
                         }
                     }
                 }

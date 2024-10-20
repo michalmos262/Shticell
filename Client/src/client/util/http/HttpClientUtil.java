@@ -1,9 +1,10 @@
 package client.util.http;
 
 import okhttp3.*;
+import org.jetbrains.annotations.NotNull;
 import serversdk.request.body.EditCellBody;
 
-import java.util.function.Consumer;
+import java.io.IOException;
 
 import static client.resources.CommonResourcesPaths.*;
 import static serversdk.request.parameter.RequestParameters.CELL_POSITION;
@@ -17,10 +18,6 @@ public class HttpClientUtil {
                     .cookieJar(simpleCookieManager)
                     .followRedirects(false)
                     .build();
-
-    public static void setCookieManagerLoggingFacility(Consumer<String> logConsumer) {
-        simpleCookieManager.setLogData(logConsumer);
-    }
 
     public static void removeCookiesOf(String domain) {
         simpleCookieManager.removeCookiesOf(domain);
@@ -100,6 +97,21 @@ public class HttpClientUtil {
 
     public static void shutdown() {
         System.out.println("Shutting down HTTP CLIENT");
+        RequestBody emptyBody = FormBody.create(null, new byte[0]);
+
+        HttpClientUtil.runAsyncPost(LOGOUT, emptyBody, new Callback() {
+            @Override
+            public void onFailure(@NotNull Call call, @NotNull IOException e) {
+                System.out.println("Error: " + e.getMessage());
+            }
+
+            @Override
+            public void onResponse(@NotNull Call call, @NotNull Response response) {
+                if (response.isSuccessful() || response.isRedirect()) {
+                    HttpClientUtil.removeCookiesOf(BASE_DOMAIN);
+                }
+            }
+        });
         HTTP_CLIENT.dispatcher().executorService().shutdown();
         HTTP_CLIENT.connectionPool().evictAll();
     }

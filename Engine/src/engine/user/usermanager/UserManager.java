@@ -15,10 +15,12 @@ import java.util.*;
 public class UserManager {
     private final Map<String, SheetNamesAndFileMetadatas> username2sheetNamesAndFileMetadatas;
     private final Map<String, SheetNameAndPermissionRequests> owner2sheetNameAndPermissionRequests;
+    private final Map<String, Boolean> username2isLoggedIn;
 
     public UserManager() {
         username2sheetNamesAndFileMetadatas = new HashMap<>();
         owner2sheetNameAndPermissionRequests = new HashMap<>();
+        username2isLoggedIn = new HashMap<>();
     }
 
     public boolean isUserExists(String username) {
@@ -33,14 +35,32 @@ public class UserManager {
     }
 
     public synchronized void addUser(String username) {
+        // user exists, check if you can log in
         if (isUserExists(username)) {
             throw new UserAlreadyExistsException(username);
         }
         username2sheetNamesAndFileMetadatas.put(username, new SheetNamesAndFileMetadatas());
+        username2isLoggedIn.put(username, true);
     }
 
-    public synchronized void removeUser(String username) {
-        username2sheetNamesAndFileMetadatas.remove(username);
+    public synchronized void loginUser(String username) {
+        // username already logged in
+        if (username2isLoggedIn.get(username)) {
+            throw new UserAlreadyExistsException(username);
+        }
+        // username is not created yet
+        if (!username2sheetNamesAndFileMetadatas.containsKey(username)) {
+            throw new UserDoesNotExistException(username);
+        }
+        // username is not logged in anymore, can log in again
+        username2isLoggedIn.put(username, true);
+    }
+
+    public synchronized void logoutUser(String username) {
+        if (!isUserExists(username)) {
+            throw new UserDoesNotExistException(username);
+        }
+        username2isLoggedIn.put(username, false);
     }
 
     public synchronized SheetNamesAndFileMetadatas getUserSheetPermissions(String username) {
@@ -57,6 +77,10 @@ public class UserManager {
 
     public synchronized Map<String, SheetNamesAndFileMetadatas> getUsername2sheetNamesAndFileMetadatas() {
         return Collections.unmodifiableMap(username2sheetNamesAndFileMetadatas);
+    }
+
+    public synchronized Map<String, Boolean> getUsername2isLoggedIn() {
+        return Collections.unmodifiableMap(username2isLoggedIn);
     }
 
     public synchronized void setUserSheetPermission(String username, String sheetName, String newPermission) {
