@@ -20,22 +20,14 @@ import java.util.Map;
 import static client.resources.CommonResourcesPaths.*;
 
 public class MainAppController implements Closeable {
-    @FXML
-    private Label headingLabel;
-    @FXML
-    private Label loggedInAsLabel;
-    @FXML
-    private SplitPane mainSplitPane;
-    @FXML
-    private AnchorPane contentAnchorPane;
-    @FXML
-    private AnchorPane loginComponent;
-    @FXML
-    private LoginController loginComponentController;
-    @FXML
-    private BorderPane dashboardComponent;
-    @FXML
-    private DashboardController dashboardComponentController;
+    @FXML private Label headingLabel;
+    @FXML private Label loggedInAsLabel;
+    @FXML private SplitPane mainSplitPane;
+    @FXML private AnchorPane contentAnchorPane;
+    @FXML private AnchorPane loginComponent;
+    @FXML private LoginController loginComponentController;
+    @FXML private BorderPane dashboardComponent;
+    @FXML private DashboardController dashboardComponentController;
 
     private MainModelUI modelUi;
     private Map<String, BorderPane> sheetName2Component;
@@ -120,16 +112,22 @@ public class MainAppController implements Closeable {
         modelUi.usernameProperty().set(username);
     }
 
+    public String getLoggedInUsername() {
+        return modelUi.usernameProperty().getValue();
+    }
+
     public void switchToDashboardPage() {
         modelUi.pageHeadingProperty().set("Management Dashboard");
         setMainPanelTo(dashboardComponent);
         dashboardComponentController.setActive();
     }
 
-    public void switchToSheet(String sheetName) {
+    public void switchToSheet(String sheetName, boolean isUserWriter) {
         loadSheetPage(sheetName);
         modelUi.pageHeadingProperty().set("In sheet: " + sheetName);
         setMainPanelTo(sheetName2Component.get(sheetName));
+        sheetName2Controller.get(sheetName).clickOnMoveToNewestVersionButton();
+        sheetName2Controller.get(sheetName).setIsUserWriter(isUserWriter);
         sheetName2Controller.get(sheetName).setActive();
     }
 }

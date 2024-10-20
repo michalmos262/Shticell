@@ -13,6 +13,7 @@ public class CommonResourcesPaths {
     public final static String DASHBOARD_PAGE_FXML_RESOURCE_LOCATION = "/client/component/dashboard/dashboard.fxml";
     public final static String MAIN_SHEET_PAGE_FXML_RESOURCE_LOCATION = "/client/component/sheet/mainsheet/mainSheet.fxml";
     public final static String MAIN_APP_FXML_RESOURCE_LOCATION = "/client/component/mainapp/mainApp.fxml";
+    public final static String REQUEST_SHEET_PERMISSION_RESOURCE_LOCATION = "/client/component/dashboard/requestpermission/requestPermission.fxml";
 
     // Server resources locations
     public final static String BASE_DOMAIN = "localhost";
@@ -24,8 +25,10 @@ public class CommonResourcesPaths {
     public final static String LOGOUT = FULL_SERVER_PATH + "/logout";
 
     public final static String DASHBOARD_ENDPOINT = FULL_SERVER_PATH + "/dashboard";
+    public final static String PERMISSION_REQUEST_ENDPOINT = DASHBOARD_ENDPOINT + "/permission-request";
+
     public final static String USER_ENDPOINT = FULL_SERVER_PATH + "/user";
-    public final static String USER_SHEET_PERMISSIONS_ENDPOINT = USER_ENDPOINT + "/sheet-permissions";
+    public final static String USER_SHEETS_ENDPOINT = USER_ENDPOINT + "/sheets";
 
     public final static String SHEET_ENDPOINT = FULL_SERVER_PATH + "/sheet";
     public final static String DYNAMIC_ANALYSED_ENDPOINT = SHEET_ENDPOINT + "/dynamic-analysed";

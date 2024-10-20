@@ -5,12 +5,11 @@ import javafx.beans.property.SimpleBooleanProperty;
 import javafx.scene.control.Button;
 import javafx.scene.control.Label;
 import javafx.scene.control.ProgressBar;
-import javafx.scene.control.TextField;
 
 public class LoadFileModelUI {
     private final SimpleBooleanProperty isFileLoading;
 
-    public LoadFileModelUI(TextField filePathTextField, Button loadFileButton) {
+    public LoadFileModelUI(Button loadFileButton) {
         isFileLoading = new SimpleBooleanProperty(false);
 
         loadFileButton.disableProperty().bind(isFileLoading);

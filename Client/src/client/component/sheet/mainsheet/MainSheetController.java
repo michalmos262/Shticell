@@ -17,7 +17,6 @@ import javafx.scene.layout.GridPane;
 import javafx.scene.paint.Color;
 import client.component.sheet.command.CommandsController;
 import client.component.sheet.grid.GridController;
-import dto.sheet.RangeDto;
 import okhttp3.HttpUrl;
 import okhttp3.Request;
 import okhttp3.Response;
@@ -25,6 +24,7 @@ import okhttp3.Response;
 import java.io.Closeable;
 import java.io.IOException;
 import java.util.LinkedList;
+import java.util.Timer;
 
 import static client.resources.CommonResourcesPaths.*;
 import static serversdk.request.parameter.RequestParameters.SHEET_VERSION;
@@ -42,6 +42,9 @@ public class MainSheetController implements Closeable {
     @FXML private GridController gridComponentController;
 
     private MainAppController mainAppController;
+    private String sheetName;
+    private MainSheetRefresher mainSheetRefresher;
+    private Timer timer;
 
     @FXML
     void initialize() {
@@ -59,6 +62,7 @@ public class MainSheetController implements Closeable {
     }
 
     public void initComponents(String sheetName) throws IOException {
+        this.sheetName = sheetName;
         gridComponentController.initMainGrid(sheetName);
         actionLineComponentController.initComponent(sheetName);
         commandsComponentController.initComponent(sheetName);
@@ -151,9 +155,19 @@ public class MainSheetController implements Closeable {
         gridComponentController.moveToNewestSheetVersion();
     }
 
+    public void clickOnMoveToNewestVersionButton() {
+        actionLineComponentController.clickOnMoveToNewestVersionButton();
+    }
+
     public void setActive() {
+        startMainSheetRefresher();
         actionLineComponentController.setActive();
         rangesComponentController.setActive();
+    }
+
+    public void setIsUserWriter(boolean isWriter) {
+        actionLineComponentController.setIsUserWriter(isWriter);
+        rangesComponentController.setIsUserWriter(isWriter);
     }
 
     public int getLastSheetVersion() throws IOException {
@@ -175,6 +189,14 @@ public class MainSheetController implements Closeable {
         return actionLineComponentController.getCurrentSheetVersion();
     }
 
+    private void startMainSheetRefresher() {
+        mainSheetRefresher = new MainSheetRefresher(
+                sheetName,
+                this::setIsUserWriter
+        );
+        timer = new Timer();
+        timer.schedule(mainSheetRefresher, REFRESH_RATE, REFRESH_RATE);
+    }
 
     @Override
     public void close() {

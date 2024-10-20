@@ -1,6 +1,6 @@
 package server.servlet.user;
 
-import dto.user.SheetNameAndFileMetadataDto;
+import dto.user.SheetNamesAndFileMetadatasDto;
 import engine.user.usermanager.UserManager;
 import jakarta.servlet.annotation.WebServlet;
 import jakarta.servlet.http.HttpServlet;
@@ -14,18 +14,27 @@ import java.io.IOException;
 
 import static server.constant.Constants.*;
 import static server.constant.Constants.GSON_INSTANCE;
+import static serversdk.request.parameter.RequestParameters.SHEET_NAME;
 
-@WebServlet(name = "UserSheetPermissionsServlet", urlPatterns = "/user/sheet-permissions")
-public class UserSheetPermissionsServlet extends HttpServlet {
+@WebServlet(name = "SheetsServlet", urlPatterns = "/user/sheets")
+public class SheetsServlet extends HttpServlet {
     protected void doGet(HttpServletRequest request, HttpServletResponse response) throws IOException {
         response.setContentType(APPLICATION_JSON);
         try {
+            String json;
             if (SessionUtils.isAuthorized(request, response)) {
                 UserManager userManager = ServletUtils.getUserManager(getServletContext());
-                SheetNameAndFileMetadataDto permissions = userManager.getUserSheetPermissionsDto(
+                SheetNamesAndFileMetadatasDto permissions = userManager.getUserSheetPermissionsDto(
                         SessionUtils.getUsername(request)
                 );
-                String json = GSON_INSTANCE.toJson(permissions);
+
+                String sheetName = request.getParameter(SHEET_NAME);
+                if (sheetName != null) {
+                    json = GSON_INSTANCE.toJson(permissions.getSheetName2fileMetadata().get(sheetName));
+                } else {
+                    json = GSON_INSTANCE.toJson(permissions);
+                }
+
                 response.getWriter().println(json);
             }
         } catch (Exception e) {

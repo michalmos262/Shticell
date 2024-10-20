@@ -21,7 +21,7 @@ import static serversdk.request.parameter.RequestParameters.*;
 
 import java.io.Closeable;
 import java.io.IOException;
-import java.util.LinkedList;
+import java.util.Arrays;
 import java.util.List;
 import java.util.Timer;
 
@@ -61,15 +61,12 @@ public class ActionLineController implements Closeable {
         rowHeightSpinner.setValueFactory(new SpinnerValueFactory.IntegerSpinnerValueFactory(10, 500, 0, 1));
         columnWidthSpinner.setValueFactory(new SpinnerValueFactory.IntegerSpinnerValueFactory(10, 500, 0, 1));
 
-        List<Button> cellButtons = new LinkedList<>();
-        cellButtons.add(updateValueButton);
-        cellButtons.add(backToDefaultDesignButton);
-        cellButtons.add(dynamicAnalysisButton);
+        List<Button> writerOnlyButtons = Arrays.asList(updateValueButton, backToDefaultDesignButton);
 
         defaultCellBackgroundColor = cellBackgroundColorPicker.getValue();
         defaultCellTextColor = cellTextColorPicker.getValue();
 
-        modelUi = new ActionLineModelUI(cellButtons, originalCellValueTextField, selectedCellIdLabel,
+        modelUi = new ActionLineModelUI(dynamicAnalysisButton, writerOnlyButtons, originalCellValueTextField, selectedCellIdLabel,
                 lastCellVersionLabel, updatedByLabel, showSheetVersionSelector, columnTextAlignmentChoiceBox,
                 columnWidthSpinner, rowHeightSpinner, cellBackgroundColorPicker, cellTextColorPicker);
 
@@ -134,8 +131,7 @@ public class ActionLineController implements Closeable {
             System.out.println("Error: " + responseBody);
         }
 
-        // navigates to moveToNewestVersionButtonListener function
-        moveToNewestVersionButton.fire();
+        clickOnMoveToNewestVersionButton();
     }
 
     public int getCurrentSheetVersion() {
@@ -310,13 +306,22 @@ public class ActionLineController implements Closeable {
         }
     }
 
+    public void setIsUserWriter(boolean isWriter) {
+        modelUi.isUserWriterProperty().set(isWriter);
+    }
+
     @FXML
     void moveToNewestVersionButtonListener(ActionEvent event) throws IOException {
-        this.moveToNewestVersionButton.setEffect(null);
+        moveToNewestVersionButton.setEffect(null);
         removeCellClickFocus();
         int newestVersion = mainSheetController.getLastSheetVersion();
         modelUi.currentSheetVersionProperty().set(newestVersion);
         mainSheetController.moveToNewestSheetVersion();
+    }
+
+    public void clickOnMoveToNewestVersionButton() {
+        // navigates to moveToNewestVersionButtonListener function
+        moveToNewestVersionButton.fire();
     }
 
     private void indicateMoveToNewestVersionButton() {

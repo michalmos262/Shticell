@@ -1,54 +1,107 @@
 package engine.user.usermanager;
 
-import dto.user.SheetNameAndFileMetadataDto;
+import dto.sheet.FileMetadata;
+import dto.user.PermissionRequestDto;
+import dto.user.SheetNamesAndFileMetadatasDto;
 import engine.exception.user.UserAlreadyExistsException;
 import engine.exception.user.UserDoesNotExistException;
-import engine.user.permission.SheetNameAndFileMetadata;
+import dto.user.ApprovalStatus;
+import engine.user.permission.PermissionRequest;
+import engine.user.permission.SheetNameAndPermissionRequests;
+import engine.user.permission.SheetNamesAndFileMetadatas;
 
 import java.util.*;
 
 public class UserManager {
-    private final Map<String, SheetNameAndFileMetadata> userName2sheetPermissions;
+    private final Map<String, SheetNamesAndFileMetadatas> username2sheetNamesAndFileMetadatas;
+    private final Map<String, SheetNameAndPermissionRequests> owner2sheetNameAndPermissionRequests;
 
     public UserManager() {
-        userName2sheetPermissions = new HashMap<>();
-    }
-
-    public synchronized void addUser(String username) {
-        if (isUserExists(username)) {
-            throw new UserAlreadyExistsException(username);
-        }
-        userName2sheetPermissions.put(username, new SheetNameAndFileMetadata());
-    }
-
-    public synchronized void removeUser(String username) {
-        userName2sheetPermissions.remove(username);
-    }
-
-    public synchronized SheetNameAndFileMetadata getUserSheetPermissions(String username) {
-        if (!isUserExists(username)) {
-            throw new UserDoesNotExistException(username);
-        }
-        return userName2sheetPermissions.get(username);
-    }
-
-    public synchronized SheetNameAndFileMetadataDto getUserSheetPermissionsDto(String username) {
-        SheetNameAndFileMetadata sheetPermissions = getUserSheetPermissions(username);
-        return new SheetNameAndFileMetadataDto(sheetPermissions.getSheetName2fileMetadata());
-    }
-
-    public synchronized Map<String, SheetNameAndFileMetadata> getUserName2sheetPermissions() {
-        return Collections.unmodifiableMap(userName2sheetPermissions);
+        username2sheetNamesAndFileMetadatas = new HashMap<>();
+        owner2sheetNameAndPermissionRequests = new HashMap<>();
     }
 
     public boolean isUserExists(String username) {
         boolean usernameExists = false;
-        for (String key : userName2sheetPermissions.keySet()) {
+        for (String key : username2sheetNamesAndFileMetadatas.keySet()) {
             if (key.equalsIgnoreCase(username)) {
                 usernameExists = true;
                 break;
             }
         }
         return usernameExists;
+    }
+
+    public synchronized void addUser(String username) {
+        if (isUserExists(username)) {
+            throw new UserAlreadyExistsException(username);
+        }
+        username2sheetNamesAndFileMetadatas.put(username, new SheetNamesAndFileMetadatas());
+    }
+
+    public synchronized void removeUser(String username) {
+        username2sheetNamesAndFileMetadatas.remove(username);
+    }
+
+    public synchronized SheetNamesAndFileMetadatas getUserSheetPermissions(String username) {
+        if (!isUserExists(username)) {
+            throw new UserDoesNotExistException(username);
+        }
+        return username2sheetNamesAndFileMetadatas.get(username);
+    }
+
+    public synchronized SheetNamesAndFileMetadatasDto getUserSheetPermissionsDto(String username) {
+        SheetNamesAndFileMetadatas sheetPermissions = getUserSheetPermissions(username);
+        return new SheetNamesAndFileMetadatasDto(sheetPermissions.getSheetName2fileMetadata());
+    }
+
+    public synchronized Map<String, SheetNamesAndFileMetadatas> getUsername2sheetNamesAndFileMetadatas() {
+        return Collections.unmodifiableMap(username2sheetNamesAndFileMetadatas);
+    }
+
+    public synchronized void setUserSheetPermission(String username, String sheetName, String newPermission) {
+        FileMetadata fileMetadata = getUserSheetPermissions(username).getSheetName2fileMetadata().get(sheetName);
+
+        FileMetadata updatedFileMetadata = new FileMetadata(sheetName, fileMetadata.getOwner(),
+                fileMetadata.getSheetSize(), newPermission);
+
+        getUserSheetPermissions(username).setSheetNameAndFileMetadata(updatedFileMetadata);
+    }
+
+    public synchronized void addPermissionRequestToOwner(String owner, String sheetName, PermissionRequest permissionRequest) {
+        if (!owner2sheetNameAndPermissionRequests.containsKey(owner)) {
+            owner2sheetNameAndPermissionRequests.put(owner, new SheetNameAndPermissionRequests());
+        }
+        owner2sheetNameAndPermissionRequests.get(owner).addPermissionRequest(sheetName, permissionRequest);
+    }
+
+    public synchronized PermissionRequest setPermissionRequestApprovalStatus(String owner, String requestUid, String sheetName, ApprovalStatus newApprovalStatus) {
+        if (!owner2sheetNameAndPermissionRequests.containsKey(owner)) {
+            throw new UserDoesNotExistException(owner);
+        }
+
+        Optional<PermissionRequest> result = owner2sheetNameAndPermissionRequests.get(owner).getPermissionRequests(sheetName).stream()
+                .filter(permissionRequest -> permissionRequest.getRequestUid().equals(requestUid))
+                .findFirst();
+
+        result.ifPresent(permissionRequest -> permissionRequest.setCurrentApprovalStatus(newApprovalStatus));
+
+        return result.orElse(null);
+    }
+
+    public synchronized List<PermissionRequestDto> getPermissionRequestsFromOwner(String owner, String sheetName) {
+        SheetNameAndPermissionRequests sheetNameAndPermissionRequests = owner2sheetNameAndPermissionRequests.get(owner);
+        if (sheetNameAndPermissionRequests != null) {
+            List<PermissionRequest> permissionRequests = sheetNameAndPermissionRequests.getPermissionRequests(sheetName);
+            List<PermissionRequestDto> permissionRequestsDto = new LinkedList<>();
+            for (PermissionRequest permissionRequest : permissionRequests) {
+                permissionRequestsDto.add(new PermissionRequestDto(permissionRequest.getRequestUsername(),
+                        permissionRequest.getPermission(), permissionRequest.getCurrentApprovalStatus(),
+                        permissionRequest.getRequestUid()
+                ));
+            }
+            return permissionRequestsDto;
+        }
+        return null;
     }
 }

@@ -16,10 +16,10 @@ import static client.resources.CommonResourcesPaths.*;
 
 public class ActionLineRefresher extends TimerTask {
     private final IntegerProperty currentSheetVersion;
-    private final Runnable indicateButton;
+    private final Runnable indicateButtonRunnable;
 
-    public ActionLineRefresher(Runnable indicateButton, IntegerProperty currentSheetVersion) {
-        this.indicateButton = indicateButton;
+    public ActionLineRefresher(Runnable indicateButtonRunnable, IntegerProperty currentSheetVersion) {
+        this.indicateButtonRunnable = indicateButtonRunnable;
         this.currentSheetVersion = currentSheetVersion;
     }
 
@@ -39,7 +39,7 @@ public class ActionLineRefresher extends TimerTask {
                     int currentVersion = sheetDto.getVersion();
                     if (currentSheetVersion.getValue() < currentVersion) {
                         // If the current version is different, update the last version
-                        Platform.runLater(indicateButton);
+                        Platform.runLater(indicateButtonRunnable);
                     }
                 } else {
                     System.out.println("Error: " + response.body().string());

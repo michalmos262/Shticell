@@ -2,7 +2,6 @@ package server.servlet.login;
 
 import dto.sheet.FileMetadata;
 import engine.api.Engine;
-import engine.user.permission.UserPermission;
 import engine.user.usermanager.UserManager;
 import jakarta.servlet.annotation.WebServlet;
 import jakarta.servlet.http.HttpServlet;

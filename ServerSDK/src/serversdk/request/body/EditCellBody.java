@@ -1,9 +1,9 @@
 package serversdk.request.body;
 
-public class CellBody {
+public class EditCellBody {
     private final String originalValue;
 
-    public CellBody(String originalValue) {
+    public EditCellBody(String originalValue) {
         this.originalValue = originalValue;
     }
 

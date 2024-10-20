@@ -7,6 +7,9 @@ import engine.entity.sheet.api.Sheet;
 import engine.entity.sheet.impl.SheetImpl;
 import engine.exception.cell.CellPositionOutOfSheetBoundsException;
 import engine.exception.sheet.SheetVersionDoesNotExistException;
+import dto.user.ApprovalStatus;
+import engine.user.permission.PermissionAndApprovalStatus;
+import dto.user.UserPermission;
 
 import java.io.Serializable;
 import java.util.LinkedHashMap;
@@ -21,14 +24,16 @@ public class SheetManager implements Serializable {
     private final SheetDimension sheetDimension;
     private final RangesManager rangesManager;
     private final String ownerName;
+    private final SheetPermissions sheetPermissions;
 
     public SheetManager(SheetDimension sheetDimension, String ownerName) {
-        currentVersion = 0;
-        version2sheet = new LinkedHashMap<>();
-        version2sheet.put(1, new SheetImpl(this));
+        this.currentVersion = 0;
+        this.version2sheet = new LinkedHashMap<>();
+        this.version2sheet.put(1, new SheetImpl(this));
         this.sheetDimension = sheetDimension;
-        rangesManager = new RangesManager();
+        this.rangesManager = new RangesManager();
         this.ownerName = ownerName;
+        this.sheetPermissions = new SheetPermissions();
     }
 
     public int getCurrentVersion() {
@@ -75,6 +80,18 @@ public class SheetManager implements Serializable {
         validatePositionInSheetBounds(toPosition);
 
         return rangesManager.createRange(name, fromPosition, toPosition);
+    }
+
+    public void addUserPermission(String username, UserPermission permission) {
+        sheetPermissions.addUserPermission(username, new PermissionAndApprovalStatus(permission, ApprovalStatus.PENDING));
+    }
+
+    public void setUserPermissionApprovalStatus(String username, PermissionAndApprovalStatus permissionAndApprovalStatus) {
+        sheetPermissions.setUserApprovalStatus(username, permissionAndApprovalStatus);
+    }
+
+    public SheetPermissions getSheetPermissions() {
+        return sheetPermissions;
     }
 
     @Override

@@ -1,6 +1,7 @@
 package client.component.sheet.range;
 
 import dto.sheet.RangeDto;
+import javafx.beans.property.BooleanProperty;
 import javafx.beans.property.SimpleBooleanProperty;
 import javafx.beans.property.SimpleStringProperty;
 import javafx.collections.FXCollections;
@@ -15,14 +16,20 @@ public class RangeModelUI {
     private final ObservableMap<SimpleStringProperty, RangeDto> nameProperty2range;
     private final ObservableList<RangeTableEntry> rangesTableData;
     private final SimpleBooleanProperty isRangeAdded;
+    private final BooleanProperty isUserWriter;
 
     public RangeModelUI(TableView<RangeTableEntry> showRangesTable, TableColumn<RangeTableEntry, String> nameColumn,
                         TableColumn<RangeTableEntry, String> rangeColumn, ChoiceBox<String> deleteRangeNameChoiceBox,
-                        List<TextField> textFields) {
+                        List<TextField> textFields, List<TitledPane> writeOnlyTitledPanes) {
 
+        isUserWriter = new SimpleBooleanProperty(false);
         isRangeAdded = new SimpleBooleanProperty(false);
         nameProperty2range = FXCollections.observableHashMap();
         rangesTableData = FXCollections.observableArrayList();
+
+        for (TitledPane titledPane : writeOnlyTitledPanes) {
+            titledPane.disableProperty().bind(isUserWriter.not());
+        }
 
         bindTableView(showRangesTable, nameColumn, rangeColumn, deleteRangeNameChoiceBox);
         bindTextFields(textFields);
@@ -70,6 +77,10 @@ public class RangeModelUI {
 
     public SimpleBooleanProperty isRangeAddedProperty() {
         return isRangeAdded;
+    }
+
+    public BooleanProperty isUserWriterProperty() {
+        return isUserWriter;
     }
 
     public void addRange(String name, RangeDto range) {
