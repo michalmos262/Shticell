@@ -27,7 +27,7 @@ public class AvailableSheetsTableRefresher extends TimerTask {
         HttpClientUtil.runAsyncGet(USER_SHEETS_ENDPOINT, new Callback() {
             @Override
             public void onFailure(@NotNull Call call, @NotNull IOException e) {
-                System.out.println("Error: " + e.getMessage());
+                System.out.println("Error refreshing available sheets table: " + e.getMessage());
             }
 
             @Override
@@ -41,7 +41,7 @@ public class AvailableSheetsTableRefresher extends TimerTask {
                         sheetNameAndFileMetadataConsumer.accept(sheetNamesAndFileMetadatasDto);
                     }
                 } else {
-                    System.out.println("Error: " + response.body().string());
+                    System.out.println("Error refreshing available sheets table: " + response.body().string());
                 }
             }
         });

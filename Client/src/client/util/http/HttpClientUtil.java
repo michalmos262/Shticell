@@ -63,12 +63,6 @@ public class HttpClientUtil {
         call.enqueue(callback);
     }
 
-    public static Request getCurrentSheet() {
-        return new Request.Builder()
-                .url(SHEET_ENDPOINT)
-                .build();
-    }
-
     public static void shutdown() {
         System.out.println("Shutting down HTTP CLIENT");
         RequestBody emptyBody = FormBody.create(null, new byte[0]);
@@ -76,7 +70,7 @@ public class HttpClientUtil {
         HttpClientUtil.runAsyncPost(LOGOUT, emptyBody, new Callback() {
             @Override
             public void onFailure(@NotNull Call call, @NotNull IOException e) {
-                System.out.println("Error: " + e.getMessage());
+                System.out.println("Error shutting down: " + e.getMessage());
             }
 
             @Override

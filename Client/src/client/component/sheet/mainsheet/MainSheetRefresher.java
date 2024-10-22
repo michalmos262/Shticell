@@ -17,8 +17,8 @@ import static client.resources.CommonResourcesPaths.*;
 import static serversdk.request.parameter.RequestParameters.SHEET_NAME;
 
 public class MainSheetRefresher extends TimerTask {
-    private String sheetName;
-    private Consumer<Boolean> setIsWriterConsumer;
+    private final String sheetName;
+    private final Consumer<Boolean> setIsWriterConsumer;
     private String yourLastSheetPermissionType;
 
     public MainSheetRefresher(String sheetName, Consumer<Boolean> setIsWriterConsumer) {
@@ -38,7 +38,7 @@ public class MainSheetRefresher extends TimerTask {
         HttpClientUtil.runAsyncGet(url, new Callback() {
             @Override
             public void onFailure(@NotNull Call call, @NotNull IOException e) {
-                System.out.println("Error: " + e.getMessage());
+                System.out.println("Error refreshing main sheet: " + e.getMessage());
             }
 
             @Override
@@ -57,7 +57,7 @@ public class MainSheetRefresher extends TimerTask {
                         setIsWriterConsumer.accept(isWriter);
                     }
                 } else {
-                    System.out.println("Error: " + response.body().string());
+                    System.out.println("Error refreshing main sheet: " + response.body().string());
                 }
             }
         });

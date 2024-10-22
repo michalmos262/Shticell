@@ -28,7 +28,7 @@ public class ActionLineRefresher extends TimerTask {
         HttpClientUtil.runAsyncGet(SHEET_ENDPOINT, new Callback() {
             @Override
             public void onFailure(@NotNull Call call, @NotNull IOException e) {
-                System.out.println("Error: " + e.getMessage());
+                System.out.println("Error refreshing action line: " + e.getMessage());
             }
 
             @Override
@@ -42,7 +42,7 @@ public class ActionLineRefresher extends TimerTask {
                         Platform.runLater(indicateButtonRunnable);
                     }
                 } else {
-                    System.out.println("Error: " + response.body().string());
+                    System.out.println("Error refreshing action line: " + response.body().string());
                 }
             }
         });

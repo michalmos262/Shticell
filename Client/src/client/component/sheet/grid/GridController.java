@@ -31,7 +31,6 @@ import static client.resources.CommonResourcesPaths.*;
 import static serversdk.request.parameter.RequestParameters.*;
 
 public class GridController {
-    @FXML private ScrollPane scrollPane;
     @FXML private GridPane mainGridPane;
 
     private MainSheetController mainSheetController;
@@ -73,7 +72,7 @@ public class GridController {
         HttpClientUtil.runAsyncGet(url, new Callback() {
             @Override
             public void onFailure(@NotNull Call call, @NotNull IOException e) {
-                System.out.println("Error: " + e.getMessage());
+                System.out.println("Error on init main grid: " + e.getMessage());
             }
 
             @Override
@@ -100,7 +99,7 @@ public class GridController {
                         }
                     });
                 } else {
-                    Platform.runLater(() -> System.out.println("Error: " + responseBody));
+                    Platform.runLater(() -> System.out.println("Error on init main grid: " + responseBody));
                 }
             }
         });
@@ -182,7 +181,7 @@ public class GridController {
                 }
             }
         } else {
-            System.out.println("Error: " + responseBody);
+            System.out.println("Error setting main grid cells: " + responseBody);
         }
     }
 
@@ -193,7 +192,7 @@ public class GridController {
             CellDto cellDto = mainSheetController.cellClicked(clickedLabel);
             setClickedCellColors(cellDto);
         } catch (Exception e) {
-            System.out.println("Error: " + e.getMessage());
+            System.out.println("Error handling cell click: " + e.getMessage());
         }
     }
 
@@ -271,7 +270,7 @@ public class GridController {
         HttpClientUtil.runAsyncGet(url, new Callback() {
             @Override
             public void onFailure(@NotNull Call call, @NotNull IOException e) {
-                System.out.println("Error: " + e.getMessage());
+                System.out.println("Error getting range cells to paint: " + e.getMessage());
                 Platform.runLater(() -> callback.accept(null));
             }
 
@@ -290,7 +289,7 @@ public class GridController {
                         callback.accept(rangeCellsLabels);
                     });
                 } else {
-                    System.out.println("Error: " + responseBody);
+                    System.out.println("Error getting range cells to paint: " + responseBody);
                     Platform.runLater(() -> callback.accept(null));
                 }
             }
@@ -335,7 +334,7 @@ public class GridController {
                     CellDto influencedCell = GSON_INSTANCE.fromJson(responseBody, CellDto.class);
                     visibleValue.setValue(influencedCell.getEffectiveValueForDisplay().toString());
                 } else {
-                    System.out.println("Error: " + responseBody);
+                    System.out.println("Error updating cell on grid: " + responseBody);
                 }
             } catch (Exception e) {
                 try {
@@ -393,7 +392,7 @@ public class GridController {
         return false;
     }
 
-    public void showSortedSheet(LinkedList<RowDto> sortedRows, String fromPositionStr, String toPositionStr) throws IOException {
+    public void showSortedSheet(LinkedList<RowDto> sortedRows, String fromPositionStr, String toPositionStr) {
         Dialog<String> dialog = new Dialog<>();
         dialog.setTitle("Show sorted sheet");
 
@@ -408,32 +407,40 @@ public class GridController {
                 .build()
                 .toString();
 
-        Request request = new Request.Builder()
-                .url(url)
-                .build();
-
-        Response response = HttpClientUtil.HTTP_CLIENT.newCall(request).execute();
-        if (response.isSuccessful()) {
-            String responseBody = response.body().string();
-            RangeDto rangeToSort = GSON_INSTANCE.fromJson(responseBody, RangeDto.class);
-            Iterator<CellPositionDto> positionInRangeIterator = rangeToSort.getIncludedPositions().iterator();
-
-            for (RowDto row : sortedRows) {
-                for (Map.Entry<String, CellDto> column2cell : row.getCells().entrySet()) {
-                    CellPositionDto positionInRange = positionInRangeIterator.next();
-                    while (positionInRangeIterator.hasNext() && !isPositionInSortedRow(sortedRows, positionInRange)) {
-                        positionInRange = positionInRangeIterator.next();
-                    }
-                    Label cellInOriginalGrid = (Label) mainGridPane.lookup("#" + column2cell.getKey() + row.getRowNumber());
-                    Label cellInSortedGrid = (Label) sortedGrid.lookup("#" + positionInRange + COPIED_CELL_PREFIX_CSS_CLASS);
-                    copyCellStyle(cellInOriginalGrid, cellInSortedGrid);
-                }
+        HttpClientUtil.runAsyncGet(url, new Callback() {
+            @Override
+            public void onFailure(@NotNull Call call, @NotNull IOException e) {
+                System.out.println("Error showing sorted sheet: " + e.getMessage());
             }
 
-            dialog.getDialogPane().setContent(scrollPane);
-            dialog.getDialogPane().getButtonTypes().setAll(ButtonType.OK);
-            dialog.showAndWait();
-        }
+            @Override
+            public void onResponse(@NotNull Call call, @NotNull Response response) throws IOException {
+                String responseBody = response.body().string();
+                if (response.isSuccessful()) {
+                    RangeDto rangeToSort = GSON_INSTANCE.fromJson(responseBody, RangeDto.class);
+                    Iterator<CellPositionDto> positionInRangeIterator = rangeToSort.getIncludedPositions().iterator();
+
+                    Platform.runLater(() -> {
+                        for (RowDto row : sortedRows) {
+                            for (Map.Entry<String, CellDto> column2cell : row.getCells().entrySet()) {
+                                CellPositionDto positionInRange = positionInRangeIterator.next();
+                                while (positionInRangeIterator.hasNext() && !isPositionInSortedRow(sortedRows, positionInRange)) {
+                                    positionInRange = positionInRangeIterator.next();
+                                }
+                                Label cellInOriginalGrid = (Label) mainGridPane.lookup("#" + column2cell.getKey() + row.getRowNumber());
+                                Label cellInSortedGrid = (Label) sortedGrid.lookup("#" + positionInRange + COPIED_CELL_PREFIX_CSS_CLASS);
+                                copyCellStyle(cellInOriginalGrid, cellInSortedGrid);
+                            }
+                        }
+                        dialog.getDialogPane().setContent(scrollPane);
+                        dialog.getDialogPane().getButtonTypes().setAll(ButtonType.OK);
+                        dialog.showAndWait();
+                    });
+                } else {
+                    Platform.runLater(() -> System.out.println("Error showing sorted sheet: " + responseBody));
+                }
+            }
+        });
     }
 
     private void copyCellStyle(Label originalCell, Label copiedCell) {
@@ -490,10 +497,9 @@ public class GridController {
                 cellInCopiedGrid.setTextFill(cellInOriginalGrid.getTextFill());
                 cellInCopiedGrid.setAlignment(cellInOriginalGrid.getAlignment());
 
-                copiedGridPane.add(cellInCopiedGrid, col, row);  // Offset by 1 to leave space for headers
+                copiedGridPane.add(cellInCopiedGrid, col, row);
             }
         }
-
         return scrollPane;
     }
 
@@ -511,38 +517,46 @@ public class GridController {
                 .build()
                 .toString();
 
-        Request request = new Request.Builder()
-                .url(url)
-                .build();
-
-        Response response = HttpClientUtil.HTTP_CLIENT.newCall(request).execute();
-        if (response.isSuccessful()) {
-            String responseBody = response.body().string();
-            RangeDto rangeToSort = GSON_INSTANCE.fromJson(responseBody, RangeDto.class);
-            Iterator<CellPositionDto> positionInRangeIterator = rangeToSort.getIncludedPositions().iterator();
-
-            for (RowDto row : filteredRows) {
-                for (Map.Entry<String, CellDto> column2cell : row.getCells().entrySet()) {
-                    CellPositionDto positionInRange = positionInRangeIterator.next();
-                    Label cellInOriginalGrid = (Label) mainGridPane.lookup("#" + column2cell.getKey() + row.getRowNumber());
-                    Label cellInSortedGrid = (Label) filteredGrid.lookup("#" + positionInRange + COPIED_CELL_PREFIX_CSS_CLASS);
-                    copyCellStyle(cellInOriginalGrid, cellInSortedGrid);
-                }
+        HttpClientUtil.runAsyncGet(url, new Callback() {
+            @Override
+            public void onFailure(@NotNull Call call, @NotNull IOException e) {
+                System.out.println("Error showing filtered sheet: " + e.getMessage());
             }
 
-            if (positionInRangeIterator.hasNext()) {
-                while (positionInRangeIterator.hasNext()) {
-                    CellPositionDto positionInRange = positionInRangeIterator.next();
-                    Label cellInSortedGrid = (Label) filteredGrid.lookup("#" + positionInRange + COPIED_CELL_PREFIX_CSS_CLASS);
-                    cellInSortedGrid.setText("");
-                    cellInSortedGrid.setBackground(Background.fill(Color.WHITE));
+            @Override
+            public void onResponse(@NotNull Call call, @NotNull Response response) throws IOException {
+                String responseBody = response.body().string();
+                if (response.isSuccessful()) {
+                    RangeDto rangeToSort = GSON_INSTANCE.fromJson(responseBody, RangeDto.class);
+                    Iterator<CellPositionDto> positionInRangeIterator = rangeToSort.getIncludedPositions().iterator();
+
+                    Platform.runLater(() -> {
+                        for (RowDto row : filteredRows) {
+                            for (Map.Entry<String, CellDto> column2cell : row.getCells().entrySet()) {
+                                CellPositionDto positionInRange = positionInRangeIterator.next();
+                                Label cellInOriginalGrid = (Label) mainGridPane.lookup("#" + column2cell.getKey() + row.getRowNumber());
+                                Label cellInSortedGrid = (Label) filteredGrid.lookup("#" + positionInRange + COPIED_CELL_PREFIX_CSS_CLASS);
+                                copyCellStyle(cellInOriginalGrid, cellInSortedGrid);
+                            }
+                        }
+
+                        if (positionInRangeIterator.hasNext()) {
+                            while (positionInRangeIterator.hasNext()) {
+                                CellPositionDto positionInRange = positionInRangeIterator.next();
+                                Label cellInSortedGrid = (Label) filteredGrid.lookup("#" + positionInRange + COPIED_CELL_PREFIX_CSS_CLASS);
+                                cellInSortedGrid.setText("");
+                                cellInSortedGrid.setBackground(Background.fill(Color.WHITE));
+                            }
+                        }
+                        dialog.getDialogPane().setContent(scrollPane);
+                        dialog.getDialogPane().getButtonTypes().setAll(ButtonType.OK);
+                        dialog.showAndWait();
+                    });
+                } else {
+                    Platform.runLater(() -> System.out.println("Error showing filtered sheet: " + responseBody));
                 }
             }
-
-            dialog.getDialogPane().setContent(scrollPane);
-            dialog.getDialogPane().getButtonTypes().setAll(ButtonType.OK);
-            dialog.showAndWait();
-        }
+        });
     }
 
     private ScrollPane getUnStyledGrid(SheetDto sheetDto) {
@@ -790,7 +804,7 @@ public class GridController {
             HttpClientUtil.runAsyncGet(url, new Callback() {
                 @Override
                 public void onFailure(@NotNull Call call, @NotNull IOException e) {
-                    System.out.println("Error: " + e.getMessage());
+                    System.out.println("Error setting dynamic analysis listeners: " + e.getMessage());
                 }
 
                 @Override
@@ -816,32 +830,42 @@ public class GridController {
                             }
                         });
                     } else {
-                        System.out.println("Error: " + responseBody);
+                        System.out.println("Error setting dynamic analysis listeners: " + responseBody);
                     }
                 }
             });
         });
     }
 
-    public void moveToNewestSheetVersion() throws IOException {
-        Request request = new Request.Builder()
-                .url(SHEET_ENDPOINT)
-                .build();
+    public void moveToNewestSheetVersion() {
+        HttpClientUtil.runAsyncGet(SHEET_ENDPOINT, new Callback() {
+            @Override
+            public void onFailure(@NotNull Call call, @NotNull IOException e) {
+                System.out.println("Error moving to the newest sheet version: " + e.getMessage());
+            }
 
-        Response response = HttpClientUtil.HTTP_CLIENT.newCall(request).execute();
-        if (response.isSuccessful()) {
-            String responseBody = response.body().string();
-            SheetDto newSheetDto = GSON_INSTANCE.fromJson(responseBody, SheetDto.class);
-            for (int row = 1; row <= numOfRows; row++) {
-                for (int col = 1; col <= numOfColumns; col++) {
-                    CellPositionDto cellPosition = new CellPositionDto(row, col);
-                    CellDto cellDto = newSheetDto.getCell(cellPosition);
-                    if (cellDto != null) {
-                        cellUpdated(cellPosition.toString(), cellDto);
-                    }
+            @Override
+            public void onResponse(@NotNull Call call, @NotNull Response response) throws IOException {
+                String responseBody = response.body().string();
+                if (response.isSuccessful()) {
+                    SheetDto newSheetDto = GSON_INSTANCE.fromJson(responseBody, SheetDto.class);
+
+                    Platform.runLater(() -> {
+                        for (int row = 1; row <= numOfRows; row++) {
+                            for (int col = 1; col <= numOfColumns; col++) {
+                                CellPositionDto cellPosition = new CellPositionDto(row, col);
+                                CellDto cellDto = newSheetDto.getCell(cellPosition);
+                                if (cellDto != null) {
+                                    cellUpdated(cellPosition.toString(), cellDto);
+                                }
+                            }
+                        }
+                        removeCellsPaints();
+                    });
+                } else {
+                    Platform.runLater(() -> System.out.println("Error moving to the newest sheet version: " + responseBody));
                 }
             }
-        }
-        removeCellsPaints();
+        });
     }
 }

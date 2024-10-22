@@ -9,7 +9,6 @@ import dto.cell.EffectiveValueDto;
 import dto.sheet.RowDto;
 import dto.sheet.SheetDimensionDto;
 import javafx.application.Platform;
-import javafx.event.ActionEvent;
 import javafx.fxml.FXML;
 import javafx.scene.control.*;
 import okhttp3.*;
@@ -25,18 +24,12 @@ import static client.resources.CommonResourcesPaths.*;
 import static serversdk.request.parameter.RequestParameters.*;
 
 public class CommandsController {
-
-    @FXML private Button showSortedSheetButton;
-    @FXML private Button showFilteredSheetButton;
-    @FXML private Button chooseFilterValuesButton;
     @FXML private ListView<CommandsModelUI.ListViewEntry> sortByColumnsListView;
     @FXML private ListView<CommandsModelUI.ListViewEntry> filterByColumnsListView;
     @FXML private TextField fromPositionFilterTextField;
     @FXML private TextField fromPositionSortTextField;
     @FXML private TextField toPositionFilterTextField;
     @FXML private TextField toPositionSortTextField;
-    @FXML private TitledPane sortSheetTitledPane;
-    @FXML private TitledPane filterSheetTitledPane;
     @FXML private TableView<Map<String, CommandsModelUI.EffectiveValueWrapper>> filterValuesTableView;
 
     private MainSheetController mainSheetController;
@@ -64,7 +57,7 @@ public class CommandsController {
         HttpClientUtil.runAsyncGet(url, new Callback() {
             @Override
             public void onFailure(@NotNull Call call, @NotNull IOException e) {
-                System.err.println("Error: " + e.getMessage());
+                System.err.println("Error init commands controller: " + e.getMessage());
             }
 
             @Override
@@ -82,14 +75,14 @@ public class CommandsController {
                         modelUi.setColumnsSelectBoxes(sheetColumns, listViews);
                     });
                 } else {
-                    System.err.println("Error: " + responseBody);
+                    System.err.println("Error init commands controller: " + responseBody);
                 }
             }
         });
     }
 
     @FXML
-    void showSortedSheetButtonListener(ActionEvent event) throws IOException {
+    void showSortedSheetButtonListener() {
         String fromPositionStr = fromPositionSortTextField.getText();
         String toPositionStr = toPositionSortTextField.getText();
         int sheetVersion = mainSheetController.getCurrentSheetVersion();
@@ -139,7 +132,7 @@ public class CommandsController {
     }
 
     @FXML
-    void chooseFilterValuesButtonListener(ActionEvent event) {
+    void chooseFilterValuesButtonListener() {
         try {
             String fromPositionStr = fromPositionFilterTextField.getText();
             String toPositionStr = toPositionFilterTextField.getText();
@@ -188,7 +181,7 @@ public class CommandsController {
     }
 
     @FXML
-    void showFilteredSheetButtonListener(ActionEvent event) throws IOException {
+    void showFilteredSheetButtonListener() {
         String fromPositionStr = fromPositionFilterTextField.getText();
         String toPositionStr = toPositionFilterTextField.getText();
         int sheetVersion = mainSheetController.getCurrentSheetVersion();

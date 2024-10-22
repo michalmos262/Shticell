@@ -3,7 +3,6 @@ package client.component.login;
 import client.component.mainapp.MainAppController;
 import client.util.http.HttpClientUtil;
 import javafx.application.Platform;
-import javafx.event.ActionEvent;
 import javafx.fxml.FXML;
 import javafx.scene.control.*;
 import okhttp3.*;
@@ -34,7 +33,7 @@ public class LoginController {
     }
 
     @FXML
-    void loginButtonListener(ActionEvent event) {
+    void loginButtonListener() {
         String username = usernameTextField.getText();
 
         if (username.isEmpty()) {

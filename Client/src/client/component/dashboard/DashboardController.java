@@ -12,7 +12,6 @@ import dto.user.SheetNamesAndFileMetadatasDto;
 import dto.user.UserPermission;
 import javafx.application.Platform;
 import javafx.collections.ObservableList;
-import javafx.event.ActionEvent;
 import javafx.fxml.FXML;
 import javafx.fxml.FXMLLoader;
 import javafx.scene.Parent;
@@ -20,7 +19,6 @@ import javafx.scene.Scene;
 import javafx.scene.control.Button;
 import javafx.scene.control.TableColumn;
 import javafx.scene.control.TableView;
-import javafx.scene.input.MouseEvent;
 import javafx.scene.layout.GridPane;
 import dto.sheet.FileMetadata;
 import javafx.stage.Modality;
@@ -87,7 +85,7 @@ public class DashboardController implements Closeable {
     }
 
     @FXML
-    void availableSheetOnMouseClickedListener(MouseEvent event) {
+    void availableSheetOnMouseClickedListener() {
         selectedSheetTableEntry = availableSheetsTableView.getSelectionModel().getSelectedItem();
         changeSheetButtonsDisability();
     }
@@ -110,7 +108,7 @@ public class DashboardController implements Closeable {
     }
 
     @FXML
-    void permissionsTableViewOnMouseClicked(MouseEvent event) {
+    void permissionsTableViewOnMouseClicked() {
         if (selectedSheetTableEntry != null) {
             selectedPermissionsTableEntry = permissionsTableView.getSelectionModel().getSelectedItem();
             if (selectedPermissionsTableEntry != null) {
@@ -125,7 +123,7 @@ public class DashboardController implements Closeable {
     }
 
     @FXML
-    public void viewSheetButtonListener(ActionEvent actionEvent) {
+    public void viewSheetButtonListener() {
         if (selectedSheetTableEntry != null) {
             String yourPermission = selectedSheetTableEntry.yourPermissionTypeProperty().getValue();
 
@@ -137,12 +135,12 @@ public class DashboardController implements Closeable {
     }
 
     @FXML
-    public void acceptPermissionRequestButtonListener(ActionEvent actionEvent) {
+    public void acceptPermissionRequestButtonListener() {
         changePermissionRequestStatus(ApprovalStatus.APPROVED);
     }
 
     @FXML
-    public void rejectPermissionRequestButtonListener(ActionEvent actionEvent) {
+    public void rejectPermissionRequestButtonListener() {
         changePermissionRequestStatus(ApprovalStatus.REJECTED);
     }
 
@@ -161,7 +159,7 @@ public class DashboardController implements Closeable {
             HttpClientUtil.runAsyncGet(url, new Callback() {
                 @Override
                 public void onFailure(@NotNull Call call, @NotNull IOException e) {
-                    System.out.println("Error: " + e.getMessage());
+                    System.out.println("Error changing permission request status: " + e.getMessage());
                 }
 
                 @Override
@@ -190,7 +188,7 @@ public class DashboardController implements Closeable {
                                     new Callback() {
                                 @Override
                                 public void onFailure(@NotNull Call call, @NotNull IOException e) {
-                                    System.out.println("Error: " + e.getMessage());
+                                    System.out.println("Error changing permission request status: " + e.getMessage());
                                 }
 
                                 @Override
@@ -202,13 +200,13 @@ public class DashboardController implements Closeable {
                                             modelUi.isPermissionClicked().set(false);
                                         });
                                     } else {
-                                        System.out.println("Error: " + response.body().string());
+                                        System.out.println("Error changing permission request status: " + response.body().string());
                                     }
                                 }
                             });
                         }
                     } else {
-                        System.out.println("Error: " + response.body().string());
+                        System.out.println("Error changing permission request status: " + response.body().string());
                     }
                 }
             });
@@ -216,7 +214,7 @@ public class DashboardController implements Closeable {
     }
 
     @FXML
-    public void requestPermissionButtonListener(ActionEvent actionEvent) throws IOException {
+    public void requestPermissionButtonListener() throws IOException {
         // disable from request permission for myself
         if (selectedSheetTableEntry != null && !selectedSheetTableEntry.ownerNameProperty().getValue()
                 .equals(mainAppController.getLoggedInUsername())) {
