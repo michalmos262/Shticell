@@ -9,6 +9,7 @@ import dto.sheet.RangeDto;
 import dto.sheet.RowDto;
 import dto.sheet.SheetDimensionDto;
 import dto.sheet.SheetDto;
+import javafx.application.Platform;
 import javafx.beans.property.SimpleStringProperty;
 import javafx.fxml.FXML;
 import javafx.geometry.Pos;
@@ -19,12 +20,12 @@ import javafx.scene.layout.Background;
 import javafx.scene.layout.Border;
 import javafx.scene.layout.GridPane;
 import javafx.scene.paint.Color;
-import okhttp3.HttpUrl;
-import okhttp3.Request;
-import okhttp3.Response;
+import okhttp3.*;
+import org.jetbrains.annotations.NotNull;
 
 import java.io.IOException;
 import java.util.*;
+import java.util.function.Consumer;
 
 import static client.resources.CommonResourcesPaths.*;
 import static serversdk.request.parameter.RequestParameters.*;
@@ -61,7 +62,7 @@ public class GridController {
         this.mainSheetController = mainSheetController;
     }
 
-    public void initMainGrid(String sheetName) throws IOException {
+    public void initMainGrid(String sheetName) {
         String url = HttpUrl
                 .parse(SHEET_DIMENSION_ENDPOINT)
                 .newBuilder()
@@ -69,28 +70,40 @@ public class GridController {
                 .build()
                 .toString();
 
-        Request request = new Request.Builder()
-                .url(url)
-                .build();
-        Response response = HttpClientUtil.HTTP_CLIENT.newCall(request).execute();
-        String responseBody = response.body().string();
-        if (response.isSuccessful()) {
-            SheetDimensionDto sheetDimensionDto = GSON_INSTANCE.fromJson(responseBody, SheetDimensionDto.class);
+        HttpClientUtil.runAsyncGet(url, new Callback() {
+            @Override
+            public void onFailure(@NotNull Call call, @NotNull IOException e) {
+                System.out.println("Error: " + e.getMessage());
+            }
 
-            numOfRows = sheetDimensionDto.getNumOfRows();
-            numOfColumns = sheetDimensionDto.getNumOfColumns();
-            defaultRowHeight = sheetDimensionDto.getRowHeight();
-            defaultColumnWidth = sheetDimensionDto.getColumnWidth();
+            @Override
+            public void onResponse(@NotNull Call call, @NotNull Response response) throws IOException {
+                String responseBody = response.body().string();
+                if (response.isSuccessful()) {
+                    SheetDimensionDto sheetDimensionDto = GSON_INSTANCE.fromJson(responseBody, SheetDimensionDto.class);
 
-             // Clear the existing content in the gridContainer
-            mainGridPane.getChildren().clear();
+                    numOfRows = sheetDimensionDto.getNumOfRows();
+                    numOfColumns = sheetDimensionDto.getNumOfColumns();
+                    defaultRowHeight = sheetDimensionDto.getRowHeight();
+                    defaultColumnWidth = sheetDimensionDto.getColumnWidth();
 
-            setGridColumnsHeaders(mainGridPane, numOfColumns);
-            setGridRowsHeaders(mainGridPane);
-            setMainGridCells(sheetName);
-        } else {
-            System.out.println("Error: " + responseBody);
-        }
+                    Platform.runLater(() -> {
+                        // Clear the existing content in the gridContainer
+                        mainGridPane.getChildren().clear();
+
+                        setGridColumnsHeaders(mainGridPane, numOfColumns);
+                        setGridRowsHeaders(mainGridPane);
+                        try {
+                            setMainGridCells(sheetName);
+                        } catch (IOException e) {
+                            throw new RuntimeException(e);
+                        }
+                    });
+                } else {
+                    Platform.runLater(() -> System.out.println("Error: " + responseBody));
+                }
+            }
+        });
     }
 
     private void setGridColumnsHeaders(GridPane gridPane, int numOfColumns) {
@@ -209,18 +222,20 @@ public class GridController {
         }
     }
 
-    private void setRangeCellsColors(String rangeName) throws IOException {
+    private void setRangeCellsColors(String rangeName) {
         // Clear the previously painted cells
         clearPaintedCells();
 
         // get cell positions
-        List<Label> cellsToPainter = getRangeCellsToPaint(rangeName);
-        if (cellsToPainter != null) {
-            for (Label cellLabel : cellsToPainter) {
-                cellLabel.getStyleClass().add(OF_RANGE_CSS_CLASS);
-                currentlyPaintedCells.add(cellLabel);
+        getRangeCellsToPaint(rangeName, cellsToPainter -> {
+            if (cellsToPainter != null) {
+                for (Label cellLabel : cellsToPainter) {
+                    cellLabel.getStyleClass().add(OF_RANGE_CSS_CLASS);
+                    currentlyPaintedCells.add(cellLabel);
+                }
             }
-        }
+        });
+
     }
 
     private List<Label> getInfluencesCellsToPaint(CellDto cellDto) {
@@ -245,7 +260,7 @@ public class GridController {
         return influencedByCellsLabels;
     }
 
-    private List<Label> getRangeCellsToPaint(String rangeName) throws IOException {
+    private void getRangeCellsToPaint(String rangeName, Consumer<List<Label>> callback) {
         String url = HttpUrl
                 .parse(RANGE_ENDPOINT)
                 .newBuilder()
@@ -253,23 +268,33 @@ public class GridController {
                 .build()
                 .toString();
 
-        Request request = new Request.Builder()
-                .url(url)
-                .build();
-        Response response = HttpClientUtil.HTTP_CLIENT.newCall(request).execute();
-        String responseBody = response.body().string();
-        if (response.isSuccessful()) {
-            List<Label> rangeCellsLabels = new ArrayList<>();
-             RangeDto rangeDto = GSON_INSTANCE.fromJson(responseBody, RangeDto.class);
-             Set<CellPositionDto> rangeCellPositions = rangeDto.getIncludedPositions();
-            rangeCellPositions.forEach(position ->
-                rangeCellsLabels.add((Label) mainGridPane.lookup("#" + position))
-            );
-            return rangeCellsLabels;
-        } else {
-            System.out.println("Error: " + responseBody);
-        }
-        return null;
+        HttpClientUtil.runAsyncGet(url, new Callback() {
+            @Override
+            public void onFailure(@NotNull Call call, @NotNull IOException e) {
+                System.out.println("Error: " + e.getMessage());
+                Platform.runLater(() -> callback.accept(null));
+            }
+
+            @Override
+            public void onResponse(@NotNull Call call, @NotNull Response response) throws IOException {
+                String responseBody = response.body().string();
+                if (response.isSuccessful()) {
+                    List<Label> rangeCellsLabels = new ArrayList<>();
+                    RangeDto rangeDto = GSON_INSTANCE.fromJson(responseBody, RangeDto.class);
+                    Set<CellPositionDto> rangeCellPositions = rangeDto.getIncludedPositions();
+
+                    Platform.runLater(() -> {
+                        rangeCellPositions.forEach(position ->
+                            rangeCellsLabels.add((Label) mainGridPane.lookup("#" + position))
+                        );
+                        callback.accept(rangeCellsLabels);
+                    });
+                } else {
+                    System.out.println("Error: " + responseBody);
+                    Platform.runLater(() -> callback.accept(null));
+                }
+            }
+        });
     }
 
     // Method to clear the previously painted cells
@@ -553,7 +578,7 @@ public class GridController {
         return scrollPane;
     }
 
-    public void showCellsInRange(String name) throws IOException {
+    public void showCellsInRange(String name) {
         setRangeCellsColors(name);
     }
 
@@ -591,39 +616,46 @@ public class GridController {
         changeCellTextColor(cellId, cellTextColor);
     }
 
-    public void showDynamicAnalysis(String cellId) throws IOException {
+    public void showDynamicAnalysis(String cellId) {
         Dialog<String> dialog = new Dialog<>();
         dialog.setTitle("Dynamic analysis");
         dialog.setHeaderText("Dynamic analysis of cell in position: " + cellId);
 
+        int sheetVersion = mainSheetController.getCurrentSheetVersion();
+
         ScrollPane scrollPane = getCopiedMainGreed();
         GridPane copiedGrid = (GridPane) scrollPane.getContent();
 
-        for (int row = 0; row < numOfRows; row++) {
-            for (int col = 0; col < numOfColumns; col++) {
-                CellPositionDto cellPositionDto = new CellPositionDto(row + 1, col + 1);
-                Label cellLabel = (Label) copiedGrid.lookup("#" + CellPositionDto.parseColumn(cellPositionDto.getColumn()) + cellPositionDto.getRow() + COPIED_CELL_PREFIX_CSS_CLASS);
-                int sheetVersion = mainSheetController.getCurrentSheetVersion();
+        String url = HttpUrl
+                .parse(SHEET_ENDPOINT)
+                .newBuilder()
+                .addQueryParameter(SHEET_VERSION, String.valueOf(sheetVersion))
+                .build()
+                .toString();
 
-                String url = HttpUrl
-                        .parse(SHEET_ENDPOINT)
-                        .newBuilder()
-                        .addQueryParameter(SHEET_VERSION, String.valueOf(sheetVersion))
-                        .build()
-                        .toString();
+        HttpClientUtil.runAsyncGet(url, new Callback() {
+            @Override
+            public void onFailure(@NotNull Call call, @NotNull IOException e) {
+                System.err.println("Error showing dynamic analysis: " + e.getMessage());
+            }
 
-                Request request = new Request.Builder()
-                        .url(url)
-                        .build();
-
-                Response response = HttpClientUtil.HTTP_CLIENT.newCall(request).execute();
+            @Override
+            public void onResponse(@NotNull Call call, @NotNull Response response) throws IOException {
                 String responseBody = response.body().string();
                 if (response.isSuccessful()) {
                     SheetDto sheetDto = GSON_INSTANCE.fromJson(responseBody, SheetDto.class);
-                    modelUi.setCellLabelBindingDynamicAnalysis(cellLabel, sheetDto, cellPositionDto);
+                    Platform.runLater(() -> {
+                        for (int row = 0; row < numOfRows; row++) {
+                            for (int col = 0; col < numOfColumns; col++) {
+                                CellPositionDto cellPositionDto = new CellPositionDto(row + 1, col + 1);
+                                Label cellLabel = (Label) copiedGrid.lookup("#" + CellPositionDto.parseColumn(cellPositionDto.getColumn()) + cellPositionDto.getRow() + COPIED_CELL_PREFIX_CSS_CLASS);
+                                modelUi.setCellLabelBindingDynamicAnalysis(cellLabel, sheetDto, cellPositionDto);
+                            }
+                        }
+                    });
                 }
             }
-        }
+        });
 
         TextField fromRangeTextField = new TextField();
         TextField toRangeTextField = new TextField();
@@ -746,8 +778,7 @@ public class GridController {
             slider.setValue(roundedValue);
 
             CellPositionDto CellPositionDto = new CellPositionDto(cellId);
-            String url;
-            url = HttpUrl
+            String url = HttpUrl
                     .parse(DYNAMIC_ANALYSED_ENDPOINT)
                     .newBuilder()
                     .addQueryParameter(CELL_POSITION, cellId)
@@ -756,40 +787,39 @@ public class GridController {
                     .build()
                     .toString();
 
-            Request request = new Request.Builder()
-                    .url(url)
-                    .build();
+            HttpClientUtil.runAsyncGet(url, new Callback() {
+                @Override
+                public void onFailure(@NotNull Call call, @NotNull IOException e) {
+                    System.out.println("Error: " + e.getMessage());
+                }
 
-            try {
-                Response response = HttpClientUtil.HTTP_CLIENT.newCall(request).execute();
-                String responseBody = response.body().string();
-                if (response.isSuccessful()) {
-                    SheetDto newSheetDto = GSON_INSTANCE.fromJson(responseBody, SheetDto.class);
-                    SimpleStringProperty displayedValue = modelUi.getCellPosition2displayedValueDynamicAnalysis().get(CellPositionDto).
-                        displayedValueProperty();
-
-                    CellDto cellDto = newSheetDto.getCell(CellPositionDto);
-                    if (cellDto != null) {
-                        displayedValue.setValue(cellDto.getEffectiveValueForDisplay().toString());
-
-                        // Update the visible affected cells
-                        cellDto.getInfluences().forEach(influencedPosition -> {
-                            SimpleStringProperty visibleValue = modelUi.getCellPosition2displayedValueDynamicAnalysis().get(influencedPosition).
-                                    displayedValueProperty();
-                            CellDto influencedCell = newSheetDto.getCell(influencedPosition);
-                            visibleValue.setValue(influencedCell.getEffectiveValueForDisplay().toString());
+                @Override
+                public void onResponse(@NotNull Call call, @NotNull Response response) throws IOException {
+                    String responseBody = response.body().string();
+                    if (response.isSuccessful()) {
+                        SheetDto newSheetDto = GSON_INSTANCE.fromJson(responseBody, SheetDto.class);
+                        CellDto cellDto = newSheetDto.getCell(CellPositionDto);
+                        Platform.runLater(() -> {
+                            SimpleStringProperty displayedValue =
+                                    modelUi.getCellPosition2displayedValueDynamicAnalysis()
+                                            .get(CellPositionDto).displayedValueProperty();
+                            if (cellDto != null) {
+                                displayedValue.setValue(cellDto.getEffectiveValueForDisplay().toString());
+                                // Update the visible affected cells
+                                cellDto.getInfluences().forEach(influencedPosition -> {
+                                    SimpleStringProperty visibleValue = modelUi
+                                            .getCellPosition2displayedValueDynamicAnalysis()
+                                            .get(influencedPosition).displayedValueProperty();
+                                    CellDto influencedCell = newSheetDto.getCell(influencedPosition);
+                                    visibleValue.setValue(influencedCell.getEffectiveValueForDisplay().toString());
+                                });
+                            }
                         });
+                    } else {
+                        System.out.println("Error: " + responseBody);
                     }
-                } else {
-                    System.out.println("Error: " + responseBody);
                 }
-            } catch (Exception e) {
-                try {
-                    throw e;
-                } catch (IOException ex) {
-                    throw new RuntimeException(ex);
-                }
-            }
+            });
         });
     }
 
@@ -812,7 +842,6 @@ public class GridController {
                 }
             }
         }
-
         removeCellsPaints();
     }
 }

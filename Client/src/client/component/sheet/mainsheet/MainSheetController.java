@@ -61,7 +61,7 @@ public class MainSheetController implements Closeable {
         this.mainAppController = mainAppController;
     }
 
-    public void initComponents(String sheetName) throws IOException {
+    public void initComponents(String sheetName) {
         this.sheetName = sheetName;
         gridComponentController.initMainGrid(sheetName);
         actionLineComponentController.initComponent(sheetName);
@@ -129,7 +129,7 @@ public class MainSheetController implements Closeable {
         }
     }
 
-    public void showCellsInRange(String name) throws IOException {
+    public void showCellsInRange(String name) {
         gridComponentController.showCellsInRange(name);
         actionLineComponentController.removeCellClickFocus();
     }
@@ -146,7 +146,7 @@ public class MainSheetController implements Closeable {
         gridComponentController.removeCellsPaints();
     }
 
-    public void showDynamicAnalysis(String cellId) throws IOException {
+    public void showDynamicAnalysis(String cellId) {
         gridComponentController.showDynamicAnalysis(cellId);
     }
 
@@ -160,9 +160,9 @@ public class MainSheetController implements Closeable {
     }
 
     public void setActive() {
-        startMainSheetRefresher();
         actionLineComponentController.setActive();
         rangesComponentController.setActive();
+        startMainSheetRefresher();
     }
 
     public void setIsUserWriter(boolean isWriter) {

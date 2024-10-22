@@ -11,6 +11,7 @@ import javafx.scene.control.*;
 import javafx.scene.input.MouseEvent;
 import client.component.sheet.mainsheet.MainSheetController;
 import okhttp3.*;
+import org.jetbrains.annotations.NotNull;
 import serversdk.exception.ServerException;
 import serversdk.request.body.RangeBody;
 
@@ -71,20 +72,28 @@ public class RangesController implements Closeable {
                 MediaType mediaType = MediaType.get(JSON_MEDIA_TYPE);
                 RequestBody requestBody = RequestBody.create(addRangeBodyJson, mediaType);
 
-                Request request = new Request.Builder()
-                        .url(RANGE_ENDPOINT)
-                        .post(requestBody)
-                        .build();
+                HttpClientUtil.runAsyncPost(RANGE_ENDPOINT, requestBody, new Callback() {
+                    @Override
+                    public void onFailure(@NotNull Call call, @NotNull IOException e) {
+                        System.out.println("Error on add range: " + e.getMessage());
+                    }
 
-                Response response = HttpClientUtil.HTTP_CLIENT.newCall(request).execute();
-                if (response.isSuccessful()) {
-                    modelUi.isRangeAddedProperty().set(true);
-                    modelUi.isRangeAddedProperty().set(false);
-                    AlertsHandler.HandleOkAlert("Range " + rangeName + " added successfully!");
-                } else {
-                    ServerException.ErrorResponse errorResponse = GSON_INSTANCE.fromJson(response.body().string(), ServerException.ErrorResponse.class);
-                    AlertsHandler.HandleErrorAlert(alertTitle, errorResponse.getMessage());
-                }
+                    @Override
+                    public void onResponse(@NotNull Call call, @NotNull Response response) throws IOException {
+                        if (response.isSuccessful()) {
+                            Platform.runLater(() -> {
+                                modelUi.isRangeAddedProperty().set(true);
+                                modelUi.isRangeAddedProperty().set(false);
+                                AlertsHandler.HandleOkAlert("Range " + rangeName + " added successfully!");
+                            });
+                        } else {
+                            ServerException.ErrorResponse errorResponse =
+                                    GSON_INSTANCE.fromJson(response.body().string(), ServerException.ErrorResponse.class);
+                            Platform.runLater(() ->
+                                    AlertsHandler.HandleErrorAlert(alertTitle, errorResponse.getMessage()));
+                        }
+                    }
+                });
             } else {
                 AlertsHandler.HandleErrorAlert(alertTitle, "Range name cannot be empty");
             }
@@ -95,37 +104,41 @@ public class RangesController implements Closeable {
 
     @FXML
     void deleteRangeButtonListener(ActionEvent event) {
-        try {
-            String rangeName = deleteRangeNameChoiceBox.getValue();
-            String url = HttpUrl
-                .parse(RANGE_ENDPOINT)
-                .newBuilder()
-                .addQueryParameter(RANGE_NAME, rangeName)
-                .build()
-                .toString();
+        String rangeName = deleteRangeNameChoiceBox.getValue();
+        String url = HttpUrl
+            .parse(RANGE_ENDPOINT)
+            .newBuilder()
+            .addQueryParameter(RANGE_NAME, rangeName)
+            .build()
+            .toString();
 
-            Request request = new Request.Builder()
-                    .url(url)
-                    .delete()
-                    .build();
-
-            Response response = HttpClientUtil.HTTP_CLIENT.newCall(request).execute();
-            if (response.isSuccessful()) {
-                modelUi.removeRange(rangeName);
-                deleteRangeNameChoiceBox.setValue(null); // clean current choice
-                mainSheetController.removeCellsPaints();
-                AlertsHandler.HandleOkAlert("Range " + rangeName + " deleted successfully!");
-            } else {
-                ServerException.ErrorResponse errorResponse = GSON_INSTANCE.fromJson(response.body().string(), ServerException.ErrorResponse.class);
-                AlertsHandler.HandleErrorAlert("Delete range", errorResponse.getMessage());
+        HttpClientUtil.runAsyncDelete(url, new Callback() {
+            @Override
+            public void onFailure(@NotNull Call call, @NotNull IOException e) {
+                Platform.runLater(() -> AlertsHandler.HandleErrorAlert("Delete range", e.getMessage()));
             }
-        } catch (Exception e) {
-            AlertsHandler.HandleErrorAlert("Delete range", e.getMessage());
-        }
+
+            @Override
+            public void onResponse(@NotNull Call call, @NotNull Response response) throws IOException {
+                if (response.isSuccessful()) {
+                    Platform.runLater(() -> {
+                        modelUi.removeRange(rangeName);
+                        deleteRangeNameChoiceBox.setValue(null); // clean current choice
+                        mainSheetController.removeCellsPaints();
+                        AlertsHandler.HandleOkAlert("Range " + rangeName + " deleted successfully!");
+                    });
+                } else {
+                    ServerException.ErrorResponse errorResponse =
+                            GSON_INSTANCE.fromJson(response.body().string(), ServerException.ErrorResponse.class);
+                    Platform.runLater(() ->
+                            AlertsHandler.HandleErrorAlert("Delete range", errorResponse.getMessage()));
+                }
+            }
+        });
     }
 
     @FXML
-    void tableViewOnMouseClickedListener(MouseEvent event) throws IOException {
+    void tableViewOnMouseClickedListener(MouseEvent event) {
         RangeModelUI.RangeTableEntry selectedRow = showRangesTable.getSelectionModel().getSelectedItem();
         if (selectedRow != null) {
             mainSheetController.showCellsInRange(selectedRow.nameProperty().getValue());

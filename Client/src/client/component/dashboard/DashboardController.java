@@ -26,6 +26,7 @@ import dto.sheet.FileMetadata;
 import javafx.stage.Modality;
 import javafx.stage.Stage;
 import okhttp3.*;
+import org.jetbrains.annotations.NotNull;
 import serversdk.request.body.UpdatePermissionRequestBody;
 
 import java.io.Closeable;
@@ -34,6 +35,7 @@ import java.lang.reflect.Type;
 import java.util.*;
 
 import static client.resources.CommonResourcesPaths.*;
+import static serversdk.request.parameter.RequestParameters.SHEET_NAME;
 
 public class DashboardController implements Closeable {
     @FXML private Button viewSheetButton;
@@ -135,60 +137,81 @@ public class DashboardController implements Closeable {
     }
 
     @FXML
-    public void acceptPermissionRequestButtonListener(ActionEvent actionEvent) throws IOException {
+    public void acceptPermissionRequestButtonListener(ActionEvent actionEvent) {
         changePermissionRequestStatus(ApprovalStatus.APPROVED);
     }
 
     @FXML
-    public void rejectPermissionRequestButtonListener(ActionEvent actionEvent) throws IOException {
+    public void rejectPermissionRequestButtonListener(ActionEvent actionEvent) {
         changePermissionRequestStatus(ApprovalStatus.REJECTED);
     }
 
-    private void changePermissionRequestStatus(ApprovalStatus approvalStatus) throws IOException {
+    private void changePermissionRequestStatus(ApprovalStatus approvalStatus) {
         // disable from accepting a permission request if the sheet owner is not me
         if (selectedPermissionsTableEntry != null && selectedSheetTableEntry.ownerNameProperty().getValue()
                 .equals(mainAppController.getLoggedInUsername())) {
 
-            Request sheetPermissionRequest = HttpClientUtil.getSheetPermissionRequest(
-                    selectedSheetTableEntry.sheetNameProperty().getValue()
-            );
+            String url = HttpUrl
+                .parse(PERMISSION_REQUEST_ENDPOINT)
+                .newBuilder()
+                .addQueryParameter(SHEET_NAME, selectedSheetTableEntry.sheetNameProperty().getValue())
+                .build()
+                .toString();
 
-            Response sheetPermissionResponse = HttpClientUtil.HTTP_CLIENT.newCall(sheetPermissionRequest).execute();
-            String responseBody = sheetPermissionResponse.body().string();
-            if (sheetPermissionResponse.isSuccessful()) {
-                Type listType = new TypeToken<List<PermissionRequestDto>>(){}.getType();
-                List<PermissionRequestDto> permissionRequests = GSON_INSTANCE.fromJson(responseBody, listType);
+            HttpClientUtil.runAsyncGet(url, new Callback() {
+                @Override
+                public void onFailure(@NotNull Call call, @NotNull IOException e) {
+                    System.out.println("Error: " + e.getMessage());
+                }
 
-                PermissionRequestDto permissionRequest = permissionRequests.stream().filter((req) ->
-                        req.getRequestUid().equals(selectedPermissionsTableEntry.requestUidProperty().getValue()))
-                        .findFirst().orElse(null);
+                @Override
+                public void onResponse(@NotNull Call call, @NotNull Response response) throws IOException {
+                    if (response.isSuccessful()) {
+                        Type listType = new TypeToken<List<PermissionRequestDto>>(){}.getType();
+                        List<PermissionRequestDto> permissionRequests = GSON_INSTANCE
+                                .fromJson(response.body().string(), listType);
 
-                if (permissionRequest != null) {
-                    String acceptRejectPermissionRequestBodyJson = GSON_INSTANCE.toJson(new UpdatePermissionRequestBody(
-                            permissionRequest.getRequestUid(), selectedSheetTableEntry.sheetNameProperty().getValue(),
-                            approvalStatus.name()
-                    ));
+                        PermissionRequestDto permissionRequest = permissionRequests.stream().filter((req) ->
+                                req.getRequestUid().equals(selectedPermissionsTableEntry.requestUidProperty().getValue()))
+                                .findFirst().orElse(null);
 
-                    MediaType mediaType = MediaType.get(JSON_MEDIA_TYPE);
-                    RequestBody acceptPermissionRequestBody = RequestBody.create(acceptRejectPermissionRequestBodyJson, mediaType);
+                        if (permissionRequest != null) {
+                            String acceptRejectPermissionRequestBodyJson = GSON_INSTANCE.toJson(
+                                    new UpdatePermissionRequestBody(permissionRequest.getRequestUid(),
+                                            selectedSheetTableEntry.sheetNameProperty().getValue(),
+                                            approvalStatus.name()
+                                    )
+                            );
 
-                    Request acceptRejectPermissionRequest = new Request.Builder()
-                            .url(PERMISSION_REQUEST_ENDPOINT)
-                            .put(acceptPermissionRequestBody)
-                            .build();
+                            MediaType mediaType = MediaType.get(JSON_MEDIA_TYPE);
+                            RequestBody acceptPermissionRequestBody = RequestBody.create(acceptRejectPermissionRequestBodyJson, mediaType);
 
-                    Response approvePermissionResponse = HttpClientUtil.HTTP_CLIENT.newCall(acceptRejectPermissionRequest).execute();
-                    if (approvePermissionResponse.isSuccessful()) {
-                        AlertsHandler.HandleOkAlert("Permission request " +
-                                approvalStatus.name().toLowerCase() + " successfully!");
-                        modelUi.isPermissionClicked().set(false);
+                            HttpClientUtil.runAsyncPut(PERMISSION_REQUEST_ENDPOINT, acceptPermissionRequestBody,
+                                    new Callback() {
+                                @Override
+                                public void onFailure(@NotNull Call call, @NotNull IOException e) {
+                                    System.out.println("Error: " + e.getMessage());
+                                }
+
+                                @Override
+                                public void onResponse(@NotNull Call call, @NotNull Response response) throws IOException {
+                                    if (response.isSuccessful()) {
+                                        Platform.runLater(() -> {
+                                            AlertsHandler.HandleOkAlert("Permission request " +
+                                                approvalStatus.name().toLowerCase() + " successfully!");
+                                            modelUi.isPermissionClicked().set(false);
+                                        });
+                                    } else {
+                                        System.out.println("Error: " + response.body().string());
+                                    }
+                                }
+                            });
+                        }
                     } else {
-                        System.out.println("Error: " + approvePermissionResponse.body().string());
+                        System.out.println("Error: " + response.body().string());
                     }
                 }
-            } else {
-                System.out.println("Error: " + responseBody);
-            }
+            });
         }
     }
 

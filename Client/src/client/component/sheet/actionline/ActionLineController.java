@@ -4,6 +4,7 @@ import client.component.alert.AlertsHandler;
 import client.util.http.HttpClientUtil;
 import dto.cell.CellDto;
 import dto.sheet.SheetDimensionDto;
+import javafx.application.Platform;
 import javafx.event.ActionEvent;
 import javafx.fxml.FXML;
 import javafx.geometry.Pos;
@@ -14,7 +15,9 @@ import javafx.scene.paint.Color;
 import client.component.sheet.mainsheet.MainSheetController;
 import okhttp3.*;
 import dto.cell.CellTypeDto;
+import org.jetbrains.annotations.NotNull;
 import serversdk.exception.ServerException;
+import serversdk.request.body.EditCellBody;
 
 import static client.resources.CommonResourcesPaths.*;
 import static serversdk.request.parameter.RequestParameters.*;
@@ -105,7 +108,7 @@ public class ActionLineController implements Closeable {
         this.mainSheetController = mainSheetController;
     }
 
-    public void initComponent(String sheetName) throws IOException {
+    public void initComponent(String sheetName) {
         String url = HttpUrl
                 .parse(SHEET_DIMENSION_ENDPOINT)
                 .newBuilder()
@@ -113,25 +116,31 @@ public class ActionLineController implements Closeable {
                 .build()
                 .toString();
 
-        Request request = new Request.Builder()
-                .url(url)
-                .build();
+        HttpClientUtil.runAsyncGet(url, new Callback() {
+            @Override
+            public void onFailure(@NotNull Call call, @NotNull IOException e) {
+                System.out.println("Error: " + e.getMessage());
+            }
 
-        Response response = HttpClientUtil.HTTP_CLIENT.newCall(request).execute();
-        String responseBody = response.body().string();
-        if (response.isSuccessful()) {
-            SheetDimensionDto sheetDimensionDto = GSON_INSTANCE.fromJson(responseBody, SheetDimensionDto.class);
-            // Set an initial value
-            int rowHeight = sheetDimensionDto.getRowHeight();
-            rowHeightSpinner.getValueFactory().setValue(rowHeight);
+            @Override
+            public void onResponse(@NotNull Call call, @NotNull Response response) throws IOException {
+                String responseBody = response.body().string();
+                if (response.isSuccessful()) {
+                    SheetDimensionDto sheetDimensionDto = GSON_INSTANCE.fromJson(responseBody, SheetDimensionDto.class);
+                    Platform.runLater(() -> {
+                        int rowHeight = sheetDimensionDto.getRowHeight();
+                        rowHeightSpinner.getValueFactory().setValue(rowHeight);
 
-            int columnWidth = sheetDimensionDto.getColumnWidth();
-            columnWidthSpinner.getValueFactory().setValue(columnWidth);
-        } else {
-            System.out.println("Error: " + responseBody);
-        }
+                        int columnWidth = sheetDimensionDto.getColumnWidth();
+                        columnWidthSpinner.getValueFactory().setValue(columnWidth);
 
-        clickOnMoveToNewestVersionButton();
+                        clickOnMoveToNewestVersionButton();
+                    });
+                } else {
+                    Platform.runLater(() -> System.out.println("Error: " + responseBody));
+                }
+            }
+        });
     }
 
     public int getCurrentSheetVersion() {
@@ -152,26 +161,45 @@ public class ActionLineController implements Closeable {
             String cellId = modelUi.selectedCellIdProperty().getValue();
             String cellNewOriginalValue = originalCellValueTextField.getText();
 
-            Request request = HttpClientUtil.putCell(cellId, cellNewOriginalValue);
+            // create the request body
+            String updateCellBodyJson = GSON_INSTANCE.toJson(new EditCellBody(cellNewOriginalValue));
+            MediaType mediaType = MediaType.get(JSON_MEDIA_TYPE);
+            RequestBody requestBody = RequestBody.create(updateCellBodyJson, mediaType);
 
-            try {
-                Response response = HttpClientUtil.HTTP_CLIENT.newCall(request).execute();
-                String responseBody = response.body().string();
-                if (response.isSuccessful()) {
-                    CellDto cellDto = GSON_INSTANCE.fromJson(responseBody, CellDto.class);
-                    modelUi.selectedCellOriginalValueProperty().set(cellNewOriginalValue);
-                    modelUi.selectedCellLastVersionProperty().set(cellDto.getLastUpdatedInVersion());
-                    modelUi.selectedUpdatedByNameProperty().set(cellDto.getUpdatedByName());
-                    modelUi.currentSheetVersionProperty().set(cellDto.getLastUpdatedInVersion());
-                    mainSheetController.cellIsUpdated(cellId, cellDto);
-                } else {
-                    ServerException.ErrorResponse errorResponse = GSON_INSTANCE.fromJson(responseBody, ServerException.ErrorResponse.class);
-                    updateCellFailed(errorResponse.getMessage());
+            String url = HttpUrl
+                    .parse(CELL_ENDPOINT)
+                    .newBuilder()
+                    .addQueryParameter(CELL_POSITION, cellId)
+                    .build()
+                    .toString();
+
+            HttpClientUtil.runAsyncPut(url, requestBody, new Callback() {
+                @Override
+                public void onFailure(@NotNull Call call, @NotNull IOException e) {
+                    System.out.println("Error: " + e.getMessage());
+                    Platform.runLater(() -> updateCellFailed(e.getMessage()));
                 }
-            } catch (Exception e) {
-                System.out.println("Error: " + e.getMessage());
-                updateCellFailed(e.getMessage());
-            }
+
+                @Override
+                public void onResponse(@NotNull Call call, @NotNull Response response) throws IOException {
+                    String responseBody = response.body().string();
+                    if (response.isSuccessful()) {
+                        CellDto cellDto = GSON_INSTANCE.fromJson(responseBody, CellDto.class);
+                        Platform.runLater(() -> {
+                            modelUi.selectedCellOriginalValueProperty().set(cellNewOriginalValue);
+                            modelUi.selectedCellLastVersionProperty().set(cellDto.getLastUpdatedInVersion());
+                            modelUi.selectedUpdatedByNameProperty().set(cellDto.getUpdatedByName());
+                            modelUi.currentSheetVersionProperty().set(cellDto.getLastUpdatedInVersion());
+                            mainSheetController.cellIsUpdated(cellId, cellDto);
+                        });
+                    } else {
+                        Platform.runLater(() -> {
+                            ServerException.ErrorResponse errorResponse = GSON_INSTANCE.fromJson(responseBody, ServerException.ErrorResponse.class);
+                            updateCellFailed(errorResponse.getMessage());
+                        });
+                    }
+                }
+            });
         } else {
             updateCellFailed("Sheet has a newer version, please move to it first");
         }
@@ -247,8 +275,6 @@ public class ActionLineController implements Closeable {
             columnWidthSpinner.getValueFactory().setValue(columnWidth);
 
             modelUi.isAnyCellClickedProperty().set(true);
-
-            return cellDto;
         }
 
         return cellDto;
@@ -266,7 +292,6 @@ public class ActionLineController implements Closeable {
     void dynamicAnalysisButtonListener(ActionEvent event) throws IOException {
         String cellId = modelUi.selectedCellIdProperty().getValue();
         int sheetVersion = mainSheetController.getLastSheetVersion();
-        CellDto cellDto;
 
         String url = HttpUrl
                 .parse(CELL_ENDPOINT)
@@ -276,34 +301,44 @@ public class ActionLineController implements Closeable {
                 .build()
                 .toString();
 
-        Request request = new Request.Builder()
-                .url(url)
-                .build();
-
-        Response response = HttpClientUtil.HTTP_CLIENT.newCall(request).execute();
-        String responseBody = response.body().string();
-        if (response.isSuccessful()) {
-            cellDto = GSON_INSTANCE.fromJson(responseBody, CellDto.class);
-            String originalValue = "";
-            CellTypeDto cellType = CellTypeDto.UNKNOWN;
-
-            try {
-                if (cellDto != null) {
-                    originalValue = cellDto.getOriginalValue();
-                    cellType = cellDto.getEffectiveValue().getCellType();
-                }
-                Double.parseDouble(originalValue);
-                if (cellType != CellTypeDto.NUMERIC) {
-                    throw new NumberFormatException();
-                }
-                mainSheetController.showDynamicAnalysis(cellId);
-
-            } catch (Exception e) {
-                AlertsHandler.HandleErrorAlert("Dynamic Analysis", "Dynamic analysis is available only for numeric and not functioned values");
+        HttpClientUtil.runAsyncGet(url, new Callback() {
+            @Override
+            public void onFailure(@NotNull Call call, @NotNull IOException e) {
+                System.out.println("Error on dynamic analysis: " + e.getMessage());
             }
-        } else {
-            System.out.println("Error: " + responseBody);
-        }
+
+            @Override
+            public void onResponse(@NotNull Call call, @NotNull Response response) throws IOException {
+                String responseBody = response.body().string();
+                if (response.isSuccessful()) {
+                    CellDto cellDto = GSON_INSTANCE.fromJson(responseBody, CellDto.class);
+                    String originalValue = "";
+                    CellTypeDto cellType = CellTypeDto.UNKNOWN;
+
+                    try {
+                        if (cellDto != null) {
+                            originalValue = cellDto.getOriginalValue();
+                            cellType = cellDto.getEffectiveValue().getCellType();
+                        }
+                        Double.parseDouble(originalValue);
+                        if (cellType != CellTypeDto.NUMERIC) {
+                            throw new NumberFormatException();
+                        }
+                        Platform.runLater(() -> {
+                            mainSheetController.showDynamicAnalysis(cellId);
+                        });
+                    } catch (NumberFormatException e) {
+                        Platform.runLater(() ->
+                                AlertsHandler.HandleErrorAlert("Dynamic Analysis",
+                                        "Dynamic analysis is available only for numeric and not functioned values"));
+                    } catch (Exception e) {
+                        Platform.runLater(() -> System.out.println("Error on dynamic analysis: " + e.getMessage()));
+                    }
+                } else {
+                    Platform.runLater(() -> System.out.println("Error on dynamic analysis: " + responseBody));
+                }
+            }
+        });
     }
 
     public void setIsUserWriter(boolean isWriter) {

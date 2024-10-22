@@ -2,13 +2,10 @@ package client.util.http;
 
 import okhttp3.*;
 import org.jetbrains.annotations.NotNull;
-import serversdk.request.body.EditCellBody;
 
 import java.io.IOException;
 
 import static client.resources.CommonResourcesPaths.*;
-import static serversdk.request.parameter.RequestParameters.CELL_POSITION;
-import static serversdk.request.parameter.RequestParameters.SHEET_NAME;
 
 public class HttpClientUtil {
 
@@ -44,54 +41,31 @@ public class HttpClientUtil {
         call.enqueue(callback);
     }
 
-    public static Request getCell(String cellPositionId) {
-        String url = HttpUrl
-                .parse(CELL_ENDPOINT)
-                .newBuilder()
-                .addQueryParameter(CELL_POSITION, cellPositionId)
-                .build()
-                .toString();
-
-        return new Request.Builder()
-                .url(url)
+    public static void runAsyncPut(String finalUrl, RequestBody body, Callback callback) {
+        Request request = new Request.Builder()
+                .url(finalUrl)
+                .put(body)
                 .build();
+
+        Call call = HttpClientUtil.HTTP_CLIENT.newCall(request);
+
+        call.enqueue(callback);
     }
 
-    public static Request putCell(String cellPositionId, String originalValue) {
-        // create the request body
-        String updateCellBodyJson = GSON_INSTANCE.toJson(new EditCellBody(originalValue));
-        MediaType mediaType = MediaType.get(JSON_MEDIA_TYPE);
-        RequestBody requestBody = RequestBody.create(updateCellBodyJson, mediaType);
-
-        String url = HttpUrl
-                .parse(CELL_ENDPOINT)
-                .newBuilder()
-                .addQueryParameter(CELL_POSITION, cellPositionId)
-                .build()
-                .toString();
-
-        return new Request.Builder()
-                .url(url)
-                .put(requestBody)
+    public static void runAsyncDelete(String finalUrl, Callback callback) {
+        Request request = new Request.Builder()
+                .url(finalUrl)
+                .delete()
                 .build();
+
+        Call call = HttpClientUtil.HTTP_CLIENT.newCall(request);
+
+        call.enqueue(callback);
     }
 
     public static Request getCurrentSheet() {
         return new Request.Builder()
                 .url(SHEET_ENDPOINT)
-                .build();
-    }
-
-    public static Request getSheetPermissionRequest(String sheetName) {
-        String url = HttpUrl
-                .parse(PERMISSION_REQUEST_ENDPOINT)
-                .newBuilder()
-                .addQueryParameter(SHEET_NAME, sheetName)
-                .build()
-                .toString();
-
-        return new Request.Builder()
-                .url(url)
                 .build();
     }
 
