@@ -5,10 +5,10 @@
 <?import javafx.scene.control.TextField?>
 <?import javafx.scene.layout.AnchorPane?>
 
-<AnchorPane fx:id="loginComponent" maxHeight="-Infinity" maxWidth="-Infinity" minHeight="-Infinity" minWidth="-Infinity" prefHeight="770.0" prefWidth="1005.0" xmlns="http://javafx.com/javafx/22" xmlns:fx="http://javafx.com/fxml/1" fx:controller="client.component.login.LoginController">
-   <Label layoutX="295.0" layoutY="198.0" prefHeight="58.0" prefWidth="354.0" style="-fx-font-size: 38;" text="Welcome to Shticell!" />
-   <Label layoutX="295.0" layoutY="287.0" style="-fx-font-size: 20;" text="Username:" />
-   <TextField fx:id="usernameTextField" layoutX="399.0" layoutY="289.0" prefHeight="25.0" prefWidth="240.0" />
-   <Button fx:id="loginButton" layoutX="586.0" layoutY="355.0" mnemonicParsing="false" onAction="#loginButtonListener" style="-fx-font-size: 14;" text="Login" />
-   <Label fx:id="errorMessageLabel" layoutX="295.0" layoutY="317.0" prefHeight="30.0" prefWidth="548.0" style="-fx-font-size: 14;" textFill="RED" />
+<AnchorPane maxHeight="-Infinity" maxWidth="-Infinity" minHeight="-Infinity" minWidth="-Infinity" prefHeight="770.0" prefWidth="1162.0" stylesheets="@login.css" xmlns="http://javafx.com/javafx/22" xmlns:fx="http://javafx.com/fxml/1" fx:controller="client.component.login.LoginController">
+   <Label layoutX="288.0" layoutY="76.0" prefHeight="86.0" prefWidth="563.0" style="-fx-font-size: 38;" styleClass="welcome-header" text="Welcome to Shticell!" />
+   <Label layoutX="288.0" layoutY="226.0" style="-fx-font-size: 20;" text="Username:" />
+   <TextField fx:id="usernameTextField" layoutX="395.0" layoutY="221.0" prefHeight="34.0" prefWidth="455.0" />
+   <Button fx:id="loginButton" layoutX="704.0" layoutY="289.0" mnemonicParsing="false" onAction="#loginButtonListener" style="-fx-font-size: 14;" text="Login" />
+   <Label fx:id="errorMessageLabel" layoutX="395.0" layoutY="259.0" prefHeight="30.0" prefWidth="455.0" style="-fx-font-size: 14;" textFill="RED" />
 </AnchorPane>

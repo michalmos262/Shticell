@@ -30,7 +30,7 @@ public class RangesRefresher extends TimerTask {
         HttpClientUtil.runAsyncGet(RANGE_NAMES_ENDPOINT, new Callback() {
             @Override
             public void onFailure(@NotNull Call call, @NotNull IOException e) {
-                System.out.println("Error: " + e.getMessage());
+                System.out.println("Error refreshing ranges: " + e.getMessage());
             }
 
             @Override
@@ -46,7 +46,7 @@ public class RangesRefresher extends TimerTask {
                         rangeNamesListConsumer.accept(rangeNames);
                     }
                 } else {
-                    System.out.println("Error: " + response.body().string());
+                    System.out.println("Error refreshing ranges: " + response.body().string());
                 }
             }
         });

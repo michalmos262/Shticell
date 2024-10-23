@@ -102,10 +102,10 @@ public class MainAppController implements Closeable {
 
     @Override
     public void close() {
-        dashboardComponentController.close();
         for (MainSheetController sheetController : sheetName2Controller.values()) {
             sheetController.close();
         }
+        dashboardComponentController.close();
     }
 
     public void loggedIn(String username) {
@@ -126,8 +126,8 @@ public class MainAppController implements Closeable {
         loadSheetPage(sheetName);
         modelUi.pageHeadingProperty().set("In sheet: " + sheetName);
         setMainPanelTo(sheetName2Component.get(sheetName));
-        sheetName2Controller.get(sheetName).clickOnMoveToNewestVersionButton();
         sheetName2Controller.get(sheetName).setIsUserWriter(isUserWriter);
         sheetName2Controller.get(sheetName).setActive();
+        sheetName2Controller.get(sheetName).clickOnMoveToNewestVersionButton();
     }
 }

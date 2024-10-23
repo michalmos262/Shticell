@@ -1,7 +1,6 @@
 package client.component.dashboard;
 
 import client.component.alert.AlertsHandler;
-import client.component.dashboard.loadfile.LoadFileController;
 import client.component.dashboard.requestpermission.RequestPermissionController;
 import client.component.mainapp.MainAppController;
 import client.util.http.HttpClientUtil;
@@ -12,7 +11,6 @@ import dto.user.SheetNamesAndFileMetadatasDto;
 import dto.user.UserPermission;
 import javafx.application.Platform;
 import javafx.collections.ObservableList;
-import javafx.event.ActionEvent;
 import javafx.fxml.FXML;
 import javafx.fxml.FXMLLoader;
 import javafx.scene.Parent;
@@ -20,12 +18,11 @@ import javafx.scene.Scene;
 import javafx.scene.control.Button;
 import javafx.scene.control.TableColumn;
 import javafx.scene.control.TableView;
-import javafx.scene.input.MouseEvent;
-import javafx.scene.layout.GridPane;
 import dto.sheet.FileMetadata;
 import javafx.stage.Modality;
 import javafx.stage.Stage;
 import okhttp3.*;
+import org.jetbrains.annotations.NotNull;
 import serversdk.request.body.UpdatePermissionRequestBody;
 
 import java.io.Closeable;
@@ -34,6 +31,7 @@ import java.lang.reflect.Type;
 import java.util.*;
 
 import static client.resources.CommonResourcesPaths.*;
+import static serversdk.request.parameter.RequestParameters.SHEET_NAME;
 
 public class DashboardController implements Closeable {
     @FXML private Button viewSheetButton;
@@ -52,13 +50,12 @@ public class DashboardController implements Closeable {
     @FXML private TableColumn<DashboardModelUI.PermissionsTableEntry, String> permissionTypeColumn;
     @FXML private TableColumn<DashboardModelUI.PermissionsTableEntry, String> approvalStateColumn;
 
-    @FXML private GridPane loadFileComponent;
-    @FXML private LoadFileController loadFileComponentController;
-
     private DashboardModelUI modelUi;
     private MainAppController mainAppController;
     private DashboardModelUI.SheetsTableEntry selectedSheetTableEntry;
     private DashboardModelUI.PermissionsTableEntry selectedPermissionsTableEntry;
+
+    private boolean isComponentActive = false;
     private TimerTask sheetsTableRefresher;
     private TimerTask sheetUserPermissionsRefresher;
     private Timer showAvailableSheetsTimer;
@@ -66,10 +63,6 @@ public class DashboardController implements Closeable {
 
     @FXML
     public void initialize() {
-        if (loadFileComponent != null) {
-            loadFileComponentController.setDashboardController(this);
-        }
-
         List<Button> ownerOnlyButtons = new LinkedList<>();
         ownerOnlyButtons.add(acceptPermissionRequestButton);
         ownerOnlyButtons.add(rejectPermissionRequestButton);
@@ -85,7 +78,7 @@ public class DashboardController implements Closeable {
     }
 
     @FXML
-    void availableSheetOnMouseClickedListener(MouseEvent event) {
+    void availableSheetOnMouseClickedListener() {
         selectedSheetTableEntry = availableSheetsTableView.getSelectionModel().getSelectedItem();
         changeSheetButtonsDisability();
     }
@@ -108,7 +101,7 @@ public class DashboardController implements Closeable {
     }
 
     @FXML
-    void permissionsTableViewOnMouseClicked(MouseEvent event) {
+    void permissionsTableViewOnMouseClicked() {
         if (selectedSheetTableEntry != null) {
             selectedPermissionsTableEntry = permissionsTableView.getSelectionModel().getSelectedItem();
             if (selectedPermissionsTableEntry != null) {
@@ -123,7 +116,7 @@ public class DashboardController implements Closeable {
     }
 
     @FXML
-    public void viewSheetButtonListener(ActionEvent actionEvent) {
+    public void viewSheetButtonListener() {
         if (selectedSheetTableEntry != null) {
             String yourPermission = selectedSheetTableEntry.yourPermissionTypeProperty().getValue();
 
@@ -135,65 +128,86 @@ public class DashboardController implements Closeable {
     }
 
     @FXML
-    public void acceptPermissionRequestButtonListener(ActionEvent actionEvent) throws IOException {
+    public void acceptPermissionRequestButtonListener() {
         changePermissionRequestStatus(ApprovalStatus.APPROVED);
     }
 
     @FXML
-    public void rejectPermissionRequestButtonListener(ActionEvent actionEvent) throws IOException {
+    public void rejectPermissionRequestButtonListener() {
         changePermissionRequestStatus(ApprovalStatus.REJECTED);
     }
 
-    private void changePermissionRequestStatus(ApprovalStatus approvalStatus) throws IOException {
+    private void changePermissionRequestStatus(ApprovalStatus approvalStatus) {
         // disable from accepting a permission request if the sheet owner is not me
         if (selectedPermissionsTableEntry != null && selectedSheetTableEntry.ownerNameProperty().getValue()
                 .equals(mainAppController.getLoggedInUsername())) {
 
-            Request sheetPermissionRequest = HttpClientUtil.getSheetPermissionRequest(
-                    selectedSheetTableEntry.sheetNameProperty().getValue()
-            );
+            String url = HttpUrl
+                .parse(PERMISSION_REQUEST_ENDPOINT)
+                .newBuilder()
+                .addQueryParameter(SHEET_NAME, selectedSheetTableEntry.sheetNameProperty().getValue())
+                .build()
+                .toString();
 
-            Response sheetPermissionResponse = HttpClientUtil.HTTP_CLIENT.newCall(sheetPermissionRequest).execute();
-            String responseBody = sheetPermissionResponse.body().string();
-            if (sheetPermissionResponse.isSuccessful()) {
-                Type listType = new TypeToken<List<PermissionRequestDto>>(){}.getType();
-                List<PermissionRequestDto> permissionRequests = GSON_INSTANCE.fromJson(responseBody, listType);
+            HttpClientUtil.runAsyncGet(url, new Callback() {
+                @Override
+                public void onFailure(@NotNull Call call, @NotNull IOException e) {
+                    System.out.println("Error changing permission request status: " + e.getMessage());
+                }
 
-                PermissionRequestDto permissionRequest = permissionRequests.stream().filter((req) ->
-                        req.getRequestUid().equals(selectedPermissionsTableEntry.requestUidProperty().getValue()))
-                        .findFirst().orElse(null);
+                @Override
+                public void onResponse(@NotNull Call call, @NotNull Response response) throws IOException {
+                    if (response.isSuccessful()) {
+                        Type listType = new TypeToken<List<PermissionRequestDto>>(){}.getType();
+                        List<PermissionRequestDto> permissionRequests = GSON_INSTANCE
+                                .fromJson(response.body().string(), listType);
 
-                if (permissionRequest != null) {
-                    String acceptRejectPermissionRequestBodyJson = GSON_INSTANCE.toJson(new UpdatePermissionRequestBody(
-                            permissionRequest.getRequestUid(), selectedSheetTableEntry.sheetNameProperty().getValue(),
-                            approvalStatus.name()
-                    ));
+                        PermissionRequestDto permissionRequest = permissionRequests.stream().filter((req) ->
+                                req.getRequestUid().equals(selectedPermissionsTableEntry.requestUidProperty().getValue()))
+                                .findFirst().orElse(null);
 
-                    MediaType mediaType = MediaType.get(JSON_MEDIA_TYPE);
-                    RequestBody acceptPermissionRequestBody = RequestBody.create(acceptRejectPermissionRequestBodyJson, mediaType);
+                        if (permissionRequest != null) {
+                            String acceptRejectPermissionRequestBodyJson = GSON_INSTANCE.toJson(
+                                    new UpdatePermissionRequestBody(permissionRequest.getRequestUid(),
+                                            selectedSheetTableEntry.sheetNameProperty().getValue(),
+                                            approvalStatus.name()
+                                    )
+                            );
 
-                    Request acceptRejectPermissionRequest = new Request.Builder()
-                            .url(PERMISSION_REQUEST_ENDPOINT)
-                            .put(acceptPermissionRequestBody)
-                            .build();
+                            MediaType mediaType = MediaType.get(JSON_MEDIA_TYPE);
+                            RequestBody acceptPermissionRequestBody = RequestBody.create(acceptRejectPermissionRequestBodyJson, mediaType);
 
-                    Response approvePermissionResponse = HttpClientUtil.HTTP_CLIENT.newCall(acceptRejectPermissionRequest).execute();
-                    if (approvePermissionResponse.isSuccessful()) {
-                        AlertsHandler.HandleOkAlert("Permission request " +
-                                approvalStatus.name().toLowerCase() + " successfully!");
-                        modelUi.isPermissionClicked().set(false);
+                            HttpClientUtil.runAsyncPut(PERMISSION_REQUEST_ENDPOINT, acceptPermissionRequestBody,
+                                    new Callback() {
+                                @Override
+                                public void onFailure(@NotNull Call call, @NotNull IOException e) {
+                                    System.out.println("Error changing permission request status: " + e.getMessage());
+                                }
+
+                                @Override
+                                public void onResponse(@NotNull Call call, @NotNull Response response) throws IOException {
+                                    if (response.isSuccessful()) {
+                                        Platform.runLater(() -> {
+                                            AlertsHandler.HandleOkAlert("Permission request " +
+                                                approvalStatus.name().toLowerCase() + " successfully!");
+                                            modelUi.isPermissionClicked().set(false);
+                                        });
+                                    } else {
+                                        System.out.println("Error changing permission request status: " + response.body().string());
+                                    }
+                                }
+                            });
+                        }
                     } else {
-                        System.out.println("Error: " + approvePermissionResponse.body().string());
+                        System.out.println("Error changing permission request status: " + response.body().string());
                     }
                 }
-            } else {
-                System.out.println("Error: " + responseBody);
-            }
+            });
         }
     }
 
     @FXML
-    public void requestPermissionButtonListener(ActionEvent actionEvent) throws IOException {
+    public void requestPermissionButtonListener() throws IOException {
         // disable from request permission for myself
         if (selectedSheetTableEntry != null && !selectedSheetTableEntry.ownerNameProperty().getValue()
                 .equals(mainAppController.getLoggedInUsername())) {
@@ -259,6 +273,7 @@ public class DashboardController implements Closeable {
     }
 
     private void startSheetsTableRefresher() {
+        if (isComponentActive) return;
         sheetsTableRefresher = new AvailableSheetsTableRefresher(
                 this::updateSheetsTable
         );
@@ -267,6 +282,7 @@ public class DashboardController implements Closeable {
     }
 
     private void startPermissionsTableRefresher() {
+        if (isComponentActive) return;
         sheetUserPermissionsRefresher = new SheetUserPermissionsRefresher(
                 modelUi.selectedSheetNameProperty(),
                 this::updateSheetPermissionsTable
@@ -276,18 +292,29 @@ public class DashboardController implements Closeable {
     }
 
     public void setActive() {
-        startSheetsTableRefresher();
-        startPermissionsTableRefresher();
+        if (!isComponentActive) {
+            startSheetsTableRefresher();
+            startPermissionsTableRefresher();
+            isComponentActive = true;
+        }
     }
 
     @Override
     public void close() {
-        if (sheetsTableRefresher != null && showAvailableSheetsTimer != null &&
-                sheetUserPermissionsRefresher != null && showPermissionsTimer != null) {
+        isComponentActive = false;
+        if (sheetsTableRefresher != null) {
             sheetsTableRefresher.cancel();
+        }
+        if (sheetUserPermissionsRefresher != null) {
             sheetUserPermissionsRefresher.cancel();
+        }
+        if (showAvailableSheetsTimer != null) {
             showAvailableSheetsTimer.cancel();
+            showAvailableSheetsTimer.purge();
+        }
+        if (showPermissionsTimer != null) {
             showPermissionsTimer.cancel();
+            showPermissionsTimer.purge();
         }
     }
 }

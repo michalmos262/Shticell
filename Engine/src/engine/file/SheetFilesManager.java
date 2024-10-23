@@ -16,8 +16,19 @@ public class SheetFilesManager {
         fileMetadataList = new LinkedList<>();
     }
 
+    public boolean isSheetNameExists(String sheetName) {
+        boolean fileExists = false;
+        for (String key : name2sheetManager.keySet()) {
+            if (key.equalsIgnoreCase(sheetName)) {
+                fileExists = true;
+                break;
+            }
+        }
+        return fileExists;
+    }
+
     public void addSheetManager(String sheetName, SheetManager sheetManager) {
-        if (name2sheetManager.containsKey(sheetName)) {
+        if (isSheetNameExists(sheetName)) {
             throw new SheetNameAlreadyExistsException(sheetName);
         }
         name2sheetManager.put(sheetName, sheetManager);
@@ -36,9 +47,5 @@ public class SheetFilesManager {
 
     public List<FileMetadata> getFileMetadataList() {
         return Collections.unmodifiableList(fileMetadataList);
-    }
-
-    public int getSheetManagersCount() {
-        return name2sheetManager.size();
     }
 }

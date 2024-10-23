@@ -42,7 +42,7 @@ public class SheetUserPermissionsRefresher extends TimerTask {
             HttpClientUtil.runAsyncGet(url, new Callback() {
                 @Override
                 public void onFailure(@NotNull Call call, @NotNull IOException e) {
-                    System.out.println("Error: " + e.getMessage());
+                    System.out.println("Error refreshing sheet user permissions table: " + e.getMessage());
                 }
 
                 @Override
@@ -57,7 +57,7 @@ public class SheetUserPermissionsRefresher extends TimerTask {
                             sheetPermissionsConsumer.accept(permissionRequests);
                         }
                     } else {
-                        System.out.println("Error: " + response.body().string());
+                        System.out.println("Error refreshing sheet user permissions table: " + response.body().string());
                     }
                 }
             });

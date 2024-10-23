@@ -1,0 +1,121 @@
+.text-field {
+    -fx-background-color: #f0f0f0;
+    -fx-background-radius: 5;
+    -fx-border-color: #b0b0b0;
+    -fx-border-radius: 5;
+    -fx-border-width: 2;
+    -fx-padding: 3 10 3 10;
+    -fx-text-fill: #333;
+}
+
+.text-field:focused {
+    -fx-background-color: #ffffff;
+    -fx-border-color: #1E90FF;
+    -fx-border-width: 2;
+}
+
+.text-field:hover {
+    -fx-background-color: #e8e8e8;
+}
+
+.text-field:disabled {
+    -fx-opacity: 0.5;
+}
+
+.button {
+    -fx-background-color: linear-gradient(#76bbea, #2980b9);
+    -fx-text-fill: white;
+    -fx-font-size: 12px;
+    -fx-border-radius: 30px;
+    -fx-background-radius: 30px;
+    -fx-cursor: hand;
+    -fx-effect: dropshadow(gaussian, rgba(0, 0, 0, 0.3), 10, 0, 0, 2);
+    -fx-transition: 0.3s ease-in-out;
+}
+
+.button:pressed {
+    -fx-background-color: linear-gradient(#2575fc, #6a11cb);
+    -fx-effect: dropshadow(gaussian, rgba(0, 0, 0, 0.5), 15, 0, 0, 4);
+    -fx-scale-x: 0.98;
+    -fx-scale-y: 0.98;
+}
+
+.button:hover {
+    -fx-background-color: rgba(110, 215, 234, 0.49);
+}
+
+.back-to-dashboard-button {
+    -fx-background-color: linear-gradient(#76bbea, blue);
+}
+
+.back-to-dashboard-button:hover {
+    -fx-background-color: #76bbea;
+}
+
+.choice-box {
+    -fx-background-color: #ffffff; /* White background */
+    -fx-border-color: #bdc3c7; /* Light grey border */
+    -fx-border-width: 1px;
+    -fx-border-radius: 5px;
+    -fx-text-fill: #2c3e50; /* Text color */
+}
+
+.color-picker {
+    -fx-background-color: #ffffff; /* White background */
+    -fx-border-color: #bdc3c7; /* Light grey border */
+    -fx-border-width: 1px;
+    -fx-border-radius: 5px; /* Rounded corners */
+}
+
+/* TableView styling */
+.table-view {
+    -fx-background-color: #ffffff;
+    -fx-border-color: #dcdde1;
+    -fx-border-width: 1px;
+    -fx-border-radius: 5px;
+    -fx-effect: dropshadow(gaussian, rgba(0, 0, 0, 0.1), 5, 0, 0, 2);
+}
+
+.table-view .column-header-background {
+    -fx-background-color: #76bbea;
+}
+
+.table-view .table-row-cell {
+    -fx-border-color: transparent transparent #dcdde1 transparent;
+}
+
+.table-view .table-row-cell:selected {
+    -fx-text-fill: #2c3e50;
+}
+
+/* Header text for TableView */
+.table-view .column-header {
+    -fx-font-weight: bold;
+    -fx-text-fill: white;
+    -fx-background-color: #76bbea;
+}
+
+.table-view .table-cell {
+    -fx-font-family: 'Roboto', 'Segoe UI', sans-serif;
+}
+
+.titled-pane {
+    -fx-background-color: #ffffff; /* White background */
+    -fx-border-color: #dcdde1; /* Light grey border */
+    -fx-border-width: 1px; /* Border thickness */
+    -fx-border-radius: 5px; /* Rounded corners */
+}
+
+.titled-pane .title {
+    -fx-font-weight: bold; /* Bold title */
+    -fx-text-fill: #2c3e50; /* Dark text color */
+    -fx-font-family: 'Roboto', 'Segoe UI', sans-serif; /* Font family */
+}
+
+.titled-pane:expanded {
+    -fx-background-color: #f4f6f9; /* Light grey background when expanded */
+}
+
+.titled-pane:expanded .title {
+    -fx-text-fill: #2980b9; /* Change title color when expanded */
+}

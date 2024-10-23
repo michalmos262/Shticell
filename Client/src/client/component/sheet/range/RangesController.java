@@ -5,12 +5,11 @@ import client.util.http.HttpClientUtil;
 import dto.sheet.RangeDto;
 import javafx.application.Platform;
 import javafx.collections.ObservableList;
-import javafx.event.ActionEvent;
 import javafx.fxml.FXML;
 import javafx.scene.control.*;
-import javafx.scene.input.MouseEvent;
 import client.component.sheet.mainsheet.MainSheetController;
 import okhttp3.*;
+import org.jetbrains.annotations.NotNull;
 import serversdk.exception.ServerException;
 import serversdk.request.body.RangeBody;
 
@@ -18,6 +17,7 @@ import java.io.Closeable;
 import java.io.IOException;
 import java.util.Arrays;
 import java.util.List;
+import java.util.Objects;
 import java.util.Timer;
 
 import static client.resources.CommonResourcesPaths.*;
@@ -27,19 +27,17 @@ public class RangesController implements Closeable {
 
     @FXML private TextField addFromRangeTextInput;
     @FXML private TitledPane addNewRangeTitledPane;
-    @FXML private Button addRangeButton;
     @FXML private TextField addRangeNameTextInput;
     @FXML private TextField addToRangeTextInput;
-    @FXML private Button deleteRangeButton;
     @FXML private ChoiceBox<String> deleteRangeNameChoiceBox;
     @FXML private TitledPane deleteRangeTitledPane;
     @FXML private TableView<RangeModelUI.RangeTableEntry> showRangesTable;
     @FXML private TableColumn<RangeModelUI.RangeTableEntry, String> nameColumn;
     @FXML private TableColumn<RangeModelUI.RangeTableEntry, String> rangeColumn;
-    @FXML private TitledPane showRangesTitledPane;
 
     private MainSheetController mainSheetController;
     private RangeModelUI modelUi;
+    private boolean isComponentActive = false;
     private RangesRefresher rangesRefresher;
     private Timer timer;
 
@@ -56,76 +54,108 @@ public class RangesController implements Closeable {
         this.mainSheetController = mainSheetController;
     }
 
+    public void moveToNewestSheetVersion(int newestVersion) {
+        modelUi.currentSheetVersionProperty().set(newestVersion);
+    }
+
     @FXML
-    void addRangeButtonListener(ActionEvent event) {
+    void addRangeButtonListener() {
         String alertTitle = "Add range";
-        try {
-            String rangeName = addRangeNameTextInput.getText();
+        mainSheetController.getLastSheetVersionAsync((lastSheetVersion) -> {
+            if (Objects.equals(modelUi.currentSheetVersionProperty().getValue(), lastSheetVersion)) {
+                try {
+                    String rangeName = addRangeNameTextInput.getText();
 
-            if (!rangeName.isEmpty()) {
-                String fromPositionStr = addFromRangeTextInput.getText();
-                String toPositionStr = addToRangeTextInput.getText();
+                    if (!rangeName.isEmpty()) {
+                        String fromPositionStr = addFromRangeTextInput.getText();
+                        String toPositionStr = addToRangeTextInput.getText();
 
-                // create the request body
-                String addRangeBodyJson = GSON_INSTANCE.toJson(new RangeBody(rangeName, fromPositionStr, toPositionStr));
-                MediaType mediaType = MediaType.get(JSON_MEDIA_TYPE);
-                RequestBody requestBody = RequestBody.create(addRangeBodyJson, mediaType);
+                        // create the request body
+                        String addRangeBodyJson = GSON_INSTANCE.toJson(new RangeBody(rangeName, fromPositionStr, toPositionStr));
+                        MediaType mediaType = MediaType.get(JSON_MEDIA_TYPE);
+                        RequestBody requestBody = RequestBody.create(addRangeBodyJson, mediaType);
 
-                Request request = new Request.Builder()
-                        .url(RANGE_ENDPOINT)
-                        .post(requestBody)
-                        .build();
+                        HttpClientUtil.runAsyncPost(RANGE_ENDPOINT, requestBody, new Callback() {
+                            @Override
+                            public void onFailure(@NotNull Call call, @NotNull IOException e) {
+                                System.out.println("Error on add range: " + e.getMessage());
+                            }
 
-                Response response = HttpClientUtil.HTTP_CLIENT.newCall(request).execute();
-                if (response.isSuccessful()) {
-                    modelUi.isRangeAddedProperty().set(true);
-                    modelUi.isRangeAddedProperty().set(false);
-                    AlertsHandler.HandleOkAlert("Range " + rangeName + " added successfully!");
-                } else {
-                    ServerException.ErrorResponse errorResponse = GSON_INSTANCE.fromJson(response.body().string(), ServerException.ErrorResponse.class);
-                    AlertsHandler.HandleErrorAlert(alertTitle, errorResponse.getMessage());
+                            @Override
+                            public void onResponse(@NotNull Call call, @NotNull Response response) throws IOException {
+                                if (response.isSuccessful()) {
+                                    Platform.runLater(() -> {
+                                        modelUi.isRangeAddedProperty().set(true);
+                                        modelUi.isRangeAddedProperty().set(false);
+                                        AlertsHandler.HandleOkAlert("Range " + rangeName + " added successfully!");
+                                    });
+                                } else {
+                                    ServerException.ErrorResponse errorResponse =
+                                            GSON_INSTANCE.fromJson(response.body().string(), ServerException.ErrorResponse.class);
+                                    Platform.runLater(() ->
+                                            AlertsHandler.HandleErrorAlert(alertTitle, errorResponse.getMessage()));
+                                }
+                            }
+                        });
+                    } else {
+                        AlertsHandler.HandleErrorAlert(alertTitle, "Range name cannot be empty");
+                    }
+                } catch (Exception e) {
+                    AlertsHandler.HandleErrorAlert(alertTitle, e.getMessage());
                 }
             } else {
-                AlertsHandler.HandleErrorAlert(alertTitle, "Range name cannot be empty");
+                AlertsHandler.HandleErrorAlert(alertTitle,
+                        "Sheet has a newer version, please move to it first");
             }
-        } catch (Exception e) {
-            AlertsHandler.HandleErrorAlert(alertTitle, e.getMessage());
-        }
+        });
     }
 
     @FXML
-    void deleteRangeButtonListener(ActionEvent event) {
-        try {
-            String rangeName = deleteRangeNameChoiceBox.getValue();
-            String url = HttpUrl
-                .parse(RANGE_ENDPOINT)
-                .newBuilder()
-                .addQueryParameter(RANGE_NAME, rangeName)
-                .build()
-                .toString();
+    void deleteRangeButtonListener() {
+        String alertTitle = "Delete range";
+        mainSheetController.getLastSheetVersionAsync((lastSheetVersion) -> {
+            if (Objects.equals(modelUi.currentSheetVersionProperty().getValue(), lastSheetVersion)) {
+                String rangeName = deleteRangeNameChoiceBox.getValue();
+                String url = HttpUrl
+                        .parse(RANGE_ENDPOINT)
+                        .newBuilder()
+                        .addQueryParameter(RANGE_NAME, rangeName)
+                        .build()
+                        .toString();
 
-            Request request = new Request.Builder()
-                    .url(url)
-                    .delete()
-                    .build();
+                HttpClientUtil.runAsyncDelete(url, new Callback() {
+                    @Override
+                    public void onFailure(@NotNull Call call, @NotNull IOException e) {
+                        Platform.runLater(() ->
+                                AlertsHandler.HandleErrorAlert(alertTitle, e.getMessage()));
+                    }
 
-            Response response = HttpClientUtil.HTTP_CLIENT.newCall(request).execute();
-            if (response.isSuccessful()) {
-                modelUi.removeRange(rangeName);
-                deleteRangeNameChoiceBox.setValue(null); // clean current choice
-                mainSheetController.removeCellsPaints();
-                AlertsHandler.HandleOkAlert("Range " + rangeName + " deleted successfully!");
+                    @Override
+                    public void onResponse(@NotNull Call call, @NotNull Response response) throws IOException {
+                        if (response.isSuccessful()) {
+                            Platform.runLater(() -> {
+                                modelUi.removeRange(rangeName);
+                                deleteRangeNameChoiceBox.setValue(null); // clean current choice
+                                mainSheetController.removeCellsPaints();
+                                AlertsHandler.HandleOkAlert("Range " + rangeName + " deleted successfully!");
+                            });
+                        } else {
+                            ServerException.ErrorResponse errorResponse =
+                                    GSON_INSTANCE.fromJson(response.body().string(), ServerException.ErrorResponse.class);
+                            Platform.runLater(() ->
+                                    AlertsHandler.HandleErrorAlert(alertTitle, errorResponse.getMessage()));
+                        }
+                    }
+                });
             } else {
-                ServerException.ErrorResponse errorResponse = GSON_INSTANCE.fromJson(response.body().string(), ServerException.ErrorResponse.class);
-                AlertsHandler.HandleErrorAlert("Delete range", errorResponse.getMessage());
+                AlertsHandler.HandleErrorAlert(alertTitle,
+                        "Sheet has a newer version, please move to it first");
             }
-        } catch (Exception e) {
-            AlertsHandler.HandleErrorAlert("Delete range", e.getMessage());
-        }
+        });
     }
 
     @FXML
-    void tableViewOnMouseClickedListener(MouseEvent event) throws IOException {
+    void tableViewOnMouseClickedListener() {
         RangeModelUI.RangeTableEntry selectedRow = showRangesTable.getSelectionModel().getSelectedItem();
         if (selectedRow != null) {
             mainSheetController.showCellsInRange(selectedRow.nameProperty().getValue());
@@ -160,7 +190,7 @@ public class RangesController implements Closeable {
                         RangeDto rangeDto = GSON_INSTANCE.fromJson(responseBody, RangeDto.class);
                         modelUi.addRange(rangeName, rangeDto);
                     } else {
-                        System.out.println("Error: " + responseBody);
+                        System.out.println("Error updating ranges table and delete range choice box: " + responseBody);
                     }
                 } catch (IOException e) {
                     throw new RuntimeException(e);
@@ -169,7 +199,12 @@ public class RangesController implements Closeable {
         });
     }
 
+    public void updateCellSucceeded(int newVersion) {
+        modelUi.currentSheetVersionProperty().set(newVersion);
+    }
+
     public void startRangesRefresher() {
+        if (isComponentActive) return;
         rangesRefresher = new RangesRefresher(
                 this::updateRangesTableAndDeleteRangeChoiceBox);
         timer = new Timer();
@@ -177,7 +212,10 @@ public class RangesController implements Closeable {
     }
 
     public void setActive() {
-        startRangesRefresher();
+        if (!isComponentActive) {
+            startRangesRefresher();
+            isComponentActive = true;
+        }
     }
 
     public void setIsUserWriter(boolean isWriter) {
@@ -186,9 +224,13 @@ public class RangesController implements Closeable {
 
     @Override
     public void close() {
-        if (rangesRefresher != null && timer != null) {
-            rangesRefresher.cancel();
+        isComponentActive = false;
+        if (timer != null) {
             timer.cancel();
+            timer.purge();
+        }
+        if (rangesRefresher != null) {
+            rangesRefresher.cancel();
         }
     }
 }

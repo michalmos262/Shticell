@@ -8,12 +8,11 @@ import dto.cell.CellPositionDto;
 import dto.cell.EffectiveValueDto;
 import dto.sheet.RowDto;
 import dto.sheet.SheetDimensionDto;
-import javafx.event.ActionEvent;
+import javafx.application.Platform;
 import javafx.fxml.FXML;
 import javafx.scene.control.*;
-import okhttp3.HttpUrl;
-import okhttp3.Request;
-import okhttp3.Response;
+import okhttp3.*;
+import org.jetbrains.annotations.NotNull;
 import serversdk.exception.ServerException;
 
 import java.io.IOException;
@@ -25,18 +24,12 @@ import static client.resources.CommonResourcesPaths.*;
 import static serversdk.request.parameter.RequestParameters.*;
 
 public class CommandsController {
-
-    @FXML private Button showSortedSheetButton;
-    @FXML private Button showFilteredSheetButton;
-    @FXML private Button chooseFilterValuesButton;
     @FXML private ListView<CommandsModelUI.ListViewEntry> sortByColumnsListView;
     @FXML private ListView<CommandsModelUI.ListViewEntry> filterByColumnsListView;
     @FXML private TextField fromPositionFilterTextField;
     @FXML private TextField fromPositionSortTextField;
     @FXML private TextField toPositionFilterTextField;
     @FXML private TextField toPositionSortTextField;
-    @FXML private TitledPane sortSheetTitledPane;
-    @FXML private TitledPane filterSheetTitledPane;
     @FXML private TableView<Map<String, CommandsModelUI.EffectiveValueWrapper>> filterValuesTableView;
 
     private MainSheetController mainSheetController;
@@ -53,7 +46,7 @@ public class CommandsController {
         this.mainSheetController = mainSheetController;
     }
 
-    public void initComponent(String sheetName) throws IOException {
+    public void initComponent(String sheetName) {
         String url = HttpUrl
                 .parse(SHEET_DIMENSION_ENDPOINT)
                 .newBuilder()
@@ -61,25 +54,35 @@ public class CommandsController {
                 .build()
                 .toString();
 
-        Request request = new Request.Builder()
-                .url(url)
-                .build();
-        Response response = HttpClientUtil.HTTP_CLIENT.newCall(request).execute();
-        String responseBody = response.body().string();
-        if (response.isSuccessful()) {
-            SheetDimensionDto sheetDimensionDto = GSON_INSTANCE.fromJson(responseBody, SheetDimensionDto.class);
-            for (int i = 0; i < sheetDimensionDto.getNumOfColumns(); i++) {
-                sheetColumns.add(CellPositionDto.parseColumn(i + 1));
+        HttpClientUtil.runAsyncGet(url, new Callback() {
+            @Override
+            public void onFailure(@NotNull Call call, @NotNull IOException e) {
+                System.err.println("Error init commands controller: " + e.getMessage());
             }
-            List<ListView<CommandsModelUI.ListViewEntry>> listViews = new LinkedList<>();
-            listViews.add(filterByColumnsListView);
-            listViews.add(sortByColumnsListView);
-            modelUi.setColumnsSelectBoxes(sheetColumns, listViews);
-        }
+
+            @Override
+            public void onResponse(@NotNull Call call, @NotNull Response response) throws IOException {
+                String responseBody = response.body().string();
+                if (response.isSuccessful()) {
+                    SheetDimensionDto sheetDimensionDto = GSON_INSTANCE.fromJson(responseBody, SheetDimensionDto.class);
+                    for (int i = 0; i < sheetDimensionDto.getNumOfColumns(); i++) {
+                        sheetColumns.add(CellPositionDto.parseColumn(i + 1));
+                    }
+                    Platform.runLater(() -> {
+                        List<ListView<CommandsModelUI.ListViewEntry>> listViews = new LinkedList<>();
+                        listViews.add(filterByColumnsListView);
+                        listViews.add(sortByColumnsListView);
+                        modelUi.setColumnsSelectBoxes(sheetColumns, listViews);
+                    });
+                } else {
+                    System.err.println("Error init commands controller: " + responseBody);
+                }
+            }
+        });
     }
 
     @FXML
-    void showSortedSheetButtonListener(ActionEvent event) throws IOException {
+    void showSortedSheetButtonListener() {
         String fromPositionStr = fromPositionSortTextField.getText();
         String toPositionStr = toPositionSortTextField.getText();
         int sheetVersion = mainSheetController.getCurrentSheetVersion();
@@ -99,24 +102,37 @@ public class CommandsController {
                 .build()
                 .toString();
 
-        Request request = new Request.Builder()
-                .url(url)
-                .build();
+        HttpClientUtil.runAsyncGet(url, new Callback() {
+            @Override
+            public void onFailure(@NotNull Call call, @NotNull IOException e) {
+                Platform.runLater(() -> AlertsHandler.HandleErrorAlert("Show sorted sheet", e.getMessage()));
+            }
 
-        Response response = HttpClientUtil.HTTP_CLIENT.newCall(request).execute();
-        String responseBody = response.body().string();
-        if (response.isSuccessful()) {
-            Type listType = new TypeToken<LinkedList<RowDto>>(){}.getType();
-            LinkedList<RowDto> sortedRows = GSON_INSTANCE.fromJson(responseBody, listType);
-            mainSheetController.sheetIsSorted(sortedRows, fromPositionStr, toPositionStr);
-        } else {
-            ServerException.ErrorResponse errorResponse = GSON_INSTANCE.fromJson(responseBody, ServerException.ErrorResponse.class);
-            AlertsHandler.HandleErrorAlert("Show sorted sheet", errorResponse.getMessage());
-        }
+            @Override
+            public void onResponse(@NotNull Call call, @NotNull Response response) throws IOException {
+                String responseBody = response.body().string();
+                if (response.isSuccessful()) {
+                    Type listType = new TypeToken<LinkedList<RowDto>>(){}.getType();
+                    LinkedList<RowDto> sortedRows = GSON_INSTANCE.fromJson(responseBody, listType);
+                    Platform.runLater(() -> {
+                        try {
+                            mainSheetController.sheetIsSorted(sortedRows, fromPositionStr, toPositionStr);
+                        } catch (IOException e) {
+                            throw new RuntimeException(e);
+                        }
+                    });
+                } else {
+                    ServerException.ErrorResponse errorResponse =
+                            GSON_INSTANCE.fromJson(responseBody, ServerException.ErrorResponse.class);
+                    Platform.runLater(() ->
+                            AlertsHandler.HandleErrorAlert("Show sorted sheet", errorResponse.getMessage()));
+                }
+            }
+        });
     }
 
     @FXML
-    void chooseFilterValuesButtonListener(ActionEvent event) {
+    void chooseFilterValuesButtonListener() {
         try {
             String fromPositionStr = fromPositionFilterTextField.getText();
             String toPositionStr = toPositionFilterTextField.getText();
@@ -137,27 +153,35 @@ public class CommandsController {
                     .build()
                     .toString();
 
-            Request request = new Request.Builder()
-                    .url(url)
-                    .build();
+            HttpClientUtil.runAsyncGet(url, new Callback() {
+                @Override
+                public void onFailure(@NotNull Call call, @NotNull IOException e) {
+                    Platform.runLater(() -> AlertsHandler.HandleErrorAlert("Show filtered sheet", e.getMessage()));
+                }
 
-            Response response = HttpClientUtil.HTTP_CLIENT.newCall(request).execute();
-            String responseBody = response.body().string();
-            if (response.isSuccessful()) {
-                Type type = new TypeToken<Map<String, Set<EffectiveValueDto>>>() {}.getType();
-                Map<String, Set<EffectiveValueDto>> uniqueValuesInColumns = GSON_INSTANCE.fromJson(responseBody, type);
-                modelUi.setupFilterValuesTableView(filterValuesTableView, uniqueValuesInColumns);
-            } else {
-                ServerException.ErrorResponse errorResponse = GSON_INSTANCE.fromJson(responseBody, ServerException.ErrorResponse.class);
-                AlertsHandler.HandleErrorAlert("Show filtered sheet", errorResponse.getMessage());
-            }
+                @Override
+                public void onResponse(@NotNull Call call, @NotNull Response response) throws IOException {
+                    String responseBody = response.body().string();
+                    if (response.isSuccessful()) {
+                        Type type = new TypeToken<Map<String, Set<EffectiveValueDto>>>(){}.getType();
+                        Map<String, Set<EffectiveValueDto>> uniqueValuesInColumns =
+                                GSON_INSTANCE.fromJson(responseBody, type);
+                        Platform.runLater(() ->
+                                modelUi.setupFilterValuesTableView(filterValuesTableView, uniqueValuesInColumns));
+                    } else {
+                        ServerException.ErrorResponse errorResponse = GSON_INSTANCE.fromJson(responseBody, ServerException.ErrorResponse.class);
+                        Platform.runLater(() ->
+                                AlertsHandler.HandleErrorAlert("Show filtered sheet", errorResponse.getMessage()));
+                    }
+                }
+            });
         } catch (Exception e) {
             AlertsHandler.HandleErrorAlert("Show filtered sheet", e.getMessage());
         }
     }
 
     @FXML
-    void showFilteredSheetButtonListener(ActionEvent event) throws IOException {
+    void showFilteredSheetButtonListener() {
         String fromPositionStr = fromPositionFilterTextField.getText();
         String toPositionStr = toPositionFilterTextField.getText();
         int sheetVersion = mainSheetController.getCurrentSheetVersion();
@@ -210,20 +234,32 @@ public class CommandsController {
                 .build()
                 .toString();
 
-        Request request = new Request.Builder()
-                .url(url)
-                .build();
+        HttpClientUtil.runAsyncGet(url, new Callback() {
+            @Override
+            public void onFailure(@NotNull Call call, @NotNull IOException e) {
+                Platform.runLater(() -> AlertsHandler.HandleErrorAlert("Show filtered sheet", e.getMessage()));
+            }
 
-        Response response = HttpClientUtil.HTTP_CLIENT.newCall(request).execute();
-        String responseBody = response.body().string();
-        if (response.isSuccessful()) {
-            Type listType = new TypeToken<LinkedList<RowDto>>(){}.getType();
-            LinkedList<RowDto> filteredRows = GSON_INSTANCE.fromJson(responseBody, listType);
-            mainSheetController.sheetIsFiltered(filteredRows, fromPositionStr, toPositionStr);
-
-        } else {
-            ServerException.ErrorResponse errorResponse = GSON_INSTANCE.fromJson(responseBody, ServerException.ErrorResponse.class);
-            AlertsHandler.HandleErrorAlert("Show filtered sheet", errorResponse.getMessage());
-        }
+            @Override
+            public void onResponse(@NotNull Call call, @NotNull Response response) throws IOException {
+                String responseBody = response.body().string();
+                if (response.isSuccessful()) {
+                    Type listType = new TypeToken<LinkedList<RowDto>>(){}.getType();
+                    LinkedList<RowDto> filteredRows = GSON_INSTANCE.fromJson(responseBody, listType);
+                    Platform.runLater(() -> {
+                        try {
+                            mainSheetController.sheetIsFiltered(filteredRows, fromPositionStr, toPositionStr);
+                        } catch (IOException e) {
+                            throw new RuntimeException(e);
+                        }
+                    });
+                } else {
+                    ServerException.ErrorResponse errorResponse =
+                            GSON_INSTANCE.fromJson(responseBody, ServerException.ErrorResponse.class);
+                    Platform.runLater(() ->
+                            AlertsHandler.HandleErrorAlert("Show filtered sheet", errorResponse.getMessage()));
+                }
+            }
+        });
     }
 }

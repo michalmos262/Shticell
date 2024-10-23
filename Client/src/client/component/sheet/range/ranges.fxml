@@ -23,7 +23,7 @@
    <center>
       <Accordion prefHeight="247.0" prefWidth="242.0">
          <panes>
-            <TitledPane fx:id="showRangesTitledPane" animated="false" expanded="false" text="Show ranges">
+            <TitledPane animated="false" expanded="false" text="Show ranges">
                <AnchorPane minHeight="0.0" minWidth="0.0" prefHeight="180.0" prefWidth="200.0">
                   <TableView fx:id="showRangesTable" layoutY="-1.0" onMouseClicked="#tableViewOnMouseClickedListener" prefHeight="166.0" prefWidth="240.0">
                      <columns>
@@ -41,14 +41,14 @@
                   <TextField fx:id="addFromRangeTextInput" layoutX="62.0" layoutY="59.0" prefHeight="25.0" prefWidth="50.0" promptText="from" />
                   <TextField fx:id="addToRangeTextInput" layoutX="135.0" layoutY="60.0" prefHeight="25.0" prefWidth="50.0" promptText="to" />
                   <TextField fx:id="addRangeNameTextInput" layoutX="62.0" layoutY="19.0" prefHeight="25.0" prefWidth="124.0" />
-                  <Button fx:id="addRangeButton" layoutX="186.0" layoutY="136.0" mnemonicParsing="false" onAction="#addRangeButtonListener" text="Add" />
+                  <Button layoutX="186.0" layoutY="136.0" mnemonicParsing="false" onAction="#addRangeButtonListener" text="Add" />
                </AnchorPane>
             </TitledPane>
             <TitledPane fx:id="deleteRangeTitledPane" animated="false" expanded="false" text="Delete range">
                <AnchorPane minHeight="0.0" minWidth="0.0" prefHeight="180.0" prefWidth="200.0">
                   <Label layoutX="14.0" layoutY="22.0" text="Choose a range name:" />
-                  <Button fx:id="deleteRangeButton" layoutX="173.0" layoutY="136.0" mnemonicParsing="false" onAction="#deleteRangeButtonListener" text="Delete" />
-                  <ChoiceBox fx:id="deleteRangeNameChoiceBox" layoutX="12.0" layoutY="46.0" prefHeight="25.0" prefWidth="126.0" />
+                  <Button layoutX="173.0" layoutY="136.0" mnemonicParsing="false" onAction="#deleteRangeButtonListener" text="Delete" />
+                  <ChoiceBox fx:id="deleteRangeNameChoiceBox" layoutX="12.0" layoutY="46.0" prefHeight="25.0" prefWidth="136.0" />
                </AnchorPane>
             </TitledPane>
          </panes>

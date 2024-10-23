@@ -15,10 +15,12 @@ import java.util.*;
 public class UserManager {
     private final Map<String, SheetNamesAndFileMetadatas> username2sheetNamesAndFileMetadatas;
     private final Map<String, SheetNameAndPermissionRequests> owner2sheetNameAndPermissionRequests;
+    private final Map<String, Boolean> username2isLoggedIn;
 
     public UserManager() {
         username2sheetNamesAndFileMetadatas = new HashMap<>();
         owner2sheetNameAndPermissionRequests = new HashMap<>();
+        username2isLoggedIn = new HashMap<>();
     }
 
     public boolean isUserExists(String username) {
@@ -33,14 +35,35 @@ public class UserManager {
     }
 
     public synchronized void addUser(String username) {
+        // user exists, check if you can log in
         if (isUserExists(username)) {
             throw new UserAlreadyExistsException(username);
         }
         username2sheetNamesAndFileMetadatas.put(username, new SheetNamesAndFileMetadatas());
+        username2isLoggedIn.put(username, true);
     }
 
-    public synchronized void removeUser(String username) {
-        username2sheetNamesAndFileMetadatas.remove(username);
+    public synchronized String loginUserAndGetOriginalUsername(String username) {
+        // username already logged in
+        for (String usernameKey : username2isLoggedIn.keySet()) {
+            if (usernameKey.equalsIgnoreCase(username)) {
+                if (username2isLoggedIn.get(usernameKey)) {
+                    throw new UserAlreadyExistsException(username);
+                } else {
+                    // username is not logged in anymore, can log in again
+                    username2isLoggedIn.put(usernameKey, true);
+                    return usernameKey;
+                }
+            }
+        }
+        return null;
+    }
+
+    public synchronized void logoutUser(String username) {
+        if (!isUserExists(username)) {
+            throw new UserDoesNotExistException(username);
+        }
+        username2isLoggedIn.put(username, false);
     }
 
     public synchronized SheetNamesAndFileMetadatas getUserSheetPermissions(String username) {

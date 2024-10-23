@@ -1,0 +1,95 @@
+/* General styling for the root pane */
+.root {
+    -fx-background-color: #f4f6f9;
+}
+
+/* Header for sections like "Available Sheets" */
+.label {
+    -fx-font-weight: bold;
+    -fx-text-fill: #2c3e50;
+    -fx-font-family: 'Roboto', 'Segoe UI', sans-serif;
+}
+
+/* TableView styling */
+.table-view {
+    -fx-background-color: #ffffff;
+    -fx-border-color: #dcdde1;
+    -fx-border-width: 1px;
+    -fx-border-radius: 5px;
+    -fx-effect: dropshadow(gaussian, rgba(0, 0, 0, 0.1), 5, 0, 0, 2);
+}
+
+.table-view .column-header-background {
+    -fx-background-color: #76bbea;
+}
+
+.table-view .table-row-cell {
+    -fx-border-color: transparent transparent #dcdde1 transparent;
+}
+
+.table-view .table-row-cell:selected {
+    -fx-text-fill: #2c3e50;
+}
+
+/* Header text for TableView */
+.table-view .column-header {
+    -fx-font-weight: bold;
+    -fx-text-fill: white;
+    -fx-background-color: #76bbea;
+}
+
+.table-view .table-cell {
+    -fx-font-family: 'Roboto', 'Segoe UI', sans-serif;
+}
+
+/* Styling for buttons */
+.button {
+    -fx-background-color: #76bbea;
+    -fx-text-fill: white;
+    -fx-font-weight: bold;
+    -fx-border-radius: 5px;
+    -fx-cursor: hand;
+    -fx-font-family: 'Roboto', 'Segoe UI', sans-serif;
+    -fx-effect: dropshadow(gaussian, rgba(0,0,0,0.15), 5, 0, 0, 2);
+}
+
+.button:hover {
+    -fx-background-color: #2980b9;
+}
+
+.button:disabled {
+    -fx-background-color: #bdc3c7;
+    -fx-text-fill: rgba(0, 0, 0, 0.6);
+    -fx-cursor: default;
+}
+
+/* Text field styling */
+.text-field {
+    -fx-background-color: #ecf0f1;
+    -fx-text-fill: #2c3e50;
+    -fx-padding: 10px;
+    -fx-border-color: #bdc3c7;
+    -fx-border-radius: 5px;
+    -fx-border-width: 1px;
+    -fx-font-family: 'Roboto', 'Segoe UI', sans-serif;
+}
+
+.text-field:focused {
+    -fx-border-color: #76bbea;
+}
+
+.reject-button {
+    -fx-background-color: #ea7676;
+}
+
+.accept-button {
+    -fx-background-color: #779246;
+}
+
+.accept-button:hover {
+    -fx-background-color: green;
+}
+
+.reject-button:hover {
+    -fx-background-color: red;
+}

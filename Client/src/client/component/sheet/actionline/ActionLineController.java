@@ -4,7 +4,7 @@ import client.component.alert.AlertsHandler;
 import client.util.http.HttpClientUtil;
 import dto.cell.CellDto;
 import dto.sheet.SheetDimensionDto;
-import javafx.event.ActionEvent;
+import javafx.application.Platform;
 import javafx.fxml.FXML;
 import javafx.geometry.Pos;
 import javafx.scene.control.*;
@@ -14,7 +14,9 @@ import javafx.scene.paint.Color;
 import client.component.sheet.mainsheet.MainSheetController;
 import okhttp3.*;
 import dto.cell.CellTypeDto;
+import org.jetbrains.annotations.NotNull;
 import serversdk.exception.ServerException;
+import serversdk.request.body.EditCellBody;
 
 import static client.resources.CommonResourcesPaths.*;
 import static serversdk.request.parameter.RequestParameters.*;
@@ -29,10 +31,9 @@ public class ActionLineController implements Closeable {
 
     @FXML private Label lastCellVersionLabel;
     @FXML private Label selectedCellIdLabel;
-    @FXML private TextField originalCellValueTextField;
     @FXML private Label updatedByLabel;
+    @FXML private TextField originalCellValueTextField;
     @FXML private Button updateValueButton;
-    @FXML private Button showSheetVersionButton;
     @FXML private Button backToDefaultDesignButton;
     @FXML private Button dynamicAnalysisButton;
     @FXML private Button moveToNewestVersionButton;
@@ -48,6 +49,7 @@ public class ActionLineController implements Closeable {
     private Color defaultCellBackgroundColor;
     private Color defaultCellTextColor;
     private Label clickedCellLabel;
+    private boolean isComponentActive = false;
     private ActionLineRefresher actionLineRefresher;
     private Timer timer;
 
@@ -105,7 +107,7 @@ public class ActionLineController implements Closeable {
         this.mainSheetController = mainSheetController;
     }
 
-    public void initComponent(String sheetName) throws IOException {
+    public void initComponent(String sheetName) {
         String url = HttpUrl
                 .parse(SHEET_DIMENSION_ENDPOINT)
                 .newBuilder()
@@ -113,25 +115,33 @@ public class ActionLineController implements Closeable {
                 .build()
                 .toString();
 
-        Request request = new Request.Builder()
-                .url(url)
-                .build();
+        HttpClientUtil.runAsyncGet(url, new Callback() {
+            @Override
+            public void onFailure(@NotNull Call call, @NotNull IOException e) {
+                System.out.println("Error on init action line component: " + e.getMessage());
+            }
 
-        Response response = HttpClientUtil.HTTP_CLIENT.newCall(request).execute();
-        String responseBody = response.body().string();
-        if (response.isSuccessful()) {
-            SheetDimensionDto sheetDimensionDto = GSON_INSTANCE.fromJson(responseBody, SheetDimensionDto.class);
-            // Set an initial value
-            int rowHeight = sheetDimensionDto.getRowHeight();
-            rowHeightSpinner.getValueFactory().setValue(rowHeight);
+            @Override
+            public void onResponse(@NotNull Call call, @NotNull Response response) throws IOException {
+                String responseBody = response.body().string();
+                if (response.isSuccessful()) {
+                    SheetDimensionDto sheetDimensionDto = GSON_INSTANCE.fromJson(responseBody, SheetDimensionDto.class);
+                    Platform.runLater(() -> {
+                        int rowHeight = sheetDimensionDto.getRowHeight();
+                        rowHeightSpinner.getValueFactory().setValue(rowHeight);
 
-            int columnWidth = sheetDimensionDto.getColumnWidth();
-            columnWidthSpinner.getValueFactory().setValue(columnWidth);
-        } else {
-            System.out.println("Error: " + responseBody);
-        }
+                        int columnWidth = sheetDimensionDto.getColumnWidth();
+                        columnWidthSpinner.getValueFactory().setValue(columnWidth);
 
-        clickOnMoveToNewestVersionButton();
+                        moveToNewestVersionButton.setEffect(null);
+                        removeCellClickFocus();
+                        clickOnMoveToNewestVersionButtonSync();
+                    });
+                } else {
+                    Platform.runLater(() -> System.out.println("Error on init action line component: " + responseBody));
+                }
+            }
+        });
     }
 
     public int getCurrentSheetVersion() {
@@ -147,38 +157,59 @@ public class ActionLineController implements Closeable {
     }
 
     @FXML
-    void updateValueButtonListener(ActionEvent event) throws IOException {
-        if (modelUi.currentSheetVersionProperty().getValue() == mainSheetController.getLastSheetVersion()) {
-            String cellId = modelUi.selectedCellIdProperty().getValue();
-            String cellNewOriginalValue = originalCellValueTextField.getText();
+    void updateValueButtonListener() {
+        mainSheetController.getLastSheetVersionAsync((lastSheetVersion) -> {
+            if (modelUi.currentSheetVersionProperty().getValue().equals(lastSheetVersion)) {
+                String cellId = modelUi.selectedCellIdProperty().getValue();
+                String cellNewOriginalValue = originalCellValueTextField.getText();
 
-            Request request = HttpClientUtil.putCell(cellId, cellNewOriginalValue);
+                // create the request body
+                String updateCellBodyJson = GSON_INSTANCE.toJson(new EditCellBody(cellNewOriginalValue));
+                MediaType mediaType = MediaType.get(JSON_MEDIA_TYPE);
+                RequestBody requestBody = RequestBody.create(updateCellBodyJson, mediaType);
 
-            try {
-                Response response = HttpClientUtil.HTTP_CLIENT.newCall(request).execute();
-                String responseBody = response.body().string();
-                if (response.isSuccessful()) {
-                    CellDto cellDto = GSON_INSTANCE.fromJson(responseBody, CellDto.class);
-                    modelUi.selectedCellOriginalValueProperty().set(cellNewOriginalValue);
-                    modelUi.selectedCellLastVersionProperty().set(cellDto.getLastUpdatedInVersion());
-                    modelUi.selectedUpdatedByNameProperty().set(cellDto.getUpdatedByName());
-                    modelUi.currentSheetVersionProperty().set(cellDto.getLastUpdatedInVersion());
-                    mainSheetController.cellIsUpdated(cellId, cellDto);
-                } else {
-                    ServerException.ErrorResponse errorResponse = GSON_INSTANCE.fromJson(responseBody, ServerException.ErrorResponse.class);
-                    updateCellFailed(errorResponse.getMessage());
-                }
-            } catch (Exception e) {
-                System.out.println("Error: " + e.getMessage());
-                updateCellFailed(e.getMessage());
+                String url = HttpUrl
+                        .parse(CELL_ENDPOINT)
+                        .newBuilder()
+                        .addQueryParameter(CELL_POSITION, cellId)
+                        .build()
+                        .toString();
+
+                HttpClientUtil.runAsyncPut(url, requestBody, new Callback() {
+                    @Override
+                    public void onFailure(@NotNull Call call, @NotNull IOException e) {
+                        System.out.println("Error updating cell value: " + e.getMessage());
+                        Platform.runLater(() -> updateCellFailed(e.getMessage()));
+                    }
+
+                    @Override
+                    public void onResponse(@NotNull Call call, @NotNull Response response) throws IOException {
+                        String responseBody = response.body().string();
+                        if (response.isSuccessful()) {
+                            CellDto cellDto = GSON_INSTANCE.fromJson(responseBody, CellDto.class);
+                            Platform.runLater(() -> {
+                                modelUi.selectedCellOriginalValueProperty().set(cellNewOriginalValue);
+                                modelUi.selectedCellLastVersionProperty().set(cellDto.getLastUpdatedInVersion());
+                                modelUi.selectedUpdatedByNameProperty().set(cellDto.getUpdatedByName());
+                                modelUi.currentSheetVersionProperty().set(cellDto.getLastUpdatedInVersion());
+                                mainSheetController.cellIsUpdated(cellId, cellDto);
+                            });
+                        } else {
+                            Platform.runLater(() -> {
+                                ServerException.ErrorResponse errorResponse = GSON_INSTANCE.fromJson(responseBody, ServerException.ErrorResponse.class);
+                                updateCellFailed(errorResponse.getMessage());
+                            });
+                        }
+                    }
+                });
+            } else {
+                updateCellFailed("Sheet has a newer version, please move to it first");
             }
-        } else {
-            updateCellFailed("Sheet has a newer version, please move to it first");
-        }
+        });
     }
 
     @FXML
-    void showSheetVersionButtonListener(ActionEvent event) {
+    void showSheetVersionButtonListener() {
         Integer selectedValue = showSheetVersionSelector.getSelectionModel().getSelectedItem();
         if (selectedValue != null) {
             mainSheetController.selectSheetVersion(selectedValue);
@@ -247,15 +278,13 @@ public class ActionLineController implements Closeable {
             columnWidthSpinner.getValueFactory().setValue(columnWidth);
 
             modelUi.isAnyCellClickedProperty().set(true);
-
-            return cellDto;
         }
 
         return cellDto;
     }
 
     @FXML
-    void backToDefaultDesignButtonListener(ActionEvent event) throws IOException {
+    void backToDefaultDesignButtonListener() throws IOException {
         String cellId = modelUi.selectedCellIdProperty().get();
 
         mainSheetController.updateCellColors(cellId, defaultCellBackgroundColor, defaultCellTextColor);
@@ -263,47 +292,54 @@ public class ActionLineController implements Closeable {
     }
 
     @FXML
-    void dynamicAnalysisButtonListener(ActionEvent event) throws IOException {
+    void dynamicAnalysisButtonListener() {
         String cellId = modelUi.selectedCellIdProperty().getValue();
-        int sheetVersion = mainSheetController.getLastSheetVersion();
-        CellDto cellDto;
+        mainSheetController.getLastSheetVersionAsync((lastSheetVersion) -> {
+            String url = HttpUrl
+                    .parse(CELL_ENDPOINT)
+                    .newBuilder()
+                    .addQueryParameter(CELL_POSITION, cellId)
+                    .addQueryParameter(SHEET_VERSION, String.valueOf(lastSheetVersion))
+                    .build()
+                    .toString();
 
-        String url = HttpUrl
-                .parse(CELL_ENDPOINT)
-                .newBuilder()
-                .addQueryParameter(CELL_POSITION, cellId)
-                .addQueryParameter(SHEET_VERSION, String.valueOf(sheetVersion))
-                .build()
-                .toString();
-
-        Request request = new Request.Builder()
-                .url(url)
-                .build();
-
-        Response response = HttpClientUtil.HTTP_CLIENT.newCall(request).execute();
-        String responseBody = response.body().string();
-        if (response.isSuccessful()) {
-            cellDto = GSON_INSTANCE.fromJson(responseBody, CellDto.class);
-            String originalValue = "";
-            CellTypeDto cellType = CellTypeDto.UNKNOWN;
-
-            try {
-                if (cellDto != null) {
-                    originalValue = cellDto.getOriginalValue();
-                    cellType = cellDto.getEffectiveValue().getCellType();
+            HttpClientUtil.runAsyncGet(url, new Callback() {
+                @Override
+                public void onFailure(@NotNull Call call, @NotNull IOException e) {
+                    System.out.println("Error on dynamic analysis: " + e.getMessage());
                 }
-                Double.parseDouble(originalValue);
-                if (cellType != CellTypeDto.NUMERIC) {
-                    throw new NumberFormatException();
-                }
-                mainSheetController.showDynamicAnalysis(cellId);
 
-            } catch (Exception e) {
-                AlertsHandler.HandleErrorAlert("Dynamic Analysis", "Dynamic analysis is available only for numeric and not functioned values");
-            }
-        } else {
-            System.out.println("Error: " + responseBody);
-        }
+                @Override
+                public void onResponse(@NotNull Call call, @NotNull Response response) throws IOException {
+                    String responseBody = response.body().string();
+                    if (response.isSuccessful()) {
+                        CellDto cellDto = GSON_INSTANCE.fromJson(responseBody, CellDto.class);
+                        String originalValue = "";
+                        CellTypeDto cellType = CellTypeDto.UNKNOWN;
+
+                        try {
+                            if (cellDto != null) {
+                                originalValue = cellDto.getOriginalValue();
+                                cellType = cellDto.getEffectiveValue().getCellType();
+                            }
+                            Double.parseDouble(originalValue);
+                            if (cellType != CellTypeDto.NUMERIC) {
+                                throw new NumberFormatException();
+                            }
+                            Platform.runLater(() -> mainSheetController.showDynamicAnalysis(cellId));
+                        } catch (NumberFormatException e) {
+                            Platform.runLater(() ->
+                                    AlertsHandler.HandleErrorAlert("Dynamic Analysis",
+                                            "Dynamic analysis is available only for numeric and not functioned values"));
+                        } catch (Exception e) {
+                            Platform.runLater(() -> System.out.println("Error on dynamic analysis: " + e.getMessage()));
+                        }
+                    } else {
+                        Platform.runLater(() -> System.out.println("Error on dynamic analysis: " + responseBody));
+                    }
+                }
+            });
+        });
     }
 
     public void setIsUserWriter(boolean isWriter) {
@@ -311,27 +347,38 @@ public class ActionLineController implements Closeable {
     }
 
     @FXML
-    void moveToNewestVersionButtonListener(ActionEvent event) throws IOException {
+    void moveToNewestVersionButtonListener() {
         moveToNewestVersionButton.setEffect(null);
         removeCellClickFocus();
-        int newestVersion = mainSheetController.getLastSheetVersion();
-        modelUi.currentSheetVersionProperty().set(newestVersion);
-        mainSheetController.moveToNewestSheetVersion();
+        mainSheetController.getLastSheetVersionAsync((lastSheetVersion) -> {
+            modelUi.currentSheetVersionProperty().set(lastSheetVersion);
+            try {
+                mainSheetController.moveToNewestSheetVersion(lastSheetVersion);
+            } catch (IOException e) {
+                throw new RuntimeException(e);
+            }
+        });
     }
 
-    public void clickOnMoveToNewestVersionButton() {
-        // navigates to moveToNewestVersionButtonListener function
-        moveToNewestVersionButton.fire();
+    public void clickOnMoveToNewestVersionButtonSync() {
+        try {
+            removeCellClickFocus();
+            moveToNewestVersionButton.setEffect(null);
+            int lastSheetVersion = mainSheetController.getLastSheetVersionSync();
+            modelUi.currentSheetVersionProperty().set(lastSheetVersion);
+            mainSheetController.moveToNewestSheetVersion(lastSheetVersion);
+        } catch (IOException e) {
+            throw new RuntimeException(e);
+        }
     }
 
     private void indicateMoveToNewestVersionButton() {
         DropShadow shadowEffect = new DropShadow();
-        shadowEffect.setColor(Color.BLUE);
+        shadowEffect.setColor(Color.RED);
         shadowEffect.setRadius(10);
         shadowEffect.setSpread(0.3);
 
         this.moveToNewestVersionButton.setEffect(shadowEffect);
-
         this.moveToNewestVersionButton.setBorder(new Border(new BorderStroke(
                 Color.TRANSPARENT,
                 BorderStrokeStyle.SOLID, new CornerRadii(5), new BorderWidths(3)
@@ -339,6 +386,7 @@ public class ActionLineController implements Closeable {
     }
 
     public void startMoveToNewestVersionButtonRefresher() {
+        if (isComponentActive) return;
         actionLineRefresher = new ActionLineRefresher(
                 this::indicateMoveToNewestVersionButton,
                 modelUi.currentSheetVersionProperty());
@@ -347,14 +395,21 @@ public class ActionLineController implements Closeable {
     }
 
     public void setActive() {
-        startMoveToNewestVersionButtonRefresher();
+        if (!isComponentActive) {
+            startMoveToNewestVersionButtonRefresher();
+            isComponentActive = true;
+        }
     }
 
     @Override
     public void close() {
-        if (actionLineRefresher != null && timer != null) {
-            actionLineRefresher.cancel();
+        isComponentActive = false;
+        if (timer != null) {
             timer.cancel();
+            timer.purge();
+        }
+        if (actionLineRefresher != null) {
+            actionLineRefresher.cancel();
         }
     }
 }

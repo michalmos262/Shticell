@@ -1,9 +1,7 @@
 package client.component.sheet.range;
 
 import dto.sheet.RangeDto;
-import javafx.beans.property.BooleanProperty;
-import javafx.beans.property.SimpleBooleanProperty;
-import javafx.beans.property.SimpleStringProperty;
+import javafx.beans.property.*;
 import javafx.collections.FXCollections;
 import javafx.collections.MapChangeListener;
 import javafx.collections.ObservableList;
@@ -17,6 +15,7 @@ public class RangeModelUI {
     private final ObservableList<RangeTableEntry> rangesTableData;
     private final SimpleBooleanProperty isRangeAdded;
     private final BooleanProperty isUserWriter;
+    private final IntegerProperty currentSheetVersion;
 
     public RangeModelUI(TableView<RangeTableEntry> showRangesTable, TableColumn<RangeTableEntry, String> nameColumn,
                         TableColumn<RangeTableEntry, String> rangeColumn, ChoiceBox<String> deleteRangeNameChoiceBox,
@@ -26,6 +25,7 @@ public class RangeModelUI {
         isRangeAdded = new SimpleBooleanProperty(false);
         nameProperty2range = FXCollections.observableHashMap();
         rangesTableData = FXCollections.observableArrayList();
+        currentSheetVersion = new SimpleIntegerProperty(0);
 
         for (TitledPane titledPane : writeOnlyTitledPanes) {
             titledPane.disableProperty().bind(isUserWriter.not());
@@ -117,5 +117,9 @@ public class RangeModelUI {
         public SimpleStringProperty rangeProperty() {
             return range;
         }
+    }
+
+    public IntegerProperty currentSheetVersionProperty() {
+        return currentSheetVersion;
     }
 }

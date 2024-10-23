@@ -1,0 +1,24 @@
+/* General body styling */
+.root {
+    -fx-background-color: #f4f4f4;
+}
+
+/* Header styling */
+.main-header {
+    -fx-font-size: 24px;
+    -fx-font-weight: bold;
+    -fx-text-fill: #2c3e50;
+    -fx-alignment: center;
+    -fx-background-color: #ecf0f1;
+    -fx-border-color: #bdc3c7;
+    -fx-border-width: 0 0 3px 0;
+    -fx-border-style: solid;
+    -fx-effect: dropshadow(three-pass-box, rgba(0,0,0,0.1), 5, 0, 0, 2);
+}
+
+/* Styling for the "logged in" label */
+.logged-in-label {
+    -fx-font-size: 16px;
+    -fx-text-fill: #7f8c8d;
+    -fx-font-family: 'Roboto', 'Segoe UI', sans-serif;
+}
