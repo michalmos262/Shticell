@@ -41,6 +41,7 @@ public class MainSheetController implements Closeable {
 
     private MainAppController mainAppController;
     private String sheetName;
+    private boolean isComponentActive = false;
     private MainSheetRefresher mainSheetRefresher;
     private Timer timer;
 
@@ -123,9 +124,15 @@ public class MainSheetController implements Closeable {
             public void onResponse(@NotNull Call call, @NotNull Response response) throws IOException {
                 if (response.isSuccessful()) {
                     SheetDto sheetDto = GSON_INSTANCE.fromJson(response.body().string(), SheetDto.class);
-                    gridComponentController.showSheetInVersion(sheetDto, version);
+                    Platform.runLater(() -> gridComponentController.showSheetInVersion(sheetDto, version));
                 } else {
-                    System.out.println("Error on selecting sheet version: " + response.body().string());
+                    Platform.runLater(() -> {
+                        try {
+                            System.out.println("Error on selecting sheet version: " + response.body().string());
+                        } catch (IOException e) {
+                            throw new RuntimeException(e);
+                        }
+                    });
                 }
             }
         });
@@ -163,9 +170,12 @@ public class MainSheetController implements Closeable {
     }
 
     public void setActive() {
-        actionLineComponentController.setActive();
-        rangesComponentController.setActive();
-        startMainSheetRefresher();
+        if (!isComponentActive) {
+            actionLineComponentController.setActive();
+            rangesComponentController.setActive();
+            startMainSheetRefresher();
+            isComponentActive = true;
+        }
     }
 
     public void setIsUserWriter(boolean isWriter) {
@@ -226,6 +236,7 @@ public class MainSheetController implements Closeable {
     }
 
     private void startMainSheetRefresher() {
+        if (isComponentActive) return;
         mainSheetRefresher = new MainSheetRefresher(
                 sheetName,
                 this::setIsUserWriter
@@ -236,11 +247,15 @@ public class MainSheetController implements Closeable {
 
     @Override
     public void close() {
+        isComponentActive = false;
         actionLineComponentController.close();
         rangesComponentController.close();
-        if (mainSheetRefresher != null && timer != null) {
-            mainSheetRefresher.cancel();
+        if (timer != null) {
             timer.cancel();
+            timer.purge();
+        }
+        if (mainSheetRefresher != null) {
+            mainSheetRefresher.cancel();
         }
     }
 }

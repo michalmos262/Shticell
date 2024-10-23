@@ -4,11 +4,9 @@ import okhttp3.*;
 import org.jetbrains.annotations.NotNull;
 
 import java.io.IOException;
-
 import static client.resources.CommonResourcesPaths.*;
 
 public class HttpClientUtil {
-
     private final static SimpleCookieManager simpleCookieManager = new SimpleCookieManager();
     public final static OkHttpClient HTTP_CLIENT =
             new OkHttpClient.Builder()

@@ -37,6 +37,7 @@ public class RangesController implements Closeable {
 
     private MainSheetController mainSheetController;
     private RangeModelUI modelUi;
+    private boolean isComponentActive = false;
     private RangesRefresher rangesRefresher;
     private Timer timer;
 
@@ -203,6 +204,7 @@ public class RangesController implements Closeable {
     }
 
     public void startRangesRefresher() {
+        if (isComponentActive) return;
         rangesRefresher = new RangesRefresher(
                 this::updateRangesTableAndDeleteRangeChoiceBox);
         timer = new Timer();
@@ -210,7 +212,10 @@ public class RangesController implements Closeable {
     }
 
     public void setActive() {
-        startRangesRefresher();
+        if (!isComponentActive) {
+            startRangesRefresher();
+            isComponentActive = true;
+        }
     }
 
     public void setIsUserWriter(boolean isWriter) {
@@ -219,9 +224,13 @@ public class RangesController implements Closeable {
 
     @Override
     public void close() {
-        if (rangesRefresher != null && timer != null) {
-            rangesRefresher.cancel();
+        isComponentActive = false;
+        if (timer != null) {
             timer.cancel();
+            timer.purge();
+        }
+        if (rangesRefresher != null) {
+            rangesRefresher.cancel();
         }
     }
 }

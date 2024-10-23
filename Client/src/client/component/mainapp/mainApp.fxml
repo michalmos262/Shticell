@@ -6,21 +6,20 @@
 <?import javafx.scene.control.SplitPane?>
 <?import javafx.scene.layout.AnchorPane?>
 
-<ScrollPane maxHeight="-Infinity" maxWidth="-Infinity" minHeight="-Infinity" minWidth="-Infinity" prefHeight="770.0" prefWidth="1162.0" xmlns="http://javafx.com/javafx/22" xmlns:fx="http://javafx.com/fxml/1" fx:controller="client.component.mainapp.MainAppController">
-   <content>
-      <SplitPane fx:id="mainSplitPane" dividerPositions="0.04564072557050908" orientation="VERTICAL" prefHeight="767.0" prefWidth="1158.0">
-        <items>
-          <AnchorPane minHeight="0.0" minWidth="0.0" prefHeight="518.0" prefWidth="781.0">
-               <children>
-                  <Label fx:id="loggedInAsLabel" layoutX="7.0" layoutY="7.0" text="Logged in as: Michal" />
-                  <Label fx:id="headingLabel" layoutX="467.0" layoutY="-1.0" style="-fx-font-size: 20; -fx-font-weight: bold;" text="Welcome to Shticell!" />
-               </children>
-            </AnchorPane>
-          <AnchorPane fx:id="contentAnchorPane" minHeight="0.0" minWidth="0.0" prefHeight="644.0" prefWidth="781.0" />
-        </items>
-         <opaqueInsets>
-            <Insets bottom="1.0" left="1.0" right="1.0" top="1.0" />
-         </opaqueInsets>
-      </SplitPane>
-   </content>
+<ScrollPane maxHeight="-Infinity" maxWidth="-Infinity" minHeight="-Infinity" minWidth="-Infinity" prefHeight="770.0"
+            prefWidth="1162.0" stylesheets="@mainApp.css" xmlns="http://javafx.com/javafx/22"
+            xmlns:fx="http://javafx.com/fxml/1" fx:controller="client.component.mainapp.MainAppController">
+    <SplitPane fx:id="mainSplitPane" dividerPositions="0.04564072557050908" orientation="VERTICAL" prefHeight="767.0"
+               prefWidth="1158.0">
+        <opaqueInsets>
+            <Insets bottom="1.0" left="1.0" right="1.0" top="1.0"/>
+        </opaqueInsets>
+        <AnchorPane minHeight="0.0" minWidth="0.0" prefHeight="518.0" prefWidth="781.0">
+            <Label fx:id="headingLabel" layoutY="-1.0" prefHeight="41.0" prefWidth="1156.0"
+                   styleClass="main-header" text="Welcome to Shticell!"/>
+            <Label fx:id="loggedInAsLabel" layoutX="14.0" layoutY="7.0" styleClass="logged-in-label"
+                   text="Logged in as: Michal"/>
+        </AnchorPane>
+        <AnchorPane fx:id="contentAnchorPane" minHeight="0.0" minWidth="0.0" prefHeight="644.0" prefWidth="781.0"/>
+    </SplitPane>
 </ScrollPane>

@@ -53,9 +53,13 @@ public class LoginServlet extends HttpServlet {
                                 userManager.getUserSheetPermissions(username).setSheetNameAndFileMetadata(fileMetadata);
                             }
                         } else {
-                            userManager.loginUser(username);
-                            request.getSession(true).setAttribute(USERNAME, username);
-                            response.setStatus(HttpServletResponse.SC_OK);
+                            String originalUsername = userManager.loginUserAndGetOriginalUsername(username);
+                            if (originalUsername != null) {
+                                request.getSession(true).setAttribute(USERNAME, originalUsername);
+                                response.setStatus(HttpServletResponse.SC_OK);
+                            } else {
+                                response.setStatus(HttpServletResponse.SC_CONFLICT);
+                            }
                         }
                     }
                 }

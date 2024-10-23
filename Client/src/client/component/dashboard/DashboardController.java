@@ -1,7 +1,6 @@
 package client.component.dashboard;
 
 import client.component.alert.AlertsHandler;
-import client.component.dashboard.loadfile.LoadFileController;
 import client.component.dashboard.requestpermission.RequestPermissionController;
 import client.component.mainapp.MainAppController;
 import client.util.http.HttpClientUtil;
@@ -19,7 +18,6 @@ import javafx.scene.Scene;
 import javafx.scene.control.Button;
 import javafx.scene.control.TableColumn;
 import javafx.scene.control.TableView;
-import javafx.scene.layout.GridPane;
 import dto.sheet.FileMetadata;
 import javafx.stage.Modality;
 import javafx.stage.Stage;
@@ -52,13 +50,12 @@ public class DashboardController implements Closeable {
     @FXML private TableColumn<DashboardModelUI.PermissionsTableEntry, String> permissionTypeColumn;
     @FXML private TableColumn<DashboardModelUI.PermissionsTableEntry, String> approvalStateColumn;
 
-    @FXML private GridPane loadFileComponent;
-    @FXML private LoadFileController loadFileComponentController;
-
     private DashboardModelUI modelUi;
     private MainAppController mainAppController;
     private DashboardModelUI.SheetsTableEntry selectedSheetTableEntry;
     private DashboardModelUI.PermissionsTableEntry selectedPermissionsTableEntry;
+
+    private boolean isComponentActive = false;
     private TimerTask sheetsTableRefresher;
     private TimerTask sheetUserPermissionsRefresher;
     private Timer showAvailableSheetsTimer;
@@ -66,10 +63,6 @@ public class DashboardController implements Closeable {
 
     @FXML
     public void initialize() {
-        if (loadFileComponent != null) {
-            loadFileComponentController.setDashboardController(this);
-        }
-
         List<Button> ownerOnlyButtons = new LinkedList<>();
         ownerOnlyButtons.add(acceptPermissionRequestButton);
         ownerOnlyButtons.add(rejectPermissionRequestButton);
@@ -280,6 +273,7 @@ public class DashboardController implements Closeable {
     }
 
     private void startSheetsTableRefresher() {
+        if (isComponentActive) return;
         sheetsTableRefresher = new AvailableSheetsTableRefresher(
                 this::updateSheetsTable
         );
@@ -288,6 +282,7 @@ public class DashboardController implements Closeable {
     }
 
     private void startPermissionsTableRefresher() {
+        if (isComponentActive) return;
         sheetUserPermissionsRefresher = new SheetUserPermissionsRefresher(
                 modelUi.selectedSheetNameProperty(),
                 this::updateSheetPermissionsTable
@@ -297,18 +292,29 @@ public class DashboardController implements Closeable {
     }
 
     public void setActive() {
-        startSheetsTableRefresher();
-        startPermissionsTableRefresher();
+        if (!isComponentActive) {
+            startSheetsTableRefresher();
+            startPermissionsTableRefresher();
+            isComponentActive = true;
+        }
     }
 
     @Override
     public void close() {
-        if (sheetsTableRefresher != null && showAvailableSheetsTimer != null &&
-                sheetUserPermissionsRefresher != null && showPermissionsTimer != null) {
+        isComponentActive = false;
+        if (sheetsTableRefresher != null) {
             sheetsTableRefresher.cancel();
+        }
+        if (sheetUserPermissionsRefresher != null) {
             sheetUserPermissionsRefresher.cancel();
+        }
+        if (showAvailableSheetsTimer != null) {
             showAvailableSheetsTimer.cancel();
+            showAvailableSheetsTimer.purge();
+        }
+        if (showPermissionsTimer != null) {
             showPermissionsTimer.cancel();
+            showPermissionsTimer.purge();
         }
     }
 }

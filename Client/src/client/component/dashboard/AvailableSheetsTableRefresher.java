@@ -41,7 +41,7 @@ public class AvailableSheetsTableRefresher extends TimerTask {
                         sheetNameAndFileMetadataConsumer.accept(sheetNamesAndFileMetadatasDto);
                     }
                 } else {
-                    System.out.println("Error refreshing available sheets table: " + response.body().string());
+                    System.out.println("Error refreshing available sheets table: " + responseBody);
                 }
             }
         });

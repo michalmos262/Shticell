@@ -8,7 +8,7 @@
 <?import javafx.scene.layout.GridPane?>
 <?import javafx.scene.layout.RowConstraints?>
 
-<BorderPane fx:id="singleSheetComponent" maxHeight="800.0" maxWidth="1162.0" minHeight="700.0" minWidth="1000.0" prefHeight="765.0" prefWidth="1162.0" xmlns="http://javafx.com/javafx/22" xmlns:fx="http://javafx.com/fxml/1" fx:controller="client.component.sheet.mainsheet.MainSheetController">
+<BorderPane fx:id="singleSheetComponent" maxHeight="800.0" maxWidth="1162.0" minHeight="700.0" minWidth="1000.0" prefHeight="765.0" prefWidth="1162.0" stylesheets="@mainSheet.css" xmlns="http://javafx.com/javafx/22" xmlns:fx="http://javafx.com/fxml/1" fx:controller="client.component.sheet.mainsheet.MainSheetController">
      <left>
          <GridPane alignment="CENTER" prefHeight="689.0" prefWidth="259.0" BorderPane.alignment="CENTER">
              <columnConstraints>
@@ -35,11 +35,11 @@
          <fx:include fx:id="gridComponent" source="../grid/grid.fxml" BorderPane.alignment="CENTER" />
      </center>
    <right>
-      <AnchorPane prefHeight="623.0" prefWidth="92.0" BorderPane.alignment="CENTER">
-         <children>
-            <Button fx:id="backToDashboardButton" layoutX="9.0" layoutY="569.0" mnemonicParsing="false" onAction="#backToDashboardButtonListener" prefHeight="54.0" prefWidth="74.0" text="Back to dashboard" wrapText="true" />
-         </children>
-      </AnchorPane>
+       <AnchorPane prefHeight="623.0" prefWidth="92.0" BorderPane.alignment="CENTER">
+           <Button fx:id="backToDashboardButton" layoutX="9.0" layoutY="569.0" mnemonicParsing="false"
+                   onAction="#backToDashboardButtonListener" prefHeight="54.0" prefWidth="74.0"
+                   styleClass="back-to-dashboard-button" text="Back to dashboard" wrapText="true"/>
+       </AnchorPane>
    </right>
    <top>
           <fx:include fx:id="actionLineComponent" source="../actionline/actionLine.fxml" GridPane.rowIndex="1" />

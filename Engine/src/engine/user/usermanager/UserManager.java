@@ -43,17 +43,20 @@ public class UserManager {
         username2isLoggedIn.put(username, true);
     }
 
-    public synchronized void loginUser(String username) {
+    public synchronized String loginUserAndGetOriginalUsername(String username) {
         // username already logged in
-        if (username2isLoggedIn.get(username)) {
-            throw new UserAlreadyExistsException(username);
+        for (String usernameKey : username2isLoggedIn.keySet()) {
+            if (usernameKey.equalsIgnoreCase(username)) {
+                if (username2isLoggedIn.get(usernameKey)) {
+                    throw new UserAlreadyExistsException(username);
+                } else {
+                    // username is not logged in anymore, can log in again
+                    username2isLoggedIn.put(usernameKey, true);
+                    return usernameKey;
+                }
+            }
         }
-        // username is not created yet
-        if (!username2sheetNamesAndFileMetadatas.containsKey(username)) {
-            throw new UserDoesNotExistException(username);
-        }
-        // username is not logged in anymore, can log in again
-        username2isLoggedIn.put(username, true);
+        return null;
     }
 
     public synchronized void logoutUser(String username) {
@@ -77,10 +80,6 @@ public class UserManager {
 
     public synchronized Map<String, SheetNamesAndFileMetadatas> getUsername2sheetNamesAndFileMetadatas() {
         return Collections.unmodifiableMap(username2sheetNamesAndFileMetadatas);
-    }
-
-    public synchronized Map<String, Boolean> getUsername2isLoggedIn() {
-        return Collections.unmodifiableMap(username2isLoggedIn);
     }
 
     public synchronized void setUserSheetPermission(String username, String sheetName, String newPermission) {

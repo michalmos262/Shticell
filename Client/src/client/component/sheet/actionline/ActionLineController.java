@@ -31,8 +31,8 @@ public class ActionLineController implements Closeable {
 
     @FXML private Label lastCellVersionLabel;
     @FXML private Label selectedCellIdLabel;
-    @FXML private TextField originalCellValueTextField;
     @FXML private Label updatedByLabel;
+    @FXML private TextField originalCellValueTextField;
     @FXML private Button updateValueButton;
     @FXML private Button backToDefaultDesignButton;
     @FXML private Button dynamicAnalysisButton;
@@ -49,6 +49,7 @@ public class ActionLineController implements Closeable {
     private Color defaultCellBackgroundColor;
     private Color defaultCellTextColor;
     private Label clickedCellLabel;
+    private boolean isComponentActive = false;
     private ActionLineRefresher actionLineRefresher;
     private Timer timer;
 
@@ -361,11 +362,11 @@ public class ActionLineController implements Closeable {
 
     public void clickOnMoveToNewestVersionButtonSync() {
         try {
+            removeCellClickFocus();
             moveToNewestVersionButton.setEffect(null);
             int lastSheetVersion = mainSheetController.getLastSheetVersionSync();
             modelUi.currentSheetVersionProperty().set(lastSheetVersion);
             mainSheetController.moveToNewestSheetVersion(lastSheetVersion);
-            removeCellClickFocus();
         } catch (IOException e) {
             throw new RuntimeException(e);
         }
@@ -373,12 +374,11 @@ public class ActionLineController implements Closeable {
 
     private void indicateMoveToNewestVersionButton() {
         DropShadow shadowEffect = new DropShadow();
-        shadowEffect.setColor(Color.BLUE);
+        shadowEffect.setColor(Color.RED);
         shadowEffect.setRadius(10);
         shadowEffect.setSpread(0.3);
 
         this.moveToNewestVersionButton.setEffect(shadowEffect);
-
         this.moveToNewestVersionButton.setBorder(new Border(new BorderStroke(
                 Color.TRANSPARENT,
                 BorderStrokeStyle.SOLID, new CornerRadii(5), new BorderWidths(3)
@@ -386,6 +386,7 @@ public class ActionLineController implements Closeable {
     }
 
     public void startMoveToNewestVersionButtonRefresher() {
+        if (isComponentActive) return;
         actionLineRefresher = new ActionLineRefresher(
                 this::indicateMoveToNewestVersionButton,
                 modelUi.currentSheetVersionProperty());
@@ -394,14 +395,21 @@ public class ActionLineController implements Closeable {
     }
 
     public void setActive() {
-        startMoveToNewestVersionButtonRefresher();
+        if (!isComponentActive) {
+            startMoveToNewestVersionButtonRefresher();
+            isComponentActive = true;
+        }
     }
 
     @Override
     public void close() {
-        if (actionLineRefresher != null && timer != null) {
-            actionLineRefresher.cancel();
+        isComponentActive = false;
+        if (timer != null) {
             timer.cancel();
+            timer.purge();
+        }
+        if (actionLineRefresher != null) {
+            actionLineRefresher.cancel();
         }
     }
 }

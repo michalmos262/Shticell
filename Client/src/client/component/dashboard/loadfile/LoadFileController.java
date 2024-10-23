@@ -1,10 +1,8 @@
 package client.component.dashboard.loadfile;
 
 import client.component.alert.AlertsHandler;
-import client.component.dashboard.DashboardController;
 import client.component.dashboard.loadfile.task.LoadFileTask;
 import javafx.application.Platform;
-import javafx.event.ActionEvent;
 import javafx.fxml.FXML;
 import javafx.scene.control.Button;
 import javafx.scene.control.Label;
@@ -23,7 +21,6 @@ public class LoadFileController {
     @FXML private Label loadingProcessLabel;
     @FXML private ProgressBar progressBar;
 
-    private DashboardController dashboardController;
     private LoadFileModelUI modelUi;
     private LoadFileTask loadFileTask;
 
@@ -32,16 +29,13 @@ public class LoadFileController {
         modelUi = new LoadFileModelUI(loadFileButton);
     }
 
-    public void setDashboardController(DashboardController dashboardController) {
-        this.dashboardController = dashboardController;
-    }
-
     @FXML
-    void loadFileButtonListener(ActionEvent event) {
+    void loadFileButtonListener() {
         FileChooser fileChooser = new FileChooser();
         fileChooser.setTitle("Select an " + SUPPORTED_FILE_TYPE.toUpperCase() + " file");
         fileChooser.getExtensionFilters().add(
-                new FileChooser.ExtensionFilter(SUPPORTED_FILE_TYPE.toUpperCase() + " files", "*." + SUPPORTED_FILE_TYPE)
+                new FileChooser.ExtensionFilter(SUPPORTED_FILE_TYPE.toUpperCase() + " files", "*."
+                        + SUPPORTED_FILE_TYPE)
         );
         File selectedFile = fileChooser.showOpenDialog(loadFileButton.getScene().getWindow());
         if (selectedFile == null) {
@@ -54,25 +48,34 @@ public class LoadFileController {
             selectedFileName,
             fileFunction -> {
                 try {
-                    RequestBody body =
-                            new MultipartBody.Builder()
-                                .addFormDataPart("file", selectedFileName, RequestBody.create(selectedFile, MediaType.parse("text/plain")))
-                                .build();
+                    RequestBody body = new MultipartBody.Builder()
+                            .addFormDataPart("file", selectedFileName,
+                                    RequestBody.create(selectedFile,
+                                            MediaType.parse("text/plain")))
+                            .build();
 
                     Request request = new Request.Builder()
                             .url(SHEET_ENDPOINT)
                             .post(body)
                             .build();
 
-                    Response response = HTTP_CLIENT.newCall(request).execute();
+                    // Use try-with-resources to ensure response is closed
+                    try (Response response = HTTP_CLIENT.newCall(request).execute()) {
+                        if (!response.isSuccessful()) {
+                            ServerException.ErrorResponse errorResponse =
+                                    GSON_INSTANCE.fromJson(response.body().string(),
+                                            ServerException.ErrorResponse.class);
+                            throw new RuntimeException(errorResponse.getMessage());
+                        }
 
-                    if (!response.isSuccessful()) {
-                        ServerException.ErrorResponse errorResponse = GSON_INSTANCE.fromJson(response.body().string(), ServerException.ErrorResponse.class);
-                        throw new RuntimeException(errorResponse.getMessage());
+                        // Process response body as needed
+                        // Example: String responseBody = response.body().string();
+                    } catch (Exception e) {
+                        throw new RuntimeException(e.getMessage()); // Pass the exception
                     }
-
                 } catch (Exception e) {
-                    throw new RuntimeException(e.getMessage()); // Pass the exception
+                    // Handle exceptions
+                    throw new RuntimeException(e.getMessage());
                 }
             },
             onFinish -> modelUi.isFileLoadingProperty().set(false));
@@ -91,6 +94,7 @@ public class LoadFileController {
         modelUi.setTaskListener(loadFileTask, loadingProcessLabel, progressBar);
         new Thread(loadFileTask).start();
     }
+
 
     public void loadFileFailed(String errorMessage) {
         AlertsHandler.HandleErrorAlert("Error on loading file", errorMessage);
