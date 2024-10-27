@@ -7,12 +7,9 @@ import javafx.fxml.FXMLLoader;
 import javafx.scene.Parent;
 import javafx.scene.Scene;
 import javafx.stage.Stage;
-import okhttp3.OkHttpClient;
 
 import java.io.IOException;
 import java.net.URL;
-import java.util.logging.Level;
-import java.util.logging.Logger;
 
 import static client.resources.CommonResourcesPaths.MAIN_APP_FXML_RESOURCE_LOCATION;
 
@@ -26,17 +23,33 @@ public class Client extends Application {
         primaryStage.setTitle("Shticell");
 
         URL loginPage = getClass().getResource(MAIN_APP_FXML_RESOURCE_LOCATION);
+        System.out.println("FXML Location: " + loginPage); // Debug check
+
+        if (loginPage == null) {
+            System.out.println("Failed to locate FXML file: " + MAIN_APP_FXML_RESOURCE_LOCATION);
+            return; // Exit if FXML not found
+        }
+
         try {
             FXMLLoader fxmlLoader = new FXMLLoader();
             fxmlLoader.setLocation(loginPage);
             Parent root = fxmlLoader.load();
+
+            if (root == null) {
+                System.out.println("Root node is null after loading FXML.");
+                return; // Exit if root is null
+            }
+
             mainAppController = fxmlLoader.getController();
+            System.out.println("Controller loaded: " + (mainAppController != null)); // Debug check
 
             Scene scene = new Scene(root, 1162, 790);
             primaryStage.setScene(scene);
             primaryStage.show();
+            System.out.println("Primary stage shown."); // Confirm stage is shown
         } catch (IOException e) {
-            System.out.println(e.getMessage());
+            System.out.println("Error loading FXML: " + e.getMessage());
+            System.out.println(e.getMessage()); // Print full stack trace
         }
     }
 
@@ -47,7 +60,6 @@ public class Client extends Application {
     }
 
     public static void main(String[] args) {
-        Logger.getLogger(OkHttpClient.class.getName()).setLevel(Level.FINE);
         launch(args);
     }
 }

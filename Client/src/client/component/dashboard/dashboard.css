@@ -35,7 +35,7 @@
 .table-view .column-header {
     -fx-font-weight: bold;
     -fx-text-fill: white;
-    -fx-background-color: #76bbea;
+    -fx-background-color: #a4d3f3;
 }
 
 .table-view .table-cell {
