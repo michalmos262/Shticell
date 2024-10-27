@@ -7,12 +7,9 @@ import javafx.fxml.FXMLLoader;
 import javafx.scene.Parent;
 import javafx.scene.Scene;
 import javafx.stage.Stage;
-import okhttp3.OkHttpClient;
 
 import java.io.IOException;
 import java.net.URL;
-import java.util.logging.Level;
-import java.util.logging.Logger;
 
 import static client.resources.CommonResourcesPaths.MAIN_APP_FXML_RESOURCE_LOCATION;
 
@@ -63,7 +60,6 @@ public class Client extends Application {
     }
 
     public static void main(String[] args) {
-        Logger.getLogger(OkHttpClient.class.getName()).setLevel(Level.FINE);
         launch(args);
     }
 }
