@@ -61,53 +61,46 @@ public class RangesController implements Closeable {
     @FXML
     void addRangeButtonListener() {
         String alertTitle = "Add range";
-        mainSheetController.getLastSheetVersionAsync((lastSheetVersion) -> {
-            if (Objects.equals(modelUi.currentSheetVersionProperty().getValue(), lastSheetVersion)) {
-                try {
-                    String rangeName = addRangeNameTextInput.getText();
+        try {
+            String rangeName = addRangeNameTextInput.getText();
 
-                    if (!rangeName.isEmpty()) {
-                        String fromPositionStr = addFromRangeTextInput.getText();
-                        String toPositionStr = addToRangeTextInput.getText();
+            if (!rangeName.isEmpty()) {
+                String fromPositionStr = addFromRangeTextInput.getText();
+                String toPositionStr = addToRangeTextInput.getText();
 
-                        // create the request body
-                        String addRangeBodyJson = GSON_INSTANCE.toJson(new RangeBody(rangeName, fromPositionStr, toPositionStr));
-                        MediaType mediaType = MediaType.get(JSON_MEDIA_TYPE);
-                        RequestBody requestBody = RequestBody.create(addRangeBodyJson, mediaType);
+                // create the request body
+                String addRangeBodyJson = GSON_INSTANCE.toJson(new RangeBody(rangeName, fromPositionStr, toPositionStr));
+                MediaType mediaType = MediaType.get(JSON_MEDIA_TYPE);
+                RequestBody requestBody = RequestBody.create(addRangeBodyJson, mediaType);
 
-                        HttpClientUtil.runAsyncPost(RANGE_ENDPOINT, requestBody, new Callback() {
-                            @Override
-                            public void onFailure(@NotNull Call call, @NotNull IOException e) {
-                                System.out.println("Error on add range: " + e.getMessage());
-                            }
-
-                            @Override
-                            public void onResponse(@NotNull Call call, @NotNull Response response) throws IOException {
-                                if (response.isSuccessful()) {
-                                    Platform.runLater(() -> {
-                                        modelUi.isRangeAddedProperty().set(true);
-                                        modelUi.isRangeAddedProperty().set(false);
-                                        AlertsHandler.HandleOkAlert("Range " + rangeName + " added successfully!");
-                                    });
-                                } else {
-                                    ServerException.ErrorResponse errorResponse =
-                                            GSON_INSTANCE.fromJson(response.body().string(), ServerException.ErrorResponse.class);
-                                    Platform.runLater(() ->
-                                            AlertsHandler.HandleErrorAlert(alertTitle, errorResponse.getMessage()));
-                                }
-                            }
-                        });
-                    } else {
-                        AlertsHandler.HandleErrorAlert(alertTitle, "Range name cannot be empty");
+                HttpClientUtil.runAsyncPost(RANGE_ENDPOINT, requestBody, new Callback() {
+                    @Override
+                    public void onFailure(@NotNull Call call, @NotNull IOException e) {
+                        System.out.println("Error on add range: " + e.getMessage());
                     }
-                } catch (Exception e) {
-                    AlertsHandler.HandleErrorAlert(alertTitle, e.getMessage());
-                }
+
+                    @Override
+                    public void onResponse(@NotNull Call call, @NotNull Response response) throws IOException {
+                        if (response.isSuccessful()) {
+                            Platform.runLater(() -> {
+                                modelUi.isRangeAddedProperty().set(true);
+                                modelUi.isRangeAddedProperty().set(false);
+                                AlertsHandler.HandleOkAlert("Range " + rangeName + " added successfully!");
+                            });
+                        } else {
+                            ServerException.ErrorResponse errorResponse =
+                                    GSON_INSTANCE.fromJson(response.body().string(), ServerException.ErrorResponse.class);
+                            Platform.runLater(() ->
+                                    AlertsHandler.HandleErrorAlert(alertTitle, errorResponse.getMessage()));
+                        }
+                    }
+                });
             } else {
-                AlertsHandler.HandleErrorAlert(alertTitle,
-                        "Sheet has a newer version, please move to it first");
+                AlertsHandler.HandleErrorAlert(alertTitle, "Range name cannot be empty");
             }
-        });
+        } catch (Exception e) {
+            AlertsHandler.HandleErrorAlert(alertTitle, e.getMessage());
+        }
     }
 
     @FXML
