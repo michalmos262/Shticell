@@ -199,13 +199,6 @@ The application includes comprehensive error handling for:
 - Permission violations
 - File format validation
 
-## Contributing
-
-1. Follow the existing code structure and naming conventions
-2. Add appropriate error handling and validation
-3. Update documentation for new features
-4. Test multi-user scenarios thoroughly
-
 ## Technical Details
 
 ### Cell System
@@ -222,10 +215,6 @@ The application includes comprehensive error handling for:
 - Thread-safe operations for multi-user access
 - Synchronized blocks for critical sections
 - Session-based user isolation
-
-## License
-
-This project is developed as part of an educational curriculum.
 
 ---
 
