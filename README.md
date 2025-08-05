@@ -223,10 +223,6 @@ The application includes comprehensive error handling for:
 - Synchronized blocks for critical sections
 - Session-based user isolation
 
-## License
-
-This project is developed as part of an educational curriculum.
-
 ---
 
 **Note**: This is a desktop application with a client-server architecture. The client must connect to a running server instance for full functionality.
